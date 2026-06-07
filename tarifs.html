@@ -1,0 +1,256 @@
+<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Tarifs — Médin'Immersion</title>
+<meta name="description" content="Grille tarifaire complète. Coran, Arabe, Double Immersion. Formules individuel, binôme, groupe. Dès 20€.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
+<style>
+:root{--green:#1B5E3A;--green-deep:#0F3D26;--green-mid:#2A7A50;--gold:#B8953A;--gold-light:#D4A843;--gold-pale:#F0E0A8;--cream:#FDFAF3;--cream-dark:#F3EDD8;--beige:#EDE4C8;--text:#1A1A1A;--text-muted:#5A5247;--white:#FFFFFF;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);overflow-x:hidden;}
+.container{max-width:1180px;margin:0 auto;padding:0 2rem;}
+nav{position:sticky;top:0;left:0;right:0;z-index:1000;background:rgba(253,250,243,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(184,149,58,0.15);transition:box-shadow 0.3s;}
+nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,0.08);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem;max-width:1180px;margin:0 auto;}
+.nav-logo img{height:52px;width:auto;}
+.nav-links{display:flex;list-style:none;gap:1.75rem;align-items:center;}
+.nav-links a{text-decoration:none;color:var(--text);font-size:0.875rem;font-weight:500;letter-spacing:0.02em;transition:color 0.2s;}
+.nav-links a:hover,.nav-links a.active-page{color:var(--green);}
+.nav-cta{background:var(--green)!important;color:var(--white)!important;padding:0.5rem 1.3rem;border-radius:50px;font-weight:600!important;transition:background 0.2s,transform 0.2s!important;}
+.nav-cta:hover{background:var(--green-deep)!important;transform:translateY(-1px);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
+.hamburger span{width:24px;height:2px;background:var(--text);border-radius:2px;display:block;transition:0.3s;}
+.mobile-menu{display:none;flex-direction:column;gap:0;background:var(--cream);border-top:1px solid var(--beige);padding:0.5rem 2rem 1rem;}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{text-decoration:none;color:var(--text);font-weight:500;font-size:1rem;padding:0.75rem 0;border-bottom:1px solid var(--beige);}
+.mobile-menu a:last-child{border-bottom:none;}
+section{padding:5rem 0;}
+.section-label{display:inline-flex;align-items:center;gap:0.5rem;color:var(--green);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.9rem;}
+.section-label::before,.section-label::after{content:'';width:20px;height:1px;background:var(--green);opacity:0.5;}
+h2.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--green-deep);line-height:1.15;margin-bottom:1.1rem;}
+h2.section-title em{font-style:italic;color:var(--gold);}
+.section-subtitle{font-size:1rem;color:var(--text-muted);line-height:1.75;max-width:640px;}
+.section-header{margin-bottom:3.5rem;}
+.section-header.centered{text-align:center;}
+.section-header.centered .section-subtitle{margin:0 auto;}
+.btn-gold{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.9rem 1.9rem;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 20px rgba(184,149,58,0.3);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(184,149,58,0.4);}
+.btn-green{display:inline-flex;align-items:center;gap:0.5rem;background:var(--green);color:var(--white);padding:0.9rem 1.9rem;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;border:none;cursor:pointer;transition:background 0.2s,transform 0.2s;}
+.btn-green:hover{background:var(--green-deep);transform:translateY(-2px);}
+.btn-outline{display:inline-flex;align-items:center;gap:0.5rem;background:transparent;color:var(--green);padding:0.85rem 1.7rem;border-radius:50px;font-weight:600;font-size:0.9rem;text-decoration:none;border:1.5px solid var(--green);transition:all 0.2s;}
+.btn-outline:hover{background:var(--green);color:var(--white);}
+.card{background:var(--white);border-radius:18px;padding:2rem;border:1px solid var(--beige);transition:transform 0.2s,box-shadow 0.2s;}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.08);}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+footer{background:var(--green-deep);color:var(--white);}
+.footer-top{padding:4rem 0 2.5rem;}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:3.5rem;}
+.footer-brand img{height:52px;margin-bottom:1rem;filter:brightness(0) invert(1) opacity(0.9);}
+.footer-tagline{color:rgba(255,255,255,0.55);font-size:0.875rem;line-height:1.7;margin-bottom:1.25rem;}
+.footer-social{display:flex;gap:0.6rem;}
+.social-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.65);text-decoration:none;transition:background 0.2s,color 0.2s;}
+.social-btn:hover{background:var(--gold);color:var(--white);border-color:var(--gold);}
+.social-btn svg{width:15px;height:15px;fill:currentColor;}
+.footer-col h4{font-weight:700;font-size:0.78rem;color:var(--gold-light);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.1rem;}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:0.5rem;}
+.footer-links a{color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
+.footer-links a:hover{color:var(--white);}
+.footer-contact p{color:rgba(255,255,255,0.55);font-size:0.85rem;margin-bottom:0.4rem;}
+.footer-contact a{color:rgba(255,255,255,0.55);text-decoration:none;transition:color 0.2s;}
+.footer-contact a:hover{color:var(--white);}
+.footer-gold-rule{height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.footer-bottom{padding:1.25rem 0;text-align:center;color:rgba(255,255,255,0.35);font-size:0.8rem;}
+@media(max-width:1024px){.footer-grid{grid-template-columns:1fr 1fr;gap:2.5rem;}}
+@media(max-width:768px){.nav-links{display:none;}.hamburger{display:flex;}section{padding:3.5rem 0;}.footer-grid{grid-template-columns:1fr;gap:2rem;}}
+.page-hero{background:var(--green-deep);padding:7rem 0 4rem;text-align:center;position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%,rgba(184,149,58,0.12),transparent 60%);}
+.page-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.5rem,5vw,4rem);font-weight:700;color:var(--white);margin-bottom:1rem;position:relative;}
+.page-hero h1 em{font-style:italic;color:var(--gold-light);}
+.page-hero p{color:rgba(255,255,255,0.65);font-size:1rem;max-width:560px;margin:0 auto;position:relative;}
+/* Panier info */
+.panier-box{background:var(--green);border-radius:18px;padding:1.5rem 2rem;margin-bottom:3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.panier-box-left h3{color:var(--white);font-size:1rem;font-weight:700;margin-bottom:0.3rem;}
+.panier-box-left p{color:rgba(255,255,255,0.75);font-size:0.875rem;}
+.panier-box-right{color:var(--gold-light);font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;white-space:nowrap;}
+/* Tabs */
+.price-tabs{display:flex;gap:0.5rem;justify-content:center;margin-bottom:2.5rem;flex-wrap:wrap;}
+.price-tab{padding:0.6rem 1.5rem;border-radius:50px;font-size:0.875rem;font-weight:600;cursor:pointer;border:1.5px solid var(--beige);background:transparent;color:var(--text-muted);font-family:inherit;transition:all 0.2s;}
+.price-tab.active{background:var(--green);color:var(--white);border-color:var(--green);}
+.price-panel{display:none;}
+.price-panel.active{display:block;}
+/* Table */
+.price-block{background:var(--white);border:1px solid var(--beige);border-radius:20px;padding:2rem;margin-bottom:2rem;}
+.price-block-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--green-deep);margin-bottom:0.4rem;}
+.price-block-note{color:var(--text-muted);font-size:0.875rem;margin-bottom:1.5rem;}
+.ptable{width:100%;border-collapse:collapse;min-width:420px;}
+.ptable th{background:var(--green);color:var(--white);padding:0.7rem 1rem;font-size:0.82rem;font-weight:600;text-align:center;}
+.ptable th:first-child{text-align:left;border-radius:10px 0 0 10px;}
+.ptable th:last-child{border-radius:0 10px 10px 0;}
+.ptable td{padding:0.8rem 1rem;border-bottom:1px solid var(--beige);font-size:0.9rem;text-align:center;}
+.ptable td:first-child{text-align:left;font-weight:600;}
+.ptable tr:last-child td{border-bottom:none;}
+.price-cell{color:var(--green);font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;display:block;transition:color 0.2s;}
+.price-cell:hover{color:var(--gold);}
+.price-cta{margin-top:1.25rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;}
+.table-scroll{overflow-x:auto;}
+/* FAQ */
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem;}
+.faq-item{background:var(--white);border:1px solid var(--beige);border-radius:16px;padding:1.5rem;}
+.faq-q{font-weight:700;color:var(--green);font-size:0.95rem;margin-bottom:0.6rem;}
+.faq-a{color:var(--text-muted);font-size:0.875rem;line-height:1.65;}
+@media(max-width:768px){.faq-grid{grid-template-columns:1fr}.panier-box{flex-direction:column}}
+</style></head><body>
+<nav id="mainNav">
+  <div class="nav-inner">
+    <a href="/index.html" class="nav-logo"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
+    <ul class="nav-links"><li><a href="/index.html">Accueil</a></li><li><a href="/qui-sommes-nous.html">Qui sommes-nous</a></li><li><a href="/nos-cours.html">Nos cours</a></li><li><a href="/tarifs.html" class="active-page">Tarifs</a></li><li><a href="/reglement.html">Règlement</a></li><li><a href="/espace-eleve.html">Espace membre</a></li><li><a href="/inscription.html" class="nav-cta">S'inscrire →</a></li></ul>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="/index.html">Accueil</a><a href="/qui-sommes-nous.html">Qui sommes-nous</a><a href="/nos-cours.html">Nos cours</a><a href="/tarifs.html">Tarifs</a><a href="/reglement.html">Règlement</a><a href="/espace-eleve.html">Espace membre</a><a href="/inscription.html" style="color:var(--green);font-weight:700;">S'inscrire →</a></div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <h1>Grille <em>tarifaire</em></h1>
+    <p>Des tarifs accessibles pour tous, avec plusieurs formules selon votre rythme et vos objectifs.</p>
+  </div>
+</div>
+
+<section style="background:var(--cream);">
+  <div class="container">
+    <div class="panier-box reveal">
+      <div class="panier-box-left">
+        <h3>🛒 Panier 1ère inscription</h3>
+        <p>PDF du niveau : 5€ &nbsp;+&nbsp; Frais d'inscription : 10€ (une seule fois) &nbsp;=&nbsp; 15€ + cours</p>
+      </div>
+      <div class="panier-box-right">15€ + cours</div>
+    </div>
+
+    <div class="price-tabs">
+      <button class="price-tab active" onclick="showTab('coran',this)">📘 Coran</button>
+      <button class="price-tab" onclick="showTab('arabe',this)">📗 Arabe</button>
+      <button class="price-tab" onclick="showTab('double',this)">⭐ Double Immersion</button>
+      <button class="price-tab" onclick="showTab('avance',this)">🚀 Intensif 40h</button>
+    </div>
+
+    <!-- CORAN -->
+    <div class="price-panel active" id="tab-coran">
+      <div class="price-block reveal">
+        <div class="price-block-title">📘 Immersion Coran</div>
+        <div class="price-block-note">Tajwid, récitation, mémorisation. Professeurs formés à Médine.</div>
+        <div class="table-scroll">
+        <table class="ptable">
+          <thead><tr><th>Formule</th><th>4h</th><th>8h</th><th>16h</th><th>20h</th><th>40h</th></tr></thead>
+          <tbody>
+            <tr><td>Individuel</td><td><a class="price-cell" href="/inscription.html?cours=coran&format=individual&heures=4">27€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=individual&heures=8">52€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=individual&heures=16">100€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=individual&heures=20">120€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=individual&heures=40">220€</a></td></tr>
+            <tr><td>Binôme</td><td><a class="price-cell" href="/inscription.html?cours=coran&format=binome&heures=4">24€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=binome&heures=8">46€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=binome&heures=16">88€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=binome&heures=20">100€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=binome&heures=40">180€</a></td></tr>
+            <tr><td>Groupe</td><td><a class="price-cell" href="/inscription.html?cours=coran&format=groupe&heures=4">20€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=groupe&heures=8">40€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=groupe&heures=16">79€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=groupe&heures=20">90€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=groupe&heures=40">130€</a></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="price-cta"><a href="/inscription.html?cours=coran" class="btn-gold">S'inscrire — Coran →</a><span style="font-size:0.8rem;color:var(--text-muted);">Cliquez sur un prix pour vous inscrire directement.</span></div>
+      </div>
+    </div>
+
+    <!-- ARABE -->
+    <div class="price-panel" id="tab-arabe">
+      <div class="price-block reveal">
+        <div class="price-block-title">📗 Immersion Arabe</div>
+        <div class="price-block-note">Vocabulaire, grammaire, expression orale. 100% en arabe dès le 1er cours.</div>
+        <div class="table-scroll">
+        <table class="ptable">
+          <thead><tr><th>Formule</th><th>4h</th><th>8h</th><th>16h</th><th>20h</th><th>40h</th></tr></thead>
+          <tbody>
+            <tr><td>Individuel</td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=individual&heures=4">32€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=individual&heures=8">62€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=individual&heures=16">120€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=individual&heures=20">148€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=individual&heures=40">250€</a></td></tr>
+            <tr><td>Binôme</td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=binome&heures=4">28€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=binome&heures=8">52€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=binome&heures=16">84€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=binome&heures=20">120€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=binome&heures=40">180€</a></td></tr>
+            <tr><td>Groupe</td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=groupe&heures=4">23€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=groupe&heures=8">44€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=groupe&heures=16">84€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=groupe&heures=20">100€</a></td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=groupe&heures=40">160€</a></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="price-cta"><a href="/inscription.html?cours=arabe" class="btn-gold">S'inscrire — Arabe →</a></div>
+      </div>
+    </div>
+
+    <!-- DOUBLE -->
+    <div class="price-panel" id="tab-double">
+      <div class="price-block reveal">
+        <div class="price-block-title">⭐ Double Immersion — Arabe + Coran</div>
+        <div class="price-block-note">Coran et Arabe combinés dans un même programme. Le plus complet.</div>
+        <div class="table-scroll">
+        <table class="ptable">
+          <thead><tr><th>Formule</th><th>8h</th><th>16h</th><th>20h</th><th>40h</th></tr></thead>
+          <tbody>
+            <tr><td>Individuel</td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=individual&heures=8">108€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=individual&heures=16">209€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=individual&heures=20">255€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=individual&heures=40">446€</a></td></tr>
+            <tr><td>Binôme</td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=binome&heures=8">93€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=binome&heures=16">163€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=binome&heures=20">209€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=binome&heures=40">361€</a></td></tr>
+            <tr><td>Groupe</td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=groupe&heures=8">83€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=groupe&heures=16">150€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=groupe&heures=20">190€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=groupe&heures=40">275€</a></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="price-cta"><a href="/inscription.html?cours=double_immersion" class="btn-gold">S'inscrire — Double →</a></div>
+      </div>
+    </div>
+
+    <!-- AVANCE -->
+    <div class="price-panel" id="tab-avance">
+      <div class="price-block reveal">
+        <div class="price-block-title">🚀 Immersion Avancée — 40h intensif</div>
+        <div class="price-block-note">Programme intensif 40 heures. Arabe, Coran ou les deux.</div>
+        <div class="table-scroll">
+        <table class="ptable">
+          <thead><tr><th>Formule</th><th>Arabe 40h</th><th>Coran 40h</th><th>Double 40h</th></tr></thead>
+          <tbody>
+            <tr><td>Individuel</td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=individual&heures=40">250€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=individual&heures=40">220€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=individual&heures=40">446€</a></td></tr>
+            <tr><td>Binôme</td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=binome&heures=40">180€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=binome&heures=40">180€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=binome&heures=40">361€</a></td></tr>
+            <tr><td>Groupe</td><td><a class="price-cell" href="/inscription.html?cours=arabe&format=groupe&heures=40">160€</a></td><td><a class="price-cell" href="/inscription.html?cours=coran&format=groupe&heures=40">130€</a></td><td><a class="price-cell" href="/inscription.html?cours=double_immersion&format=groupe&heures=40">275€</a></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="price-cta"><a href="/inscription.html" class="btn-gold">S'inscrire →</a></div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="section-header reveal" style="margin-top:4rem;">
+      <div class="section-label">Questions fréquentes</div>
+      <h2 class="section-title">Vos questions <em>sur les tarifs</em></h2>
+    </div>
+    <div class="faq-grid">
+      <div class="faq-item reveal"><div class="faq-q">Que comprend le panier 1ère inscription ?</div><div class="faq-a">PDF du niveau (5€) + frais d'inscription (10€, une seule fois) = 15€ en plus du cours choisi. Ces frais ne sont facturés qu'à la première inscription.</div></div>
+      <div class="faq-item reveal" style="transition-delay:0.07s"><div class="faq-q">Comment payer ?</div><div class="faq-a">Via PayPal (paypal.me/medinimmersion) ou carte bancaire (Visa, Mastercard). Le lien de paiement vous est envoyé par email après validation du formulaire.</div></div>
+      <div class="faq-item reveal" style="transition-delay:0.14s"><div class="faq-q">Y a-t-il un engagement ?</div><div class="faq-a">Non. Vous achetez un nombre d'heures et les utilisez à votre rythme selon votre planning avec votre professeur. Pas d'abonnement mensuel forcé.</div></div>
+      <div class="faq-item reveal" style="transition-delay:0.21s"><div class="faq-q">Les cours sont-ils remboursables ?</div><div class="faq-a">Non. Conformément au règlement intérieur, les frais d'inscription, PDF et cours ne sont pas remboursables une fois réglés.</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top"><div class="container"><div class="footer-grid">
+    <div class="footer-brand"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"><p class="footer-tagline">École d'arabe et de Coran en ligne.</p></div>
+    <div class="footer-col"><h4>Navigation</h4><ul class="footer-links"><li><a href="/index.html">Accueil</a></li><li><a href="/nos-cours.html">Nos cours</a></li><li><a href="/tarifs.html">Tarifs</a></li><li><a href="/inscription.html">S'inscrire</a></li><li><a href="/espace-eleve.html">Espace membre</a></li></ul></div>
+    <div class="footer-col footer-contact"><h4>Contact</h4><p>📞 <a href="tel:+213659668685">+213 659 668 685</a></p><p>✉️ <a href="mailto:medinimmersion@gmail.com">medinimmersion@gmail.com</a></p></div>
+  </div></div></div>
+  <div class="footer-gold-rule"></div>
+  <div class="footer-bottom"><div class="container"><p>© 2025 Médin'Immersion.</p></div></div>
+</footer>
+<script>
+window.addEventListener('scroll',()=>document.getElementById('mainNav').classList.toggle('scrolled',scrollY>20));
+document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('mobileMenu').classList.toggle('open'));
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')}),{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+function showTab(id,btn){
+  document.querySelectorAll('.price-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.price-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+// Auto-select tab from URL hash
+const hash=location.hash.replace('#','');
+if(['coran','arabe','double','avance'].includes(hash)){
+  const btn=document.querySelector(`[onclick="showTab('${hash}',this)"]`);
+  if(btn)showTab(hash,btn);
+}
+</script>
+</body></html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Règlement Intérieur — Médin'Immersion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
+<style>
+:root{--green:#1B5E3A;--green-deep:#0F3D26;--green-mid:#2A7A50;--gold:#B8953A;--gold-light:#D4A843;--gold-pale:#F0E0A8;--cream:#FDFAF3;--cream-dark:#F3EDD8;--beige:#EDE4C8;--text:#1A1A1A;--text-muted:#5A5247;--white:#FFFFFF;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);overflow-x:hidden;}
+.container{max-width:1180px;margin:0 auto;padding:0 2rem;}
+nav{position:sticky;top:0;left:0;right:0;z-index:1000;background:rgba(253,250,243,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(184,149,58,0.15);transition:box-shadow 0.3s;}
+nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,0.08);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem;max-width:1180px;margin:0 auto;}
+.nav-logo img{height:52px;width:auto;}
+.nav-links{display:flex;list-style:none;gap:1.75rem;align-items:center;}
+.nav-links a{text-decoration:none;color:var(--text);font-size:0.875rem;font-weight:500;letter-spacing:0.02em;transition:color 0.2s;}
+.nav-links a:hover,.nav-links a.active-page{color:var(--green);}
+.nav-cta{background:var(--green)!important;color:var(--white)!important;padding:0.5rem 1.3rem;border-radius:50px;font-weight:600!important;transition:background 0.2s,transform 0.2s!important;}
+.nav-cta:hover{background:var(--green-deep)!important;transform:translateY(-1px);}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
+.hamburger span{width:24px;height:2px;background:var(--text);border-radius:2px;display:block;transition:0.3s;}
+.mobile-menu{display:none;flex-direction:column;gap:0;background:var(--cream);border-top:1px solid var(--beige);padding:0.5rem 2rem 1rem;}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{text-decoration:none;color:var(--text);font-weight:500;font-size:1rem;padding:0.75rem 0;border-bottom:1px solid var(--beige);}
+.mobile-menu a:last-child{border-bottom:none;}
+section{padding:5rem 0;}
+.section-label{display:inline-flex;align-items:center;gap:0.5rem;color:var(--green);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.9rem;}
+.section-label::before,.section-label::after{content:'';width:20px;height:1px;background:var(--green);opacity:0.5;}
+h2.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--green-deep);line-height:1.15;margin-bottom:1.1rem;}
+h2.section-title em{font-style:italic;color:var(--gold);}
+.section-subtitle{font-size:1rem;color:var(--text-muted);line-height:1.75;max-width:640px;}
+.section-header{margin-bottom:3.5rem;}
+.section-header.centered{text-align:center;}
+.section-header.centered .section-subtitle{margin:0 auto;}
+.btn-gold{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.9rem 1.9rem;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 20px rgba(184,149,58,0.3);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(184,149,58,0.4);}
+.btn-green{display:inline-flex;align-items:center;gap:0.5rem;background:var(--green);color:var(--white);padding:0.9rem 1.9rem;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;border:none;cursor:pointer;transition:background 0.2s,transform 0.2s;}
+.btn-green:hover{background:var(--green-deep);transform:translateY(-2px);}
+.btn-outline{display:inline-flex;align-items:center;gap:0.5rem;background:transparent;color:var(--green);padding:0.85rem 1.7rem;border-radius:50px;font-weight:600;font-size:0.9rem;text-decoration:none;border:1.5px solid var(--green);transition:all 0.2s;}
+.btn-outline:hover{background:var(--green);color:var(--white);}
+.card{background:var(--white);border-radius:18px;padding:2rem;border:1px solid var(--beige);transition:transform 0.2s,box-shadow 0.2s;}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.08);}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+footer{background:var(--green-deep);color:var(--white);}
+.footer-top{padding:4rem 0 2.5rem;}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:3.5rem;}
+.footer-brand img{height:52px;margin-bottom:1rem;filter:brightness(0) invert(1) opacity(0.9);}
+.footer-tagline{color:rgba(255,255,255,0.55);font-size:0.875rem;line-height:1.7;margin-bottom:1.25rem;}
+.footer-social{display:flex;gap:0.6rem;}
+.social-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.65);text-decoration:none;transition:background 0.2s,color 0.2s;}
+.social-btn:hover{background:var(--gold);color:var(--white);border-color:var(--gold);}
+.social-btn svg{width:15px;height:15px;fill:currentColor;}
+.footer-col h4{font-weight:700;font-size:0.78rem;color:var(--gold-light);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.1rem;}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:0.5rem;}
+.footer-links a{color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
+.footer-links a:hover{color:var(--white);}
+.footer-contact p{color:rgba(255,255,255,0.55);font-size:0.85rem;margin-bottom:0.4rem;}
+.footer-contact a{color:rgba(255,255,255,0.55);text-decoration:none;transition:color 0.2s;}
+.footer-contact a:hover{color:var(--white);}
+.footer-gold-rule{height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.footer-bottom{padding:1.25rem 0;text-align:center;color:rgba(255,255,255,0.35);font-size:0.8rem;}
+@media(max-width:1024px){.footer-grid{grid-template-columns:1fr 1fr;gap:2.5rem;}}
+@media(max-width:768px){.nav-links{display:none;}.hamburger{display:flex;}section{padding:3.5rem 0;}.footer-grid{grid-template-columns:1fr;gap:2rem;}}
+.page-hero{background:var(--green-deep);padding:7rem 0 4rem;text-align:center;position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%,rgba(184,149,58,0.12),transparent 60%);}
+.page-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.5rem);font-weight:700;color:var(--white);margin-bottom:1rem;position:relative;}
+.page-hero h1 em{font-style:italic;color:var(--gold-light);}
+.page-hero p{color:rgba(255,255,255,0.65);font-size:1rem;max-width:560px;margin:0 auto;position:relative;}
+.bismillah-box{background:var(--green-deep);border-radius:20px;padding:2.5rem;text-align:center;margin-bottom:3rem;}
+.bismillah-ar{font-family:'Amiri',serif;font-size:2.2rem;color:var(--gold-light);direction:rtl;margin-bottom:0.5rem;}
+.bismillah-fr{color:rgba(255,255,255,0.6);font-size:0.875rem;}
+.hadith-ar{font-family:'Amiri',serif;font-size:1.3rem;color:rgba(255,255,255,0.85);direction:rtl;margin:1.25rem 0 0.4rem;}
+.hadith-fr{color:rgba(255,255,255,0.5);font-size:0.85rem;font-style:italic;}
+.reg-layout{display:grid;grid-template-columns:280px 1fr;gap:3rem;align-items:start;}
+.reg-toc{position:sticky;top:90px;background:var(--white);border:1px solid var(--beige);border-radius:18px;padding:1.5rem;}
+.reg-toc h3{font-weight:700;font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem;}
+.toc-links{list-style:none;display:flex;flex-direction:column;gap:0.2rem;}
+.toc-links a{text-decoration:none;color:var(--text-muted);font-size:0.85rem;font-weight:500;padding:0.4rem 0.75rem;border-radius:8px;display:block;transition:all 0.2s;}
+.toc-links a:hover{color:var(--green);background:var(--cream);}
+.toc-links a.active{color:var(--green);background:var(--cream);font-weight:700;}
+.reg-articles{display:flex;flex-direction:column;gap:1.25rem;}
+.reg-article{background:var(--white);border:1px solid var(--beige);border-radius:18px;padding:2rem;scroll-margin-top:90px;transition:border-color 0.2s;}
+.reg-article:hover{border-color:rgba(184,149,58,0.4);}
+.art-num{font-size:0.72rem;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.5rem;}
+.art-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--green-deep);margin-bottom:0.9rem;}
+.art-body{color:var(--text-muted);font-size:0.9rem;line-height:1.75;}
+.art-body ul{list-style:none;margin-top:0.75rem;display:flex;flex-direction:column;gap:0.5rem;}
+.art-body ul li{display:flex;align-items:flex-start;gap:0.6rem;}
+.art-body ul li::before{content:'—';color:var(--gold);flex-shrink:0;font-weight:700;}
+.art-highlight{background:var(--cream);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:0.9rem 1.25rem;margin-top:1rem;font-size:0.875rem;color:var(--text);}
+@media(max-width:1024px){.reg-layout{grid-template-columns:1fr}.reg-toc{position:static;display:none}}
+</style></head><body>
+<nav id="mainNav">
+  <div class="nav-inner">
+    <a href="/index.html" class="nav-logo"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
+    <ul class="nav-links"><li><a href="/index.html">Accueil</a></li><li><a href="/qui-sommes-nous.html">Qui sommes-nous</a></li><li><a href="/nos-cours.html">Nos cours</a></li><li><a href="/tarifs.html">Tarifs</a></li><li><a href="/reglement.html" class="active-page">Règlement</a></li><li><a href="/espace-eleve.html">Espace membre</a></li><li><a href="/inscription.html" class="nav-cta">S'inscrire →</a></li></ul>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="/index.html">Accueil</a><a href="/qui-sommes-nous.html">Qui sommes-nous</a><a href="/nos-cours.html">Nos cours</a><a href="/tarifs.html">Tarifs</a><a href="/reglement.html">Règlement</a><a href="/espace-eleve.html">Espace membre</a><a href="/inscription.html" style="color:var(--green);font-weight:700;">S'inscrire →</a></div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <h1>Règlement <em>intérieur</em></h1>
+    <p>Les règles qui encadrent notre école et garantissent un environnement d'apprentissage sérieux et bienveillant.</p>
+  </div>
+</div>
+
+<section style="background:var(--cream);">
+  <div class="container">
+    <div class="bismillah-box reveal">
+      <div class="bismillah-ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div class="bismillah-fr">Au Nom d'Allah, Le Tout Miséricordieux, Le Très Miséricordieux</div>
+      <div class="hadith-ar">قال النبي ﷺ : « المسلم عند شروطه »</div>
+      <div class="hadith-fr">Le Prophète ﷺ a dit : « Le musulman est tenu par ses conditions. »</div>
+    </div>
+
+    <div class="reg-layout">
+      <aside class="reg-toc">
+        <h3>Articles</h3>
+        <ul class="toc-links">
+          <li><a href="#art1">Art. 1 — Objet</a></li>
+          <li><a href="#art2">Art. 2 — Inscription</a></li>
+          <li><a href="#art3">Art. 3 — Engagement religieux</a></li>
+          <li><a href="#art4">Art. 4 — Respect</a></li>
+          <li><a href="#art5">Art. 5 — Ponctualité</a></li>
+          <li><a href="#art6">Art. 6 — Absences</a></li>
+          <li><a href="#art7">Art. 7 — Reports</a></li>
+          <li><a href="#art8">Art. 8 — Paiement</a></li>
+          <li><a href="#art9">Art. 9 — Matériel</a></li>
+          <li><a href="#art10">Art. 10 — Enregistrement</a></li>
+          <li><a href="#art11">Art. 11 — Exclusion</a></li>
+          <li><a href="#art12">Art. 12 — Acceptation</a></li>
+        </ul>
+      </aside>
+
+      <div class="reg-articles">
+        <div class="reg-article reveal" id="art1">
+          <div class="art-num">Article 1</div>
+          <div class="art-title">Objet du règlement</div>
+          <div class="art-body">Le présent règlement intérieur définit les règles de fonctionnement, d'organisation et de conduite au sein de l'école MedinImmersion. Il s'applique sans exception à tous les élèves, enseignants et intervenants de l'école.</div>
+        </div>
+
+        <div class="reg-article reveal" id="art2">
+          <div class="art-num">Article 2</div>
+          <div class="art-title">Inscription et admission</div>
+          <div class="art-body">
+            L'inscription est définitivement validée après réception et vérification des éléments suivants :
+            <ul>
+              <li>Le formulaire d'inscription dûment complété</li>
+              <li>Le règlement du panier de 1ère inscription (PDF du niveau + frais d'inscription)</li>
+              <li>Le règlement des heures de cours choisies</li>
+            </ul>
+            <div class="art-highlight">Aucun accès à l'espace élève ni cours ne sera accordé avant la réception complète du paiement.</div>
+          </div>
+        </div>
+
+        <div class="reg-article reveal" id="art3">
+          <div class="art-num">Article 3</div>
+          <div class="art-title">Engagement religieux et cadre islamique</div>
+          <div class="art-body">L'ensemble de l'enseignement dispensé à MedinImmersion est fondé sur le Coran et la Sounna, avec la compréhension des Pieux Prédécesseurs (as-Salaf as-Sâlih). L'école s'engage à transmettre un savoir authentique, exempt de toute déviation. Les élèves s'engagent à respecter ce cadre islamique tout au long de leur parcours.</div>
+        </div>
+
+        <div class="reg-article reveal" id="art4">
+          <div class="art-num">Article 4</div>
+          <div class="art-title">Respect et comportement</div>
+          <div class="art-body">
+            Le respect mutuel entre élèves, enseignants et administration est fondamental et obligatoire. Sont strictement interdits :
+            <ul>
+              <li>Tout propos irrespectueux, offensant ou diffamatoire</li>
+              <li>Tout comportement perturbateur pendant les cours</li>
+              <li>Toute remise en question publique de l'autorité des enseignants</li>
+            </ul>
+            Tout manquement grave pourra entraîner un avertissement, une suspension ou une exclusion définitive.
+          </div>
+        </div>
+
+        <div class="reg-article reveal" id="art5">
+          <div class="art-num">Article 5</div>
+          <div class="art-title">Ponctualité</div>
+          <div class="art-body">
+            La ponctualité est une marque de respect envers le professeur et les autres élèves.
+            <ul>
+              <li>Un retard de plus de 10 minutes sans prévenir sera comptabilisé comme une absence</li>
+              <li>Le temps de cours perdu du fait du retard de l'élève ne sera pas rattrapé</li>
+              <li>En cas de retard du professeur, le temps sera intégralement compensé</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="reg-article reveal" id="art6">
+          <div class="art-num">Article 6</div>
+          <div class="art-title">Absences</div>
+          <div class="art-body">
+            <ul>
+              <li>Toute absence doit être signalée au professeur et à l'administration via WhatsApp au moins 24h à l'avance</li>
+              <li>Une absence non justifiée dans ce délai sera comptabilisée comme un cours consommé</li>
+              <li>En cas d'urgence médicale avérée (justificatif requis), une exception peut être accordée par l'administration</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="reg-article reveal" id="art7">
+          <div class="art-num">Article 7</div>
+          <div class="art-title">Reports de cours</div>
+          <div class="art-body">
+            Les reports sont tolérés dans les conditions suivantes :
+            <ul>
+              <li>Formule 4h ou 8h : maximum 1 report par mois</li>
+              <li>Formule 16h et plus : maximum 2 reports par mois</li>
+              <li>Délai minimum : 24h à l'avance, avec justificatif</li>
+              <li>Le cours reporté doit être rattrapé dans le mois en cours</li>
+            </ul>
+            <div class="art-highlight">Au-delà de ces limites, les cours non effectués seront considérés comme consommés.</div>
+          </div>
+        </div>
+
+        <div class="reg-article reveal" id="art8">
+          <div class="art-num">Article 8</div>
+          <div class="art-title">Paiement et remboursement</div>
+          <div class="art-body">
+            <ul>
+              <li>Tout paiement doit être effectué à l'avance, avant le début des cours</li>
+              <li>Les frais d'inscription (10€), les PDF (5€/niveau) et les heures de cours réglées ne sont pas remboursables</li>
+              <li>Aucun cours ne sera dispensé sans réception préalable du paiement</li>
+              <li>En cas de litige, seul l'historique des paiements reçus par MedinImmersion fait foi</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="reg-article reveal" id="art9">
+          <div class="art-num">Article 9</div>
+          <div class="art-title">Matériel pédagogique</div>
+          <div class="art-body">
+            Les supports fournis (PDF, documents, ressources numériques) sont strictement réservés à l'usage personnel de l'élève inscrit. Sont formellement interdits :
+            <ul>
+              <li>La reproduction ou diffusion des supports à des tiers</li>
+              <li>La mise en ligne ou partage sur les réseaux sociaux</li>
+              <li>L'utilisation commerciale de tout support fourni par l'école</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="reg-article reveal" id="art10">
+          <div class="art-num">Article 10</div>
+          <div class="art-title">Enregistrement des cours</div>
+          <div class="art-body">
+            L'enregistrement audio ou vidéo des cours est strictement interdit sans autorisation préalable écrite de l'administration. Si une autorisation exceptionnelle est accordée, l'enregistrement est strictement réservé à l'usage personnel de l'élève. Toute diffusion, même partielle, est interdite.
+          </div>
+        </div>
+
+        <div class="reg-article reveal" id="art11">
+          <div class="art-num">Article 11</div>
+          <div class="art-title">Sanctions et exclusion</div>
+          <div class="art-body">
+            En cas de non-respect du présent règlement, les sanctions suivantes peuvent être appliquées par ordre de gravité :
+            <ul>
+              <li>Avertissement oral ou écrit</li>
+              <li>Suspension temporaire des cours (sans remboursement)</li>
+              <li>Exclusion définitive de l'école (sans remboursement)</li>
+            </ul>
+            L'administration se réserve le droit d'apprécier la gravité de chaque situation.
+          </div>
+        </div>
+
+        <div class="reg-article reveal" id="art12">
+          <div class="art-num">Article 12</div>
+          <div class="art-title">Acceptation du règlement</div>
+          <div class="art-body">
+            L'inscription à MedinImmersion vaut acceptation pleine et entière du présent règlement intérieur dans son intégralité. Tout élève inscrit s'engage à le respecter et à le faire respecter dans le cadre des cours.
+            <div class="art-highlight">وَاللَّهُ الْمُوَفِّقُ — Qu'Allah nous accorde le succès.</div>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:2rem;" class="reveal">
+          <a href="/inscription.html" class="btn-gold">J'accepte et je m'inscris →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-top"><div class="container"><div class="footer-grid">
+    <div class="footer-brand"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"><p class="footer-tagline">École d'arabe et de Coran en ligne.</p></div>
+    <div class="footer-col"><h4>Navigation</h4><ul class="footer-links"><li><a href="/index.html">Accueil</a></li><li><a href="/nos-cours.html">Nos cours</a></li><li><a href="/tarifs.html">Tarifs</a></li><li><a href="/reglement.html">Règlement</a></li><li><a href="/inscription.html">S'inscrire</a></li></ul></div>
+    <div class="footer-col footer-contact"><h4>Contact</h4><p>📞 <a href="tel:+213659668685">+213 659 668 685</a></p><p>✉️ <a href="mailto:medinimmersion@gmail.com">medinimmersion@gmail.com</a></p></div>
+  </div></div></div>
+  <div class="footer-gold-rule"></div>
+  <div class="footer-bottom"><div class="container"><p>© 2025 Médin'Immersion. Tous droits réservés.</p></div></div>
+</footer>
+<script>
+window.addEventListener('scroll',()=>document.getElementById('mainNav').classList.toggle('scrolled',scrollY>20));
+document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('mobileMenu').classList.toggle('open'));
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')}),{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body></html>

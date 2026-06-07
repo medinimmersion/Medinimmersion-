@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Kalam — Parle arabe avec l'IA · Médin'Immersion</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
+<style>
+:root{--green:#1B5E3A;--green-deep:#0F3D26;--green-mid:#2A7A50;--gold:#B8953A;--gold-light:#D4A843;--cream:#FDFAF3;--beige:#EDE4C8;--text:#1A1A1A;--text-muted:#5A5247;--white:#FFFFFF;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--green-deep);display:flex;flex-direction:column;}
+
+/* ─── TOPBAR ─────────────────────── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.75rem;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0;}
+.topbar-logo{display:flex;align-items:center;gap:0.75rem;}
+.topbar-logo img{height:36px;filter:brightness(0) invert(1) opacity(0.9);}
+.topbar-title{font-family:'Amiri',serif;font-size:1.3rem;color:var(--gold-light);direction:rtl;}
+.topbar-right{display:flex;align-items:center;gap:0.75rem;}
+.btn-back{display:flex;align-items:center;gap:0.4rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);padding:0.4rem 0.9rem;border-radius:50px;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.2s;}
+.btn-back:hover{background:rgba(255,255,255,0.15);color:white;}
+.user-chip{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:50px;padding:0.35rem 0.9rem;font-size:0.78rem;color:rgba(255,255,255,0.65);}
+
+/* ─── LOGIN GATE ──────────────────── */
+#loginGate{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;}
+.login-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);backdrop-filter:blur(12px);border-radius:24px;padding:2.5rem;width:100%;max-width:380px;text-align:center;}
+.login-box .ar{font-family:'Amiri',serif;font-size:1.5rem;color:var(--gold-light);direction:rtl;margin-bottom:1rem;}
+.login-box h2{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:white;margin-bottom:0.4rem;}
+.login-box p{color:rgba(255,255,255,0.6);font-size:0.875rem;margin-bottom:1.75rem;line-height:1.6;}
+.fg{margin-bottom:1rem;text-align:left;}
+.fg label{display:block;font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.7);margin-bottom:0.3rem;}
+.fg input{width:100%;padding:0.7rem 1rem;border:1.5px solid rgba(255,255,255,0.15);border-radius:11px;font-family:inherit;font-size:0.875rem;color:white;background:rgba(255,255,255,0.08);outline:none;transition:border-color 0.2s;}
+.fg input:focus{border-color:var(--gold-light);}
+.fg input::placeholder{color:rgba(255,255,255,0.35);}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);border:none;padding:0.85rem;border-radius:50px;font-family:inherit;font-size:0.92rem;font-weight:700;cursor:pointer;transition:opacity 0.2s;}
+.btn-login:hover{opacity:0.9;}
+.login-err{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#FCA5A5;padding:0.6rem 0.9rem;border-radius:9px;font-size:0.8rem;margin-bottom:1rem;display:none;}
+.login-register{margin-top:1.25rem;font-size:0.8rem;color:rgba(255,255,255,0.45);}
+.login-register a{color:var(--gold-light);text-decoration:none;}
+
+/* ─── MAIN KALAM ─────────────────── */
+#kalamMain{flex:1;display:none;flex-direction:column;overflow:hidden;}
+
+/* Header info */
+.kalam-header{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.75rem;border-bottom:1px solid rgba(255,255,255,0.07);}
+.kalam-info{display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;color:rgba(255,255,255,0.55);}
+.kalam-info strong{color:rgba(255,255,255,0.85);}
+/* Timer */
+.timer-wrap{display:flex;align-items:center;gap:0.6rem;}
+.timer-ring{position:relative;width:52px;height:52px;}
+.timer-ring svg{transform:rotate(-90deg);}
+.timer-ring circle{fill:none;stroke-width:4;}
+.timer-track{stroke:rgba(255,255,255,0.1);}
+.timer-fill{stroke:var(--gold-light);stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke 0.3s;}
+.timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--gold-light);}
+.timer-label{font-size:0.72rem;color:rgba(255,255,255,0.5);}
+
+/* ─── CONVERSATION ───────────────── */
+.convo-area{flex:1;overflow-y:auto;padding:1.25rem 1.75rem;display:flex;flex-direction:column;gap:0.85rem;}
+.convo-area::-webkit-scrollbar{width:4px;}
+.convo-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+.bubble{max-width:75%;border-radius:18px;padding:0.9rem 1.1rem;font-size:0.9rem;line-height:1.6;}
+.bubble.ai{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:white;align-self:flex-start;border-bottom-left-radius:4px;}
+.bubble.ai .ar-text{font-family:'Amiri',serif;font-size:1.1rem;direction:rtl;margin-bottom:0.3rem;color:var(--gold-light);}
+.bubble.ai .fr-text{font-size:0.78rem;color:rgba(255,255,255,0.5);font-style:italic;}
+.bubble.user{background:rgba(212,168,67,0.2);border:1px solid rgba(212,168,67,0.3);color:white;align-self:flex-end;border-bottom-right-radius:4px;direction:rtl;font-family:'Amiri',serif;font-size:1.05rem;}
+.bubble.typing{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);align-self:flex-start;padding:0.75rem 1rem;}
+.tdots{display:flex;gap:5px;align-items:center;}
+.tdots span{width:7px;height:7px;background:rgba(255,255,255,0.4);border-radius:50%;animation:tdot 1.2s infinite;}
+.tdots span:nth-child(2){animation-delay:0.2s;}
+.tdots span:nth-child(3){animation-delay:0.4s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.system-msg{text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.35);padding:0.25rem 0;}
+
+/* ─── MIC ZONE ───────────────────── */
+.mic-zone{padding:1.25rem 1.75rem;border-top:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;align-items:center;gap:0.9rem;flex-shrink:0;}
+/* Waveform */
+.waveform{display:flex;align-items:center;justify-content:center;gap:3px;height:36px;}
+.waveform .bar{width:3px;background:rgba(255,255,255,0.2);border-radius:2px;transition:height 0.1s;height:4px;}
+.waveform.active .bar{background:var(--gold-light);}
+/* Mic button */
+.mic-btn{width:72px;height:72px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.8rem;transition:all 0.3s;position:relative;flex-shrink:0;}
+.mic-btn.idle{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);}
+.mic-btn.listening{background:var(--green);border:2px solid var(--gold-light);animation:pulse-ring 1.5s ease-in-out infinite;}
+.mic-btn.speaking{background:rgba(212,168,67,0.2);border:2px solid var(--gold-light);}
+.mic-btn.disabled{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.08);cursor:not-allowed;opacity:0.5;}
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(212,168,67,0.4)}70%{box-shadow:0 0 0 18px rgba(212,168,67,0)}100%{box-shadow:0 0 0 0 rgba(212,168,67,0)}}
+.mic-status{font-size:0.78rem;color:rgba(255,255,255,0.5);text-align:center;min-height:1.2em;}
+.mic-status.listening{color:var(--gold-light);}
+.mic-status.speaking{color:rgba(255,255,255,0.7);}
+/* Manual text fallback */
+.text-fallback{display:flex;gap:0.5rem;width:100%;max-width:480px;}
+.text-fallback input{flex:1;padding:0.6rem 1rem;border:1.5px solid rgba(255,255,255,0.15);border-radius:50px;font-family:'Amiri',serif;font-size:0.95rem;color:white;background:rgba(255,255,255,0.07);outline:none;direction:rtl;}
+.text-fallback input:focus{border-color:var(--gold-light);}
+.text-fallback input::placeholder{color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:0.82rem;direction:ltr;}
+.text-fallback button{width:38px;height:38px;border-radius:50%;background:var(--gold-light);border:none;color:var(--green-deep);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:opacity 0.2s;flex-shrink:0;}
+.text-fallback button:hover{opacity:0.85;}
+/* Session ended */
+#sessionEnded{display:none;flex:1;align-items:center;justify-content:center;padding:2rem;flex-direction:column;text-align:center;gap:1.25rem;}
+.ended-icon{font-size:3rem;}
+.ended-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--gold-light);}
+.ended-msg{color:rgba(255,255,255,0.65);font-size:0.92rem;line-height:1.7;max-width:360px;}
+.btn-gold{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.85rem 1.9rem;border-radius:50px;font-weight:700;font-size:0.92rem;text-decoration:none;border:none;cursor:pointer;transition:opacity 0.2s;}
+.btn-gold:hover{opacity:0.9;}
+
+/* Loading */
+#loadingScreen{flex:1;display:flex;align-items:center;justify-content:center;}
+.loader{width:42px;height:42px;border:3px solid rgba(255,255,255,0.15);border-top-color:var(--gold-light);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:480px){.bubble{max-width:88%}.mic-btn{width:64px;height:64px;font-size:1.5rem}.kalam-header{flex-wrap:wrap;gap:0.5rem}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="MI">
+    <span class="topbar-title">كَلاَم</span>
+  </div>
+  <div class="topbar-right">
+    <span class="user-chip" id="userChip" style="display:none;"></span>
+    <a href="/espace-eleve.html" class="btn-back">← Espace élève</a>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loadingScreen"><div class="loader"></div></div>
+
+<!-- LOGIN GATE -->
+<div id="loginGate" style="display:none;">
+  <div class="login-box">
+    <div class="ar">كَلاَم — تَحَدَّث بِالْعَرَبِيَّة</div>
+    <h2>Accès réservé</h2>
+    <p>Connectez-vous avec votre compte élève pour accéder à la pratique orale.</p>
+    <div class="login-err" id="loginErr"></div>
+    <div class="fg"><label>WhatsApp ou Email</label><input type="text" id="loginId" placeholder="+33 6 ..."></div>
+    <div class="fg"><label>Mot de passe</label><input type="password" id="loginPwd" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn-login" onclick="doLogin()">Accéder à Kalam →</button>
+    <div class="login-register">Pas encore inscrit ? <a href="/inscription.html">S'inscrire →</a></div>
+  </div>
+</div>
+
+<!-- KALAM MAIN -->
+<div id="kalamMain">
+  <!-- Sub-header with timer -->
+  <div class="kalam-header">
+    <div class="kalam-info">
+      <span>🎙️ Pratique orale arabe</span>
+      <span>·</span>
+      <strong id="studentName">–</strong>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer-ring">
+        <svg width="52" height="52" viewBox="0 0 52 52">
+          <circle class="timer-track" cx="26" cy="26" r="22"/>
+          <circle class="timer-fill" id="timerArc" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-text" id="timerText">3:00</div>
+      </div>
+      <div class="timer-label">par session</div>
+    </div>
+  </div>
+
+  <!-- Conversation -->
+  <div class="convo-area" id="convoArea"></div>
+
+  <!-- Session Ended overlay inside kalamMain -->
+  <div id="sessionEnded" style="display:none;flex-direction:column;">
+    <div class="ended-icon">⏳</div>
+    <div class="ended-title">وَقْتٌ انْتَهَى</div>
+    <p class="ended-msg">Votre session de 3 minutes est terminée. Revenez demain pour une nouvelle session, ou inscrivez-vous à un cours pour des séances illimitées !</p>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+      <a href="/inscription.html" class="btn-gold">S'inscrire pour plus →</a>
+      <a href="/espace-eleve.html" class="btn-back" style="padding:0.85rem 1.5rem;">← Espace élève</a>
+    </div>
+  </div>
+
+  <!-- Mic zone -->
+  <div class="mic-zone" id="micZone">
+    <!-- Waveform -->
+    <div class="waveform" id="waveform">
+      <div class="bar" style="height:6px"></div><div class="bar" style="height:12px"></div>
+      <div class="bar" style="height:8px"></div><div class="bar" style="height:18px"></div>
+      <div class="bar" style="height:10px"></div><div class="bar" style="height:24px"></div>
+      <div class="bar" style="height:14px"></div><div class="bar" style="height:20px"></div>
+      <div class="bar" style="height:8px"></div><div class="bar" style="height:16px"></div>
+      <div class="bar" style="height:6px"></div><div class="bar" style="height:12px"></div>
+      <div class="bar" style="height:8px"></div><div class="bar" style="height:18px"></div>
+      <div class="bar" style="height:10px"></div>
+    </div>
+    <!-- Mic button -->
+    <button class="mic-btn idle" id="micBtn" onclick="toggleMic()">🎙️</button>
+    <div class="mic-status" id="micStatus">Appuyez pour parler en arabe</div>
+    <!-- Text fallback -->
+    <div class="text-fallback">
+      <input type="text" id="textInput" placeholder="Ou tapez en arabe / français..." onkeydown="if(event.key==='Enter')sendText()">
+      <button onclick="sendText()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ──────────────────────────
+let token = null;
+let student = null;
+let sessionSeconds = 180; // 3 minutes
+let timerInterval = null;
+let timerStarted = false;
+let recognition = null;
+let isListening = false;
+let isSpeaking = false;
+let currentAudio = null;
+let waveInterval = null;
+const CIRCUMFERENCE = 138.2;
+const SESSION_KEY = 'kalam_session_';
+
+// ─── INIT ────────────────────────────
+async function init() {
+  token = localStorage.getItem('medin_token') || localStorage.getItem('studentToken');
+  if (!token) { showLoginGate(); return; }
+  try {
+    const res = await fetch('/api/member/me', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!res.ok) throw new Error();
+    student = await res.json();
+    checkSessionLimit();
+  } catch {
+    showLoginGate();
+  }
+}
+
+function showLoginGate() {
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('loginGate').style.display = 'flex';
+}
+
+async function doLogin() {
+  const id = document.getElementById('loginId').value.trim();
+  const pwd = document.getElementById('loginPwd').value.trim();
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  if (!id || !pwd) { err.textContent = 'Remplissez les deux champs.'; err.style.display = 'block'; return; }
+  const btn = document.querySelector('.btn-login'); btn.textContent = '…'; btn.disabled = true;
+  try {
+    const res = await fetch('/api/member/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier: id, password: pwd }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Identifiants incorrects.');
+    token = data.token;
+    localStorage.setItem('medin_token', token);
+    const r2 = await fetch('/api/member/me', { headers: { 'Authorization': 'Bearer ' + token } });
+    student = await r2.json();
+    document.getElementById('loginGate').style.display = 'none';
+    checkSessionLimit();
+  } catch (e) {
+    err.textContent = e.message; err.style.display = 'block';
+    btn.textContent = 'Accéder à Kalam →'; btn.disabled = false;
+  }
+}
+
+// ─── SESSION LIMIT ──────────────────
+function checkSessionLimit() {
+  document.getElementById('loadingScreen').style.display = 'none';
+  const key = SESSION_KEY + (student?.id || 'guest');
+  const stored = JSON.parse(localStorage.getItem(key) || '{}');
+  const today = new Date().toDateString();
+
+  if (stored.date === today && stored.used >= 1) {
+    // Already used today
+    showSessionEnded(true);
+    return;
+  }
+  // Start fresh
+  startKalam();
+}
+
+function markSessionUsed() {
+  const key = SESSION_KEY + (student?.id || 'guest');
+  const today = new Date().toDateString();
+  localStorage.setItem(key, JSON.stringify({ date: today, used: 1 }));
+}
+
+// ─── START KALAM ────────────────────
+function startKalam() {
+  const name = student?.prenom || student?.nom || 'Élève';
+  document.getElementById('studentName').textContent = name;
+  document.getElementById('userChip').textContent = name;
+  document.getElementById('userChip').style.display = 'block';
+  document.getElementById('kalamMain').style.display = 'flex';
+  setupSpeechRecognition();
+  addBubble('ai', 'مَرْحَباً! أَنَا أُسْتَاذُكَ الذَّكِيُّ. تَحَدَّثْ مَعِي بِالْعَرَبِيَّةِ، وَسَأُجِيبُكَ بِالْعَرَبِيَّةِ أَيْضاً. سَسَاعِدُكَ عَلَى تَحْسِينِ لُغَتِكَ. هَيَّا نَبْدَأ! 😊', 'Bienvenue ! Je suis ton professeur IA. Parle-moi en arabe et je te répondrai en arabe. Appuie sur le micro !');
+}
+
+// ─── TIMER ──────────────────────────
+function startTimer() {
+  if (timerStarted) return;
+  timerStarted = true;
+  markSessionUsed();
+  timerInterval = setInterval(() => {
+    sessionSeconds--;
+    updateTimerUI();
+    if (sessionSeconds <= 0) {
+      clearInterval(timerInterval);
+      endSession();
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const mins = Math.floor(sessionSeconds / 60);
+  const secs = sessionSeconds % 60;
+  document.getElementById('timerText').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+  const pct = sessionSeconds / 180;
+  const offset = CIRCUMFERENCE * (1 - pct);
+  const arc = document.getElementById('timerArc');
+  arc.style.strokeDashoffset = offset;
+  // Turn red in last 30s
+  arc.style.stroke = sessionSeconds <= 30 ? '#EF4444' : 'var(--gold-light)';
+  document.getElementById('timerText').style.color = sessionSeconds <= 30 ? '#EF4444' : 'var(--gold-light)';
+}
+
+function endSession() {
+  stopListening();
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  showSessionEnded(false);
+}
+
+function showSessionEnded(alreadyUsed) {
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('loginGate').style.display = 'none';
+
+  if (alreadyUsed) {
+    document.getElementById('kalamMain').style.display = 'flex';
+    document.getElementById('kalamMain').style.flexDirection = 'column';
+  }
+
+  document.getElementById('micZone').style.display = 'none';
+  document.getElementById('convoArea').style.display = 'none';
+  const ended = document.getElementById('sessionEnded');
+  ended.style.display = 'flex';
+  if (alreadyUsed) {
+    ended.querySelector('.ended-msg').textContent = "Vous avez déjà utilisé votre session de 3 minutes aujourd'hui. Revenez demain ou inscrivez-vous à un cours pour des sessions illimitées avec un professeur !";
+  }
+}
+
+// ─── SPEECH RECOGNITION ─────────────
+function setupSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('micBtn').classList.add('disabled');
+    document.getElementById('micStatus').textContent = 'Micro non supporté — utilisez le champ texte';
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'ar';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    isListening = true;
+    setMicState('listening');
+    startWaveform();
+    startTimer();
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    if (e.results[e.results.length - 1].isFinal) {
+      stopListening();
+      if (transcript.trim()) sendToAI(transcript.trim());
+    }
+  };
+
+  recognition.onerror = (e) => {
+    stopListening();
+    if (e.error === 'no-speech') {
+      setMicStatus('Aucune parole détectée. Réessayez.', false);
+    } else if (e.error === 'not-allowed') {
+      document.getElementById('micBtn').classList.add('disabled');
+      setMicStatus('Microphone refusé — utilisez le champ texte', false);
+    }
+  };
+
+  recognition.onend = () => {
+    if (isListening) stopListening();
+  };
+}
+
+function toggleMic() {
+  if (document.getElementById('micBtn').classList.contains('disabled')) return;
+  if (isSpeaking) { stopAudio(); return; }
+  if (isListening) { stopListening(); } else { startListening(); }
+}
+
+function startListening() {
+  if (!recognition) return;
+  try { recognition.start(); } catch {}
+}
+
+function stopListening() {
+  isListening = false;
+  if (recognition) { try { recognition.stop(); } catch {} }
+  setMicState('idle');
+  stopWaveform();
+}
+
+// ─── WAVEFORM ANIMATION ─────────────
+function startWaveform() {
+  const bars = document.querySelectorAll('.waveform .bar');
+  document.getElementById('waveform').classList.add('active');
+  waveInterval = setInterval(() => {
+    bars.forEach(b => { b.style.height = (4 + Math.random() * 28) + 'px'; });
+  }, 80);
+}
+
+function stopWaveform() {
+  clearInterval(waveInterval);
+  document.getElementById('waveform').classList.remove('active');
+  document.querySelectorAll('.waveform .bar').forEach(b => b.style.height = '4px');
+}
+
+// ─── MIC STATE ──────────────────────
+function setMicState(state) {
+  const btn = document.getElementById('micBtn');
+  btn.className = 'mic-btn ' + state;
+  const states = {
+    idle: { icon: '🎙️', status: 'Appuyez pour parler en arabe', class: false },
+    listening: { icon: '🛑', status: 'Écoute en cours… parlez en arabe', class: 'listening' },
+    speaking: { icon: '🔊', status: 'L\'IA répond…', class: 'speaking' },
+    thinking: { icon: '⏳', status: 'Traitement en cours…', class: false },
+  };
+  const s = states[state] || states.idle;
+  btn.textContent = s.icon;
+  setMicStatus(s.status, s.class === 'listening');
+}
+
+function setMicStatus(txt, highlight) {
+  const el = document.getElementById('micStatus');
+  el.textContent = txt;
+  el.className = 'mic-status' + (highlight ? ' listening' : '');
+}
+
+// ─── SEND TO AI ─────────────────────
+async function sendToAI(text) {
+  if (sessionSeconds <= 0) return;
+  addBubble('user', text);
+  setMicState('thinking');
+  const typing = addTyping();
+
+  try {
+    // Use the existing oustaz chat endpoint
+    const res = await fetch('/api/student/oustaz/chat', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: '[KALAM MODE] ' + text, mode: 'libre' })
+    });
+    const data = await res.json();
+    typing.remove();
+    const reply = data.reply || 'عفواً، لم أفهم. أعد المحاولة.';
+    addBubble('ai', reply);
+    await speakText(reply);
+  } catch {
+    typing.remove();
+    addBubble('ai', 'عُذْراً، حَدَثَ خَطَأ. حَاوِلْ مَرَّةً أُخْرَى.');
+    setMicState('idle');
+  }
+}
+
+// ─── TEXT FALLBACK ──────────────────
+function sendText() {
+  const input = document.getElementById('textInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  startTimer();
+  sendToAI(text);
+}
+
+// ─── TTS ────────────────────────────
+async function speakText(text) {
+  if (sessionSeconds <= 0) { setMicState('idle'); return; }
+  setMicState('speaking');
+  isSpeaking = true;
+  startWaveform();
+
+  try {
+    const gender = student?.gender === 'femme' ? 'female' : 'male';
+    const res = await fetch('/api/oustaz/tts', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voiceGender: gender })
+    });
+    if (!res.ok) throw new Error('TTS error');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    currentAudio.onended = () => {
+      isSpeaking = false;
+      stopWaveform();
+      currentAudio = null;
+      if (sessionSeconds > 0) setMicState('idle');
+    };
+    currentAudio.onerror = () => {
+      isSpeaking = false;
+      stopWaveform();
+      setMicState('idle');
+    };
+    await currentAudio.play();
+  } catch {
+    // Fallback: browser TTS
+    isSpeaking = false;
+    stopWaveform();
+    setMicState('idle');
+    try {
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = 'ar';
+      utt.rate = 0.85;
+      window.speechSynthesis.speak(utt);
+    } catch {}
+  }
+}
+
+function stopAudio() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  window.speechSynthesis?.cancel();
+  isSpeaking = false;
+  stopWaveform();
+  setMicState('idle');
+}
+
+// ─── UI HELPERS ─────────────────────
+function addBubble(role, arText, frText) {
+  const area = document.getElementById('convoArea');
+  const div = document.createElement('div');
+  div.className = 'bubble ' + role;
+  if (role === 'ai') {
+    div.innerHTML = `<div class="ar-text">${arText}</div>${frText ? `<div class="fr-text">${frText}</div>` : ''}`;
+  } else {
+    div.textContent = arText;
+  }
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+function addTyping() {
+  const area = document.getElementById('convoArea');
+  const div = document.createElement('div');
+  div.className = 'bubble typing';
+  div.innerHTML = '<div class="tdots"><span></span><span></span><span></span></div>';
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+function addSystem(msg) {
+  const area = document.getElementById('convoArea');
+  const div = document.createElement('div');
+  div.className = 'system-msg';
+  div.textContent = msg;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+init();
+</script>
+</body>
+</html>
