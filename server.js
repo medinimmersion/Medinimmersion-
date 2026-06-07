@@ -31,8 +31,12 @@ app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Static files
-app.use(express.static(path.join(__dirname, 'public'), {
+// Static files — serve from public/ if exists, otherwise root
+const fs = require('fs');
+const publicDir = fs.existsSync(path.join(__dirname, 'public'))
+  ? path.join(__dirname, 'public')
+  : __dirname;
+app.use(express.static(publicDir, {
   maxAge: '1h',
   etag: true,
 }));
@@ -277,16 +281,16 @@ const htmlPages = [
 
 htmlPages.forEach(page => {
   app.get(`/${page}`, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', `${page}.html`));
+    res.sendFile(path.join(publicDir, `${page}.html`));
   });
   app.get(`/${page}.html`, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', `${page}.html`));
+    res.sendFile(path.join(publicDir, `${page}.html`));
   });
 });
 
 // Root → index.html
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(publicDir, 'index.html'));
 });
 
 // 404 fallback
@@ -294,7 +298,7 @@ app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'Route non trouvée' });
   }
-  res.status(404).sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.status(404).sendFile(path.join(publicDir, 'index.html'));
 });
 
 // ─── ERROR HANDLER ───────────────────────────────────────────
