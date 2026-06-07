@@ -253,7 +253,24 @@ const routeFiles = [
 
 for (const name of routeFiles) {
   try {
-    const router = require(`./routes/${name}`)(pool, opts);
+    const routeModule = require(`./routes/${name}`);
+    let router;
+    // Handle different export signatures
+    if (name === 'teacher-permissions') {
+      router = routeModule(pool, opts.requireAdmin, opts.requireTeacherAuth);
+    } else if (name === 'email' || name === 'visits') {
+      router = routeModule(pool, opts.requireAdmin);
+    } else if (name === 'group-sessions') {
+      router = routeModule(pool, opts.requireAdmin);
+    } else if (name === 'groups-teacher') {
+      router = routeModule(pool, opts.requireTeacherAuth);
+    } else if (name === 'library') {
+      router = routeModule(pool, opts.requireAdmin, opts.requireTeacherAuth, opts.requireStudentAuth, opts.uploadToR2WithRetry, opts.FormDataLib);
+    } else if (name === 'group-attendance') {
+      router = routeModule(pool, opts.requireTeacherAuth, opts.requireAdmin);
+    } else {
+      router = routeModule(pool, opts);
+    }
     app.use(router);
     console.log(`[routes] ✓ ${name}`);
   } catch (err) {
