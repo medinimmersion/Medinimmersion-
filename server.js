@@ -298,10 +298,10 @@ const htmlPages = [
 
 htmlPages.forEach(page => {
   app.get(`/${page}`, (req, res) => {
-    res.sendFile(path.join(publicDir, `${page}.html`));
+    res.sendFile(path.join(__dirname, `${page}.html`), (err) => { if (err) res.sendFile(path.join(publicDir, `${page}.html`), (e) => { if (e) res.status(404).json({error: 'Page non trouvée'}); }); });
   });
   app.get(`/${page}.html`, (req, res) => {
-    res.sendFile(path.join(publicDir, `${page}.html`));
+    res.sendFile(path.join(__dirname, `${page}.html`), (err) => { if (err) res.sendFile(path.join(publicDir, `${page}.html`), (e) => { if (e) res.status(404).json({error: 'Page non trouvée'}); }); });
   });
 });
 
