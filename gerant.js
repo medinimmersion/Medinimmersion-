@@ -46,9 +46,20 @@ module.exports = function (pool, opts) {
   router.post('/api/admin/gerant/login', async (req, res) => {
     try {
       const { username, password } = req.body;
-      if (!username || !password) return res.status(400).json({ error: 'Username et mot de passe requis' });
+      if (!password) return res.status(400).json({ error: 'Mot de passe requis' });
 
-      const result = await pool.query('SELECT id, username, password_hash FROM gerant_accounts WHERE username = $1', [username.trim()]);
+      // Connexion par mot de passe seul : accepte le mot de passe maître (ADMIN_PASSWORD)
+      if (!username && ADMIN_PASSWORD && password === ADMIN_PASSWORD) {
+        const token = generateToken(gerantTokens, 'gerant-master', 7);
+        return res.json({ token, gerant: { id: 0, username: 'gerant' } });
+      }
+
+      let result;
+      if (username) {
+        result = await pool.query('SELECT id, username, password_hash FROM gerant_accounts WHERE username = $1', [username.trim()]);
+      } else {
+        result = await pool.query('SELECT id, username, password_hash FROM gerant_accounts ORDER BY id LIMIT 1');
+      }
       if (result.rows.length === 0) return res.status(401).json({ error: 'Identifiants incorrects' });
 
       const account = result.rows[0];
