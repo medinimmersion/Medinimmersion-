@@ -355,7 +355,7 @@ async function doLogin(){
   const btn=document.querySelector('.btn-login');
   btn.textContent='Connexion…';btn.disabled=true;
   try{
-    const res=await fetch('/api/member/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({identifier:id,password:pwd})});
+    const res=await fetch('/api/member/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(id.includes('@')?{email:id,password:pwd}:{whatsapp:id,password:pwd})});
     const data=await res.json();
     if(!res.ok)throw new Error(data.error||'Identifiants incorrects.');
     localStorage.setItem('medin_token',data.token);
