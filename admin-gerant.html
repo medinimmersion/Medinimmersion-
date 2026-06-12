@@ -1,39 +1,357 @@
-<!DOCTYPE html><html lang="fr"><head>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Administration — Médin'Immersion</title>
-<meta name="robots" content="noindex">
+<title>Espace Gérant — Médin'Immersion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
 <style>
-:root{--green:#1B5E3A;--green-deep:#0F3D26;--gold:#B8953A;--gold-light:#D4A843;--cream:#FDFAF3;--beige:#EDE4C8;--text:#1A1A1A;--text-muted:#5A5247;--white:#FFFFFF;--red:#DC2626;--blue:#2563EB;}
+:root{--green-deep:#0F3D26;--green:#1B5E3A;--green-soft:#226C44;--gold:#B8953A;--gold-light:#D4A843;--gold-pale:#F0E0A8;--cream:#FDFAF3;--cream-2:#F5EFDD;--beige:#E7DCBE;--text:#1A1A1A;--muted:#5A5247;--white:#fff;--ok:#1E8E54;--okbg:#E6F4EC;--warn:#C08A18;--warnbg:#FBF1D8;--bad:#C0392B;--badbg:#FBE9E7;--info:#2563A8;--infobg:#E7F0FB;}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);overflow-x:hidden;}
-#loginScreen{min-height:100vh;background:var(--green-deep);display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;}
-#loginScreen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 40%,rgba(184,149,58,0.1),transparent 60%);}
-.login-box{background:var(--white);border-radius:24px;padding:2.5rem;width:100%;max-width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.3);}
-.lb-logo{text-align:center;margin-bottom:1.25rem;}
-.lb-logo img{height:50px;}
-.lb-badge{display:inline-block;background:rgba(184,149,58,0.12);color:var(--gold);border:1px solid rgba(184,149,58,0.3);font-size:0.72rem;font-weight:700;padding:0.3rem 0.9rem;border-radius:50px;margin-bottom:1.25rem;letter-spacing:0.06em;text-transform:uppercase;}
-.lb-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--green-deep);margin-bottom:0.25rem;}
-.lb-sub{color:var(--text-muted);font-size:0.82rem;margin-bottom:1.5rem;}
-.fg{margin-bottom:1rem;}
-.fg label{display:block;font-size:0.8rem;font-weight:600;color:var(--text);margin-bottom:0.3rem;}
-.fg input{width:100%;padding:0.7rem 0.95rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;color:var(--text);background:var(--cream);outline:none;transition:border-color 0.2s;}
-.fg input:focus{border-color:var(--green);background:var(--white);}
-.btn-login{width:100%;background:var(--green);color:var(--white);border:none;padding:0.85rem;border-radius:50px;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;transition:background 0.2s;}
-.btn-login:hover{background:var(--green-deep);}
-.err{background:#FEF2F2;border:1px solid #FCA5A5;color:var(--red);padding:0.6rem 0.9rem;border-radius:9px;font-size:0.8rem;margin-bottom:1rem;display:none;}
-/* DASHBOARD */
-#dashboard{display:none;}
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:230px;background:var(--green-deep);z-index:50;display:flex;flex-direction:column;overflow-y:auto;}
-.sidebar-logo{padding:1.5rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.08);}
-.sidebar-logo img{height:40px;filter:brightness(0) invert(1) opacity(0.9);}
-.sidebar-badge{display:inline-block;background:rgba(184,149,58,0.2);color:var(--gold-light);font-size:0.65rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:50px;margin-top:0.4rem;letter-spacing:0.06em;text-transform:uppercase;}
-.sidebar-nav{flex:1;padding:1rem 0;}
-.nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1.25rem;color:rgba(255,255,255,0.6);font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.2s;border-left:3px solid transparent;}
-.nav-item:hover{color:var(--white);background:rgba(255,255,255,0.05);}
-.nav-item.active{color:var(--white);background:rgba(255,255,255,0.08);border-left-color:var(--gold-light);}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);}
+.ar{font-family:'Amiri',serif;}
+a{color:inherit;}
+.top{background:var(--green-deep);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1rem;position:sticky;top:0;z-index:30;}
+.top .brand{display:flex;align-items:center;gap:0.55rem;}
+.top .brand img{height:30px;background:#fff;border-radius:7px;padding:3px 6px;}
+.top .brand b{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;}
+.top .brand b span{color:var(--gold-light);}
+.logout{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.45rem 0.9rem;border-radius:50px;cursor:pointer;}
+.logout:hover{background:rgba(255,255,255,0.18);}
+.wrap{max-width:1100px;margin:0 auto;padding:1rem;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.7rem;margin-bottom:1rem;}
+.stat{background:#fff;border:1px solid var(--beige);border-radius:14px;padding:1rem 0.75rem;text-align:center;}
+.stat .n{font-size:1.7rem;font-weight:700;color:var(--green-deep);line-height:1;}
+.stat .n.gold{color:var(--gold);}
+.stat .l{font-size:0.72rem;color:var(--muted);margin-top:0.35rem;}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr);}}
+.tabs{display:flex;gap:0.4rem;overflow-x:auto;padding-bottom:0.4rem;margin-bottom:1rem;-webkit-overflow-scrolling:touch;}
+.tab{flex:0 0 auto;background:#fff;border:1px solid var(--beige);color:var(--muted);font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.55rem 0.95rem;border-radius:50px;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.tab.on{background:var(--green);border-color:var(--green);color:#fff;}
+.tab.gold.on{background:var(--gold);border-color:var(--gold);color:var(--green-deep);}
+.panel{display:none;background:#fff;border:1px solid var(--beige);border-radius:16px;padding:1.1rem;}
+.panel.on{display:block;animation:fade 0.2s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.panel h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.5rem;margin-bottom:0.2rem;}
+.panel .sub{color:var(--muted);font-size:0.85rem;margin-bottom:1rem;}
+.search{width:100%;padding:0.7rem 0.95rem;border:1.5px solid var(--beige);border-radius:11px;font-family:inherit;font-size:0.9rem;margin-bottom:0.9rem;background:var(--cream);}
+.search:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+.row{border:1px solid var(--beige);border-radius:12px;padding:0.85rem;margin-bottom:0.7rem;background:var(--cream);}
+.row .r-top{display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;}
+.row .name{font-weight:700;font-size:0.98rem;color:var(--green-deep);}
+.row .meta{font-size:0.78rem;color:var(--muted);margin-top:0.2rem;line-height:1.5;}
+.badge{font-size:0.68rem;font-weight:700;padding:0.22rem 0.6rem;border-radius:50px;white-space:nowrap;}
+.b-ok{background:var(--okbg);color:var(--ok);}
+.b-warn{background:var(--warnbg);color:var(--warn);}
+.b-bad{background:var(--badbg);color:var(--bad);}
+.b-info{background:var(--infobg);color:var(--info);}
+.acts{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.7rem;}
+.btn{font-family:inherit;font-size:0.76rem;font-weight:600;padding:0.45rem 0.8rem;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;}
+.btn-green{background:var(--green);color:#fff;}.btn-green:hover{background:var(--green-deep);}
+.btn-gold{background:var(--gold);color:var(--green-deep);}.btn-gold:hover{background:var(--gold-light);}
+.btn-soft{background:#fff;border:1px solid var(--beige);color:var(--text);}
+.btn-info{background:var(--infobg);color:var(--info);}
+.btn-ok{background:var(--okbg);color:var(--ok);}
+.btn-bad{background:var(--badbg);color:var(--bad);}
+.empty{text-align:center;color:var(--muted);font-size:0.88rem;padding:2rem 1rem;}
+.loading{text-align:center;color:var(--muted);font-size:0.85rem;padding:1.5rem;}
+.perm{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid var(--beige);}
+.perm:last-child{border-bottom:none;}
+.perm .pl{font-size:0.85rem;}
+.toggle{width:44px;height:25px;border-radius:50px;background:#ccc;position:relative;cursor:pointer;border:none;transition:background 0.2s;flex:0 0 auto;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left 0.2s;}
+.toggle.on::after{left:22px;}
+.toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--green-deep);color:#fff;padding:0.7rem 1.2rem;border-radius:50px;font-size:0.85rem;font-weight:600;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+.login{position:fixed;inset:0;background:var(--green-deep);display:flex;align-items:center;justify-content:center;padding:1.25rem;z-index:60;}
+.login .box{background:var(--cream);border-radius:22px;padding:2rem 1.6rem;width:100%;max-width:370px;text-align:center;}
+.login img{height:48px;margin-bottom:0.8rem;}
+.login .tag{display:inline-block;background:var(--gold-pale);color:var(--gold);font-size:0.7rem;font-weight:700;letter-spacing:0.08em;padding:0.3rem 0.9rem;border-radius:50px;margin-bottom:0.8rem;}
+.login h1{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.9rem;margin-bottom:0.3rem;}
+.login p{font-size:0.85rem;color:var(--muted);margin-bottom:1.1rem;}
+.login input{width:100%;padding:0.85rem 1rem;border:1.5px solid var(--beige);border-radius:12px;font-family:inherit;font-size:0.95rem;margin-bottom:0.7rem;background:#fff;}
+.login input:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+.login button{width:100%;padding:0.9rem;border:none;border-radius:50px;background:var(--green);color:#fff;font-family:inherit;font-weight:700;font-size:0.95rem;cursor:pointer;}
+.login button:hover{background:var(--green-deep);}
+.login .err{display:none;background:var(--badbg);color:var(--bad);border-radius:10px;padding:0.6rem;font-size:0.82rem;margin-bottom:0.7rem;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">
+    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="">
+    <b>Espace <span>Gérant</span></b>
+  </div>
+  <button class="logout" id="logoutBtn">Déconnexion</button>
+</div>
+
+<div class="wrap" id="app" style="display:none;">
+  <div class="stats" id="stats"></div>
+
+  <div class="tabs">
+    <button class="tab gold on" data-p="eleves">👥 Élèves</button>
+    <button class="tab" data-p="validation">✅ Validation</button>
+    <button class="tab" data-p="profs">👨‍🏫 Professeurs</button>
+    <button class="tab" data-p="paiements">💶 Paiements</button>
+    <button class="tab" data-p="remu">💰 Rémunération</button>
+  </div>
+
+  <div class="panel on" id="p-eleves">
+    <h2>Élèves</h2>
+    <p class="sub">Consulte, accède à l'espace de chaque élève et suis ses cours.</p>
+    <input class="search" id="searchEleve" placeholder="Rechercher un élève (nom, email…)">
+    <div id="listEleves" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-validation">
+    <h2>Validation des inscriptions</h2>
+    <p class="sub">Valide ou refuse les nouvelles inscriptions en attente.</p>
+    <div id="listValidation" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-profs">
+    <h2>Professeurs</h2>
+    <p class="sub">Gère les professeurs, leurs permissions et accède à leur espace.</p>
+    <div id="listProfs" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-paiements">
+    <h2>Paiements</h2>
+    <p class="sub">Suis et marque les paiements des réservations.</p>
+    <div id="listPaiements" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-remu">
+    <h2>Rémunération des professeurs</h2>
+    <p class="sub">Heures effectuées et montants par professeur.</p>
+    <div id="listRemu" class="loading">Chargement…</div>
+  </div>
+</div>
+
+<div class="login" id="login">
+  <div class="box">
+    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="">
+    <div class="tag">ADMINISTRATION</div>
+    <h1>Espace Gérant</h1>
+    <p>Accès réservé à l'administration de Médin'Immersion.</p>
+    <div class="err" id="loginErr"></div>
+    <input type="password" id="giPwd" placeholder="Mot de passe gérant" autocomplete="current-password">
+    <button id="giBtn">Accéder →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let GT = localStorage.getItem('gerant_token') || '';
+const H = () => ({'Content-Type':'application/json','x-gerant-token':GT,'x-admin-token':GT,'Authorization':'Bearer '+GT});
+let cacheEleves=[], cacheProfs=[];
+
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+async function boot(){
+  if(!GT){ showLogin(); return; }
+  try{
+    const r=await fetch('/api/admin/stats',{headers:H()});
+    if(!r.ok) throw 0;
+    $('login').style.display='none'; $('app').style.display='block';
+    loadStats(); loadEleves(); loadValidation(); loadProfs(); loadPaiements(); loadRemu();
+  }catch{ showLogin(); }
+}
+function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; }
+$('giBtn').onclick=async()=>{
+  const pwd=$('giPwd').value; const err=$('loginErr'); err.style.display='none';
+  if(!pwd){err.textContent='Mot de passe requis.';err.style.display='block';return;}
+  try{
+    const r=await fetch('/api/admin/gerant/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+    const d=await r.json();
+    if(!r.ok||!d.token) throw new Error(d.error||'Mot de passe incorrect');
+    GT=d.token; localStorage.setItem('gerant_token',GT);
+    boot();
+  }catch(e){err.textContent=e.message;err.style.display='block';}
+};
+$('giPwd').addEventListener('keydown',e=>{if(e.key==='Enter')$('giBtn').click();});
+$('logoutBtn').onclick=()=>{localStorage.removeItem('gerant_token');GT='';showLogin();};
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on'); $('p-'+t.dataset.p).classList.add('on');
+});
+
+async function loadStats(){
+  try{
+    const r=await fetch('/api/admin/stats',{headers:H()}); const d=await r.json();
+    $('stats').innerHTML=`
+      <div class="stat"><div class="n">${d.total_students||0}</div><div class="l">Élèves inscrits</div></div>
+      <div class="stat"><div class="n">${d.total_bookings||0}</div><div class="l">Réservations</div></div>
+      <div class="stat"><div class="n">${d.pending_bookings||0}</div><div class="l">En attente</div></div>
+      <div class="stat"><div class="n">${d.paid_bookings||0}</div><div class="l">Payées</div></div>
+      <div class="stat"><div class="n">${d.unpaid_bookings||0}</div><div class="l">Impayées</div></div>
+      <div class="stat"><div class="n gold">${(d.paid_revenue||0)}€</div><div class="l">Revenus encaissés</div></div>`;
+  }catch{ $('stats').innerHTML=''; }
+}
+
+async function loadEleves(){
+  try{
+    const r=await fetch('/api/admin/students',{headers:H()}); const d=await r.json();
+    cacheEleves=d.students||[];
+    renderEleves(cacheEleves);
+  }catch{ $('listEleves').innerHTML='<div class="empty">Impossible de charger les élèves.</div>'; }
+}
+function renderEleves(list){
+  if(!list.length){ $('listEleves').innerHTML='<div class="empty">Aucun élève.</div>'; return; }
+  $('listEleves').innerHTML=list.map(s=>{
+    const vs=(s.validation_status||'').toLowerCase();
+    const vb = (vs==='valide'||vs==='validated')?'<span class="badge b-ok">Validé</span>'
+      : (vs==='rejected'||vs==='refuse')?'<span class="badge b-bad">Refusé</span>'
+      : '<span class="badge b-warn">En attente</span>';
+    const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||'—');
+    return `<div class="row">
+      <div class="r-top"><div><div class="name">${nom}</div>
+        <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>Prof : ${esc(s.teacher_names||'—')} · ${s.booking_count||0} résa.</div></div>${vb}</div>
+      <div class="acts">
+        <button class="btn btn-info" onclick="viewStudent(${s.id})">👁 Voir espace</button>
+        <button class="btn btn-gold" onclick="resetStudentPwd(${s.id},'${esc(nom)}')">🔑 Mot de passe</button>
+      </div></div>`;
+  }).join('');
+}
+$('searchEleve').oninput=e=>{
+  const q=e.target.value.toLowerCase().trim();
+  renderEleves(!q?cacheEleves:cacheEleves.filter(s=>[s.nom,s.prenom,s.kounia,s.email,s.whatsapp].some(v=>(v||'').toLowerCase().includes(q))));
+};
+async function viewStudent(id){
+  try{
+    const r=await fetch('/api/admin/impersonate/student/'+id,{method:'POST',headers:H()});
+    const d=await r.json(); if(!r.ok||!d.token) throw 0;
+    window.open('/espace-eleve.html?xs='+d.token,'_blank');
+  }catch{ toast('Impossible d\'ouvrir l\'espace.'); }
+}
+async function resetStudentPwd(id,nom){
+  const np=prompt('Nouveau mot de passe pour '+nom+' :');
+  if(!np||np.length<4){ if(np!==null)toast('Mot de passe trop court.'); return; }
+  try{
+    const r=await fetch('/api/admin/students/'+id+'/password',{method:'PUT',headers:H(),body:JSON.stringify({password:np})});
+    if(!r.ok) throw 0; toast('Mot de passe mis à jour ✓');
+  }catch{ toast('Échec — réessaie.'); }
+}
+
+async function loadValidation(){
+  try{
+    const r=await fetch('/api/admin/validation',{headers:H()}); const list=await r.json();
+    if(!Array.isArray(list)||!list.length){ $('listValidation').innerHTML='<div class="empty">Aucune inscription en attente. 🎉</div>'; return; }
+    $('listValidation').innerHTML=list.map(s=>{
+      const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||'—');
+      return `<div class="row">
+        <div class="r-top"><div><div class="name">${nom}</div>
+          <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>${esc(s.course_type||'Cours')} · ${s.hours||'?'}h</div></div>
+          <span class="badge b-warn">En attente</span></div>
+        <div class="acts">
+          <button class="btn btn-ok" onclick="valid(${s.id},'valide')">✅ Valider</button>
+          <button class="btn btn-bad" onclick="valid(${s.id},'rejected')">✖ Refuser</button>
+        </div></div>`;
+    }).join('');
+  }catch{ $('listValidation').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function valid(id,status){
+  try{
+    const r=await fetch('/api/admin/validation/'+id,{method:'PUT',headers:H(),body:JSON.stringify({status})});
+    if(!r.ok) throw 0;
+    toast(status==='valide'?'Inscription validée ✓':'Inscription refusée');
+    loadValidation(); loadEleves(); loadStats();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
+async function loadProfs(){
+  try{
+    const r=await fetch('/api/admin/teachers',{headers:H()}); cacheProfs=await r.json();
+    if(!Array.isArray(cacheProfs)||!cacheProfs.length){ $('listProfs').innerHTML='<div class="empty">Aucun professeur.</div>'; return; }
+    $('listProfs').innerHTML=cacheProfs.map(t=>{
+      const nom=esc([t.prenom,t.nom].filter(Boolean).join(' ')||t.username||'—');
+      const perm=(k,label)=>`<div class="perm"><span class="pl">${label}</span>
+        <button class="toggle ${t[k]?'on':''}" onclick="togglePerm(${t.id},'${k}',this)"></button></div>`;
+      return `<div class="row">
+        <div class="r-top"><div><div class="name">${nom}</div>
+          <div class="meta">${esc(t.email||'')} · ${t.student_count||0} élève(s) · ${t.total_hours||0}h</div></div></div>
+        <div style="margin-top:0.7rem;background:#fff;border:1px solid var(--beige);border-radius:10px;padding:0.3rem 0.8rem;">
+          ${perm('can_edit_planning','📅 Planifier les cours')}
+          ${perm('can_send_books','📖 Envoyer des livres')}
+          ${perm('can_edit_zoom','🎥 Modifier le lien Zoom')}
+          ${perm('can_edit_student_info','✏️ Modifier infos élèves')}
+        </div>
+        <div class="acts">
+          <button class="btn btn-info" onclick="viewTeacher(${t.id})">👁 Voir espace</button>
+        </div></div>`;
+    }).join('');
+  }catch{ $('listProfs').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function togglePerm(id,key,el){
+  const val=!el.classList.contains('on');
+  try{
+    const r=await fetch('/api/admin/teacher-permissions/'+id,{method:'PUT',headers:H(),body:JSON.stringify({permission:key,value:val})});
+    if(!r.ok) throw 0; el.classList.toggle('on',val); toast('Permission mise à jour ✓');
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function viewTeacher(id){
+  try{
+    const r=await fetch('/api/admin/impersonate/teacher/'+id,{method:'POST',headers:H()});
+    const d=await r.json(); if(!r.ok||!d.token) throw 0;
+    window.open('/espace-professeur.html?xt='+d.token,'_blank');
+  }catch{ toast('Impossible d\'ouvrir l\'espace.'); }
+}
+
+async function loadPaiements(){
+  try{
+    const r=await fetch('/api/admin/payments',{headers:H()}); const list=await r.json();
+    const arr=Array.isArray(list)?list:(list.payments||list.bookings||[]);
+    if(!arr.length){ $('listPaiements').innerHTML='<div class="empty">Aucune réservation.</div>'; return; }
+    $('listPaiements').innerHTML=arr.map(b=>{
+      const paid=(b.payment_status||'').toLowerCase()==='paid';
+      const nom=esc([b.student_prenom,b.student_nom].filter(Boolean).join(' ')||b.student_name||'Élève');
+      return `<div class="row"><div class="r-top">
+        <div><div class="name">${nom}</div>
+        <div class="meta">${esc(b.course_type||'Cours')} · ${b.hours||'?'}h · ${b.price_euros||b.price||0}€</div></div>
+        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-bad">Impayé</span>'}</div>
+        <div class="acts">${paid
+          ?`<button class="btn btn-soft" onclick="setPay(${b.id},'unpaid')">Marquer impayé</button>`
+          :`<button class="btn btn-ok" onclick="setPay(${b.id},'paid')">💶 Marquer payé</button>`}</div></div>`;
+    }).join('');
+  }catch{ $('listPaiements').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function setPay(id,status){
+  try{
+    let r=await fetch('/api/admin/bookings/'+id+'/payment',{method:'PATCH',headers:H(),body:JSON.stringify({payment_status:status})});
+    if(!r.ok){ r=await fetch('/api/admin/payments/'+id,{method:'PUT',headers:H(),body:JSON.stringify({payment_status:status})}); }
+    if(!r.ok) throw 0;
+    toast('Paiement mis à jour ✓'); loadPaiements(); loadStats();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
+async function loadRemu(){
+  try{
+    const r=await fetch('/api/admin/remuneration',{headers:H()}); const list=await r.json();
+    const arr=Array.isArray(list)?list:(list.teachers||[]);
+    if(!arr.length){ $('listRemu').innerHTML='<div class="empty">Aucune donnée de rémunération.</div>'; return; }
+    $('listRemu').innerHTML=arr.map(t=>{
+      const nom=esc([t.prenom,t.nom].filter(Boolean).join(' ')||t.username||'Professeur');
+      const h=t.total_hours||t.hours||0, amt=t.amount||t.paid_amount||t.remuneration||0, rate=t.hourly_rate||t.rate;
+      return `<div class="row"><div class="r-top">
+        <div><div class="name">${nom}</div>
+        <div class="meta">${h}h effectuées${rate?` · ${rate}€/h`:''}</div></div>
+        <span class="badge b-info">${amt}€</span></div></div>`;
+    }).join('');
+  }catch{ $('listRemu').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+
+boot();
+</script>
+</body>
+</html>
 .nav-item .ni-icon{font-size:1.1rem;flex-shrink:0;}
 .sidebar-bottom{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,0.08);}
 .btn-logout-side{width:100%;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.1);padding:0.6rem;border-radius:10px;font-family:inherit;font-size:0.82rem;cursor:pointer;transition:all 0.2s;}
