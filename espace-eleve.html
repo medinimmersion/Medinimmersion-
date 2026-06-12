@@ -324,6 +324,571 @@ let student=null,token=null;
 
 // ─── INIT ──────────────────────
 async function init(){
+  const _xs=new URLSearchParams(location.search).get('xs');
+  if(_xs){ token=_xs; localStorage.setItem('medin_token',_xs); }
+  else token=localStorage.getItem('medin_token');
+  if(!token){showLogin();return;}
+  try{
+    const res=await fetch('/api/member/me',{headers:{'Authorization':'Bearer '+token}});
+    if(!res.ok)throw new Error();
+    student=await res.json();
+    showDashboard();
+  }catch{showLogin();}
+}
+
+function showLogin(){
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+}
+
+function showDashboard(){
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  loadDashboard();
+}
+
+// ─── LOGIN ─────────────────────
+async function doLogin(){
+  const id=document.getElementById('loginId').value.trim();
+  const pwd=document.getElementById('loginPwd').value.trim();
+  const err=document.getElementById('loginErr');
+  err.style.display='none';
+  if(!id||!pwd){err.textContent='Veuillez remplir les deux champs.';err.style.display='block';return;}
+  const btn=document.querySelector('.btn-login');
+  btn.textContent='Connexion…';btn.disabled=true;
+  try{
+    const res=await fetch('/api/member/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(id.includes('@')?{email:id,password:pwd}:{whatsapp:id,password:pwd})});
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Identifiants incorrects.');
+    localStorage.setItem('medin_token',data.token);
+    token=data.token;student=data.student||null;
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('loadingScreen').style.display='flex';
+    // reload student data
+    setTimeout(async()=>{
+      const r2=await fetch('/api/member/me',{headers:{'Authorization':'Bearer '+token}});
+      if(r2.ok){student=await r2.json();}
+      showDashboard();
+    },400);
+  }catch(e){
+    err.textContent=e.message;err.style.display='block';
+    btn.textContent='Se connecter →';btn.disabled=false;
+  }
+}
+
+function doLogout(){
+  localStorage.removeItem('medin_token');
+  location.reload();
+}
+
+// ─── DASHBOARD ─────────────────
+async function loadDashboard(){
+  const s=student||{};
+  const name=s.prenom||s.nom||'Élève';
+  const initials=(s.prenom?s.prenom[0]:'?')+(s.nom?s.nom[0]:'');
+  document.getElementById('dashName').textContent=name;
+  document.getElementById('dashAvatar').textContent=initials.toUpperCase();
+  document.getElementById('profilAvatar').textContent=initials.toUpperCase();
+  document.getElementById('profilName').textContent=(s.prenom||'')+' '+(s.nom||'');
+  document.getElementById('profilCourse').textContent=formatCourse(s.course_type)+' — '+formatFormat(s.format);
+  document.getElementById('dashDate').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Level & progress
+  const level=s.level||1;
+  const pct=Math.round(((level-1)/10)*100);
+  document.getElementById('statNiveau').textContent=level;
+  ['levelBadge','levelBadge2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='Niveau '+level;});
+  ['progressFill','progressFill2'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width=pct+'%';});
+  ['progressPct','progressPct2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=pct+'%';});
+
+  // Stats
+  document.getElementById('statHeures').textContent=(s.remaining_hours||0)+'h';
+  document.getElementById('statPDF').textContent=s.pdf_count||'–';
+
+  // Profil details
+  const pd=document.getElementById('profilDetails');
+  pd.innerHTML=[
+    ['📱 WhatsApp',s.whatsapp||'–'],
+    ['✉️ Email',s.email||'–'],
+    ['🎓 Cours',formatCourse(s.course_type)],
+    ['👥 Format',formatFormat(s.format)],
+    ['📊 Niveau',s.level||1],
+    ['⏱️ Heures restantes',(s.remaining_hours||0)+'h'],
+  ].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:0.65rem 0;border-bottom:1px solid var(--beige);font-size:0.875rem;"><span style="color:var(--text-muted);">${l}</span><span style="font-weight:600;">${v}</span></div>`).join('');
+
+  // Load planning & messages
+  await loadPlanning();
+  await loadMessages();
+  await loadBooks();
+}
+
+async function loadPlanning(){
+  try{
+    const res=await fetch('/api/member/sessions',{headers:{'Authorization':'Bearer '+token}});
+    if(!res.ok)throw new Error();
+    const sessions=await res.json();
+    renderSessions(sessions.slice(0,3),'upcomingSessions',true);
+    renderSessions(sessions,'allSessions',false);
+    const next=sessions.find(s=>new Date(s.date_heure)>new Date());
+    document.getElementById('statProchain').textContent=next?formatDate(next.date_heure):'–';
+  }catch{
+    document.getElementById('upcomingSessions').innerHTML=emptyState('📅','Aucun cours planifié','Votre planning apparaîtra ici après confirmation de votre inscription.');
+    document.getElementById('allSessions').innerHTML=emptyState('📅','Aucun cours planifié','Contactez-nous sur WhatsApp pour planifier vos cours.');
+  }
+}
+
+function renderSessions(sessions,containerId,compact){
+  const c=document.getElementById(containerId);
+  if(!sessions||!sessions.length){c.innerHTML=emptyState('📅','Aucun cours planifié','');return;}
+  c.innerHTML=sessions.map(s=>{
+    const d=new Date(s.date_heure);
+    const isUpcoming=d>new Date();
+    return `<div class="session-card">
+      <div class="session-date" style="${isUpcoming?'':'background:var(--beige);color:var(--text-muted);'}">
+        <div class="sd-day">${d.getDate()}</div>
+        <div class="sd-month">${d.toLocaleDateString('fr-FR',{month:'short'})}</div>
+      </div>
+      <div class="session-info">
+        <h4>${s.course_type?formatCourse(s.course_type):'Cours'} ${s.format?'— '+formatFormat(s.format):''}</h4>
+        <p>🕐 ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · ${s.teacher_name||'Professeur'}</p>
+      </div>
+      <div class="session-join">
+        ${isUpcoming&&s.zoom_link?`<a href="${s.zoom_link}" target="_blank" class="btn-join">Rejoindre</a>`:`<span class="btn-join disabled">${isUpcoming?'En attente':'Terminé'}</span>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadMessages(){
+  try{
+    const res=await fetch('/api/member/messages',{headers:{'Authorization':'Bearer '+token}});
+    if(!res.ok)throw new Error();
+    const msgs=await res.json();
+    renderMessages(msgs.slice(0,3),'recentMessages');
+    renderMessages(msgs,'allMessages');
+    const unread=msgs.filter(m=>!m.read).length;
+    if(unread>0){document.getElementById('notifBadge').style.display='block';}
+  }catch{
+    ['recentMessages','allMessages'].forEach(id=>document.getElementById(id).innerHTML=emptyState('💬','Aucun message','Vos messages avec votre professeur apparaîtront ici.'));
+  }
+}
+
+function renderMessages(msgs,containerId){
+  const c=document.getElementById(containerId);
+  if(!msgs||!msgs.length){c.innerHTML=emptyState('💬','Aucun message','');return;}
+  c.innerHTML=msgs.map(m=>`<div class="msg-item ${m.read?'':'unread'}">
+    <div class="msg-avatar">${(m.sender_name||'G')[0].toUpperCase()}</div>
+    <div style="flex:1;min-width:0;">
+      <div class="msg-sender">${m.sender_name||'Gérant'}</div>
+      <div class="msg-preview">${(m.content||'').substring(0,80)}${(m.content||'').length>80?'…':''}</div>
+    </div>
+    <div class="msg-time">${formatDate(m.created_at)}</div>
+  </div>`).join('');
+}
+
+async function loadBooks(){
+  try{
+    const res=await fetch('/api/member/books',{headers:{'Authorization':'Bearer '+token}});
+    if(!res.ok)throw new Error();
+    const books=await res.json();
+    renderBooks(books);
+  }catch{
+    renderBooks([]);
+  }
+}
+
+function renderBooks(books){
+  const c=document.getElementById('booksGrid');
+  if(!books||!books.length){c.innerHTML=`<div style="grid-column:1/-1;">${emptyState('📚','Aucun PDF disponible','Vos supports de cours apparaîtront ici dès leur mise à disposition par votre professeur.')}</div>`;return;}
+  c.innerHTML=books.map(b=>`<div class="book-card">
+    <div class="book-icon">📄</div>
+    <div class="book-title">${b.title||'Document'}</div>
+    <div class="book-level">Niveau ${b.level||'–'}</div>
+    ${b.url?`<a href="${b.url}" target="_blank" class="btn-dl">Télécharger</a>`:`<span class="btn-dl locked">🔒 Verrouillé</span>`}
+  </div>`).join('');
+}
+
+// ─── TABS ──────────────────────
+function showTab(id,btn){
+  document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.dash-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  // Sync progression panel
+  if(id==='progression'){
+    const level=student?.level||1;
+    const pct=Math.round(((level-1)/10)*100);
+    const el=document.getElementById('progressFill2');
+    if(el)setTimeout(()=>el.style.width=pct+'%',100);
+    loadProgressionDetails();
+  }
+}
+
+async function loadProgressionDetails(){
+  const c=document.getElementById('progressionDetails');
+  try{
+    const res=await fetch('/api/member/progression',{headers:{'Authorization':'Bearer '+token}});
+    if(!res.ok)throw new Error();
+    const data=await res.json();
+    c.innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Cours</div><div style="font-weight:700;color:var(--green-deep);">${formatCourse(data.course_type||student?.course_type)}</div></div>
+        <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Heures restantes</div><div style="font-weight:700;color:var(--green-deep);">${data.remaining_hours||0}h</div></div>
+        <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Niveau actuel</div><div style="font-weight:700;color:var(--green-deep);">Niveau ${data.level||1} / 11</div></div>
+        <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Professeur</div><div style="font-weight:700;color:var(--green-deep);">${data.teacher_name||'–'}</div></div>
+      </div>
+      ${data.notes?`<div style="margin-top:1.5rem;background:var(--cream);border-radius:12px;padding:1.25rem;"><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.5rem;">Notes du professeur</div><p style="color:var(--text);font-size:0.875rem;line-height:1.7;">${data.notes}</p></div>`:''}`;
+  }catch{
+    c.innerHTML=`<p style="color:var(--text-muted);font-size:0.875rem;">Vos détails de progression apparaîtront ici une fois votre inscription validée.</p>`;
+  }
+}
+
+// ─── HELPERS ───────────────────
+function formatCourse(c){return{coran:'📘 Coran Immersion',arabe:'📗 Arabe Immersion',double_immersion:'⭐ Double Immersion'}[c]||c||'–';}
+function formatFormat(f){return{individual:'Individuel',binome:'Binôme',groupe:'Groupe'}[f]||f||'–';}
+function formatDate(d){if(!d)return'–';const dt=new Date(d);return dt.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
+function emptyState(icon,title,desc){return`<div class="empty"><div class="empty-icon">${icon}</div><h3>${title}</h3>${desc?`<p style="font-size:0.875rem;">${desc}</p>`:''}</div>`;}
+
+/* ── Appel entrant (Zoom) ── */
+let _callPoll=null,_lastCallId=null;
+function startCallPolling(){
+  if(_callPoll)return;
+  _callPoll=setInterval(checkIncomingCall,5000);
+  checkIncomingCall();
+}
+async function checkIncomingCall(){
+  if(!token)return;
+  try{
+    const r=await fetch('/api/student/active-call',{headers:{'Authorization':'Bearer '+token}});
+    if(!r.ok)return;
+    const d=await r.json();
+    const call=d.active;
+    const ov=document.getElementById('callOverlay');
+    if(call&&call.id!==_lastCallId){
+      _lastCallId=call.id;
+      document.getElementById('callTeacher').textContent=((call.teacher_prenom||'')+' '+(call.teacher_nom||'')).trim()||'Votre professeur';
+      document.getElementById('callAnswer').onclick=()=>{
+        const url=call.zoom_url||call.zoom_link;
+        if(url)window.open(url,'_blank');
+        ov.style.display='none';
+      };
+      ov.style.display='flex';
+      try{navigator.vibrate&&navigator.vibrate([300,150,300]);}catch{}
+    } else if(!call){
+      _lastCallId=null;
+      if(ov)ov.style.display='none';
+    }
+  }catch{}
+}
+(function(){
+  const ov=document.createElement('div');
+  ov.id='callOverlay';
+  ov.style.cssText='display:none;position:fixed;inset:0;background:rgba(10,33,21,0.93);z-index:200;align-items:center;justify-content:center;padding:1.5rem;';
+  ov.innerHTML=`<div style="background:var(--cream);border-radius:24px;padding:2.2rem 1.8rem;text-align:center;max-width:340px;width:100%;">
+    <div style="font-size:3rem;animation:ring 1s ease-in-out infinite;">📞</div>
+    <style>@keyframes ring{0%,100%{transform:rotate(-12deg);}50%{transform:rotate(12deg);}}</style>
+    <h2 style="font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.6rem;margin:0.6rem 0 0.2rem;">Appel en cours…</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.4rem;"><strong id="callTeacher">Votre professeur</strong> vous appelle en visio.</p>
+    <button id="callAnswer" style="width:100%;padding:0.95rem;border:none;border-radius:50px;background:#1E8E54;color:#fff;font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:0.6rem;">✅ Décrocher</button>
+    <button onclick="document.getElementById('callOverlay').style.display='none'" style="width:100%;padding:0.8rem;border:1px solid #E7DCBE;border-radius:50px;background:#fff;color:#5A5247;font-family:inherit;font-weight:600;font-size:0.88rem;cursor:pointer;">Plus tard</button>
+  </div>`;
+  document.body.appendChild(ov);
+})();
+
+init();
+startCallPolling();
+</script>
+</body></html>
+.btn-gold{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.9rem 1.9rem;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;border:none;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 20px rgba(184,149,58,0.3);}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(184,149,58,0.4);}
+.btn-green{display:inline-flex;align-items:center;gap:0.5rem;background:var(--green);color:var(--white);padding:0.9rem 1.9rem;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;border:none;cursor:pointer;transition:background 0.2s,transform 0.2s;}
+.btn-green:hover{background:var(--green-deep);transform:translateY(-2px);}
+.btn-outline{display:inline-flex;align-items:center;gap:0.5rem;background:transparent;color:var(--green);padding:0.85rem 1.7rem;border-radius:50px;font-weight:600;font-size:0.9rem;text-decoration:none;border:1.5px solid var(--green);transition:all 0.2s;}
+.btn-outline:hover{background:var(--green);color:var(--white);}
+.card{background:var(--white);border-radius:18px;padding:2rem;border:1px solid var(--beige);transition:transform 0.2s,box-shadow 0.2s;}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.08);}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+footer{background:var(--green-deep);color:var(--white);}
+.footer-top{padding:4rem 0 2.5rem;}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:3.5rem;}
+.footer-brand img{height:52px;margin-bottom:1rem;filter:brightness(0) invert(1) opacity(0.9);}
+.footer-tagline{color:rgba(255,255,255,0.55);font-size:0.875rem;line-height:1.7;margin-bottom:1.25rem;}
+.footer-social{display:flex;gap:0.6rem;}
+.social-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.65);text-decoration:none;transition:background 0.2s,color 0.2s;}
+.social-btn:hover{background:var(--gold);color:var(--white);border-color:var(--gold);}
+.social-btn svg{width:15px;height:15px;fill:currentColor;}
+.footer-col h4{font-weight:700;font-size:0.78rem;color:var(--gold-light);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.1rem;}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:0.5rem;}
+.footer-links a{color:rgba(255,255,255,0.55);text-decoration:none;font-size:0.85rem;transition:color 0.2s;}
+.footer-links a:hover{color:var(--white);}
+.footer-contact p{color:rgba(255,255,255,0.55);font-size:0.85rem;margin-bottom:0.4rem;}
+.footer-contact a{color:rgba(255,255,255,0.55);text-decoration:none;transition:color 0.2s;}
+.footer-contact a:hover{color:var(--white);}
+.footer-gold-rule{height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.footer-bottom{padding:1.25rem 0;text-align:center;color:rgba(255,255,255,0.35);font-size:0.8rem;}
+@media(max-width:1024px){.footer-grid{grid-template-columns:1fr 1fr;gap:2.5rem;}}
+@media(max-width:768px){.nav-links{display:none;}.hamburger{display:flex;}section{padding:3.5rem 0;}.footer-grid{grid-template-columns:1fr;gap:2rem;}}
+/* ─── LOGIN SCREEN ─────────── */
+#loginScreen{min-height:100vh;background:var(--green-deep);display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden;}
+#loginScreen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 40%,rgba(184,149,58,0.12),transparent 60%);}
+.login-box{background:var(--white);border-radius:24px;padding:2.5rem;width:100%;max-width:420px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.3);}
+.login-logo{text-align:center;margin-bottom:1.75rem;}
+.login-logo img{height:56px;}
+.login-ar{font-family:'Amiri',serif;font-size:1.25rem;color:var(--gold-light);direction:rtl;text-align:center;margin-bottom:1.5rem;}
+.login-title{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:0.3rem;}
+.login-sub{color:var(--text-muted);font-size:0.85rem;margin-bottom:1.75rem;}
+.fg{margin-bottom:1rem;}
+.fg label{display:block;font-size:0.82rem;font-weight:600;color:var(--text);margin-bottom:0.35rem;}
+.fg input{width:100%;padding:0.7rem 0.95rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;color:var(--text);background:var(--cream);outline:none;transition:border-color 0.2s,background 0.2s;}
+.fg input:focus{border-color:var(--green);background:var(--white);}
+.forgot{text-align:right;margin-top:0.3rem;}<style>
+.forgot a{font-size:0.78rem;color:var(--green);text-decoration:none;}
+.btn-login{width:100%;background:var(--green);color:var(--white);border:none;padding:0.85rem;border-radius:50px;font-family:inherit;font-size:0.92rem;font-weight:700;cursor:pointer;transition:background 0.2s;margin-top:0.5rem;}
+.btn-login:hover{background:var(--green-deep);}
+.login-err{background:#FEF2F2;border:1px solid #FCA5A5;color:#B91C1C;padding:0.65rem 1rem;border-radius:10px;font-size:0.82rem;margin-bottom:1rem;display:none;}
+.login-divider{display:flex;align-items:center;gap:1rem;margin:1.25rem 0;color:var(--text-muted);font-size:0.78rem;}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--beige);}
+.login-wa{display:flex;align-items:center;justify-content:center;gap:0.6rem;background:#25D366;color:white;padding:0.8rem;border-radius:50px;text-decoration:none;font-weight:600;font-size:0.88rem;transition:background 0.2s;}
+.login-wa:hover{background:#1ebe5d;}
+.login-register{text-align:center;font-size:0.82rem;color:var(--text-muted);margin-top:1.25rem;}
+.login-register a{color:var(--green);font-weight:600;text-decoration:none;}
+
+/* ─── DASHBOARD ─────────────── */
+#dashboard{display:none;min-height:100vh;background:var(--cream);}
+/* Top bar */
+.dash-topbar{background:var(--green-deep);padding:0.75rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+.dash-topbar-left{display:flex;align-items:center;gap:1rem;}
+.dash-topbar-left img{height:40px;}
+.dash-greeting{color:rgba(255,255,255,0.75);font-size:0.85rem;}
+.dash-greeting strong{color:var(--white);}
+.dash-topbar-right{display:flex;align-items:center;gap:0.75rem;}
+.dash-notif-btn{position:relative;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;cursor:pointer;color:rgba(255,255,255,0.75);font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}
+.dash-notif-btn:hover{background:rgba(255,255,255,0.2);}
+.notif-badge{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--gold-light);border-radius:50%;border:2px solid var(--green-deep);}
+.dash-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--green-deep);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;cursor:pointer;}
+.btn-logout{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.2);padding:0.4rem 0.9rem;border-radius:50px;font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.btn-logout:hover{background:rgba(255,0,0,0.2);color:var(--white);}
+/* Nav tabs */
+.dash-nav{background:var(--white);border-bottom:1px solid var(--beige);padding:0 2rem;display:flex;gap:0;overflow-x:auto;}
+.dash-tab{padding:1rem 1.25rem;font-size:0.85rem;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.2s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;}
+.dash-tab:hover{color:var(--green);}
+.dash-tab.active{color:var(--green);border-bottom-color:var(--green);}
+/* Panels */
+.dash-body{padding:2rem;max-width:1180px;margin:0 auto;}
+.dash-panel{display:none;}
+.dash-panel.active{display:block;}
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+.stat-card{background:var(--white);border:1px solid var(--beige);border-radius:16px;padding:1.25rem;}
+.sc-icon{font-size:1.5rem;margin-bottom:0.5rem;}
+.sc-val{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--green-deep);line-height:1;}
+.sc-label{color:var(--text-muted);font-size:0.78rem;margin-top:0.2rem;}
+/* Level progress */
+.level-box{background:var(--white);border:1px solid var(--beige);border-radius:18px;padding:1.75rem;margin-bottom:1.5rem;}
+.level-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+.level-title{font-weight:700;color:var(--green-deep);font-size:0.95rem;}
+.level-badge{background:var(--green);color:var(--white);font-size:0.78rem;font-weight:700;padding:0.3rem 0.9rem;border-radius:50px;}
+.progress-bar{height:10px;background:var(--beige);border-radius:50px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold-light));border-radius:50px;transition:width 1s ease;}
+.progress-labels{display:flex;justify-content:space-between;margin-top:0.4rem;font-size:0.75rem;color:var(--text-muted);}
+/* Planning */
+.planning-grid{display:flex;flex-direction:column;gap:0.75rem;}
+.session-card{background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1.25rem;}
+.session-date{background:var(--green);color:var(--white);border-radius:12px;padding:0.6rem 0.9rem;text-align:center;min-width:56px;flex-shrink:0;}
+.sd-day{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;line-height:1;}
+.sd-month{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;opacity:0.8;}
+.session-info h4{font-weight:700;font-size:0.9rem;color:var(--green-deep);margin-bottom:0.2rem;}
+.session-info p{color:var(--text-muted);font-size:0.8rem;}
+.session-join{margin-left:auto;flex-shrink:0;}
+.btn-join{background:var(--green);color:var(--white);border:none;padding:0.5rem 1.1rem;border-radius:50px;font-family:inherit;font-size:0.8rem;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;transition:background 0.2s;}
+.btn-join:hover{background:var(--green-deep);}
+.btn-join.disabled{background:var(--beige);color:var(--text-muted);cursor:default;}
+/* Library */
+.books-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+.book-card{background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1.25rem;text-align:center;transition:transform 0.2s,box-shadow 0.2s;}
+.book-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.07);}
+.book-icon{font-size:2.5rem;margin-bottom:0.75rem;}
+.book-title{font-weight:700;font-size:0.88rem;color:var(--green-deep);margin-bottom:0.5rem;}
+.book-level{font-size:0.75rem;color:var(--text-muted);margin-bottom:0.9rem;}
+.btn-dl{display:inline-block;background:var(--green);color:var(--white);padding:0.45rem 1rem;border-radius:50px;font-size:0.78rem;font-weight:700;text-decoration:none;transition:background 0.2s;}
+.btn-dl:hover{background:var(--green-deep);}
+.btn-dl.locked{background:var(--beige);color:var(--text-muted);pointer-events:none;}
+/* Messages */
+.msg-list{display:flex;flex-direction:column;gap:0.75rem;}
+.msg-item{background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1.1rem 1.25rem;display:flex;align-items:flex-start;gap:1rem;}
+.msg-item.unread{border-left:3px solid var(--gold-light);}
+.msg-avatar{width:40px;height:40px;border-radius:50%;background:var(--green);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;}
+.msg-sender{font-weight:700;font-size:0.88rem;color:var(--green-deep);}
+.msg-preview{color:var(--text-muted);font-size:0.82rem;margin-top:0.15rem;}
+.msg-time{margin-left:auto;font-size:0.75rem;color:var(--text-muted);white-space:nowrap;}
+/* Empty state */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text-muted);}
+.empty-icon{font-size:3rem;margin-bottom:1rem;}
+.empty h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--green-deep);margin-bottom:0.5rem;}
+/* Loading */
+.loading-screen{min-height:100vh;background:var(--green-deep);display:flex;align-items:center;justify-content:center;}
+.loader{width:40px;height:40px;border:3px solid rgba(255,255,255,0.2);border-top-color:var(--gold-light);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.books-grid{grid-template-columns:1fr 1fr}.dash-body{padding:1.25rem}.dash-topbar{padding:0.75rem 1rem}}
+@media(max-width:480px){.stats-row{grid-template-columns:1fr 1fr}.books-grid{grid-template-columns:1fr}}
+</style></head><body>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loader"></div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" style="display:none;">
+  <div class="login-box">
+    <div class="login-logo"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></div>
+    <div class="login-ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    <div class="login-title">Espace Élève</div>
+    <p class="login-sub">Connectez-vous pour accéder à votre espace membre.</p>
+    <div class="login-err" id="loginErr"></div>
+    <div class="fg"><label>WhatsApp ou Email</label><input type="text" id="loginId" placeholder="+33 6 00 00 00 00 ou email@..."></div>
+    <div class="fg">
+      <label>Mot de passe</label>
+      <input type="password" id="loginPwd" placeholder="Votre mot de passe" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="forgot"><a href="/reset-password.html">Mot de passe oublié ?</a></div>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Se connecter →</button>
+    <div class="login-divider">ou</div>
+    <a href="https://wa.me/213659668685" target="_blank" class="login-wa">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      Contacter sur WhatsApp
+    </a>
+    <div class="login-register">Pas encore inscrit ? <a href="/inscription.html">S'inscrire →</a></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <!-- Top bar -->
+  <div class="dash-topbar">
+    <div class="dash-topbar-left">
+      <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="MI">
+      <div class="dash-greeting">Assalamu alaykum, <strong id="dashName">–</strong> 👋</div>
+    </div>
+    <div class="dash-topbar-right">
+      <button class="dash-notif-btn" id="notifBtn" title="Notifications">🔔<span class="notif-badge" id="notifBadge" style="display:none;"></span></button>
+      <div class="dash-avatar" id="dashAvatar">?</div>
+      <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <!-- Tab nav -->
+  <div class="dash-nav">
+    <button class="dash-tab active" onclick="showTab('accueil',this)">🏠 Tableau de bord</button>
+    <button class="dash-tab" onclick="showTab('planning',this)">📅 Planning</button>
+    <button class="dash-tab" onclick="showTab('progression',this)">📊 Progression</button>
+    <button class="dash-tab" onclick="showTab('bibliotheque',this)">📚 Bibliothèque</button>
+    <button class="dash-tab" onclick="showTab('messages',this)">💬 Messages</button>
+    <button class="dash-tab" onclick="showTab('profil',this)">👤 Profil</button>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- ACCUEIL -->
+    <div class="dash-panel active" id="panel-accueil">
+      <div style="margin-bottom:1.5rem;">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);">Tableau de bord</h2>
+        <p style="color:var(--text-muted);font-size:0.875rem;" id="dashDate">–</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="sc-icon">📊</div><div class="sc-val" id="statNiveau">–</div><div class="sc-label">Niveau actuel</div></div>
+        <div class="stat-card"><div class="sc-icon">⏱️</div><div class="sc-val" id="statHeures">–</div><div class="sc-label">Heures restantes</div></div>
+        <div class="stat-card"><div class="sc-icon">📅</div><div class="sc-val" id="statProchain">–</div><div class="sc-label">Prochain cours</div></div>
+        <div class="stat-card"><div class="sc-icon">📚</div><div class="sc-val" id="statPDF">–</div><div class="sc-label">PDFs disponibles</div></div>
+      </div>
+      <!-- KALAM BANNER -->
+      <a href="/kalam.html" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--green-deep),var(--green-mid));border:1px solid rgba(212,168,67,0.3);border-radius:18px;padding:1.25rem 1.75rem;margin-bottom:1.5rem;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;gap:1rem;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <div style="width:52px;height:52px;border-radius:50%;background:rgba(212,168,67,0.15);border:2px solid rgba(212,168,67,0.4);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">🎙️</div>
+          <div>
+            <div style="font-family:'Amiri',serif;font-size:1.2rem;color:var(--gold-light);direction:rtl;margin-bottom:0.15rem;">كَلاَم</div>
+            <div style="font-weight:700;color:var(--white);font-size:0.95rem;">Pratique orale avec l'IA</div>
+            <div style="color:rgba(255,255,255,0.6);font-size:0.78rem;margin-top:0.1rem;">Parle arabe avec ton professeur IA · 3 min / jour</div>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.5rem 1.25rem;border-radius:50px;font-weight:700;font-size:0.82rem;white-space:nowrap;flex-shrink:0;">Commencer →</div>
+      </a>
+
+      <div class="level-box">
+        <div class="level-header">
+          <div class="level-title">Progression globale</div>
+          <div class="level-badge" id="levelBadge">Niveau –</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="progress-labels"><span>Niveau 1</span><span id="progressPct">0%</span><span>Niveau 11</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+        <div>
+          <h3 style="font-weight:700;font-size:0.92rem;color:var(--green-deep);margin-bottom:1rem;">📅 Prochains cours</h3>
+          <div id="upcomingSessions" class="planning-grid"></div>
+        </div>
+        <div>
+          <h3 style="font-weight:700;font-size:0.92rem;color:var(--green-deep);margin-bottom:1rem;">💬 Derniers messages</h3>
+          <div id="recentMessages" class="msg-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANNING -->
+    <div class="dash-panel" id="panel-planning">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mon planning</h2>
+      <div id="allSessions" class="planning-grid"></div>
+    </div>
+
+    <!-- PROGRESSION -->
+    <div class="dash-panel" id="panel-progression">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Ma progression</h2>
+      <div class="level-box" style="margin-bottom:1.5rem;">
+        <div class="level-header">
+          <div class="level-title">Votre niveau</div>
+          <div class="level-badge" id="levelBadge2">Niveau –</div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill2" style="width:0%"></div></div>
+        <div class="progress-labels"><span>Niveau 1</span><span id="progressPct2">0%</span><span>Niveau 11</span></div>
+      </div>
+      <div id="progressionDetails" style="background:var(--white);border:1px solid var(--beige);border-radius:18px;padding:1.75rem;">
+        <p style="color:var(--text-muted);font-size:0.875rem;">Chargement des détails…</p>
+      </div>
+    </div>
+
+    <!-- BIBLIOTHÈQUE -->
+    <div class="dash-panel" id="panel-bibliotheque">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Ma bibliothèque</h2>
+      <div id="booksGrid" class="books-grid"></div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="dash-panel" id="panel-messages">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mes messages</h2>
+      <div id="allMessages" class="msg-list"></div>
+    </div>
+
+    <!-- PROFIL -->
+    <div class="dash-panel" id="panel-profil">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mon profil</h2>
+      <div style="background:var(--white);border:1px solid var(--beige);border-radius:18px;padding:2rem;max-width:600px;">
+        <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;">
+          <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-mid));color:var(--white);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;" id="profilAvatar">?</div>
+          <div><div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--green-deep);" id="profilName">–</div><div style="color:var(--text-muted);font-size:0.85rem;" id="profilCourse">–</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;" id="profilDetails"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let student=null,token=null;
+
+// ─── INIT ──────────────────────
+async function init(){
   token=localStorage.getItem('medin_token');
   if(!token){showLogin();return;}
   try{
