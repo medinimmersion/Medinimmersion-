@@ -1,966 +1,496 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>Kalam — Pratique vocale · Médin'Immersion</title>
-<meta name="description" content="Kalam : converse en arabe à voix haute avec ton Oustaz IA. Méthode Médin'Immersion.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
-<style>
-:root{
-  --green-deep:#0F3D26;--green:#1B5E3A;--green-soft:#1A4A33;
-  --gold:#B8953A;--gold-light:#D4A843;--gold-pale:#F0E0A8;
-  --cream:#FDFAF3;--ink:rgba(255,255,255,0.92);--ink-soft:rgba(255,255,255,0.6);--ink-faint:rgba(255,255,255,0.35);
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;}
-body{font-family:'DM Sans',sans-serif;background:radial-gradient(120% 90% at 50% 0%,#15543A 0%,var(--green-deep) 55%,#0A2C1C 100%);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;-webkit-tap-highlight-color:transparent;}
-.ar{font-family:'Amiri',serif;}
-
-/* ── Header ── */
-header{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.1rem;flex-shrink:0;}
-.brand{display:flex;align-items:center;gap:0.6rem;text-decoration:none;color:var(--ink);}
-.brand img{height:34px;background:var(--cream);border-radius:9px;padding:4px 7px;}
-.brand-name{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.25rem;letter-spacing:0.01em;}
-.brand-name span{color:var(--gold-light);}
-.timer{display:flex;align-items:center;gap:0.45rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);padding:0.35rem 0.8rem;border-radius:50px;font-size:0.8rem;font-weight:600;color:var(--ink-soft);}
-.timer svg{width:14px;height:14px;}
-.timer .tleft{color:var(--gold-light);font-variant-numeric:tabular-nums;}
-
-/* ── Settings chips ── */
-.chips{display:flex;justify-content:center;gap:0.4rem;padding:0 1rem 0.25rem;flex-wrap:wrap;flex-shrink:0;}
-.chip{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);color:var(--ink-soft);font-family:inherit;font-size:0.74rem;font-weight:600;padding:0.4rem 0.9rem;border-radius:50px;cursor:pointer;transition:all 0.2s;}
-.chip.on{background:var(--gold);border-color:var(--gold);color:var(--green-deep);}
-.chip:focus-visible{outline:2px solid var(--gold-light);outline-offset:2px;}
-.chip-group{display:flex;gap:0.4rem;}
-.chip-divider{width:1px;background:rgba(255,255,255,0.15);margin:0.3rem 0.2rem;}
-
-/* ── Conversation ── */
-main{flex:1;display:flex;flex-direction:column;min-height:0;}
-#feed{flex:1;overflow-y:auto;padding:0.75rem 1.1rem 0.5rem;display:flex;flex-direction:column;gap:0.6rem;scroll-behavior:smooth;}
-.msg{max-width:82%;padding:0.7rem 1rem;border-radius:18px;font-size:0.95rem;line-height:1.55;animation:pop 0.25s ease both;}
-.msg.user{align-self:flex-end;background:var(--gold);color:var(--green-deep);border-bottom-right-radius:6px;font-weight:500;}
-.msg.ai{align-self:flex-start;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-bottom-left-radius:6px;}
-.msg.ai .ar{font-size:1.15em;color:var(--gold-pale);}
-.msg.hint{align-self:center;background:none;border:none;color:var(--ink-faint);font-size:0.78rem;text-align:center;max-width:95%;padding:0.2rem;}
-.msg.interim{align-self:flex-end;background:rgba(212,168,67,0.25);color:var(--gold-pale);border-bottom-right-radius:6px;font-style:italic;}
-@keyframes pop{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-
-/* ── Orb zone ── */
-.stage{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:0.55rem;padding:0.6rem 1rem calc(1.1rem + env(safe-area-inset-bottom));}
-.status{font-size:0.82rem;font-weight:600;color:var(--ink-soft);letter-spacing:0.04em;min-height:1.2em;text-align:center;}
-.status.listening{color:var(--gold-light);}
-.status.speaking{color:#9FD9B4;}
-
-.orb-wrap{position:relative;width:118px;height:118px;display:flex;align-items:center;justify-content:center;}
-.ring{position:absolute;inset:0;transform:rotate(-90deg);}
-.ring circle{fill:none;stroke-width:3.5;}
-.ring .track{stroke:rgba(255,255,255,0.12);}
-.ring .left{stroke:var(--gold-light);stroke-linecap:round;transition:stroke-dashoffset 1s linear;}
-.orb{width:88px;height:88px;border-radius:50%;border:none;cursor:pointer;position:relative;
-  background:radial-gradient(circle at 32% 30%,#E8C775 0%,var(--gold-light) 35%,var(--gold) 70%,#8A6E26 100%);
-  box-shadow:0 6px 30px rgba(212,168,67,0.45),inset 0 -4px 12px rgba(0,0,0,0.25);
-  display:flex;align-items:center;justify-content:center;transition:transform 0.2s,box-shadow 0.3s;}
-.orb:active{transform:scale(0.94);}
-.orb:focus-visible{outline:3px solid var(--cream);outline-offset:4px;}
-.orb svg{width:34px;height:34px;color:var(--green-deep);position:relative;z-index:2;}
-.orb .halo{position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(212,168,67,0.5);opacity:0;}
-body.listening .orb .halo{animation:halo 1.6s ease-out infinite;}
-body.listening .orb{box-shadow:0 0 0 6px rgba(212,168,67,0.18),0 6px 36px rgba(212,168,67,0.6),inset 0 -4px 12px rgba(0,0,0,0.25);}
-@keyframes halo{0%{opacity:0.8;transform:scale(0.85);}100%{opacity:0;transform:scale(1.35);}}
-body.thinking .orb{animation:breathe 1.1s ease-in-out infinite;}
-@keyframes breathe{0%,100%{filter:brightness(1);}50%{filter:brightness(1.25);}}
-body.speaking .orb{background:radial-gradient(circle at 32% 30%,#5FBF8A 0%,#2E8B57 45%,var(--green) 75%,#0C3320 100%);box-shadow:0 6px 30px rgba(46,139,87,0.5),inset 0 -4px 12px rgba(0,0,0,0.3);}
-body.speaking .orb svg{color:var(--cream);}
-
-/* live mic bars */
-.bars{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:3px;z-index:2;}
-body.listening .bars{display:flex;}
-body.listening .orb svg{display:none;}
-.bars i{width:4px;border-radius:3px;background:var(--green-deep);height:8px;transition:height 0.08s;}
-
-.controls{display:flex;align-items:center;gap:1.4rem;}
-.ctrl{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);transition:all 0.2s;}
-.ctrl:hover{color:var(--ink);background:rgba(255,255,255,0.12);}
-.ctrl:focus-visible{outline:2px solid var(--gold-light);outline-offset:2px;}
-.ctrl svg{width:19px;height:19px;}
-.ctrl.on{background:var(--gold);border-color:var(--gold);color:var(--green-deep);}
-.hintline{font-size:0.72rem;color:var(--ink-faint);text-align:center;}
-
-/* ── Login overlay ── */
-.overlay{position:fixed;inset:0;background:rgba(10,33,21,0.92);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1.25rem;z-index:50;}
-.panel{background:var(--cream);color:#1A1A1A;border-radius:22px;padding:2rem 1.6rem;width:100%;max-width:380px;text-align:center;}
-.panel .ar-line{font-family:'Amiri',serif;color:var(--gold);font-size:1.35rem;margin-bottom:0.6rem;}
-.panel h1{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.9rem;margin-bottom:0.4rem;}
-.panel p{font-size:0.88rem;color:#5A5247;margin-bottom:1.2rem;line-height:1.6;}
-.panel input{width:100%;padding:0.85rem 1rem;border-radius:12px;border:1.5px solid #E2D9BE;background:#fff;font-family:inherit;font-size:0.95rem;margin-bottom:0.7rem;}
-.panel input:focus{outline:2px solid var(--gold);border-color:var(--gold);}
-.panel .err{display:none;background:#FDECEC;color:#B3261E;border:1px solid #F5C6C2;border-radius:10px;padding:0.6rem 0.9rem;font-size:0.82rem;margin-bottom:0.7rem;}
-.panel button{width:100%;padding:0.9rem;border:none;border-radius:50px;background:var(--green);color:#fff;font-family:inherit;font-weight:700;font-size:0.95rem;cursor:pointer;transition:background 0.2s;}
-.panel button:hover{background:var(--green-deep);}
-.panel a{color:var(--green);font-size:0.82rem;}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
-</style>
-</head>
-<body>
-
-<header>
-  <a class="brand" href="/espace-eleve.html">
-    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion">
-    <span class="brand-name">Kalam<span> ·</span></span>
-  </a>
-  <div class="timer" id="timer">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-    <span class="tleft" id="timeLeft">3:00</span>
-  </div>
-</header>
-
-<div class="chips">
-  <div class="chip-group" role="group" aria-label="Langue">
-    <button class="chip lang on" data-lang="fr">🇫🇷 Français</button>
-    <button class="chip lang" data-lang="ar">🇸🇦 العربية</button>
-    <button class="chip lang" data-lang="en">🇬🇧 English</button>
-  </div>
-  <div class="chip-divider"></div>
-  <div class="chip-group" role="group" aria-label="Niveau">
-    <button class="chip lvl on" data-lvl="debutant">Débutant</button>
-    <button class="chip lvl" data-lvl="intermediaire">Intermédiaire</button>
-    <button class="chip lvl" data-lvl="avance">Avancé</button>
-  </div>
-</div>
-
-<main>
-  <div id="feed" aria-live="polite"></div>
-  <div class="stage">
-    <div class="status" id="status">Touche l'orbe et parle</div>
-    <div class="orb-wrap">
-      <svg class="ring" viewBox="0 0 118 118" aria-hidden="true">
-        <circle class="track" cx="59" cy="59" r="55"/>
-        <circle class="left" id="ringLeft" cx="59" cy="59" r="55" stroke-dasharray="345.6" stroke-dashoffset="0"/>
-      </svg>
-      <button class="orb" id="orb" aria-label="Parler">
-        <span class="halo"></span>
-        <div class="bars" id="bars"><i></i><i></i><i></i><i></i><i></i></div>
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0H3a9 9 0 0 0 8 8.94V23h2v-3.06A9 9 0 0 0 21 11h-2Z"/></svg>
-      </button>
-    </div>
-    <div class="controls">
-      <button class="ctrl on" id="autoBtn" title="Conversation continue" aria-label="Conversation continue">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>
-      </button>
-      <button class="ctrl" id="stopBtn" title="Couper la voix" aria-label="Couper la voix">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-      </button>
-    </div>
-    <div class="hintline" id="hintline">Mode continu activé — la conversation s'enchaîne toute seule</div>
-  </div>
-</main>
-
-<!-- Login -->
-<div class="overlay" id="loginOverlay" style="display:none;">
-  <div class="panel">
-    <div class="ar-line">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-    <h1>Kalam</h1>
-    <p>Connecte-toi avec ton compte élève pour pratiquer l'arabe à voix haute avec ton Oustaz.</p>
-    <div class="err" id="loginErr"></div>
-    <input type="text" id="liId" placeholder="Email ou WhatsApp" autocomplete="username">
-    <input type="password" id="liPwd" placeholder="Mot de passe" autocomplete="current-password">
-    <button id="liBtn">Se connecter →</button>
-    <p style="margin-top:0.9rem;margin-bottom:0;"><a href="/espace-eleve.html">Retour à l'espace élève</a></p>
-  </div>
-</div>
-
-<script>
-/* ════════ KALAM — conversation vocale fluide ════════ */
-const DAILY_SECONDS = 180;               // 3 min / jour
-const $ = id => document.getElementById(id);
-
-let token=null, student=null;
-let lang='fr', level='debutant';
-let history=[];                           // {role, content}
-let autoMode=true;
-let recognition=null, recActive=false, manualStop=false;
-let audioCtx=null, analyser=null, micStream=null, rafId=null;
-let currentAudio=null;
-let secondsLeft=DAILY_SECONDS, tickInt=null, started=false;
-
-/* ── Quota journalier (localStorage) ── */
-(function initQuota(){
-  const today=new Date().toISOString().slice(0,10);
-  if(localStorage.getItem('kalam_day')!==today){
-    localStorage.setItem('kalam_day',today);
-    localStorage.setItem('kalam_left',DAILY_SECONDS);
-  }
-  secondsLeft=parseInt(localStorage.getItem('kalam_left')||DAILY_SECONDS);
-  drawTimer();
-})();
-function drawTimer(){
-  const m=Math.floor(Math.max(0,secondsLeft)/60), s=Math.max(0,secondsLeft)%60;
-  $('timeLeft').textContent=`${m}:${String(s).padStart(2,'0')}`;
-  const C=345.6, pct=Math.max(0,secondsLeft)/DAILY_SECONDS;
-  $('ringLeft').style.strokeDashoffset=String(C*(1-pct));
-}
-function startTick(){
-  if(tickInt) return;
-  tickInt=setInterval(()=>{
-    secondsLeft--; localStorage.setItem('kalam_left',secondsLeft); drawTimer();
-    if(secondsLeft<=0){ endOfQuota(); }
-  },1000);
-}
-function stopTick(){ clearInterval(tickInt); tickInt=null; }
-function endOfQuota(){
-  stopTick(); stopListening(true); stopSpeaking();
-  setStatus('Session du jour terminée — à demain in shâ Allah !');
-  addMsg('hint','Tu as utilisé tes 3 minutes du jour. Reviens demain pour continuer à progresser 🌙');
-}
-
-/* ── Auth ── */
-async function checkAuth(){
-  token=localStorage.getItem('medin_token')||localStorage.getItem('studentToken');
-  if(!token){ $('loginOverlay').style.display='flex'; return; }
-  try{
-    const r=await fetch('/api/member/me',{headers:{'Authorization':'Bearer '+token}});
-    if(!r.ok) throw 0;
-    student=await r.json();
-    welcome();
-  }catch{ $('loginOverlay').style.display='flex'; }
-}
-$('liBtn').onclick=async()=>{
-  const id=$('liId').value.trim(), pwd=$('liPwd').value;
-  const err=$('loginErr'); err.style.display='none';
-  if(!id||!pwd){err.textContent='Email/WhatsApp et mot de passe requis.';err.style.display='block';return;}
-  try{
-    const body=id.includes('@')?{email:id,password:pwd}:{whatsapp:id,password:pwd};
-    const r=await fetch('/api/member/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const d=await r.json();
-    if(!r.ok) throw new Error(d.error||'Identifiants incorrects.');
-    token=d.token; localStorage.setItem('medin_token',token);
-    student=d.student||null;
-    $('loginOverlay').style.display='none';
-    welcome();
-  }catch(e){err.textContent=e.message;err.style.display='block';}
-};
-function welcome(){
-  const name=student?.prenom||student?.kounia||'';
-  addMsg('hint',`As-salamou alaykoum${name?' '+name:''} ! Choisis ta langue et ton niveau, puis touche l'orbe doré pour parler.`);
-}
-
-/* ── UI helpers ── */
-function setStatus(t,cls){ const s=$('status'); s.textContent=t; s.className='status'+(cls?' '+cls:''); }
-function setBodyState(st){ document.body.className=st||''; }
-function addMsg(kind,text){
-  const d=document.createElement('div');
-  d.className='msg '+kind;
-  if(kind==='ai'){ d.innerHTML=text.replace(/([\u0600-\u06FF][^<]*)/g,'<span class="ar">$1</span>'); }
-  else d.textContent=text;
-  $('feed').appendChild(d);
-  $('feed').scrollTop=$('feed').scrollHeight;
-  return d;
-}
-let interimEl=null;
-function showInterim(t){
-  if(!interimEl){ interimEl=addMsg('interim',t); } else { interimEl.textContent=t; $('feed').scrollTop=$('feed').scrollHeight; }
-}
-function clearInterim(){ if(interimEl){interimEl.remove();interimEl=null;} }
-
-/* ── Chips ── */
-document.querySelectorAll('.chip.lang').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.chip.lang').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); lang=b.dataset.lang;
-  if(recActive){ restartRecognition(); }
-});
-document.querySelectorAll('.chip.lvl').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.chip.lvl').forEach(x=>x.classList.remove('on'));
-  b.classList.add('on'); level=b.dataset.lvl;
-});
-$('autoBtn').onclick=()=>{
-  autoMode=!autoMode;
-  $('autoBtn').classList.toggle('on',autoMode);
-  $('hintline').textContent=autoMode?"Mode continu activé — la conversation s'enchaîne toute seule":"Mode continu désactivé — touche l'orbe à chaque tour";
-};
-$('stopBtn').onclick=()=>{ stopSpeaking(); stopListening(true); setStatus('En pause — touche l\'orbe pour reprendre'); };
-
-/* ── Micro + niveau sonore ── */
-async function ensureMic(){
-  if(micStream) return true;
-  try{
-    micStream=await navigator.mediaDevices.getUserMedia({audio:true});
-    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    const src=audioCtx.createMediaStreamSource(micStream);
-    analyser=audioCtx.createAnalyser(); analyser.fftSize=64;
-    src.connect(analyser);
-    return true;
-  }catch(e){
-    addMsg('hint','Micro refusé. Autorise le micro dans les réglages de ton navigateur pour utiliser Kalam.');
-    setStatus('Micro non autorisé');
-    return false;
-  }
-}
-function animateBars(){
-  if(!analyser) return;
-  const data=new Uint8Array(analyser.frequencyBinCount);
-  const bars=$('bars').children;
-  const loop=()=>{
-    analyser.getByteFrequencyData(data);
-    for(let i=0;i<bars.length;i++){
-      const v=data[i*3+2]||0;
-      bars[i].style.height=Math.max(6,(v/255)*36)+'px';
-    }
-    rafId=requestAnimationFrame(loop);
-  };
-  loop();
-}
-function stopBars(){ cancelAnimationFrame(rafId); }
-
-/* ── Reconnaissance vocale ── */
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function langCode(){ return lang==='ar'?'ar-SA':lang==='en'?'en-US':'fr-FR'; }
-function startListening(){
-  if(!SR){ addMsg('hint','Ton navigateur ne supporte pas la reconnaissance vocale. Utilise Chrome.'); return; }
-  if(secondsLeft<=0){ endOfQuota(); return; }
-  manualStop=false;
-  recognition=new SR();
-  recognition.lang=langCode();
-  recognition.interimResults=true;
-  recognition.continuous=false;
-  recognition.maxAlternatives=1;
-
-  recognition.onstart=()=>{ recActive=true; setBodyState('listening'); setStatus(lang==='ar'?'استمع إليك…':'Je t\'écoute…','listening'); animateBars(); startTick(); if(!started){started=true;} };
-  recognition.onresult=(ev)=>{
-    let interim='', final='';
-    for(let i=ev.resultIndex;i<ev.results.length;i++){
-      const t=ev.results[i][0].transcript;
-      if(ev.results[i].isFinal) final+=t; else interim+=t;
-    }
-    if(interim) showInterim(interim);
-    if(final){ clearInterim(); userSaid(final.trim()); }
-  };
-  recognition.onerror=(ev)=>{
-    recActive=false; stopBars();
-    if(ev.error==='no-speech'){ if(autoMode&&!manualStop&&secondsLeft>0){ try{recognition.stop();}catch{} setTimeout(()=>startListening(),250); } else { setBodyState(''); setStatus('Je n\'ai rien entendu — touche l\'orbe'); } return; }
-    if(ev.error==='not-allowed'){ setBodyState(''); setStatus('Micro non autorisé'); addMsg('hint','Autorise le micro pour parler avec Kalam.'); return; }
-    setBodyState(''); setStatus('Petit souci de micro — touche l\'orbe pour réessayer');
-  };
-  recognition.onend=()=>{ recActive=false; stopBars(); if(document.body.className==='listening') setBodyState(''); };
-  try{ recognition.start(); }catch{}
-}
-function stopListening(silent){
-  manualStop=true;
-  try{ recognition&&recognition.stop(); }catch{}
-  recActive=false; stopBars(); stopTick();
-  if(!silent) setBodyState('');
-}
-function restartRecognition(){ stopListening(true); setTimeout(()=>startListening(),200); }
-
-/* ── Tour de parole ── */
-async function userSaid(text){
-  if(!text) return;
-  stopListening(true);
-  addMsg('user',text);
-  history.push({role:'user',content:text});
-  setBodyState('thinking'); setStatus('Oustaz réfléchit…');
-  try{
-    const r=await fetch('/api/student/oustaz/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body:JSON.stringify({message:text,history:history.slice(-12),lang,level,student_name:student?.prenom||student?.kounia||null})
-    });
-    const d=await r.json();
-    if(!r.ok) throw new Error(d.error||'Erreur IA');
-    const reply=d.response||'…';
-    history.push({role:'assistant',content:reply});
-    addMsg('ai',reply);
-    await speak(reply);
-  }catch(e){
-    setBodyState(''); setStatus('Erreur — touche l\'orbe pour reprendre');
-    addMsg('hint',e.message);
-  }
-}
-
-/* ── Synthèse vocale : serveur (naturelle) → fallback navigateur ── */
-async function speak(text){
-  setBodyState('speaking'); setStatus(lang==='ar'?'الأستاذ يتكلم…':'Oustaz parle…','speaking');
-  stopTick();
-  const done=()=>{
-    setBodyState(''); 
-    if(secondsLeft<=0){ endOfQuota(); return; }
-    if(autoMode){ setTimeout(()=>startListening(),350); }
-    else setStatus('À toi — touche l\'orbe');
-  };
-  /* 1) Voix serveur (OpenAI) */
-  try{
-    const r=await fetch('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang})});
-    if(r.ok){
-      const blob=await r.blob();
-      currentAudio=new Audio(URL.createObjectURL(blob));
-      currentAudio.onended=done; currentAudio.onerror=done;
-      await currentAudio.play();
-      return;
-    }
-  }catch{}
-  /* 2) Fallback navigateur */
-  if('speechSynthesis' in window){
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang=langCode(); u.rate=0.95;
-    const voices=speechSynthesis.getVoices();
-    const v=voices.find(v=>v.lang.startsWith(langCode().slice(0,2))&&/natural|enhanced|premium/i.test(v.name))||voices.find(v=>v.lang.startsWith(langCode().slice(0,2)));
-    if(v) u.voice=v;
-    u.onend=done; u.onerror=done;
-    speechSynthesis.speak(u);
-  } else done();
-}
-function stopSpeaking(){
-  try{ currentAudio&&currentAudio.pause(); }catch{}
-  try{ window.speechSynthesis&&speechSynthesis.cancel(); }catch{}
-}
-
-/* ── Orbe ── */
-$('orb').onclick=async()=>{
-  if(secondsLeft<=0){ endOfQuota(); return; }
-  if(document.body.className==='speaking'){ stopSpeaking(); startListening(); return; }
-  if(recActive){ stopListening(); setStatus('En pause — touche l\'orbe pour reprendre'); return; }
-  const ok=await ensureMic(); if(!ok) return;
-  if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
-  startListening();
-};
-
-checkAuth();
-</script>
-</body>
-</html>
-.btn-login{width:100%;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);border:none;padding:0.85rem;border-radius:50px;font-family:inherit;font-size:0.92rem;font-weight:700;cursor:pointer;transition:opacity 0.2s;}
-.btn-login:hover{opacity:0.9;}
-.login-err{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#FCA5A5;padding:0.6rem 0.9rem;border-radius:9px;font-size:0.8rem;margin-bottom:1rem;display:none;}
-.login-register{margin-top:1.25rem;font-size:0.8rem;color:rgba(255,255,255,0.45);}
-.login-register a{color:var(--gold-light);text-decoration:none;}
-
-/* ─── MAIN KALAM ─────────────────── */
-#kalamMain{flex:1;display:none;flex-direction:column;overflow:hidden;}
-
-/* Header info */
-.kalam-header{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.75rem;border-bottom:1px solid rgba(255,255,255,0.07);}
-.kalam-info{display:flex;align-items:center;gap:0.5rem;font-size:0.8rem;color:rgba(255,255,255,0.55);}
-.kalam-info strong{color:rgba(255,255,255,0.85);}
-/* Timer */
-.timer-wrap{display:flex;align-items:center;gap:0.6rem;}
-.timer-ring{position:relative;width:52px;height:52px;}
-.timer-ring svg{transform:rotate(-90deg);}
-.timer-ring circle{fill:none;stroke-width:4;}
-.timer-track{stroke:rgba(255,255,255,0.1);}
-.timer-fill{stroke:var(--gold-light);stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke 0.3s;}
-.timer-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:var(--gold-light);}
-.timer-label{font-size:0.72rem;color:rgba(255,255,255,0.5);}
-
-/* ─── CONVERSATION ───────────────── */
-.convo-area{flex:1;overflow-y:auto;padding:1.25rem 1.75rem;display:flex;flex-direction:column;gap:0.85rem;}
-.convo-area::-webkit-scrollbar{width:4px;}
-.convo-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
-.bubble{max-width:75%;border-radius:18px;padding:0.9rem 1.1rem;font-size:0.9rem;line-height:1.6;}
-.bubble.ai{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:white;align-self:flex-start;border-bottom-left-radius:4px;}
-.bubble.ai .ar-text{font-family:'Amiri',serif;font-size:1.1rem;direction:rtl;margin-bottom:0.3rem;color:var(--gold-light);}
-.bubble.ai .fr-text{font-size:0.78rem;color:rgba(255,255,255,0.5);font-style:italic;}
-.bubble.user{background:rgba(212,168,67,0.2);border:1px solid rgba(212,168,67,0.3);color:white;align-self:flex-end;border-bottom-right-radius:4px;direction:rtl;font-family:'Amiri',serif;font-size:1.05rem;}
-.bubble.typing{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);align-self:flex-start;padding:0.75rem 1rem;}
-.tdots{display:flex;gap:5px;align-items:center;}
-.tdots span{width:7px;height:7px;background:rgba(255,255,255,0.4);border-radius:50%;animation:tdot 1.2s infinite;}
-.tdots span:nth-child(2){animation-delay:0.2s;}
-.tdots span:nth-child(3){animation-delay:0.4s;}
-@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-.system-msg{text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.35);padding:0.25rem 0;}
-
-/* ─── MIC ZONE ───────────────────── */
-.mic-zone{padding:1.25rem 1.75rem;border-top:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;align-items:center;gap:0.9rem;flex-shrink:0;}
-/* Waveform */
-.waveform{display:flex;align-items:center;justify-content:center;gap:3px;height:36px;}
-.waveform .bar{width:3px;background:rgba(255,255,255,0.2);border-radius:2px;transition:height 0.1s;height:4px;}
-.waveform.active .bar{background:var(--gold-light);}
-/* Mic button */
-.mic-btn{width:72px;height:72px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.8rem;transition:all 0.3s;position:relative;flex-shrink:0;}
-.mic-btn.idle{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);}
-.mic-btn.listening{background:var(--green);border:2px solid var(--gold-light);animation:pulse-ring 1.5s ease-in-out infinite;}
-.mic-btn.speaking{background:rgba(212,168,67,0.2);border:2px solid var(--gold-light);}
-.mic-btn.disabled{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.08);cursor:not-allowed;opacity:0.5;}
-@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(212,168,67,0.4)}70%{box-shadow:0 0 0 18px rgba(212,168,67,0)}100%{box-shadow:0 0 0 0 rgba(212,168,67,0)}}
-.mic-status{font-size:0.78rem;color:rgba(255,255,255,0.5);text-align:center;min-height:1.2em;}
-.mic-status.listening{color:var(--gold-light);}
-.mic-status.speaking{color:rgba(255,255,255,0.7);}
-/* Manual text fallback */
-.text-fallback{display:flex;gap:0.5rem;width:100%;max-width:480px;}
-.text-fallback input{flex:1;padding:0.6rem 1rem;border:1.5px solid rgba(255,255,255,0.15);border-radius:50px;font-family:'Amiri',serif;font-size:0.95rem;color:white;background:rgba(255,255,255,0.07);outline:none;direction:rtl;}
-.text-fallback input:focus{border-color:var(--gold-light);}
-.text-fallback input::placeholder{color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:0.82rem;direction:ltr;}
-.text-fallback button{width:38px;height:38px;border-radius:50%;background:var(--gold-light);border:none;color:var(--green-deep);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:opacity 0.2s;flex-shrink:0;}
-.text-fallback button:hover{opacity:0.85;}
-/* Session ended */
-#sessionEnded{display:none;flex:1;align-items:center;justify-content:center;padding:2rem;flex-direction:column;text-align:center;gap:1.25rem;}
-.ended-icon{font-size:3rem;}
-.ended-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--gold-light);}
-.ended-msg{color:rgba(255,255,255,0.65);font-size:0.92rem;line-height:1.7;max-width:360px;}
-.btn-gold{display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.85rem 1.9rem;border-radius:50px;font-weight:700;font-size:0.92rem;text-decoration:none;border:none;cursor:pointer;transition:opacity 0.2s;}
-.btn-gold:hover{opacity:0.9;}
-
-/* Loading */
-#loadingScreen{flex:1;display:flex;align-items:center;justify-content:center;}
-.loader{width:42px;height:42px;border:3px solid rgba(255,255,255,0.15);border-top-color:var(--gold-light);border-radius:50%;animation:spin 0.8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-@media(max-width:480px){.bubble{max-width:88%}.mic-btn{width:64px;height:64px;font-size:1.5rem}.kalam-header{flex-wrap:wrap;gap:0.5rem}}
-</style>
-</head>
-<body>
-
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="topbar-logo">
-    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="MI">
-    <span class="topbar-title">كَلاَم</span>
-  </div>
-  <div class="topbar-right">
-    <span class="user-chip" id="userChip" style="display:none;"></span>
-    <a href="/espace-eleve.html" class="btn-back">← Espace élève</a>
-  </div>
-</div>
-
-<!-- LOADING -->
-<div id="loadingScreen"><div class="loader"></div></div>
-
-<!-- LOGIN GATE -->
-<div id="loginGate" style="display:none;">
-  <div class="login-box">
-    <div class="ar">كَلاَم — تَحَدَّث بِالْعَرَبِيَّة</div>
-    <h2>Accès réservé</h2>
-    <p>Connectez-vous avec votre compte élève pour accéder à la pratique orale.</p>
-    <div class="login-err" id="loginErr"></div>
-    <div class="fg"><label>WhatsApp ou Email</label><input type="text" id="loginId" placeholder="+33 6 ..."></div>
-    <div class="fg"><label>Mot de passe</label><input type="password" id="loginPwd" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="btn-login" onclick="doLogin()">Accéder à Kalam →</button>
-    <div class="login-register">Pas encore inscrit ? <a href="/inscription.html">S'inscrire →</a></div>
-  </div>
-</div>
-
-<!-- KALAM MAIN -->
-<div id="kalamMain">
-  <!-- Sub-header with timer -->
-  <div class="kalam-header">
-    <div class="kalam-info">
-      <span>🎙️ Pratique orale arabe</span>
-      <span>·</span>
-      <strong id="studentName">–</strong>
-    </div>
-    <div class="timer-wrap">
-      <div class="timer-ring">
-        <svg width="52" height="52" viewBox="0 0 52 52">
-          <circle class="timer-track" cx="26" cy="26" r="22"/>
-          <circle class="timer-fill" id="timerArc" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="0"/>
-        </svg>
-        <div class="timer-text" id="timerText">3:00</div>
-      </div>
-      <div class="timer-label">par session</div>
-    </div>
-  </div>
-
-  <!-- Conversation -->
-  <div class="convo-area" id="convoArea"></div>
-
-  <!-- Session Ended overlay inside kalamMain -->
-  <div id="sessionEnded" style="display:none;flex-direction:column;">
-    <div class="ended-icon">⏳</div>
-    <div class="ended-title">وَقْتٌ انْتَهَى</div>
-    <p class="ended-msg">Votre session de 3 minutes est terminée. Revenez demain pour une nouvelle session, ou inscrivez-vous à un cours pour des séances illimitées !</p>
-    <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
-      <a href="/inscription.html" class="btn-gold">S'inscrire pour plus →</a>
-      <a href="/espace-eleve.html" class="btn-back" style="padding:0.85rem 1.5rem;">← Espace élève</a>
-    </div>
-  </div>
-
-  <!-- Mic zone -->
-  <div class="mic-zone" id="micZone">
-    <!-- Waveform -->
-    <div class="waveform" id="waveform">
-      <div class="bar" style="height:6px"></div><div class="bar" style="height:12px"></div>
-      <div class="bar" style="height:8px"></div><div class="bar" style="height:18px"></div>
-      <div class="bar" style="height:10px"></div><div class="bar" style="height:24px"></div>
-      <div class="bar" style="height:14px"></div><div class="bar" style="height:20px"></div>
-      <div class="bar" style="height:8px"></div><div class="bar" style="height:16px"></div>
-      <div class="bar" style="height:6px"></div><div class="bar" style="height:12px"></div>
-      <div class="bar" style="height:8px"></div><div class="bar" style="height:18px"></div>
-      <div class="bar" style="height:10px"></div>
-    </div>
-    <!-- Mic button -->
-    <button class="mic-btn idle" id="micBtn" onclick="toggleMic()">🎙️</button>
-    <div class="mic-status" id="micStatus">Appuyez pour parler en arabe</div>
-    <!-- Text fallback -->
-    <div class="text-fallback">
-      <input type="text" id="textInput" placeholder="Ou tapez en arabe / français..." onkeydown="if(event.key==='Enter')sendText()">
-      <button onclick="sendText()">➤</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// ─── STATE ──────────────────────────
-let token = null;
-let student = null;
-let sessionSeconds = 180; // 3 minutes
-let timerInterval = null;
-let timerStarted = false;
-let recognition = null;
-let isListening = false;
-let isSpeaking = false;
-let currentAudio = null;
-let waveInterval = null;
-const CIRCUMFERENCE = 138.2;
-const SESSION_KEY = 'kalam_session_';
-
-// ─── INIT ────────────────────────────
-async function init() {
-  token = localStorage.getItem('medin_token') || localStorage.getItem('studentToken');
-  if (!token) { showLoginGate(); return; }
-  try {
-    const res = await fetch('/api/member/me', { headers: { 'Authorization': 'Bearer ' + token } });
-    if (!res.ok) throw new Error();
-    student = await res.json();
-    checkSessionLimit();
-  } catch {
-    showLoginGate();
-  }
-}
-
-function showLoginGate() {
-  document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('loginGate').style.display = 'flex';
-}
-
-async function doLogin() {
-  const id = document.getElementById('loginId').value.trim();
-  const pwd = document.getElementById('loginPwd').value.trim();
-  const err = document.getElementById('loginErr');
-  err.style.display = 'none';
-  if (!id || !pwd) { err.textContent = 'Remplissez les deux champs.'; err.style.display = 'block'; return; }
-  const btn = document.querySelector('.btn-login'); btn.textContent = '…'; btn.disabled = true;
-  try {
-    const res = await fetch('/api/member/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(id.includes('@') ? { email: id, password: pwd } : { whatsapp: id, password: pwd }) });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Identifiants incorrects.');
-    token = data.token;
-    localStorage.setItem('medin_token', token);
-    const r2 = await fetch('/api/member/me', { headers: { 'Authorization': 'Bearer ' + token } });
-    student = await r2.json();
-    document.getElementById('loginGate').style.display = 'none';
-    checkSessionLimit();
-  } catch (e) {
-    err.textContent = e.message; err.style.display = 'block';
-    btn.textContent = 'Accéder à Kalam →'; btn.disabled = false;
-  }
-}
-
-// ─── SESSION LIMIT ──────────────────
-function checkSessionLimit() {
-  document.getElementById('loadingScreen').style.display = 'none';
-  const key = SESSION_KEY + (student?.id || 'guest');
-  const stored = JSON.parse(localStorage.getItem(key) || '{}');
-  const today = new Date().toDateString();
-
-  if (stored.date === today && stored.used >= 1) {
-    // Already used today
-    showSessionEnded(true);
-    return;
-  }
-  // Start fresh
-  startKalam();
-}
-
-function markSessionUsed() {
-  const key = SESSION_KEY + (student?.id || 'guest');
-  const today = new Date().toDateString();
-  localStorage.setItem(key, JSON.stringify({ date: today, used: 1 }));
-}
-
-// ─── START KALAM ────────────────────
-function startKalam() {
-  const name = student?.prenom || student?.nom || 'Élève';
-  document.getElementById('studentName').textContent = name;
-  document.getElementById('userChip').textContent = name;
-  document.getElementById('userChip').style.display = 'block';
-  document.getElementById('kalamMain').style.display = 'flex';
-  setupSpeechRecognition();
-  addBubble('ai', 'مَرْحَباً! أَنَا أُسْتَاذُكَ الذَّكِيُّ. تَحَدَّثْ مَعِي بِالْعَرَبِيَّةِ، وَسَأُجِيبُكَ بِالْعَرَبِيَّةِ أَيْضاً. سَسَاعِدُكَ عَلَى تَحْسِينِ لُغَتِكَ. هَيَّا نَبْدَأ! 😊', 'Bienvenue ! Je suis ton professeur IA. Parle-moi en arabe et je te répondrai en arabe. Appuie sur le micro !');
-}
-
-// ─── TIMER ──────────────────────────
-function startTimer() {
-  if (timerStarted) return;
-  timerStarted = true;
-  markSessionUsed();
-  timerInterval = setInterval(() => {
-    sessionSeconds--;
-    updateTimerUI();
-    if (sessionSeconds <= 0) {
-      clearInterval(timerInterval);
-      endSession();
-    }
-  }, 1000);
-}
-
-function updateTimerUI() {
-  const mins = Math.floor(sessionSeconds / 60);
-  const secs = sessionSeconds % 60;
-  document.getElementById('timerText').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-  const pct = sessionSeconds / 180;
-  const offset = CIRCUMFERENCE * (1 - pct);
-  const arc = document.getElementById('timerArc');
-  arc.style.strokeDashoffset = offset;
-  // Turn red in last 30s
-  arc.style.stroke = sessionSeconds <= 30 ? '#EF4444' : 'var(--gold-light)';
-  document.getElementById('timerText').style.color = sessionSeconds <= 30 ? '#EF4444' : 'var(--gold-light)';
-}
-
-function endSession() {
-  stopListening();
-  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  showSessionEnded(false);
-}
-
-function showSessionEnded(alreadyUsed) {
-  document.getElementById('loadingScreen').style.display = 'none';
-  document.getElementById('loginGate').style.display = 'none';
-
-  if (alreadyUsed) {
-    document.getElementById('kalamMain').style.display = 'flex';
-    document.getElementById('kalamMain').style.flexDirection = 'column';
-  }
-
-  document.getElementById('micZone').style.display = 'none';
-  document.getElementById('convoArea').style.display = 'none';
-  const ended = document.getElementById('sessionEnded');
-  ended.style.display = 'flex';
-  if (alreadyUsed) {
-    ended.querySelector('.ended-msg').textContent = "Vous avez déjà utilisé votre session de 3 minutes aujourd'hui. Revenez demain ou inscrivez-vous à un cours pour des sessions illimitées avec un professeur !";
-  }
-}
-
-// ─── SPEECH RECOGNITION ─────────────
-function setupSpeechRecognition() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    document.getElementById('micBtn').classList.add('disabled');
-    document.getElementById('micStatus').textContent = 'Micro non supporté — utilisez le champ texte';
-    return;
-  }
-  recognition = new SpeechRecognition();
-  recognition.lang = 'ar';
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => {
-    isListening = true;
-    setMicState('listening');
-    startWaveform();
-    startTimer();
-  };
-
-  recognition.onresult = (e) => {
-    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
-    if (e.results[e.results.length - 1].isFinal) {
-      stopListening();
-      if (transcript.trim()) sendToAI(transcript.trim());
-    }
-  };
-
-  recognition.onerror = (e) => {
-    stopListening();
-    if (e.error === 'no-speech') {
-      setMicStatus('Aucune parole détectée. Réessayez.', false);
-    } else if (e.error === 'not-allowed') {
-      document.getElementById('micBtn').classList.add('disabled');
-      setMicStatus('Microphone refusé — utilisez le champ texte', false);
-    }
-  };
-
-  recognition.onend = () => {
-    if (isListening) stopListening();
-  };
-}
-
-function toggleMic() {
-  if (document.getElementById('micBtn').classList.contains('disabled')) return;
-  if (isSpeaking) { stopAudio(); return; }
-  if (isListening) { stopListening(); } else { startListening(); }
-}
-
-function startListening() {
-  if (!recognition) return;
-  try { recognition.start(); } catch {}
-}
-
-function stopListening() {
-  isListening = false;
-  if (recognition) { try { recognition.stop(); } catch {} }
-  setMicState('idle');
-  stopWaveform();
-}
-
-// ─── WAVEFORM ANIMATION ─────────────
-function startWaveform() {
-  const bars = document.querySelectorAll('.waveform .bar');
-  document.getElementById('waveform').classList.add('active');
-  waveInterval = setInterval(() => {
-    bars.forEach(b => { b.style.height = (4 + Math.random() * 28) + 'px'; });
-  }, 80);
-}
-
-function stopWaveform() {
-  clearInterval(waveInterval);
-  document.getElementById('waveform').classList.remove('active');
-  document.querySelectorAll('.waveform .bar').forEach(b => b.style.height = '4px');
-}
-
-// ─── MIC STATE ──────────────────────
-function setMicState(state) {
-  const btn = document.getElementById('micBtn');
-  btn.className = 'mic-btn ' + state;
-  const states = {
-    idle: { icon: '🎙️', status: 'Appuyez pour parler en arabe', class: false },
-    listening: { icon: '🛑', status: 'Écoute en cours… parlez en arabe', class: 'listening' },
-    speaking: { icon: '🔊', status: 'L\'IA répond…', class: 'speaking' },
-    thinking: { icon: '⏳', status: 'Traitement en cours…', class: false },
-  };
-  const s = states[state] || states.idle;
-  btn.textContent = s.icon;
-  setMicStatus(s.status, s.class === 'listening');
-}
-
-function setMicStatus(txt, highlight) {
-  const el = document.getElementById('micStatus');
-  el.textContent = txt;
-  el.className = 'mic-status' + (highlight ? ' listening' : '');
-}
-
-// ─── SEND TO AI ─────────────────────
-async function sendToAI(text) {
-  if (sessionSeconds <= 0) return;
-  addBubble('user', text);
-  setMicState('thinking');
-  const typing = addTyping();
-
-  try {
-    // Use the existing oustaz chat endpoint
-    const res = await fetch('/api/student/oustaz/chat', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: '[KALAM MODE] ' + text, mode: 'libre' })
-    });
-    const data = await res.json();
-    typing.remove();
-    const reply = data.reply || 'عفواً، لم أفهم. أعد المحاولة.';
-    addBubble('ai', reply);
-    await speakText(reply);
-  } catch {
-    typing.remove();
-    addBubble('ai', 'عُذْراً، حَدَثَ خَطَأ. حَاوِلْ مَرَّةً أُخْرَى.');
-    setMicState('idle');
-  }
-}
-
-// ─── TEXT FALLBACK ──────────────────
-function sendText() {
-  const input = document.getElementById('textInput');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  startTimer();
-  sendToAI(text);
-}
-
-// ─── TTS ────────────────────────────
-async function speakText(text) {
-  if (sessionSeconds <= 0) { setMicState('idle'); return; }
-  setMicState('speaking');
-  isSpeaking = true;
-  startWaveform();
-
-  try {
-    const gender = student?.gender === 'femme' ? 'female' : 'male';
-    const res = await fetch('/api/oustaz/tts', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, voiceGender: gender })
-    });
-    if (!res.ok) throw new Error('TTS error');
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    currentAudio = new Audio(url);
-    currentAudio.onended = () => {
-      isSpeaking = false;
-      stopWaveform();
-      currentAudio = null;
-      if (sessionSeconds > 0) setMicState('idle');
-    };
-    currentAudio.onerror = () => {
-      isSpeaking = false;
-      stopWaveform();
-      setMicState('idle');
-    };
-    await currentAudio.play();
-  } catch {
-    // Fallback: browser TTS
-    isSpeaking = false;
-    stopWaveform();
-    setMicState('idle');
+/**
+ * routes/admin.js — Admin CRUD operations (students, teachers, bookings, groups, notifications, schedules, sessions)
+ * Owns: /api/admin/* endpoints
+ * Does NOT own: gerant auth setup (see gerant.js), library (see routes/library.js)
+ */
+'use strict';
+
+module.exports = function (pool, opts) {
+  const { requireAdmin, requireTeacherAuth, hashPassword, verifyPassword, generateToken,
+    sendEmail, sendWhatsApp, uploadToR2WithRetry, FormDataLib, pool: db, PRICING, ENROLLMENT_FEE } = opts;
+  const router = require('express').Router();
+
+  // GET /api/admin/students
+  router.get('/api/admin/students', requireAdmin, async (req, res) => {
     try {
-      const utt = new SpeechSynthesisUtterance(text);
-      utt.lang = 'ar';
-      utt.rate = 0.85;
-      window.speechSynthesis.speak(utt);
-    } catch {}
-  }
-}
+      const students = await pool.query(`
+        SELECT s.id, s.nom, s.prenom, s.kounia, s.whatsapp, s.email, s.gender, s.status, s.validation_status, s.paiement_statut, s.created_at,
+          (SELECT COUNT(*) FROM bookings b WHERE b.student_id = s.id) as booking_count,
+          COALESCE(STRING_AGG(DISTINCT (t.prenom || ' ' || t.nom), ', '), '—') AS teacher_names
+        FROM students s
+        LEFT JOIN teacher_student_assignments tsa ON tsa.student_id = s.id
+        LEFT JOIN teachers t ON t.id = tsa.teacher_id
+        GROUP BY s.id ORDER BY s.created_at DESC
+      `);
+      const bookings = await pool.query(`SELECT b.*, s.nom as student_nom, s.prenom as student_prenom FROM bookings b JOIN students s ON s.id = b.student_id ORDER BY b.created_at DESC`);
+      res.json({ students: students.rows, bookings: bookings.rows });
+    } catch (err) { console.error('[admin/students]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
 
-function stopAudio() {
-  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-  window.speechSynthesis?.cancel();
-  isSpeaking = false;
-  stopWaveform();
-  setMicState('idle');
-}
+  // GET /api/admin/bookings — all bookings with student info
+  router.get('/api/admin/bookings', requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT b.*, s.nom AS student_nom, s.prenom AS student_prenom, s.email AS student_email
+         FROM bookings b JOIN students s ON s.id = b.student_id
+         ORDER BY b.created_at DESC LIMIT 500`
+      );
+      res.json(r.rows);
+    } catch (err) { console.error('[admin/bookings]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
 
-// ─── UI HELPERS ─────────────────────
-function addBubble(role, arText, frText) {
-  const area = document.getElementById('convoArea');
-  const div = document.createElement('div');
-  div.className = 'bubble ' + role;
-  if (role === 'ai') {
-    div.innerHTML = `<div class="ar-text">${arText}</div>${frText ? `<div class="fr-text">${frText}</div>` : ''}`;
-  } else {
-    div.textContent = arText;
-  }
-  area.appendChild(div);
-  area.scrollTop = area.scrollHeight;
-  return div;
-}
+  // GET /api/admin/students/:id — single student detail
+  router.get('/api/admin/students/:id', requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query('SELECT * FROM students WHERE id = $1', [req.params.id]);
+      if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
+      res.json({ student: r.rows[0] });
+    } catch (err) { console.error('[admin/student]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
 
-function addTyping() {
-  const area = document.getElementById('convoArea');
-  const div = document.createElement('div');
-  div.className = 'bubble typing';
-  div.innerHTML = '<div class="tdots"><span></span><span></span><span></span></div>';
-  area.appendChild(div);
-  area.scrollTop = area.scrollHeight;
-  return div;
-}
+  // GET /api/admin/teachers/:id — single teacher detail
+  router.get('/api/admin/teachers/:id', requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query(
+        'SELECT id, nom, prenom, email, username, specialty, bio, photo_url, zoom_link, can_edit_planning, can_send_books, can_edit_zoom, can_edit_student_info, is_active FROM teachers WHERE id = $1',
+        [req.params.id]
+      );
+      if (!r.rows.length) return res.status(404).json({ error: 'Professeur non trouvé' });
+      res.json({ teacher: r.rows[0] });
+    } catch (err) { console.error('[admin/teacher]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
 
-function addSystem(msg) {
-  const area = document.getElementById('convoArea');
-  const div = document.createElement('div');
-  div.className = 'system-msg';
-  div.textContent = msg;
-  area.appendChild(div);
-  area.scrollTop = area.scrollHeight;
-}
+  // PUT /api/admin/teachers/:id/permissions — update teacher permission flags
+  router.put('/api/admin/teachers/:id/permissions', requireAdmin, async (req, res) => {
+    const { can_edit_planning, can_send_books, can_edit_zoom, can_edit_student_info } = req.body;
+    try {
+      const r = await pool.query(
+        `UPDATE teachers SET can_edit_planning = $1, can_send_books = $2, can_edit_zoom = $3, can_edit_student_info = $4, updated_at = NOW()
+         WHERE id = $5 RETURNING id, nom, prenom, can_edit_planning, can_send_books, can_edit_zoom, can_edit_student_info`,
+        [!!can_edit_planning, !!can_send_books, !!can_edit_zoom, !!can_edit_student_info, req.params.id]
+      );
+      if (!r.rows.length) return res.status(404).json({ error: 'Professeur non trouvé' });
+      res.json(r.rows[0]);
+    } catch (err) { console.error('[admin/teacher-perms]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
 
-init();
-</script>
-</body>
-</html>
+  // PATCH /api/admin/bookings/:id/payment
+  router.patch('/api/admin/bookings/:id/payment', requireAdmin, async (req, res) => {
+    try {
+      const { payment_status } = req.body;
+      if (!['unpaid', 'paid', 'partial', 'refunded'].includes(payment_status)) {
+        return res.status(400).json({ error: 'Statut invalide' });
+      }
+      const result = await pool.query('UPDATE bookings SET payment_status = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+        [payment_status, req.params.id]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Réservation non trouvée' });
+
+      if (result.rows[0].student_id) {
+        const newStatus = payment_status === 'paid' ? 'validated' : payment_status === 'unpaid' ? 'unpaid' : result.rows[0].student?.validation_status;
+        await pool.query('UPDATE students SET validation_status = $1, updated_at = NOW() WHERE id = $2', [newStatus, result.rows[0].student_id]);
+      }
+      res.json(result.rows[0]);
+    } catch (err) { console.error('[admin/payment]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // PATCH /api/admin/bookings/:id/status
+  router.patch('/api/admin/bookings/:id/status', requireAdmin, async (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'].includes(status)) {
+        return res.status(400).json({ error: 'Statut invalide' });
+      }
+      const result = await pool.query('UPDATE bookings SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+        [status, req.params.id]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Réservation non trouvée' });
+      res.json(result.rows[0]);
+    } catch (err) { console.error('[admin/status]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // DELETE /api/admin/bookings/:id
+  router.delete('/api/admin/bookings/:id', requireAdmin, async (req, res) => {
+    try {
+      const result = await pool.query('DELETE FROM bookings WHERE id = $1 RETURNING id', [req.params.id]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Réservation non trouvée' });
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/delete-booking]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /api/admin/stats
+  router.get('/api/admin/stats', requireAdmin, async (req, res) => {
+    try {
+      const [students, bookings, pending, paid, unpaid, revenue] = await Promise.all([
+        pool.query('SELECT COUNT(*)::int as count FROM students'),
+        pool.query('SELECT COUNT(*)::int as count FROM bookings'),
+        pool.query("SELECT COUNT(*)::int as count FROM bookings WHERE status = 'pending'"),
+        pool.query("SELECT COUNT(*)::int as count FROM bookings WHERE payment_status = 'paid'"),
+        pool.query("SELECT COUNT(*)::int as count FROM bookings WHERE payment_status = 'unpaid' OR payment_status IS NULL"),
+        pool.query("SELECT COALESCE(SUM(price_euros), 0) as total FROM bookings WHERE payment_status = 'paid'")
+      ]);
+      res.json({
+        total_students: students.rows[0].count,
+        total_bookings: bookings.rows[0].count,
+        pending_bookings: pending.rows[0].count,
+        paid_bookings: paid.rows[0].count,
+        unpaid_bookings: unpaid.rows[0].count,
+        paid_revenue: parseFloat(revenue.rows[0].total)
+      });
+    } catch (err) { console.error('[admin/stats]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /api/admin/teachers
+  router.get('/api/admin/teachers', requireAdmin, async (req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT t.id, t.username, t.email, t.nom, t.prenom, t.zoom_link, t.created_at, t.can_edit_planning, t.can_send_books, t.can_edit_zoom, t.can_edit_student_info,
+          (SELECT COUNT(*) FROM teacher_student_assignments tsa WHERE tsa.teacher_id = t.id) as student_count,
+          COALESCE(SUM(b.hours), 0)::int as total_hours,
+          COALESCE(SUM(CASE WHEN b.payment_status = 'paid' THEN b.price_euros ELSE 0 END), 0)::float as paid_amount
+        FROM teachers t
+        LEFT JOIN bookings b ON b.teacher_id = t.id AND b.status != 'cancelled'
+        GROUP BY t.id ORDER BY t.created_at DESC
+      `);
+      res.json(result.rows);
+    } catch (err) { console.error('[admin/teachers]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/admin/teachers
+  router.post('/api/admin/teachers', requireAdmin, async (req, res) => {
+    try {
+      const { username, email, nom, prenom, zoom_link, password, teacher_code } = req.body;
+      if (teacher_code !== 'medin2024') return res.status(403).json({ error: 'Code professeur invalide' });
+      if (!username || !email) return res.status(400).json({ error: 'Username et email requis' });
+
+      const pwd = password || crypto.randomBytes(10).toString('base64').replace(/[^a-zA-Z0-9]/g, 'x').substring(0, 10);
+      const hash = hashPassword(pwd);
+
+      const result = await pool.query(
+        'INSERT INTO teachers (username, email, nom, prenom, zoom_link, password_hash) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, username, email, nom, prenom',
+        [username.trim(), email.trim().toLowerCase(), nom || null, prenom || null, zoom_link || null, hash]
+      );
+      console.log('[admin] Teacher created:', username);
+      res.json({ teacher: result.rows[0], password: pwd });
+    } catch (err) {
+      if (err.code === '23505') return res.status(409).json({ error: 'Username ou email déjà utilisé.' });
+      console.error('[admin/create-teacher]', err); res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // PATCH /api/admin/teachers/:id/hourly-rate
+  router.patch('/api/admin/teachers/:id/hourly-rate', requireAdmin, async (req, res) => {
+    try {
+      const { rate } = req.body;
+      if (rate !== undefined) {
+        await pool.query('UPDATE teachers SET hourly_rate = $1, updated_at = NOW() WHERE id = $2', [rate, req.params.id]);
+      }
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/hourly-rate]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // DELETE /api/admin/teachers/:id
+  router.delete('/api/admin/teachers/:id', requireAdmin, async (req, res) => {
+    try {
+      const result = await pool.query('DELETE FROM teachers WHERE id = $1 RETURNING id', [req.params.id]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Professeur non trouvé' });
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/delete-teacher]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /api/admin/remuneration
+  router.get('/api/admin/remuneration', requireAdmin, async (req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT t.id, t.nom, t.prenom, t.username, t.hourly_rate,
+          COALESCE(SUM(b.hours), 0)::int as total_hours,
+          COALESCE(SUM(CASE WHEN b.payment_status = 'paid' THEN b.price_euros ELSE 0 END), 0)::float as paid_amount,
+          COALESCE(SUM(b.hours), 0)::int * COALESCE(t.hourly_rate, 0)::int as remuneration_due
+        FROM teachers t
+        LEFT JOIN bookings b ON b.teacher_id = t.id AND b.status != 'cancelled'
+        GROUP BY t.id ORDER BY remuneration_due DESC
+      `);
+      res.json(result.rows);
+    } catch (err) { console.error('[admin/remuneration]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/admin/impersonate/teacher/:id — get teacher token
+  router.post('/api/admin/impersonate/teacher/:id', requireAdmin, async (req, res) => {
+    try {
+      const teacher = await pool.query('SELECT id, username FROM teachers WHERE id = $1', [req.params.id]);
+      if (!teacher.rows.length) return res.status(404).json({ error: 'Professeur non trouvé' });
+      const token = generateToken(opts.teacherTokens, teacher.rows[0].id, 7);
+      res.json({ token });
+    } catch (err) { console.error('[admin/impersonate-teacher]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /api/admin/attributions
+  router.get('/api/admin/attributions', requireAdmin, async (req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT tsa.*, s.nom as student_nom, s.prenom as student_prenom, t.nom as teacher_nom, t.prenom as teacher_prenom
+        FROM teacher_student_assignments tsa
+        JOIN students s ON s.id = tsa.student_id
+        JOIN teachers t ON t.id = tsa.teacher_id
+        ORDER BY tsa.created_at DESC
+      `);
+      res.json(result.rows);
+    } catch (err) { console.error('[admin/attributions]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/admin/impersonate/student/:id
+  router.post('/api/admin/impersonate/student/:id', requireAdmin, async (req, res) => {
+    try {
+      const student = await pool.query('SELECT id FROM students WHERE id = $1', [req.params.id]);
+      if (!student.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
+      const token = generateToken(opts.studentTokens, student.rows[0].id, 7);
+      res.json({ token });
+    } catch (err) { console.error('[admin/impersonate-student]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /api/admin/groups — list all groups with member counts
+  router.get('/api/admin/groups', requireAdmin, async (req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT sg.*,
+          (SELECT COUNT(*)::int FROM group_members gm WHERE gm.group_id = sg.id) as member_count
+        FROM student_groups sg
+        ORDER BY sg.created_at DESC
+      `);
+      res.json(result.rows);
+    } catch (err) { console.error('[admin/groups]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /api/admin/groups/:id/students — members of a group
+  router.get('/api/admin/groups/:id/students', requireAdmin, async (req, res) => {
+    try {
+      const members = await pool.query(`
+        SELECT s.id, s.nom, s.prenom, s.whatsapp, s.email, gm.added_at
+        FROM group_members gm
+        JOIN students s ON s.id = gm.student_id
+        WHERE gm.group_id = $1
+        ORDER BY gm.added_at DESC
+      `, [req.params.id]);
+      res.json(members.rows);
+    } catch (err) { console.error('[admin/group-students]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /api/admin/payments — payment summary from bookings
+  router.get('/api/admin/payments', requireAdmin, async (req, res) => {
+    try {
+      const [payments, totals] = await Promise.all([
+        pool.query(`
+          SELECT b.id, s.nom, s.prenom, b.course_type, b.hours, b.format,
+                 b.price_euros, b.payment_status, b.created_at
+          FROM bookings b
+          JOIN students s ON s.id = b.student_id
+          ORDER BY b.created_at DESC
+          LIMIT 200
+        `),
+        pool.query(`
+          SELECT payment_status, COUNT(*)::int as cnt,
+                 COALESCE(SUM(price_euros), 0)::float as total
+          FROM bookings
+          GROUP BY payment_status
+        `)
+      ]);
+      res.json({ payments: payments.rows, totals: totals.rows });
+    } catch (err) { console.error('[admin/payments]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // PATCH /api/admin/payments/:id — update booking payment status
+  router.patch('/api/admin/payments/:id', requireAdmin, async (req, res) => {
+    const { status } = req.body;
+    if (!['paid', 'unpaid', 'partial', 'refunded'].includes(status)) {
+      return res.status(400).json({ error: 'Statut invalide' });
+    }
+    try {
+      const result = await pool.query(
+        'UPDATE bookings SET payment_status = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+        [status, req.params.id]
+      );
+      if (!result.rows.length) return res.status(404).json({ error: 'Réservation non trouvée' });
+      res.json(result.rows[0]);
+    } catch (err) { console.error('[admin/patch-payment]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /api/admin/validation — students pending validation
+  router.get('/api/admin/validation', requireAdmin, async (req, res) => {
+    try {
+      const students = await pool.query(`
+        SELECT s.id, s.nom, s.prenom, s.email, s.whatsapp, s.gender,
+               s.validation_status, s.paiement_statut, s.created_at,
+               (SELECT b.course_type FROM bookings b WHERE b.student_id = s.id ORDER BY b.created_at DESC LIMIT 1) as course_type,
+               (SELECT b.hours FROM bookings b WHERE b.student_id = s.id ORDER BY b.created_at DESC LIMIT 1) as hours
+        FROM students s
+        WHERE s.validation_status IN ('pending', 'en_attente', NULL) OR s.validation_status IS NULL
+        ORDER BY s.created_at DESC
+      `);
+      res.json(students.rows);
+    } catch (err) { console.error('[admin/validation]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/admin/groups
+  router.post('/api/admin/groups', requireAdmin, async (req, res) => {
+    try {
+      const { name, description, color } = req.body;
+      if (!name) return res.status(400).json({ error: 'Nom du groupe requis' });
+      const result = await pool.query(
+        'INSERT INTO student_groups (name, description, color) VALUES ($1, $2, $3) RETURNING *',
+        [name.trim(), description || null, color || '#1B5E3A']
+      );
+      res.json(result.rows[0]);
+    } catch (err) { console.error('[admin/groups]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // DELETE /api/admin/groups/:id
+  router.delete('/api/admin/groups/:id', requireAdmin, async (req, res) => {
+    try {
+      const result = await pool.query('DELETE FROM student_groups WHERE id = $1 RETURNING id', [req.params.id]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Groupe non trouvé' });
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/delete-group]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // DELETE /api/admin/groups/:id/members/:memberId
+  router.delete('/api/admin/groups/:id/members/:memberId', requireAdmin, async (req, res) => {
+    try {
+      const result = await pool.query(
+        'DELETE FROM group_members WHERE id = $1 AND group_id = $2 RETURNING id',
+        [req.params.memberId, req.params.id]
+      );
+      if (!result.rows.length) return res.status(404).json({ error: 'Membre non trouvé' });
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/delete-group-member]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/admin/groups/:id/members
+  router.post('/api/admin/groups/:id/members', requireAdmin, async (req, res) => {
+    try {
+      const { student_id } = req.body;
+      if (!student_id) return res.status(400).json({ error: 'student_id requis' });
+      const result = await pool.query(
+        'INSERT INTO group_members (group_id, student_id) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING *',
+        [req.params.id, student_id]
+      );
+      res.json({ success: true, member: result.rows[0] });
+    } catch (err) { console.error('[admin/group-members]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/admin/notifications
+  router.post('/api/admin/notifications', requireAdmin, async (req, res) => {
+    try {
+      const { title, message, target_type, target_id } = req.body;
+      if (!title || !message) return res.status(400).json({ error: 'Titre et message requis' });
+      const result = await pool.query(
+        'INSERT INTO notifications (title, message, target_type, target_id) VALUES ($1, $2, $3, $4) RETURNING *',
+        [title.trim(), message.trim(), target_type || 'all', target_id || null]
+      );
+      res.json(result.rows[0]);
+    } catch (err) { console.error('[admin/notifications]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/admin/extras — add extra hours or PDF packs to student
+  router.post('/api/admin/extras', requireAdmin, async (req, res) => {
+    try {
+      const { student_id, type, quantity, notes } = req.body;
+      if (!student_id || !type || !quantity) return res.status(400).json({ error: 'Champs requis' });
+      const result = await pool.query(
+        'INSERT INTO student_extras (student_id, type, quantity, notes, added_by) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+        [student_id, type, quantity, notes || null, 'gerant']
+      );
+      res.json(result.rows[0]);
+    } catch (err) { console.error('[admin/extras]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /api/admin/view-as-student — optionally with ?studentId=X to target a specific student
+  router.get('/api/admin/view-as-student', requireAdmin, async (req, res) => {
+    try {
+      let student;
+      if (req.query.studentId) {
+        const s = await pool.query('SELECT id, nom, prenom, whatsapp, email, validation_status FROM students WHERE id = $1', [req.query.studentId]);
+        student = s.rows[0];
+      } else {
+        const s = await pool.query('SELECT id, nom, prenom, whatsapp, email, validation_status FROM students ORDER BY RANDOM() LIMIT 1');
+        student = s.rows[0];
+      }
+      if (!student) return res.status(404).json({ error: 'Élève non trouvé' });
+      const token = generateToken(opts.studentTokens, student.id, 7);
+      const redirectUrl = '/espace-eleve.html?xs=' + token;
+      res.json({ student, token, redirectUrl });
+    } catch (err) { console.error('[admin/view-as]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // GET /admin/view-space/teacher/:id — validates admin/gerant token, generates teacher token, redirects to teacher dashboard
+  router.get('/admin/view-space/teacher/:id', async (req, res) => {
+    try {
+      const gt = req.query.gt;
+      const at = req.headers['x-admin-token'];
+      const isAdmin = at === process.env.ADMIN_PASSWORD || (gt && opts.gerantTokens && opts.gerantTokens.has(gt));
+      if (!isAdmin) return res.status(401).send('Accès refusé');
+      const teacher = await pool.query('SELECT id, username FROM teachers WHERE id = $1', [req.params.id]);
+      if (!teacher.rows.length) return res.status(404).send('Professeur non trouvé');
+      const token = generateToken(opts.teacherTokens, teacher.rows[0].id, 7);
+      res.redirect('/espace-professeur.html?xt=' + token);
+    } catch (err) { console.error('[admin/view-space/teacher]', err); res.status(500).send('Erreur serveur'); }
+  });
+
+  // GET /admin/view-space/student/:id — validates admin/gerant token, generates student token, redirects to student dashboard
+  router.get('/admin/view-space/student/:id', async (req, res) => {
+    try {
+      const gt = req.query.gt;
+      const at = req.headers['x-admin-token'];
+      const isAdmin = at === process.env.ADMIN_PASSWORD || (gt && opts.gerantTokens && opts.gerantTokens.has(gt));
+      if (!isAdmin) return res.status(401).send('Accès refusé');
+      const student = await pool.query('SELECT id FROM students WHERE id = $1', [req.params.id]);
+      if (!student.rows.length) return res.status(404).send('Élève non trouvé');
+      const token = generateToken(opts.studentTokens, student.rows[0].id, 7);
+      res.redirect('/espace-eleve.html?xs=' + token);
+    } catch (err) { console.error('[admin/view-space/student]', err); res.status(500).send('Erreur serveur'); }
+  });
+
+  // PUT /api/admin/validation/:id — update student validation status (validated/rejected → valide/rejected)
+  router.put('/api/admin/validation/:id', requireAdmin, async (req, res) => {
+    const { status } = req.body;
+    if (!['validated', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Statut invalide: validated ou rejected' });
+    }
+    const dbStatus = status === 'validated' ? 'valide' : status;
+    try {
+      const r = await pool.query(
+        'UPDATE students SET validation_status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, nom, prenom, validation_status, paiement_statut',
+        [dbStatus, req.params.id]
+      );
+      if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
+      res.json({ success: true, student: r.rows[0] });
+    } catch (err) { console.error('[admin/validation]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // PUT /api/admin/students/:id/paiement — update student payment status
+  router.put('/api/admin/students/:id/paiement', requireAdmin, async (req, res) => {
+    const { statut } = req.body;
+    if (!['paye', 'non_paye', 'partiel'].includes(statut)) {
+      return res.status(400).json({ error: 'Statut invalide: paye, non_paye ou partiel' });
+    }
+    try {
+      const r = await pool.query(
+        'UPDATE students SET paiement_statut = $1, updated_at = NOW() WHERE id = $2 RETURNING id, nom, prenom, paiement_statut',
+        [statut, req.params.id]
+      );
+      if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
+      res.json({ success: true, student: r.rows[0] });
+    } catch (err) { console.error('[admin/student/paiement]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // PUT /api/admin/students/:id/password — gérant resets a student's password
+  router.put('/api/admin/students/:id/password', requireAdmin, async (req, res) => {
+    try {
+      const { password } = req.body;
+      if (!password || password.length < 4) return res.status(400).json({ error: 'Mot de passe trop court' });
+      const hash = hashPassword(password);
+      const r = await pool.query('UPDATE students SET password_hash = $1, updated_at = NOW() WHERE id = $2 RETURNING id', [hash, req.params.id]);
+      if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/student-password]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  return router;
+};
