@@ -76,8 +76,12 @@ function hashPassword(password) {
 function verifyPassword(password, stored) {
   if (!stored || !stored.includes(':')) return false;
   const [salt, hash] = stored.split(':');
-  const verify = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-  return verify === hash;
+  // Try common pbkdf2 iteration counts for compatibility with Polsia hashes
+  for (const iters of [10000, 100000, 1000, 310000]) {
+    const verify = crypto.pbkdf2Sync(password, salt, iters, 64, 'sha512').toString('hex');
+    if (verify === hash) return true;
+  }
+  return false;
 }
 
 function generateToken(store, id, days = 7) {
@@ -279,6 +283,63 @@ for (const name of routeFiles) {
     console.error(`[routes] ✗ ${name}:`, err.message);
   }
 }
+
+
+// ─── IMPORT DB (one-time setup) ──────────────────────────────
+// Visite /api/setup/import-db?key=ADMIN_PASSWORD pour importer migration.sql dans Neon
+const importStatus = { running: false, done: 0, total: 0, errors: 0, lastError: null, finished: false };
+
+app.get('/api/setup/import-status', (req, res) => {
+  if ((req.query.key || '') !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Clé invalide' });
+  res.json(importStatus);
+});
+
+app.get('/api/setup/import-db', async (req, res) => {
+  if ((req.query.key || '') !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Clé invalide' });
+  if (importStatus.running) return res.json({ message: 'Import déjà en cours', ...importStatus });
+
+  const sqlPath = path.join(__dirname, 'migration.sql');
+  if (!fs.existsSync(sqlPath)) {
+    return res.status(404).json({ error: 'migration.sql introuvable. Uploade-le à la racine du dépôt GitHub.' });
+  }
+
+  // Sécurité : ne pas écraser une base déjà remplie sans force=1
+  try {
+    const check = await pool.query("SELECT COUNT(*) AS n FROM information_schema.tables WHERE table_schema='public'");
+    if (parseInt(check.rows[0].n) > 5 && req.query.force !== '1') {
+      return res.json({ message: 'La base contient déjà des tables. Ajoute &force=1 pour réimporter.', tables: check.rows[0].n });
+    }
+  } catch (e) { /* base vide, on continue */ }
+
+  const raw = fs.readFileSync(sqlPath, 'utf8');
+  // Découpe en instructions sur ';' en fin de ligne (hors chaînes multi-lignes rares)
+  const statements = raw.split(/;\s*\n/).map(s => s.trim()).filter(s => s && !s.startsWith('--'));
+
+  importStatus.running = true;
+  importStatus.done = 0;
+  importStatus.total = statements.length;
+  importStatus.errors = 0;
+  importStatus.lastError = null;
+  importStatus.finished = false;
+
+  res.json({ message: `Import démarré : ${statements.length} instructions. Suis la progression sur /api/setup/import-status?key=...`, total: statements.length });
+
+  // Exécution en arrière-plan
+  (async () => {
+    for (const stmt of statements) {
+      try {
+        await pool.query(stmt);
+      } catch (err) {
+        importStatus.errors++;
+        importStatus.lastError = err.message.substring(0, 200);
+      }
+      importStatus.done++;
+    }
+    importStatus.running = false;
+    importStatus.finished = true;
+    console.log(`[import-db] Terminé: ${importStatus.done}/${importStatus.total}, erreurs: ${importStatus.errors}`);
+  })();
+});
 
 // ─── HEALTH CHECK ────────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
