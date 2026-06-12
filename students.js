@@ -27,7 +27,7 @@ module.exports = function (pool, opts) {
   // POST /api/students — Register new student
   router.post('/api/students', async (req, res) => {
     try {
-      const { nom, prenom, kounia, whatsapp, email, gender, course_type, hours, format } = req.body;
+      const { nom, prenom, kounia, whatsapp, email, gender, course_type, hours, format, password } = req.body;
       if (!nom || !prenom || !whatsapp || !email) {
         return res.status(400).json({ error: 'Nom, prénom, WhatsApp et email sont requis' });
       }
@@ -52,8 +52,8 @@ module.exports = function (pool, opts) {
       const price = calcPrice(course_type, parseInt(hours), format);
       if (price === null) return res.status(400).json({ error: 'Combinaison cours/heures non valide' });
 
-      // Generate temp password and credentials email
-      const tempPassword = crypto.randomBytes(8).toString('base64').replace(/[^a-zA-Z0-9]/g, 'x').substring(0, 10);
+      // Utilise le mot de passe choisi par l'élève, sinon en génère un temporaire
+      const tempPassword = (password && password.length >= 4) ? password : crypto.randomBytes(8).toString('base64').replace(/[^a-zA-Z0-9]/g, 'x').substring(0, 10);
       const passwordHash = hashPassword(tempPassword);
 
       const result = await pool.query(
