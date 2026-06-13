@@ -51,6 +51,29 @@ module.exports = function (pool, opts) {
     } catch (err) { console.error('[zoom/start]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // ── Professor: start Zoom call to a GROUP of students ───────
+  router.post('/api/professor/zoom-call/start-group', requireTeacherAuth, async (req, res) => {
+    const { studentIds, zoomUrl } = req.body;
+    if (!Array.isArray(studentIds) || !studentIds.length) return res.status(400).json({ error: 'studentIds requis' });
+    try {
+      await pool.query(
+        `UPDATE zoom_active_calls SET status = 'ended', ended_at = NOW()
+         WHERE teacher_id = $1 AND status = 'active'`,
+        [req.teacherId]
+      );
+      const calls = [];
+      for (const sid of studentIds.slice(0, 50)) {
+        const r = await pool.query(
+          `INSERT INTO zoom_active_calls (teacher_id, student_id, zoom_url)
+           VALUES ($1, $2, $3) RETURNING *`,
+          [req.teacherId, sid, zoomUrl || null]
+        );
+        calls.push(r.rows[0]);
+      }
+      res.json({ success: true, count: calls.length });
+    } catch (err) { console.error('[zoom/start-group]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   // ── Professor: end current Zoom call ────────────────────────
   router.post('/api/professor/zoom-call/end', requireTeacherAuth, async (req, res) => {
     try {
