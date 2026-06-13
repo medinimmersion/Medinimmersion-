@@ -152,5 +152,75 @@ module.exports = function (pool, opts) {
     } catch (err) { console.error('[forgot-by-phone]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // ── Alias /api/member/* pour l'espace élève ──────────────────
+  router.get('/api/member/me', requireStudentAuth, async (req, res) => {
+    try {
+      const r = await pool.query(
+        'SELECT id, nom, prenom, kounia, email, whatsapp, gender, status, validation_status FROM students WHERE id = $1',
+        [req.studentId]
+      );
+      if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
+      res.json(r.rows[0]);
+    } catch (err) { console.error('[member/me]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  router.get('/api/member/sessions', requireStudentAuth, async (req, res) => {
+    try {
+      // Sessions planifiées (planning) + sessions de cours simples
+      const sched = await pool.query(
+        `SELECT ss.id, ss.session_date, ss.time_start, ss.time_end, ss.status,
+                cs.title, cs.course_type, t.nom AS teacher_nom, t.prenom AS teacher_prenom, t.zoom_link
+         FROM session_students sstd
+         JOIN scheduled_sessions ss ON ss.id = sstd.session_id
+         LEFT JOIN course_schedules cs ON cs.id = ss.schedule_id
+         LEFT JOIN teachers t ON t.id = ss.teacher_id
+         WHERE sstd.student_id = $1
+         ORDER BY ss.session_date DESC LIMIT 100`,
+        [req.studentId]
+      ).catch(() => ({ rows: [] }));
+      const simple = await pool.query(
+        `SELECT id, session_date, status, hours_done, notes FROM course_sessions
+         WHERE student_id = $1 ORDER BY session_date DESC LIMIT 100`,
+        [req.studentId]
+      ).catch(() => ({ rows: [] }));
+      res.json({ planning: sched.rows, sessions: simple.rows });
+    } catch (err) { console.error('[member/sessions]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  router.get('/api/member/progression', requireStudentAuth, async (req, res) => {
+    try {
+      const r = await pool.query('SELECT * FROM student_progression WHERE student_id = $1', [req.studentId]);
+      res.json(r.rows[0] || { niveau: 1, current_page: 1 });
+    } catch (err) { console.error('[member/progression]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  router.get('/api/member/books', requireStudentAuth, async (req, res) => {
+    try {
+      const pdfs = await pool.query('SELECT * FROM student_pdfs WHERE student_id = $1 ORDER BY slot_number', [req.studentId]).catch(() => ({ rows: [] }));
+      const lib = await pool.query(
+        `SELECT lb.id, lb.name, lb.file_url, lb.created_at
+         FROM book_assignments ba JOIN library_books lb ON lb.id = ba.book_id
+         WHERE ba.student_id = $1 ORDER BY ba.created_at DESC`,
+        [req.studentId]
+      ).catch(() => ({ rows: [] }));
+      res.json({ pdfs: pdfs.rows, library: lib.rows });
+    } catch (err) { console.error('[member/books]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  router.get('/api/member/messages', requireStudentAuth, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT n.* FROM notifications n
+         WHERE n.target_type = 'all'
+            OR (n.target_type = 'student' AND n.target_id = $1)
+            OR (n.target_type = 'group' AND n.target_id IN (
+              SELECT group_id FROM group_members WHERE student_id = $1))
+         ORDER BY n.created_at DESC LIMIT 50`,
+        [req.studentId]
+      );
+      res.json(r.rows);
+    } catch (err) { console.error('[member/messages]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   return router;
 };
