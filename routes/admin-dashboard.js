@@ -321,12 +321,12 @@ module.exports = function adminDashboardRoutes(pool, opts) {
     try {
       // Groups linked to schedules where teacher is assigned
       const r = await pool.query(
-        `SELECT sg.*, COUNT(gm.student_id) AS member_count
+        `SELECT sg.*, cs.course_type, cs.teacher_id, COUNT(gm.student_id) AS member_count
          FROM student_groups sg
-         JOIN course_schedules cs ON cs.id = sg.schedule_id
+         LEFT JOIN course_schedules cs ON cs.id = sg.schedule_id
          LEFT JOIN group_members gm ON gm.group_id = sg.id
-         WHERE cs.teacher_id = $1
-         GROUP BY sg.id ORDER BY sg.name`,
+         WHERE cs.teacher_id = $1 OR cs.teacher_id IS NULL
+         GROUP BY sg.id, cs.course_type, cs.teacher_id ORDER BY sg.name`,
         [req.teacherId]
       );
       res.json(r.rows);
@@ -351,11 +351,16 @@ module.exports = function adminDashboardRoutes(pool, opts) {
   router.get('/api/professor/planning', opts.requireTeacherAuth, async (req, res) => {
     try {
       const r = await pool.query(
-        `SELECT ss.*, cs.title AS schedule_title, cs.course_type
+        `SELECT ss.*, cs.title AS schedule_title,
+                CASE
+                  WHEN ss.session_date > CURRENT_DATE THEN 'a_venir'
+                  WHEN ss.session_date = CURRENT_DATE THEN 'aujourdhui'
+                  ELSE COALESCE(NULLIF(ss.seance_statut,''),'a_traiter')
+                END AS statut_calcule
          FROM scheduled_sessions ss
          LEFT JOIN course_schedules cs ON cs.id = ss.schedule_id
          WHERE ss.teacher_id = $1
-         ORDER BY ss.session_date DESC LIMIT 100`,
+         ORDER BY ss.session_date ASC LIMIT 100`,
         [req.teacherId]
       );
       res.json(r.rows);

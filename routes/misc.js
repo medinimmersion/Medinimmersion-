@@ -139,16 +139,25 @@ module.exports = function (pool, opts) {
       const { book_id, student_id, group_id } = req.body;
       if (!book_id) return res.status(400).json({ error: 'book_id requis' });
 
+      // book_id correspond au slot_number (= id du livre). Colonnes réelles : book_slot_number, assignee_type, assignee_id
       let count = 0;
+      const assignOne = async (sid) => {
+        const r = await pool.query(
+          `INSERT INTO book_assignments (book_slot_number, assignee_type, assignee_id, assigned_by)
+           VALUES ($1, 'student', $2, 'gerant') ON CONFLICT DO NOTHING`,
+          [book_id, sid]
+        );
+        return r.rowCount;
+      };
       if (student_id) {
-        const r = await pool.query('INSERT INTO book_assignments (book_id, teacher_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [book_id, student_id]);
-        count = r.rowCount;
+        count = await assignOne(student_id);
       } else if (group_id) {
         const members = await pool.query('SELECT student_id FROM group_members WHERE group_id = $1', [group_id]);
-        for (const m of members.rows) {
-          const r = await pool.query('INSERT INTO book_assignments (book_id, teacher_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [book_id, m.student_id]);
-          if (r.rowCount > 0) count++;
-        }
+        for (const m of members.rows) { count += await assignOne(m.student_id); }
+      } else if (req.body.niveau_min !== undefined && req.body.niveau_min !== null) {
+        // Assigner à tous les élèves d'un niveau donné
+        const studs = await pool.query('SELECT student_id FROM student_progression WHERE niveau = $1', [req.body.niveau_min]);
+        for (const s of studs.rows) { count += await assignOne(s.student_id); }
       }
       res.json({ success: true, assigned: count });
     } catch (err) { console.error('[admin/library/assign]', err); res.status(500).json({ error: 'Erreur serveur' }); }

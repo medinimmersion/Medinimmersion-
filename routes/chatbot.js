@@ -186,5 +186,152 @@ TON STYLE :
     }
   });
 
+  // ── Temps Kalam : l'élève lit son quota (reset quotidien automatique) ──
+  router.get('/api/oustaz/quota', opts.requireStudentAuth, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT COALESCE(kalam_seconds_total,180) AS total,
+                COALESCE(kalam_seconds_used,0) AS used, kalam_quota_date
+         FROM students WHERE id = $1`, [req.studentId]);
+      if (!r.rows.length) return res.status(404).json({ error: 'Élève introuvable' });
+      let { total, used, kalam_quota_date } = r.rows[0];
+      const today = new Date().toISOString().slice(0, 10);
+      // reset quotidien
+      if (!kalam_quota_date || kalam_quota_date.toISOString().slice(0,10) !== today) {
+        used = 0;
+        await pool.query('UPDATE students SET kalam_seconds_used = 0, kalam_quota_date = $2 WHERE id = $1', [req.studentId, today]);
+      }
+      const unlimited = total === -1;
+      res.json({ unlimited, total, used, remaining: unlimited ? 999999 : Math.max(0, total - used) });
+    } catch (err) { console.error('[oustaz/quota]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // ── Temps Kalam : l'élève consomme des secondes (appelé pendant la conversation) ──
+  router.post('/api/oustaz/quota/consume', opts.requireStudentAuth, async (req, res) => {
+    try {
+      const seconds = Math.max(0, Math.min(120, parseInt(req.body.seconds, 10) || 0));
+      const today = new Date().toISOString().slice(0, 10);
+      const r = await pool.query(
+        `UPDATE students
+         SET kalam_seconds_used = CASE WHEN kalam_quota_date = $3 THEN COALESCE(kalam_seconds_used,0) + $2 ELSE $2 END,
+             kalam_quota_date = $3
+         WHERE id = $1
+         RETURNING COALESCE(kalam_seconds_total,180) AS total, COALESCE(kalam_seconds_used,0) AS used`,
+        [req.studentId, seconds, today]);
+      const { total, used } = r.rows[0];
+      const unlimited = total === -1;
+      res.json({ unlimited, remaining: unlimited ? 999999 : Math.max(0, total - used) });
+    } catch (err) { console.error('[oustaz/quota/consume]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // ── Temps Kalam : le gérant définit le temps d'un élève ──
+  // body: { seconds: nombre } ou { minutes: nombre } ou { unlimited: true }
+  router.put('/api/admin/students/:id/kalam-time', opts.requireAdmin, async (req, res) => {
+    try {
+      let total;
+      if (req.body.unlimited) total = -1;
+      else if (req.body.minutes !== undefined) total = Math.max(0, parseInt(req.body.minutes, 10) || 0) * 60;
+      else total = Math.max(0, parseInt(req.body.seconds, 10) || 0);
+      await pool.query('UPDATE students SET kalam_seconds_total = $2 WHERE id = $1', [req.params.id, total]);
+      res.json({ success: true, kalam_seconds_total: total });
+    } catch (err) { console.error('[admin/kalam-time]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // ── Le gérant peut aussi réinitialiser le temps consommé du jour ──
+  router.post('/api/admin/students/:id/kalam-reset', opts.requireAdmin, async (req, res) => {
+    try {
+      await pool.query('UPDATE students SET kalam_seconds_used = 0 WHERE id = $1', [req.params.id]);
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/kalam-reset]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // ════════ FORFAITS & PAIEMENTS KALAM ════════
+
+  // Liste des forfaits actifs (public — pour l'élève et le gérant)
+  router.get('/api/kalam/packages', async (req, res) => {
+    try {
+      const r = await pool.query('SELECT * FROM kalam_packages WHERE active = true ORDER BY price_euros');
+      res.json(r.rows);
+    } catch (err) { console.error('[kalam/packages]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // Gérant : créer un forfait
+  router.post('/api/admin/kalam/packages', opts.requireAdmin, async (req, res) => {
+    try {
+      const { name, minutes_per_day, price_euros, duration_days } = req.body;
+      if (!name) return res.status(400).json({ error: 'Nom requis' });
+      const r = await pool.query(
+        `INSERT INTO kalam_packages (name, minutes_per_day, price_euros, duration_days)
+         VALUES ($1, $2, $3, $4) RETURNING *`,
+        [name.trim(), parseInt(minutes_per_day,10), parseFloat(price_euros)||0, parseInt(duration_days,10)||30]);
+      res.json(r.rows[0]);
+    } catch (err) { console.error('[admin/kalam/packages]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // Gérant : supprimer un forfait
+  router.delete('/api/admin/kalam/packages/:id', opts.requireAdmin, async (req, res) => {
+    try {
+      await pool.query('UPDATE kalam_packages SET active = false WHERE id = $1', [req.params.id]);
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/kalam/del-pkg]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // Gérant : liste des paiements Kalam (avec nom élève)
+  router.get('/api/admin/kalam/payments', opts.requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT kp.*, s.nom, s.prenom, s.kounia, pk.name AS package_name
+         FROM kalam_payments kp
+         JOIN students s ON s.id = kp.student_id
+         LEFT JOIN kalam_packages pk ON pk.id = kp.package_id
+         ORDER BY kp.created_at DESC LIMIT 200`);
+      res.json(r.rows);
+    } catch (err) { console.error('[admin/kalam/payments]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // Gérant : attribuer un forfait à un élève (création d'un paiement, payé ou non)
+  router.post('/api/admin/kalam/assign', opts.requireAdmin, async (req, res) => {
+    try {
+      const { student_id, package_id, payment_status } = req.body;
+      if (!student_id || !package_id) return res.status(400).json({ error: 'student_id et package_id requis' });
+      const pk = await pool.query('SELECT * FROM kalam_packages WHERE id = $1', [package_id]);
+      if (!pk.rows.length) return res.status(404).json({ error: 'Forfait introuvable' });
+      const p = pk.rows[0];
+      const paid = payment_status === 'paid';
+      const expires = paid ? `NOW() + INTERVAL '${parseInt(p.duration_days,10)||30} days'` : 'NULL';
+      const r = await pool.query(
+        `INSERT INTO kalam_payments (student_id, package_id, minutes_per_day, price_euros, payment_status, paid_at, expires_at)
+         VALUES ($1, $2, $3, $4, $5, ${paid?'NOW()':'NULL'}, ${expires}) RETURNING *`,
+        [student_id, package_id, p.minutes_per_day, p.price_euros, paid ? 'paid' : 'unpaid']);
+      // Si payé, appliquer immédiatement le temps Kalam à l'élève
+      if (paid) {
+        await pool.query('UPDATE students SET kalam_seconds_total = $2 WHERE id = $1',
+          [student_id, p.minutes_per_day === -1 ? -1 : p.minutes_per_day * 60]);
+      }
+      res.json(r.rows[0]);
+    } catch (err) { console.error('[admin/kalam/assign]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // Gérant : valider/dévalider un paiement Kalam existant
+  router.patch('/api/admin/kalam/payments/:id', opts.requireAdmin, async (req, res) => {
+    try {
+      const paid = req.body.payment_status === 'paid';
+      const pay = await pool.query('SELECT * FROM kalam_payments WHERE id = $1', [req.params.id]);
+      if (!pay.rows.length) return res.status(404).json({ error: 'Paiement introuvable' });
+      const p = pay.rows[0];
+      const pkg = await pool.query('SELECT duration_days FROM kalam_packages WHERE id = $1', [p.package_id]);
+      const days = pkg.rows[0]?.duration_days || 30;
+      await pool.query(
+        `UPDATE kalam_payments
+         SET payment_status = $2, paid_at = ${paid?'NOW()':'NULL'}, expires_at = ${paid?`NOW() + INTERVAL '${days} days'`:'NULL'}
+         WHERE id = $1`,
+        [req.params.id, paid ? 'paid' : 'unpaid']);
+      // Appliquer ou retirer le temps Kalam
+      await pool.query('UPDATE students SET kalam_seconds_total = $2 WHERE id = $1',
+        [p.student_id, paid ? (p.minutes_per_day === -1 ? -1 : p.minutes_per_day * 60) : 180]);
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/kalam/pay-update]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   return router;
 };

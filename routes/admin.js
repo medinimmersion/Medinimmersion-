@@ -263,7 +263,7 @@ module.exports = function (pool, opts) {
   router.get('/api/admin/groups/:id/students', requireAdmin, async (req, res) => {
     try {
       const members = await pool.query(`
-        SELECT s.id, s.nom, s.prenom, s.whatsapp, s.email, gm.added_at
+        SELECT s.id, gm.id AS member_id, s.nom, s.prenom, s.kounia, s.whatsapp, s.email, gm.added_at
         FROM group_members gm
         JOIN students s ON s.id = gm.student_id
         WHERE gm.group_id = $1
