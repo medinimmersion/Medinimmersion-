@@ -138,6 +138,8 @@ body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);
     <button class="dash-tab active" onclick="showTab('accueil',this)">🏠 Tableau de bord</button>
     <button class="dash-tab" onclick="showTab('eleves',this)">👨‍🎓 Mes élèves</button>
     <button class="dash-tab" onclick="showTab('sessions',this)">📅 Sessions</button>
+    <button class="dash-tab" onclick="showTab('planning',this)">🗓️ Planning</button>
+    <button class="dash-tab" onclick="showTab('groupes',this)">👥 Groupes</button>
     <button class="dash-tab" onclick="showTab('profil',this)">👤 Mon profil</button>
   </div>
   <div class="dash-body">
@@ -183,6 +185,18 @@ body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);
     <div class="dash-panel" id="panel-sessions">
       <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mes sessions</h2>
       <div id="allSessionsList"></div>
+    </div>
+
+    <!-- PLANNING -->
+    <div class="dash-panel" id="panel-planning">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mon planning</h2>
+      <div id="planningList"></div>
+    </div>
+
+    <!-- GROUPES -->
+    <div class="dash-panel" id="panel-groupes">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mes groupes</h2>
+      <div id="groupesList"></div>
     </div>
 
     <!-- PROFIL -->
@@ -443,6 +457,8 @@ function showTab(id,btn){
   document.querySelectorAll('.dash-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   btn.classList.add('active');
+  if(id==='planning') loadPlanning();
+  if(id==='groupes') loadGroupes();
 }
 
 function formatCourse(c){return{coran:'📘 Coran',arabe:'📗 Arabe',double_immersion:'⭐ Double'}[c]||c||'–';}
@@ -477,6 +493,62 @@ async function endCall(){
     await fetch('/api/professor/zoom-call/end',{method:'POST',headers:{'X-Teacher-Token':token}});
     document.getElementById('endCallBtn').style.display='none';
   }catch{}
+}
+
+/* ── Planning du professeur ── */
+async function loadPlanning(){
+  const c=document.getElementById('planningList');
+  c.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem;">Chargement…</p>';
+  try{
+    const r=await fetch('/api/professor/planning',{headers:{'X-Teacher-Token':token}});
+    const list=await r.json();
+    if(!Array.isArray(list)||!list.length){c.innerHTML=emptyState('🗓️','Aucun cours planifié','Vos cours programmés apparaîtront ici.');return;}
+    c.innerHTML=list.map(s=>{
+      const d=s.session_date?new Date(s.session_date):null;
+      const dateStr=d?d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}):'—';
+      const statut=(s.seance_statut||s.status||'').toLowerCase();
+      const badge=statut.includes('effectu')?'<span style="background:#E6F4EC;color:#1E8E54;font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:50px;">Effectué</span>'
+        :statut.includes('absent')?'<span style="background:#FBE9E7;color:#C0392B;font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:50px;">Absent</span>'
+        :statut.includes('report')?'<span style="background:#E7F0FB;color:#2563A8;font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:50px;">Reporté</span>'
+        :'<span style="background:#FBF1D8;color:#C08A18;font-size:0.7rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:50px;">Prévu</span>';
+      return `<div style="background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1rem;margin-bottom:0.7rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-weight:700;color:var(--green-deep);text-transform:capitalize;">${dateStr}</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:0.2rem;">🕐 ${(s.time_start||'').slice(0,5)} – ${(s.time_end||'').slice(0,5)} · ${formatCourse(s.course_type)}</div></div>
+          ${badge}
+        </div></div>`;
+    }).join('');
+  }catch{ c.innerHTML=emptyState('🗓️','Erreur de chargement',''); }
+}
+
+/* ── Groupes du professeur ── */
+async function loadGroupes(){
+  const c=document.getElementById('groupesList');
+  c.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem;">Chargement…</p>';
+  try{
+    const r=await fetch('/api/professor/groups',{headers:{'X-Teacher-Token':token}});
+    const list=await r.json();
+    if(!Array.isArray(list)||!list.length){c.innerHTML=emptyState('👥','Aucun groupe','Vos groupes de cours apparaîtront ici.');return;}
+    c.innerHTML=list.map(g=>`<div style="background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1rem;margin-bottom:0.7rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:700;color:var(--green-deep);">${g.name||'Groupe'}</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);margin-top:0.2rem;">${g.member_count||0} élève(s)${g.course_type?' · '+formatCourse(g.course_type):''}</div></div>
+        <button class="btn-sm btn-join" onclick="callGroup(${g.id})">📞 Appeler</button>
+      </div></div>`).join('');
+  }catch{ c.innerHTML=emptyState('👥','Erreur de chargement',''); }
+}
+async function callGroup(groupId){
+  try{
+    const r=await fetch('/api/professor/groups/'+groupId+'/members',{headers:{'X-Teacher-Token':token}}).catch(()=>null);
+    let ids=[];
+    if(r&&r.ok){ const m=await r.json(); ids=(Array.isArray(m)?m:m.members||[]).map(x=>x.student_id||x.id); }
+    if(!ids.length){ return alert('Aucun élève dans ce groupe.'); }
+    if(!confirm('Appeler les '+ids.length+' élèves du groupe en visio ?'))return;
+    const res=await fetch('/api/professor/zoom-call/start-group',{method:'POST',headers:{'Content-Type':'application/json','X-Teacher-Token':token},body:JSON.stringify({studentIds:ids,zoomUrl:teacher?.zoom_link||null})});
+    const d=await res.json(); if(!res.ok)throw new Error(d.error||'Erreur');
+    if(teacher?.zoom_link) window.open(teacher.zoom_link,'_blank');
+    alert('📞 Appel de groupe lancé vers '+d.count+' élève(s) !');
+  }catch(e){ alert('Échec : '+e.message); }
 }
 
 init();
