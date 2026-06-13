@@ -336,6 +336,18 @@ module.exports = function adminDashboardRoutes(pool, opts) {
     }
   });
 
+  router.get('/api/professor/groups/:id/members', opts.requireTeacherAuth, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT gm.student_id, s.nom, s.prenom, s.kounia
+         FROM group_members gm JOIN students s ON s.id = gm.student_id
+         WHERE gm.group_id = $1`,
+        [req.params.id]
+      );
+      res.json(r.rows);
+    } catch (err) { console.error('[professor/group-members]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   router.get('/api/professor/planning', opts.requireTeacherAuth, async (req, res) => {
     try {
       const r = await pool.query(

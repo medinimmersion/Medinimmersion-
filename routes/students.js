@@ -118,6 +118,37 @@ module.exports = function (pool, opts) {
   });
 
   // GET /api/students/:id — get student data (student self or admin)
+  // GET /api/students (liste) — élèves attribués au professeur connecté, avec heures
+  router.get('/api/students', async (req, res) => {
+    try {
+      const tok = req.headers['x-teacher-token'] || (req.headers.authorization||'').replace('Bearer ','');
+      const teacherId = tok && opts.teacherTokens ? (opts.teacherTokens.get(tok)||{}).id : null;
+      const isAdmin = req.headers['x-admin-token'] || req.headers['x-gerant-token'];
+      if (!teacherId && !isAdmin) return res.status(401).json({ error: 'Non autorisé' });
+
+      const where = teacherId ? 'WHERE tsa.teacher_id = $1' : '';
+      const params = teacherId ? [teacherId] : [];
+      const r = await pool.query(`
+        SELECT s.id, s.nom, s.prenom, s.kounia, s.whatsapp, s.email, s.gender, s.status, s.validation_status,
+               COALESCE(sp.niveau,1) AS niveau,
+               b.course_type, b.format, COALESCE(b.hours,0) AS hours_total,
+               COALESCE((SELECT SUM(hours_done) FROM course_sessions cs WHERE cs.student_id = s.id AND cs.status IN ('done','effectue','completed')),0) AS hours_done
+        FROM teacher_student_assignments tsa
+        JOIN students s ON s.id = tsa.student_id
+        LEFT JOIN student_progression sp ON sp.student_id = s.id
+        LEFT JOIN LATERAL (SELECT course_type, format, hours FROM bookings WHERE student_id = s.id ORDER BY created_at DESC LIMIT 1) b ON true
+        ${where}
+        ORDER BY s.nom, s.prenom
+      `, params);
+      const rows = r.rows.map(s => ({
+        ...s,
+        remaining_hours: Math.max(0, Number(s.hours_total||0) - Number(s.hours_done||0)),
+        level: s.niveau
+      }));
+      res.json(rows);
+    } catch (err) { console.error('[students/list]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   router.get('/api/students/:id', async (req, res) => {
     try {
       const studentId = parseInt(req.params.id);
