@@ -168,5 +168,32 @@ module.exports = function (pool, opts) {
     } catch (err) { console.error('[admin/sessions/seance-statut]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // GET /api/sessions/:studentId — sessions d'un élève (vue professeur)
+  router.get('/api/sessions/:studentId', requireTeacherAuth, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT id, session_date, status, hours_done, notes, created_at
+         FROM course_sessions WHERE student_id = $1
+         ORDER BY session_date DESC LIMIT 100`,
+        [req.params.studentId]
+      );
+      res.json(r.rows);
+    } catch (err) { console.error('[sessions/by-student]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // PATCH /api/sessions/:id — mise à jour du statut d'une session (effectué/absent/reporté)
+  router.patch('/api/sessions/:id', requireTeacherAuth, async (req, res) => {
+    try {
+      const { status, notes } = req.body;
+      const r = await pool.query(
+        `UPDATE course_sessions SET status = COALESCE($1, status), notes = COALESCE($2, notes), updated_at = NOW()
+         WHERE id = $3 RETURNING *`,
+        [status || null, notes || null, req.params.id]
+      );
+      if (!r.rows.length) return res.status(404).json({ error: 'Session non trouvée' });
+      res.json(r.rows[0]);
+    } catch (err) { console.error('[sessions/patch]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   return router;
 };
