@@ -95,6 +95,9 @@ a{color:inherit;}
     <button class="tab gold on" data-p="eleves">👥 Élèves</button>
     <button class="tab" data-p="validation">✅ Validation</button>
     <button class="tab" data-p="profs">👨‍🏫 Professeurs</button>
+    <button class="tab" data-p="planning">🗓️ Planning</button>
+    <button class="tab" data-p="groupes">👥 Groupes</button>
+    <button class="tab" data-p="livres">📚 Livres</button>
     <button class="tab" data-p="paiements">💶 Paiements</button>
     <button class="tab" data-p="remu">💰 Rémunération</button>
   </div>
@@ -120,14 +123,78 @@ a{color:inherit;}
 
   <div class="panel" id="p-paiements">
     <h2>Paiements</h2>
-    <p class="sub">Suis et marque les paiements des réservations.</p>
-    <div id="listPaiements" class="loading">Chargement…</div>
+    <p class="sub">Suis et valide séparément les paiements des cours et de Kalam.</p>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+      <button class="btn btn-green" id="paySubCours" onclick="switchPaySub('cours')">📚 Cours</button>
+      <button class="btn btn-soft" id="paySubKalam" onclick="switchPaySub('kalam')">🎙️ Kalam</button>
+    </div>
+    <div id="paySubCoursBox">
+      <div id="listPaiements" class="loading">Chargement…</div>
+    </div>
+    <div id="paySubKalamBox" style="display:none;">
+      <button class="btn btn-gold" onclick="openAssignKalam()" style="margin-bottom:1rem;">➕ Attribuer un forfait Kalam</button>
+      <div id="assignKalamForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+        <select class="search" id="akStudent"></select>
+        <select class="search" id="akPackage"></select>
+        <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Statut</label>
+        <select class="search" id="akStatus"><option value="unpaid">En attente de paiement</option><option value="paid">Déjà payé (donne accès direct)</option></select>
+        <div class="acts"><button class="btn btn-green" onclick="assignKalam()">Attribuer</button><button class="btn btn-soft" onclick="document.getElementById('assignKalamForm').style.display='none'">Annuler</button></div>
+      </div>
+      <div id="listKalamPay" class="loading">Chargement…</div>
+    </div>
   </div>
 
   <div class="panel" id="p-remu">
     <h2>Rémunération des professeurs</h2>
     <p class="sub">Heures effectuées et montants par professeur.</p>
     <div id="listRemu" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-planning">
+    <h2>Planning</h2>
+    <p class="sub">Crée et consulte les cours programmés.</p>
+    <button class="btn btn-green" onclick="openNewCourse()" style="margin-bottom:1rem;">➕ Nouveau cours</button>
+    <div id="newCourseForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <input class="search" id="cTitle" placeholder="Titre du cours (optionnel)">
+      <select class="search" id="cTeacher"></select>
+      <select class="search" id="cType"><option value="arabe">Arabe</option><option value="coran">Coran</option><option value="double_immersion">Double immersion</option></select>
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Date du cours</label>
+      <input class="search" id="cDate" type="date">
+      <div style="display:flex;gap:0.5rem;">
+        <div style="flex:1;"><label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Début</label><input class="search" id="cStart" type="time"></div>
+        <div style="flex:1;"><label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Fin</label><input class="search" id="cEnd" type="time"></div>
+      </div>
+      <div class="acts"><button class="btn btn-green" onclick="createCourse()">Créer</button><button class="btn btn-soft" onclick="document.getElementById('newCourseForm').style.display='none'">Annuler</button></div>
+    </div>
+    <div id="listPlanning" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-groupes">
+    <h2>Groupes</h2>
+    <p class="sub">Crée des groupes et gère leurs élèves.</p>
+    <button class="btn btn-green" onclick="openNewGroup()" style="margin-bottom:1rem;">➕ Nouveau groupe</button>
+    <div id="newGroupForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <input class="search" id="gName" placeholder="Nom du groupe">
+      <input class="search" id="gDesc" placeholder="Description (optionnel)">
+      <div class="acts"><button class="btn btn-green" onclick="createGroup()">Créer</button><button class="btn btn-soft" onclick="document.getElementById('newGroupForm').style.display='none'">Annuler</button></div>
+    </div>
+    <div id="listGroupes" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-livres">
+    <h2>Livres & PDF</h2>
+    <p class="sub">Ajoute des livres et assigne-les par niveau ou par élève.</p>
+    <button class="btn btn-green" onclick="document.getElementById('newBookForm').style.display='block'" style="margin-bottom:1rem;">➕ Ajouter un livre</button>
+    <div id="newBookForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <input class="search" id="bName" placeholder="Nom du livre">
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Niveau minimum</label>
+      <select class="search" id="bNiveau">${[1,2,3,4,5,6,7,8,9,10,11].map(n=>`<option value="${n}">Niveau ${n}</option>`).join('')}</select>
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Fichier PDF</label>
+      <input class="search" id="bFile" type="file" accept="application/pdf">
+      <div class="acts"><button class="btn btn-green" onclick="uploadBook()">Téléverser</button><button class="btn btn-soft" onclick="document.getElementById('newBookForm').style.display='none'">Annuler</button></div>
+      <div id="bUploadMsg" style="font-size:0.8rem;color:var(--muted);margin-top:0.5rem;"></div>
+    </div>
+    <div id="listLivres" class="loading">Chargement…</div>
   </div>
 </div>
 
@@ -182,6 +249,9 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
   t.classList.add('on'); $('p-'+t.dataset.p).classList.add('on');
+  if(t.dataset.p==='planning') loadPlanning();
+  if(t.dataset.p==='groupes') loadGroupes();
+  if(t.dataset.p==='livres') loadLivres();
 });
 
 async function loadStats(){
@@ -218,6 +288,7 @@ function renderEleves(list){
       <div class="acts">
         <button class="btn btn-info" onclick="viewStudent(${s.id})">👁 Voir espace</button>
         <button class="btn btn-gold" onclick="resetStudentPwd(${s.id},'${esc(nom)}')">🔑 Mot de passe</button>
+        <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Temps Kalam</button>
       </div></div>`;
   }).join('');
 }
@@ -238,6 +309,19 @@ async function resetStudentPwd(id,nom){
   try{
     const r=await fetch('/api/admin/students/'+id+'/password',{method:'PUT',headers:H(),body:JSON.stringify({password:np})});
     if(!r.ok) throw 0; toast('Mot de passe mis à jour ✓');
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function setKalamTime(id,nom){
+  const v=prompt('Temps Kalam pour '+nom+' :\n\n• Tape un nombre de MINUTES par jour (ex: 10)\n• Tape 0 pour bloquer\n• Tape "illimité" pour un accès sans limite');
+  if(v===null) return;
+  const val=v.trim().toLowerCase();
+  let body;
+  if(val==='illimité'||val==='illimite'||val==='unlimited'||val==='∞'){ body={unlimited:true}; }
+  else { const m=parseInt(val,10); if(isNaN(m)||m<0){ toast('Valeur invalide.'); return; } body={minutes:m}; }
+  try{
+    const r=await fetch('/api/admin/students/'+id+'/kalam-time',{method:'PUT',headers:H(),body:JSON.stringify(body)});
+    if(!r.ok) throw 0;
+    toast(body.unlimited?'Temps Kalam : illimité ✓':'Temps Kalam : '+body.minutes+' min/jour ✓');
   }catch{ toast('Échec — réessaie.'); }
 }
 
@@ -332,6 +416,60 @@ async function setPay(id,status){
   }catch{ toast('Échec — réessaie.'); }
 }
 
+/* ───────── PAIEMENTS KALAM ───────── */
+function switchPaySub(which){
+  const cours=which==='cours';
+  $('paySubCoursBox').style.display=cours?'block':'none';
+  $('paySubKalamBox').style.display=cours?'none':'block';
+  $('paySubCours').className='btn '+(cours?'btn-green':'btn-soft');
+  $('paySubKalam').className='btn '+(cours?'btn-soft':'btn-green');
+  if(!cours) loadKalamPay();
+}
+let cacheKalamPkgs=[];
+async function openAssignKalam(){
+  $('assignKalamForm').style.display='block';
+  const all=cacheEleves.length?cacheEleves:await fetch('/api/admin/students',{headers:H()}).then(r=>r.json()).then(d=>d.students||[]);
+  $('akStudent').innerHTML='<option value="">— Élève —</option>'+all.map(s=>`<option value="${s.id}">${esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia)}</option>`).join('');
+  if(!cacheKalamPkgs.length){ cacheKalamPkgs=await fetch('/api/kalam/packages',{headers:H()}).then(r=>r.json()).catch(()=>[]); }
+  $('akPackage').innerHTML='<option value="">— Forfait —</option>'+cacheKalamPkgs.map(p=>`<option value="${p.id}">${esc(p.name)} · ${p.minutes_per_day===-1?'illimité':p.minutes_per_day+' min/j'} · ${p.price_euros}€</option>`).join('');
+}
+async function assignKalam(){
+  const student_id=$('akStudent').value, package_id=$('akPackage').value, payment_status=$('akStatus').value;
+  if(!student_id||!package_id){ toast('Élève et forfait requis.'); return; }
+  try{
+    const r=await fetch('/api/admin/kalam/assign',{method:'POST',headers:H(),body:JSON.stringify({student_id,package_id,payment_status})});
+    if(!r.ok) throw 0;
+    toast(payment_status==='paid'?'Forfait attribué et activé ✓':'Forfait attribué (en attente de paiement)');
+    $('assignKalamForm').style.display='none'; loadKalamPay();
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function loadKalamPay(){
+  try{
+    const r=await fetch('/api/admin/kalam/payments',{headers:H()}); const list=await r.json();
+    if(!Array.isArray(list)||!list.length){ $('listKalamPay').innerHTML='<div class="empty">Aucun paiement Kalam.</div>'; return; }
+    $('listKalamPay').innerHTML=list.map(p=>{
+      const paid=(p.payment_status||'')==='paid';
+      const nom=esc([p.prenom,p.nom].filter(Boolean).join(' ')||p.kounia||'Élève');
+      const mins=p.minutes_per_day===-1?'illimité':p.minutes_per_day+' min/jour';
+      return `<div class="row"><div class="r-top">
+        <div><div class="name">${nom}</div>
+        <div class="meta">${esc(p.package_name||'Forfait')} · ${mins} · ${p.price_euros}€</div></div>
+        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-bad">Impayé</span>'}</div>
+        <div class="acts">${paid
+          ?`<button class="btn btn-soft" onclick="setKalamPay(${p.id},'unpaid')">Annuler le paiement</button>`
+          :`<button class="btn btn-ok" onclick="setKalamPay(${p.id},'paid')">✅ Valider le paiement (active Kalam)</button>`}</div></div>`;
+    }).join('');
+  }catch{ $('listKalamPay').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function setKalamPay(id,status){
+  try{
+    const r=await fetch('/api/admin/kalam/payments/'+id,{method:'PATCH',headers:H(),body:JSON.stringify({payment_status:status})});
+    if(!r.ok) throw 0;
+    toast(status==='paid'?'Paiement validé — Kalam activé ✓':'Paiement annulé');
+    loadKalamPay();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
 async function loadRemu(){
   try{
     const r=await fetch('/api/admin/remuneration',{headers:H()}); const list=await r.json();
@@ -346,6 +484,145 @@ async function loadRemu(){
         <span class="badge b-info">${amt}€</span></div></div>`;
     }).join('');
   }catch{ $('listRemu').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+
+/* ───────── PLANNING (gérant) ───────── */
+let cacheTeachers=[];
+async function ensureTeachers(){
+  if(cacheTeachers.length) return cacheTeachers;
+  try{ const r=await fetch('/api/admin/teachers',{headers:H()}); cacheTeachers=await r.json(); }catch{ cacheTeachers=[]; }
+  return cacheTeachers;
+}
+async function openNewCourse(){
+  document.getElementById('newCourseForm').style.display='block';
+  const t=await ensureTeachers();
+  $('cTeacher').innerHTML='<option value="">— Professeur —</option>'+t.map(x=>`<option value="${x.id}">${esc([x.prenom,x.nom].filter(Boolean).join(' ')||x.username)}</option>`).join('');
+}
+async function createCourse(){
+  const body={ title:$('cTitle').value||null, teacher_id:$('cTeacher').value||null,
+    course_type:$('cType').value, start_date:$('cDate').value, end_date:$('cDate').value,
+    days_of_week:[], time_start:$('cStart').value, time_end:$('cEnd').value };
+  if(!body.start_date||!body.time_start||!body.time_end){ toast('Date et heures requises.'); return; }
+  try{
+    const r=await fetch('/api/admin/schedules',{method:'POST',headers:H(),body:JSON.stringify(body)});
+    if(!r.ok) throw 0;
+    const sc=await r.json();
+    await fetch('/api/admin/sessions',{method:'POST',headers:H(),body:JSON.stringify({schedule_id:sc.id,teacher_id:body.teacher_id,session_date:body.start_date,time_start:body.time_start,time_end:body.time_end,course_type:body.course_type})}).catch(()=>{});
+    toast('Cours créé ✓'); document.getElementById('newCourseForm').style.display='none'; loadPlanning();
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function loadPlanning(){
+  try{
+    const r=await fetch('/api/admin/schedules',{headers:H()}).catch(()=>null);
+    let list = r&&r.ok ? await r.json() : [];
+    if(!Array.isArray(list)) list = list.schedules||[];
+    if(!list.length){ $('listPlanning').innerHTML='<div class="empty">Aucun cours programmé. Crée le premier !</div>'; return; }
+    $('listPlanning').innerHTML=list.map(s=>{
+      const d=s.start_date?new Date(s.start_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
+      const tn=[s.teacher_prenom,s.teacher_nom].filter(Boolean).join(' ')||s.teacher_name||'';
+      return `<div class="row"><div class="r-top"><div>
+        <div class="name">${esc(s.title||'Cours')}</div>
+        <div class="meta">${d} · ${(s.time_start||'').slice(0,5)}–${(s.time_end||'').slice(0,5)} · ${esc(s.course_type||'')}${tn?' · '+esc(tn):''}</div>
+        </div><span class="badge b-info">${esc(s.course_type||'')}</span></div></div>`;
+    }).join('');
+  }catch{ $('listPlanning').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+
+/* ───────── GROUPES (gérant) ───────── */
+function openNewGroup(){ document.getElementById('newGroupForm').style.display='block'; }
+async function createGroup(){
+  const name=$('gName').value.trim(); if(!name){ toast('Nom requis.'); return; }
+  try{
+    const r=await fetch('/api/admin/groups',{method:'POST',headers:H(),body:JSON.stringify({name,description:$('gDesc').value||null})});
+    if(!r.ok) throw 0; toast('Groupe créé ✓'); $('gName').value='';$('gDesc').value='';
+    document.getElementById('newGroupForm').style.display='none'; loadGroupes();
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function loadGroupes(){
+  try{
+    const r=await fetch('/api/admin/groups',{headers:H()}); let list=await r.json();
+    if(!Array.isArray(list)) list=list.groups||[];
+    if(!list.length){ $('listGroupes').innerHTML='<div class="empty">Aucun groupe. Crée le premier !</div>'; return; }
+    $('listGroupes').innerHTML=list.map(g=>`<div class="row">
+      <div class="r-top"><div><div class="name">${esc(g.name)}</div>
+      <div class="meta">${g.member_count||g.student_count||0} élève(s)${g.description?' · '+esc(g.description):''}</div></div>
+      <button class="btn btn-bad" onclick="delGroup(${g.id})">🗑</button></div>
+      <div class="acts">
+        <button class="btn btn-gold" onclick="manageMembers(${g.id})">👥 Gérer les élèves</button>
+      </div>
+      <div id="gm-${g.id}" style="display:none;margin-top:0.6rem;"></div>
+    </div>`).join('');
+  }catch{ $('listGroupes').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function delGroup(id){
+  if(!confirm('Supprimer ce groupe ?'))return;
+  try{ const r=await fetch('/api/admin/groups/'+id,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Groupe supprimé'); loadGroupes(); }catch{ toast('Échec.'); }
+}
+async function manageMembers(gid){
+  const box=$('gm-'+gid);
+  if(box.style.display==='block'){ box.style.display='none'; return; }
+  box.style.display='block'; box.innerHTML='Chargement…';
+  try{
+    const mr=await fetch('/api/admin/groups/'+gid+'/students',{headers:H()}).then(r=>r.json()).catch(()=>[]);
+    const all=cacheEleves.length?cacheEleves:await fetch('/api/admin/students',{headers:H()}).then(r=>r.json()).then(d=>d.students||[]);
+    const members=Array.isArray(mr)?mr:(mr.students||[]);
+    const memberIds=members.map(m=>m.id||m.student_id);
+    box.innerHTML=`<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.4rem;">Membres : ${members.length}</div>`+
+      members.map(m=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;font-size:0.85rem;">
+        <span>${esc([m.prenom,m.nom].filter(Boolean).join(' ')||m.kounia||'Élève')}</span>
+        <button class="btn btn-bad" onclick="rmMember(${gid},${m.member_id||m.id})">retirer</button></div>`).join('')+
+      `<select class="search" id="addm-${gid}" style="margin-top:0.5rem;"><option value="">+ Ajouter un élève…</option>${
+        all.filter(s=>!memberIds.includes(s.id)).map(s=>`<option value="${s.id}">${esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia)}</option>`).join('')
+      }</select><button class="btn btn-green" onclick="addMember(${gid})" style="margin-top:0.4rem;">Ajouter</button>`;
+  }catch{ box.innerHTML='<div class="empty">Erreur.</div>'; }
+}
+async function addMember(gid){
+  const sid=$('addm-'+gid).value; if(!sid)return;
+  try{ const r=await fetch('/api/admin/groups/'+gid+'/members',{method:'POST',headers:H(),body:JSON.stringify({student_id:sid})}); if(!r.ok)throw 0; toast('Élève ajouté ✓'); $('gm-'+gid).style.display='none'; manageMembers(gid); loadGroupes(); }catch{ toast('Échec.'); }
+}
+async function rmMember(gid,mid){
+  try{ const r=await fetch('/api/admin/groups/'+gid+'/members/'+mid,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Retiré'); $('gm-'+gid).style.display='none'; manageMembers(gid); loadGroupes(); }catch{ toast('Échec.'); }
+}
+
+/* ───────── LIVRES (gérant) ───────── */
+async function uploadBook(){
+  const name=$('bName').value.trim(); const f=$('bFile').files[0];
+  if(!name||!f){ toast('Nom et fichier requis.'); return; }
+  $('bUploadMsg').textContent='Téléversement en cours…';
+  try{
+    const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});
+    const r=await fetch('/api/admin/library/books',{method:'POST',headers:H(),body:JSON.stringify({name,data,niveau_min:$('bNiveau').value})});
+    if(!r.ok) throw 0;
+    $('bUploadMsg').textContent=''; $('bName').value='';$('bFile').value='';
+    toast('Livre ajouté ✓'); document.getElementById('newBookForm').style.display='none'; loadLivres();
+  }catch{ $('bUploadMsg').textContent=''; toast('Échec du téléversement.'); }
+}
+async function loadLivres(){
+  try{
+    const r=await fetch('/api/admin/library/books-with-categories',{headers:H()}).catch(()=>null);
+    let list = r&&r.ok ? await r.json() : [];
+    if(!Array.isArray(list)) list=list.books||[];
+    if(!list.length){ $('listLivres').innerHTML='<div class="empty">Aucun livre. Ajoute le premier !</div>'; return; }
+    $('listLivres').innerHTML=list.map(b=>`<div class="row">
+      <div class="r-top"><div><div class="name">${esc(b.name)}</div>
+      <div class="meta">Niveau min : ${b.niveau_min||1}${b.category_name?' · '+esc(b.category_name):''}</div></div>
+      ${b.file_url?`<a class="btn btn-info" href="${b.file_url}" target="_blank">Ouvrir</a>`:''}</div>
+      <div class="acts">
+        <button class="btn btn-gold" onclick="assignBookLevel(${b.slot_number||b.id},${b.niveau_min||1})">📤 Assigner au niveau ${b.niveau_min||1}</button>
+        <button class="btn btn-bad" onclick="delBook(${b.id})">🗑</button>
+      </div></div>`).join('');
+  }catch{ $('listLivres').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function assignBookLevel(bookId,niveau){
+  if(!confirm('Assigner ce livre à tous les élèves de niveau '+niveau+' ?'))return;
+  try{
+    const r=await fetch('/api/admin/library/assign',{method:'POST',headers:H(),body:JSON.stringify({book_id:bookId,niveau_min:niveau})});
+    const d=await r.json(); if(!r.ok)throw 0; toast('Assigné à '+(d.assigned||0)+' élève(s) ✓');
+  }catch{ toast('Échec.'); }
+}
+async function delBook(id){
+  if(!confirm('Supprimer ce livre ?'))return;
+  try{ const r=await fetch('/api/admin/library/books/'+id,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Supprimé'); loadLivres(); }catch{ toast('Échec.'); }
 }
 
 boot();

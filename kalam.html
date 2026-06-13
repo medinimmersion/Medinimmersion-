@@ -149,8 +149,8 @@ body.listening .orb svg{display:none;}
       <button class="ctrl on" id="autoBtn" title="Conversation continue" aria-label="Conversation continue">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>
       </button>
-      <button class="ctrl" id="stopBtn" title="Couper la voix" aria-label="Couper la voix">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+      <button class="ctrl" id="muteBtn" title="Couper le micro" aria-label="Couper le micro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
       </button>
     </div>
     <div class="hintline" id="hintline">Mode continu activé — la conversation s'enchaîne toute seule</div>
@@ -183,36 +183,50 @@ let autoMode=true;
 let recognition=null, recActive=false, manualStop=false;
 let audioCtx=null, analyser=null, micStream=null, rafId=null;
 let currentAudio=null;
-let secondsLeft=DAILY_SECONDS, tickInt=null, started=false;
+let secondsLeft=180, totalSeconds=180, unlimited=false, tickInt=null, started=false, consumeBuffer=0;
 
-/* ── Quota journalier (localStorage) ── */
-(function initQuota(){
-  const today=new Date().toISOString().slice(0,10);
-  if(localStorage.getItem('kalam_day')!==today){
-    localStorage.setItem('kalam_day',today);
-    localStorage.setItem('kalam_left',DAILY_SECONDS);
-  }
-  secondsLeft=parseInt(localStorage.getItem('kalam_left')||DAILY_SECONDS);
+/* ── Quota géré par le serveur (défini par le gérant) ── */
+async function loadQuota(){
+  try{
+    const r=await fetch('/api/oustaz/quota',{headers:{'Authorization':'Bearer '+token}});
+    if(!r.ok) throw 0;
+    const d=await r.json();
+    unlimited=!!d.unlimited;
+    totalSeconds=d.total>0?d.total:180;
+    secondsLeft=unlimited?999999:d.remaining;
+  }catch{ unlimited=false; totalSeconds=180; secondsLeft=180; }
   drawTimer();
-})();
+}
 function drawTimer(){
+  if(unlimited){ $('timeLeft').textContent='∞'; $('ringLeft').style.strokeDashoffset='0'; return; }
   const m=Math.floor(Math.max(0,secondsLeft)/60), s=Math.max(0,secondsLeft)%60;
   $('timeLeft').textContent=`${m}:${String(s).padStart(2,'0')}`;
-  const C=345.6, pct=Math.max(0,secondsLeft)/DAILY_SECONDS;
+  const C=345.6, pct=Math.max(0,secondsLeft)/Math.max(1,totalSeconds);
   $('ringLeft').style.strokeDashoffset=String(C*(1-pct));
 }
 function startTick(){
   if(tickInt) return;
   tickInt=setInterval(()=>{
-    secondsLeft--; localStorage.setItem('kalam_left',secondsLeft); drawTimer();
-    if(secondsLeft<=0){ endOfQuota(); }
+    if(!unlimited){ secondsLeft--; }
+    consumeBuffer++;
+    drawTimer();
+    // Toutes les 10s, on enregistre la consommation côté serveur
+    if(consumeBuffer>=10){ pushConsume(consumeBuffer); consumeBuffer=0; }
+    if(!unlimited && secondsLeft<=0){ pushConsume(consumeBuffer); consumeBuffer=0; endOfQuota(); }
   },1000);
 }
-function stopTick(){ clearInterval(tickInt); tickInt=null; }
+async function pushConsume(sec){
+  if(!sec) return;
+  try{ await fetch('/api/oustaz/quota/consume',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({seconds:sec})}); }catch{}
+}
+function stopTick(){
+  clearInterval(tickInt); tickInt=null;
+  if(consumeBuffer>0){ pushConsume(consumeBuffer); consumeBuffer=0; }
+}
 function endOfQuota(){
   stopTick(); stopListening(true); stopSpeaking();
-  setStatus('Session du jour terminée — à demain in shâ Allah !');
-  addMsg('hint','Tu as utilisé tes 3 minutes du jour. Reviens demain pour continuer à progresser 🌙');
+  setStatus('Session terminée — à bientôt in shâ Allah !');
+  addMsg('hint','Tu as utilisé tout ton temps Kalam. Contacte ton école pour en obtenir davantage 🌙');
 }
 
 /* ── Auth ── */
@@ -242,6 +256,7 @@ $('liBtn').onclick=async()=>{
   }catch(e){err.textContent=e.message;err.style.display='block';}
 };
 function welcome(){
+  loadQuota();
   const name=student?.prenom||student?.kounia||'';
   addMsg('hint',`As-salamou alaykoum${name?' '+name:''} ! Choisis ta langue et ton niveau, puis touche l'orbe doré pour parler.`);
 }
@@ -279,7 +294,24 @@ $('autoBtn').onclick=()=>{
   $('autoBtn').classList.toggle('on',autoMode);
   $('hintline').textContent=autoMode?"Mode continu activé — la conversation s'enchaîne toute seule":"Mode continu désactivé — touche l'orbe à chaque tour";
 };
-$('stopBtn').onclick=()=>{ stopSpeaking(); stopListening(true); setStatus('En pause — touche l\'orbe pour reprendre'); };
+let micMuted=false;
+$('muteBtn').onclick=()=>{
+  micMuted=!micMuted;
+  $('muteBtn').classList.toggle('on',micMuted);
+  if(micMuted){
+    // Couper UNIQUEMENT l'écoute (pour ne plus capter les bruits / ta voix).
+    // Kalam continue de parler et de répondre normalement.
+    manualStop=true;
+    stopListening(true);
+    $('muteBtn').title='Micro coupé — touche pour réactiver';
+    setStatus(lang==='ar'?'الميكروفون مغلق':'Micro coupé — Kalam continue de répondre');
+  }else{
+    manualStop=false;
+    $('muteBtn').title='Couper le micro';
+    // Si Kalam n'est pas en train de parler, on réactive l'écoute
+    if(document.body.className!=='speaking'){ startListening(); }
+  }
+};
 
 /* ── Micro + niveau sonore ── */
 async function ensureMic(){
@@ -385,6 +417,7 @@ async function speak(text){
   const done=()=>{
     setBodyState(''); 
     if(secondsLeft<=0){ endOfQuota(); return; }
+    if(micMuted){ setStatus(lang==='ar'?'الميكروفون مغلق':'Micro coupé — touche le micro pour parler'); return; }
     if(autoMode){ setTimeout(()=>startListening(),350); }
     else setStatus('À toi — touche l\'orbe');
   };
