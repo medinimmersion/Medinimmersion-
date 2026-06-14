@@ -155,9 +155,14 @@ TON STYLE :
 
       res.json({ response: reply });
     } catch (err) {
-      console.error('[oustaz/chat]', err.message);
+      console.error('[oustaz/chat]', err.status || '', err.message);
       const noKey = !process.env.OPENAI_API_KEY;
-      res.status(500).json({ error: noKey ? "Clé IA manquante : ajoute OPENAI_API_KEY dans Render → Environment." : 'Erreur IA, réessaie.' });
+      // Détail utile pour le diagnostic (code + message OpenAI)
+      const detail = err && (err.status || err.code) ? `${err.status||''} ${err.code||''} ${err.message||''}`.trim() : (err.message || 'inconnue');
+      res.status(500).json({
+        error: noKey ? "Clé IA manquante : ajoute OPENAI_API_KEY dans Render → Environment." : 'Erreur IA, réessaie.',
+        detail
+      });
     }
   });
 
