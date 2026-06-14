@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Test Kalam</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem;background:#FDFAF3;color:#1A1A1A;}
+h1{color:#0F3D26;font-size:1.4rem;}
+button{background:#1B5E3A;color:#fff;border:none;padding:0.9rem 1.2rem;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;width:100%;margin:0.5rem 0;}
+input{width:100%;padding:0.8rem;border:1.5px solid #E7DCBE;border-radius:10px;font-size:1rem;margin:0.4rem 0;box-sizing:border-box;}
+pre{background:#0F3D26;color:#D4FAE0;padding:1rem;border-radius:10px;white-space:pre-wrap;word-break:break-word;font-size:0.85rem;margin-top:1rem;}
+.label{font-weight:700;font-size:0.85rem;margin-top:0.8rem;}
+</style>
+</head>
+<body>
+<h1>🔧 Diagnostic Kalam</h1>
+<p>Cette page teste directement l'IA. Elle affiche la réponse exacte du serveur.</p>
+
+<div class="label">1) Connexion élève</div>
+<input id="email" placeholder="email ou whatsapp de l'élève">
+<input id="pwd" type="password" placeholder="mot de passe">
+<button onclick="login()">Se connecter</button>
+
+<div class="label">2) Tester l'IA</div>
+<input id="msg" placeholder="Écris un message (ex: salam)" value="As-salamou alaykoum">
+<button onclick="testChat()">Tester la réponse IA</button>
+
+<div class="label">3) Tester la santé du serveur</div>
+<button onclick="testHealth()">Tester /api/health</button>
+
+<pre id="out">Résultats ici…</pre>
+
+<script>
+let token='';
+const out=m=>document.getElementById('out').textContent=(typeof m==='string'?m:JSON.stringify(m,null,2));
+async function login(){
+  const id=document.getElementById('email').value.trim();
+  const pwd=document.getElementById('pwd').value;
+  const body=id.includes('@')?{email:id,password:pwd}:{whatsapp:id,password:pwd};
+  try{
+    const r=await fetch('/api/member/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d.token){ token=d.token; out('✅ Connecté ! Token reçu.\n\nMaintenant teste l\'IA (étape 2).'); }
+    else out('❌ Échec connexion :\n'+JSON.stringify(d,null,2));
+  }catch(e){ out('❌ Erreur réseau : '+e.message); }
+}
+async function testChat(){
+  if(!token){ out('⚠️ Connecte-toi d\'abord (étape 1).'); return; }
+  out('⏳ Envoi au serveur…');
+  try{
+    const r=await fetch('/api/student/oustaz/chat',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({message:document.getElementById('msg').value,history:[],lang:'fr',level:'debutant'})
+    });
+    const txt=await r.text();
+    out('STATUT HTTP : '+r.status+'\n\nRÉPONSE BRUTE :\n'+txt);
+  }catch(e){ out('❌ Erreur réseau : '+e.message); }
+}
+async function testHealth(){
+  try{
+    const r=await fetch('/api/health');
+    out('STATUT : '+r.status+'\n\n'+await r.text());
+  }catch(e){ out('❌ '+e.message); }
+}
+</script>
+</body>
+</html>
