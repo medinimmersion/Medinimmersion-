@@ -180,7 +180,7 @@ let token=null, student=null;
 let lang='fr', level='debutant';
 let history=[];                           // {role, content}
 let autoMode=true;
-let recognition=null, recActive=false, manualStop=false;
+let recognition=null, recActive=false, manualStop=false, lastInterim='';
 let audioCtx=null, analyser=null, micStream=null, rafId=null;
 let currentAudio=null;
 let secondsLeft=180, totalSeconds=180, unlimited=false, tickInt=null, started=false, consumeBuffer=0;
@@ -365,8 +365,8 @@ function startListening(){
       const t=ev.results[i][0].transcript;
       if(ev.results[i].isFinal) final+=t; else interim+=t;
     }
-    if(interim) showInterim(interim);
-    if(final){ clearInterim(); userSaid(final.trim()); }
+    if(interim){ showInterim(interim); lastInterim=interim; }
+    if(final){ clearInterim(); lastInterim=''; userSaid(final.trim()); }
   };
   recognition.onerror=(ev)=>{
     recActive=false; stopBars();
@@ -374,7 +374,11 @@ function startListening(){
     if(ev.error==='not-allowed'){ setBodyState(''); setStatus('Micro non autorisé'); addMsg('hint','Autorise le micro pour parler avec Kalam.'); return; }
     setBodyState(''); setStatus('Petit souci de micro — touche l\'orbe pour réessayer');
   };
-  recognition.onend=()=>{ recActive=false; stopBars(); if(document.body.className==='listening') setBodyState(''); };
+  recognition.onend=()=>{
+    recActive=false; stopBars();
+    if(lastInterim && lastInterim.trim()){ const t=lastInterim.trim(); lastInterim=''; clearInterim(); userSaid(t); return; }
+    if(document.body.className==='listening') setBodyState('');
+  };
   try{ recognition.start(); }catch{}
 }
 function stopListening(silent){
