@@ -144,8 +144,37 @@ TON STYLE :
       }
       messages.push({ role: 'user', content: String(message).slice(0, 1000) });
 
-      const resp = await client.chat.completions.create({ model, messages, max_tokens: 220, temperature: 0.8 });
-      let reply = resp.choices[0].message.content || '';
+      let reply = '';
+      const GEMINI_KEY = process.env.GEMINI_API_KEY;
+      if (GEMINI_KEY) {
+        // ── Gemini (gratuit) ──
+        const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+        const contents = [];
+        if (Array.isArray(history)) {
+          history.slice(-12).forEach(m => {
+            if (m && m.role && m.content) contents.push({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(m.content).slice(0, 1000) }] });
+          });
+        }
+        contents.push({ role: 'user', parts: [{ text: String(message).slice(0, 1000) }] });
+        const gr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${GEMINI_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents,
+            generationConfig: { maxOutputTokens: 220, temperature: 0.8 }
+          })
+        });
+        const gd = await gr.json();
+        if (!gr.ok) { const e = new Error(gd.error?.message || 'Gemini error'); e.status = gr.status; throw e; }
+        reply = gd.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      } else {
+        // ── OpenAI (fallback si pas de clé Gemini) ──
+        const client = getClient();
+        const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+        const resp = await client.chat.completions.create({ model, messages, max_tokens: 220, temperature: 0.8 });
+        reply = resp.choices[0].message.content || '';
+      }
       // Nettoyage pour la voix : retire emojis, markdown, listes
       reply = reply.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
                    .replace(/[*_#`>]/g, '')
@@ -156,11 +185,10 @@ TON STYLE :
       res.json({ response: reply });
     } catch (err) {
       console.error('[oustaz/chat]', err.status || '', err.message);
-      const noKey = !process.env.OPENAI_API_KEY;
-      // Détail utile pour le diagnostic (code + message OpenAI)
+      const noKey = !process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY;
       const detail = err && (err.status || err.code) ? `${err.status||''} ${err.code||''} ${err.message||''}`.trim() : (err.message || 'inconnue');
       res.status(500).json({
-        error: noKey ? "Clé IA manquante : ajoute OPENAI_API_KEY dans Render → Environment." : 'Erreur IA, réessaie.',
+        error: noKey ? "Clé IA manquante : ajoute GEMINI_API_KEY dans Render → Environment." : 'Erreur IA, réessaie.',
         detail
       });
     }
