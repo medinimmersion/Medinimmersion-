@@ -154,6 +154,10 @@ body.listening .orb svg{display:none;}
       </button>
     </div>
     <div class="hintline" id="hintline">Mode continu activé — la conversation s'enchaîne toute seule</div>
+    <div style="display:flex;gap:0.5rem;margin-top:1rem;width:100%;max-width:420px;">
+      <input id="textInput" placeholder="Ou écris ton message ici…" style="flex:1;padding:0.7rem 0.9rem;border:1px solid rgba(255,255,255,0.2);border-radius:50px;background:rgba(255,255,255,0.08);color:#fff;font-family:inherit;font-size:0.9rem;outline:none;">
+      <button id="sendText" style="background:var(--gold,#D4A843);color:#0F3D26;border:none;border-radius:50px;padding:0.7rem 1.1rem;font-weight:700;font-family:inherit;cursor:pointer;">Envoyer</button>
+    </div>
   </div>
 </main>
 
@@ -465,6 +469,14 @@ $('orb').onclick=async()=>{
 };
 
 checkAuth();
+
+/* Saisie texte de secours (si le micro ne capte pas) */
+(function(){
+  const ti=document.getElementById('textInput'), sb=document.getElementById('sendText');
+  function send(){ const v=ti.value.trim(); if(!v)return; ti.value=''; try{stopListening(true);}catch{} userSaid(v); }
+  if(sb) sb.onclick=send;
+  if(ti) ti.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); send(); } });
+})();
 </script>
 </body>
 </html>
