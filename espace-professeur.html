@@ -142,6 +142,7 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
     <button class="dash-tab" onclick="showTab('sessions',this)">📅 Sessions</button>
     <button class="dash-tab" onclick="showTab('planning',this)">🗓️ Planning</button>
     <button class="dash-tab" onclick="showTab('groupes',this)">👥 Groupes</button>
+    <button class="dash-tab" id="tabLivres" onclick="showTab('livres',this)" style="display:none;">📚 Livres</button>
     <button class="dash-tab" onclick="showTab('profil',this)">👤 Mon profil</button>
   </div>
   <div class="dash-body">
@@ -199,6 +200,13 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
     <div class="dash-panel" id="panel-groupes">
       <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mes groupes</h2>
       <div id="groupesList"></div>
+    </div>
+
+    <!-- LIVRES -->
+    <div class="dash-panel" id="panel-livres">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:0.5rem;">Bibliothèque</h2>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">Assigne des livres à tes élèves.</p>
+      <div id="livresList"></div>
     </div>
 
     <!-- PROFIL -->
@@ -284,6 +292,8 @@ function showDashboard(){
   document.getElementById('tbAvatar').textContent=initials.toUpperCase();
   document.getElementById('dashDate').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   if(teacher?.whatsapp)document.getElementById('waInput').value=teacher.whatsapp;
+  // Onglet Livres visible seulement si le gérant a donné la permission
+  if(teacher?.can_send_books){ const tl=document.getElementById('tabLivres'); if(tl) tl.style.display=''; }
   loadAll();
 }
 
@@ -461,6 +471,7 @@ function showTab(id,btn){
   btn.classList.add('active');
   if(id==='planning') loadPlanning();
   if(id==='groupes') loadGroupes();
+  if(id==='livres') loadLivres();
 }
 
 function formatCourse(c){return{coran:'📘 Coran',arabe:'📗 Arabe',double_immersion:'⭐ Double'}[c]||c||'–';}
@@ -495,6 +506,46 @@ async function endCall(){
     await fetch('/api/professor/zoom-call/end',{method:'POST',headers:{'X-Teacher-Token':token}});
     document.getElementById('endCallBtn').style.display='none';
   }catch{}
+}
+
+/* ── Bibliothèque (professeur) ── */
+async function loadLivres(){
+  const c=document.getElementById('livresList');
+  c.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem;">Chargement…</p>';
+  try{
+    const r=await fetch('/api/teacher/library/books-with-categories',{headers:{'X-Teacher-Token':token}});
+    let list=await r.json();
+    if(!Array.isArray(list)) list=list.books||[];
+    if(!list.length){ renderEmpty('livresList','📚','Aucun livre disponible','Le gérant doit d\'abord ajouter des livres à la bibliothèque.'); return; }
+    c.innerHTML=list.map(b=>`<div style="background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1rem;margin-bottom:0.7rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;">
+        <div><div style="font-weight:700;color:var(--green-deep);">${(b.name||b.title||'Livre').replace(/</g,'&lt;')}</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;">${b.category_name?b.category_name+' · ':''}Niveau ${b.niveau_min||1}</div></div>
+        ${b.file_url?`<a class="btn-sm btn-join" href="${b.file_url}" target="_blank" style="text-decoration:none;">Ouvrir</a>`:''}
+      </div>
+      <button class="btn-sm" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:0.5rem 0.8rem;font-weight:600;cursor:pointer;margin-top:0.6rem;width:100%;" onclick="assignBook(${b.id||b.slot_number},this)">📤 Assigner à un élève</button>
+      <div id="assignBox-${b.id||b.slot_number}" style="display:none;margin-top:0.5rem;"></div>
+    </div>`).join('');
+  }catch{ renderEmpty('livresList','📚','Erreur de chargement',''); }
+}
+async function assignBook(bookId,btn){
+  const box=document.getElementById('assignBox-'+bookId);
+  if(box.style.display==='block'){ box.style.display='none'; return; }
+  box.style.display='block';
+  const opts=(allStudentsData||[]).map(s=>`<option value="${s.id}">${(s.prenom||'')+' '+(s.nom||'')}</option>`).join('');
+  box.innerHTML=`<select id="asel-${bookId}" style="width:100%;padding:0.6rem;border:1px solid var(--beige);border-radius:8px;font-family:inherit;margin-bottom:0.4rem;">
+    <option value="">— Choisir un élève —</option>${opts}</select>
+    <button class="btn-sm" style="background:var(--gold);color:var(--green-deep);border:none;border-radius:8px;padding:0.5rem 0.9rem;font-weight:700;cursor:pointer;width:100%;" onclick="doAssignBook(${bookId})">Valider</button>`;
+}
+async function doAssignBook(bookId){
+  const sid=document.getElementById('asel-'+bookId).value;
+  if(!sid){ alert('Choisis un élève.'); return; }
+  try{
+    const r=await fetch('/api/teacher/book-assignments',{method:'POST',headers:{'Content-Type':'application/json','X-Teacher-Token':token},body:JSON.stringify({book_id:bookId,student_id:sid})});
+    const d=await r.json(); if(!r.ok) throw new Error(d.error||'Erreur');
+    alert('📚 Livre assigné à l\'élève !');
+    document.getElementById('assignBox-'+bookId).style.display='none';
+  }catch(e){ alert('Échec : '+e.message); }
 }
 
 /* ── Planning du professeur ── */
