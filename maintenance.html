@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Médin'Immersion - Site en maintenance</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;font-family:'DM Sans',system-ui,sans-serif;}
+:root{
+  --green-deep:#0F3D26;
+  --green:#1B5E3A;
+  --gold:#D4A843;
+  --cream:#FDFAF3;
+  --beige:#E7DCBE;
+  --text:#1A1A1A;
+}
+body{
+  background:linear-gradient(135deg,var(--cream) 0%,#FFF5E6 100%);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text);overflow-x:hidden;
+}
+.container{
+  max-width:600px;width:90%;text-align:center;
+  animation:slideUp 0.8s ease-out;
+}
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(30px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.logo-wrap{
+  margin-bottom:2rem;
+  animation:pulse 2s ease-in-out infinite;
+}
+.logo-wrap img{
+  max-width:140px;height:auto;
+  filter:drop-shadow(0 4px 12px rgba(15,61,38,0.15));
+}
+.message{
+  margin-bottom:2.5rem;
+}
+.greeting{
+  font-size:1.3rem;
+  color:var(--green-deep);
+  font-weight:700;
+  margin-bottom:1rem;
+  font-family:'Cormorant Garamond',serif;
+}
+.subtitle{
+  font-size:1rem;
+  color:var(--text);
+  line-height:1.6;
+  margin-bottom:1.5rem;
+}
+.description{
+  font-size:0.95rem;
+  color:#666;
+  line-height:1.7;
+  background:rgba(255,255,255,0.6);
+  padding:1.5rem;
+  border-radius:14px;
+  margin-bottom:2rem;
+  border:1px solid var(--beige);
+}
+.timer-section{
+  background:linear-gradient(135deg,var(--green-deep),var(--green));
+  color:#fff;
+  padding:2rem;
+  border-radius:16px;
+  margin-bottom:2rem;
+  box-shadow:0 8px 24px rgba(15,61,38,0.2);
+}
+.timer-label{
+  font-size:0.9rem;
+  opacity:0.9;
+  margin-bottom:0.8rem;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.timer{
+  font-size:2.5rem;
+  font-weight:700;
+  font-family:monospace;
+  letter-spacing:4px;
+  margin-bottom:0.5rem;
+}
+.timer-unit{
+  font-size:0.8rem;
+  opacity:0.8;
+  letter-spacing:1px;
+}
+.email-section{
+  margin-bottom:2rem;
+}
+.email-label{
+  font-size:0.85rem;
+  color:var(--green-deep);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  margin-bottom:0.8rem;
+}
+.email-form{
+  display:flex;gap:0.6rem;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.email-form input{
+  flex:1;min-width:200px;
+  padding:0.9rem 1.1rem;
+  border:1.5px solid var(--beige);
+  border-radius:50px;
+  font-family:inherit;
+  font-size:0.95rem;
+  background:#fff;
+  transition:all 0.3s;
+}
+.email-form input:focus{
+  outline:none;border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(212,168,67,0.1);
+}
+.email-form button{
+  padding:0.9rem 1.8rem;
+  background:var(--gold);
+  color:var(--green-deep);
+  border:none;
+  border-radius:50px;
+  font-weight:700;
+  font-size:0.95rem;
+  cursor:pointer;
+  transition:all 0.3s;
+  white-space:nowrap;
+}
+.email-form button:hover{
+  background:#C89A2C;
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(212,168,67,0.3);
+}
+.footer{
+  font-size:0.85rem;
+  color:#888;
+  margin-top:2rem;
+}
+.footer-link{
+  color:var(--gold);
+  text-decoration:none;
+  font-weight:600;
+}
+.footer-link:hover{text-decoration:underline;}
+
+/* Mode sombre optionnel */
+@media(prefers-color-scheme:dark){
+  body{background:linear-gradient(135deg,#1A1A1A 0%,#2A2A2A 100%);}
+  .description{background:rgba(0,0,0,0.3);}
+  .subtitle{color:#ddd;}
+  .email-form input{background:#333;color:#fff;border-color:#444;}
+}
+
+@media(max-width:600px){
+  .container{padding:2rem 1rem;}
+  .timer{font-size:1.8rem;}
+  .greeting{font-size:1.1rem;}
+  .email-form{flex-direction:column;}
+  .email-form input{min-width:100%;}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo-wrap">
+    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion">
+  </div>
+
+  <div class="message">
+    <div class="greeting">السلام عليكم و رحمة الله وبركاته</div>
+    <div class="subtitle">Mes chers frères et sœurs 🤲</div>
+  </div>
+
+  <div class="description">
+    <p>Médin'Immersion est actuellement en maintenance. Nous travaillons dur pour améliorer votre expérience d'apprentissage et vous offrir un service encore meilleur.</p>
+    <p style="margin-top:1rem;">Votre dévouement à l'apprentissage du Coran et de la Sunna nous inspire. Nous serons de retour très bientôt.</p>
+    <p style="margin-top:1rem;font-style:italic;">Qu'Allah bénisse vos efforts et illumine votre chemin. 📚 ✨</p>
+  </div>
+
+  <div class="timer-section">
+    <div class="timer-label">Retour prévu dans</div>
+    <div class="timer" id="countdown">--:--:--</div>
+    <div class="timer-unit">Heures : Minutes : Secondes</div>
+  </div>
+
+  <div class="email-section" id="emailSection">
+    <div class="email-label">📧 Sois informé du retour</div>
+    <form class="email-form" onsubmit="handleEmailSignup(event)">
+      <input type="email" id="emailInput" placeholder="Ton adresse email" required>
+      <button type="submit">M'avertir</button>
+    </form>
+    <div id="emailMsg" style="font-size:0.85rem;color:var(--green);margin-top:0.8rem;"></div>
+  </div>
+
+  <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--beige);">
+    <a href="/" id="inscriptionLink" class="btn-inscription" style="display:inline-block;padding:0.9rem 2rem;background:var(--green-deep);color:#fff;text-decoration:none;border-radius:50px;font-weight:700;transition:all 0.3s;">
+      ✍️ S'inscrire dès maintenant
+    </a>
+  </div>
+
+  <div class="footer">
+    <p>Questions ? Contacte-nous : <a class="footer-link" href="mailto:contact@medinimmersion.com">contact@medinimmersion.com</a></p>
+    <p style="margin-top:1rem;">Wa alaykoum as-salam wa rahmatoullahi wa barakatouh 🤲</p>
+  </div>
+</div>
+
+<script>
+// Timer : à personnaliser. Par défaut : 2 heures à partir de maintenant.
+// Format: nouvelleDate(année, mois-1, jour, heure, minute, seconde)
+// Ou: laisse localStorage['maintenanceUntil'] être défini par le gérant
+let endTime = localStorage.getItem('maintenanceUntil');
+if(!endTime){
+  // Défaut : 2 heures à partir de maintenant
+  const now = new Date();
+  now.setHours(now.getHours() + 2);
+  endTime = now.getTime();
+  localStorage.setItem('maintenanceUntil', endTime);
+}else{
+  endTime = parseInt(endTime);
+}
+
+// Afficher/cacher les éléments selon la config du gérant
+(function initMaintenance(){
+  const withInscription = localStorage.getItem('maintenanceWithInscription') === 'true';
+  const emailSection = document.getElementById('emailSection');
+  const inscriptionLink = document.getElementById('inscriptionLink');
+  
+  // Si pas d'inscription requise, masquer ces sections
+  if(!withInscription){
+    if(emailSection) emailSection.style.display = 'none';
+    if(inscriptionLink) inscriptionLink.style.display = 'none';
+  }
+})();
+
+function updateTimer(){
+  const now = new Date().getTime();
+  const distance = endTime - now;
+  
+  if(distance <= 0){
+    document.getElementById('countdown').textContent = '00:00:00';
+    document.getElementById('countdown').parentElement.innerHTML += '<p style="margin-top:1rem;font-size:0.9rem;">Le site devrait être de retour...</p>';
+    return;
+  }
+  
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  
+  document.getElementById('countdown').textContent = 
+    String(hours).padStart(2,'0') + ':' + 
+    String(minutes).padStart(2,'0') + ':' + 
+    String(seconds).padStart(2,'0');
+}
+
+updateTimer();
+setInterval(updateTimer, 1000);
+
+// Email signup (stockage local pour démo; à remplacer par API réelle)
+async function handleEmailSignup(e){
+  e.preventDefault();
+  const email = document.getElementById('emailInput').value.trim();
+  if(!email) return;
+  
+  // Stockage local (pour démo)
+  let list = JSON.parse(localStorage.getItem('maintenanceEmails') || '[]');
+  if(!list.includes(email)){
+    list.push(email);
+    localStorage.setItem('maintenanceEmails', JSON.stringify(list));
+  }
+  
+  document.getElementById('emailMsg').textContent = '✅ Merci ! Tu seras informé(e) du retour.';
+  document.getElementById('emailInput').value = '';
+  setTimeout(()=>{ document.getElementById('emailMsg').textContent = ''; }, 3000);
+}
+</script>
+
+</body>
+</html>
