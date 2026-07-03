@@ -246,18 +246,17 @@ module.exports = function (pool, opts) {
         `SELECT id, slot_number, title, file_url FROM student_pdfs WHERE student_id = $1 AND file_url IS NOT NULL ORDER BY slot_number`,
         [req.studentId]
       ).catch(()=>({rows:[]}));
-      // Bibliothèque : livres assignés à l'élève (assignee_type='student') OU à son niveau, via slot
+      // Bibliothèque : UNIQUEMENT les livres explicitement assignés
+      // (à l'élève, à tous, ou à son niveau par le gérant/prof)
       const library = await pool.query(
         `SELECT DISTINCT lb.id, lb.name, lb.file_url, lb.slot_number, lb.niveau_min
          FROM library_books lb
          WHERE lb.file_url IS NOT NULL AND COALESCE(lb.statut,'approuve')='approuve'
-           AND (
-             lb.slot_number IN (
-               SELECT book_slot_number FROM book_assignments
-               WHERE (assignee_type='student' AND assignee_id=$1)
-                  OR (assignee_type='all')
-             )
-             OR lb.niveau_min <= COALESCE((SELECT niveau FROM student_progression WHERE student_id=$1),1)
+           AND lb.slot_number IN (
+             SELECT book_slot_number FROM book_assignments
+             WHERE (assignee_type='student' AND assignee_id=$1)
+                OR (assignee_type='all')
+                OR (assignee_type='level' AND assignee_id=COALESCE((SELECT niveau FROM student_progression WHERE student_id=$1),1))
            )
          ORDER BY lb.slot_number NULLS LAST, lb.name`,
         [req.studentId]

@@ -163,5 +163,23 @@ module.exports = function (pool, opts) {
     } catch (err) { console.error('[admin/library/assign]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // DELETE /api/admin/library/assign — retirer un livre à un élève (ou à tous)
+  router.delete('/api/admin/library/assign', requireAdmin, async (req, res) => {
+    try {
+      const { book_id, student_id } = req.body;
+      if (!book_id) return res.status(400).json({ error: 'book_id requis' });
+      let r;
+      if (student_id) {
+        r = await pool.query(
+          `DELETE FROM book_assignments WHERE book_slot_number=$1 AND assignee_type='student' AND assignee_id=$2`,
+          [book_id, student_id]
+        );
+      } else {
+        r = await pool.query(`DELETE FROM book_assignments WHERE book_slot_number=$1`, [book_id]);
+      }
+      res.json({ success: true, removed: r.rowCount });
+    } catch (err) { console.error('[admin/library/unassign]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   return router;
 };
