@@ -609,9 +609,36 @@ async function loadLivres(){
       ${b.file_url?`<a class="btn btn-info" href="${b.file_url}" target="_blank">Ouvrir</a>`:''}</div>
       <div class="acts">
         <button class="btn btn-gold" onclick="assignBookLevel(${b.slot_number||b.id},${b.niveau_min||1})">📤 Assigner au niveau ${b.niveau_min||1}</button>
+        <button class="btn btn-green" onclick="assignBookStudent(${b.slot_number||b.id})">👤 Donner à un élève</button>
+        <button class="btn btn-soft" onclick="unassignBookStudent(${b.slot_number||b.id})">🚫 Retirer à un élève</button>
         <button class="btn btn-bad" onclick="delBook(${b.id})">🗑</button>
       </div></div>`).join('');
   }catch{ $('listLivres').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+function pickStudent(promptTxt){
+  const opts=(cacheEleves||[]).map((s,i)=>(i+1)+'. '+(s.prenom||'')+' '+(s.nom||'')).join('\n');
+  const n=prompt(promptTxt+'\n\n'+opts+'\n\nTape le numéro :');
+  if(!n)return null;
+  const s=(cacheEleves||[])[parseInt(n)-1];
+  if(!s){ toast('Numéro invalide'); return null; }
+  return s;
+}
+async function assignBookStudent(bookId){
+  const s=pickStudent('Donner ce livre à quel élève ?');
+  if(!s)return;
+  try{
+    const r=await fetch('/api/admin/library/assign',{method:'POST',headers:H(),body:JSON.stringify({book_id:bookId,student_id:s.id})});
+    if(!r.ok)throw 0; toast('📚 Livre donné à '+(s.prenom||'l\'élève')+' ✓');
+  }catch{ toast('Échec.'); }
+}
+async function unassignBookStudent(bookId){
+  const s=pickStudent('Retirer ce livre à quel élève ?');
+  if(!s)return;
+  try{
+    const r=await fetch('/api/admin/library/assign',{method:'DELETE',headers:H(),body:JSON.stringify({book_id:bookId,student_id:s.id})});
+    const d=await r.json(); if(!r.ok)throw 0;
+    toast(d.removed?'🚫 Livre retiré à '+(s.prenom||'l\'élève'):'Cet élève n\'avait pas ce livre');
+  }catch{ toast('Échec.'); }
 }
 async function assignBookLevel(bookId,niveau){
   if(!confirm('Assigner ce livre à tous les élèves de niveau '+niveau+' ?'))return;
