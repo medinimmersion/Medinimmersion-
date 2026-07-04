@@ -122,12 +122,12 @@
     const app = document.getElementById('app');
     if (!tabs || !app) return; // structure inattendue
 
-    // Onglet
+    // Onglet (en première position pour être visible immédiatement)
     const tab = document.createElement('button');
     tab.className = 'tab';
     tab.dataset.p = 'contenu';
     tab.textContent = '📝 Contenu';
-    tabs.appendChild(tab);
+    tabs.insertBefore(tab, tabs.firstChild);
 
     // Panneau
     const panel = document.createElement('div');
