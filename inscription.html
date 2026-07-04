@@ -12,8 +12,8 @@ body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);
 .container{max-width:1180px;margin:0 auto;padding:0 2rem;}
 nav{position:sticky;top:0;left:0;right:0;z-index:1000;background:rgba(253,250,243,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(184,149,58,0.15);transition:box-shadow 0.3s;}
 nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,0.08);}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem;max-width:1180px;margin:0 auto;}
-.nav-logo img{height:52px;width:auto;}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:0.4rem 1.25rem;max-width:1180px;margin:0 auto;}
+.nav-logo img{height:74px;width:auto;}
 .nav-links{display:flex;list-style:none;gap:1.75rem;align-items:center;}
 .nav-links a{text-decoration:none;color:var(--text);font-size:0.875rem;font-weight:500;letter-spacing:0.02em;transition:color 0.2s;}
 .nav-links a:hover,.nav-links a.active-page{color:var(--green);}
@@ -73,6 +73,8 @@ footer{background:var(--green-deep);color:var(--white);}
 .reg-wrap{display:grid;grid-template-columns:1fr 480px;gap:4rem;align-items:start;padding:4rem 0;}
 /* Left info */
 .reg-info{}
+.reg-photo{border-radius:18px;overflow:hidden;margin-bottom:2rem;border:1px solid var(--beige);box-shadow:0 8px 32px rgba(0,0,0,0.08);}
+.reg-photo img{width:100%;height:auto;display:block;}
 .reg-info h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--green-deep);margin-bottom:0.5rem;}
 .reg-info h2 em{font-style:italic;color:var(--gold);}
 .reg-info p{color:var(--text-muted);font-size:0.92rem;line-height:1.75;margin-bottom:2rem;}
@@ -172,7 +174,7 @@ footer{background:var(--green-deep);color:var(--white);}
 <div class="page-hero">
   <div class="container">
     <h1>S'<em>inscrire</em></h1>
-    <p>Rejoignez Médin'Immersion en quelques minutes. 1er cours offert.</p>
+    <p>Rejoignez Médin'Immersion en quelques minutes.</p>
   </div>
 </div>
 
@@ -183,7 +185,11 @@ footer{background:var(--green-deep);color:var(--white);}
       <!-- LEFT INFO -->
       <div class="reg-info">
         <h2>Commencez votre<br><em>parcours aujourd'hui</em></h2>
-        <p>Remplissez le formulaire en 3 étapes. Dès votre paiement validé, votre espace membre s'ouvre immédiatement.</p>
+        <p data-content="inscription_intro">Remplissez le formulaire en 3 étapes. Dès votre paiement validé, votre espace membre s'ouvre immédiatement.</p>
+
+        <div class="reg-photo">
+          <img data-content-img="inscription_photo" src="/images/inscription-photo.jpg" alt="Élèves de Médin'Immersion en cours en ligne" loading="lazy">
+        </div>
 
         <div class="reg-feature">
           <div class="rf-icon">📝</div>
@@ -203,7 +209,7 @@ footer{background:var(--green-deep);color:var(--white);}
         </div>
         <div class="reg-feature">
           <div class="rf-icon">⭐</div>
-          <div><div class="rf-title">1er cours offert</div><div class="rf-desc">Chaque nouvel inscrit bénéficie d'un cours découverte gratuit.</div></div>
+          <div><div class="rf-title">Accès espace élève</div><div class="rf-desc">Espace élève actif après paiement et validation.</div></div>
         </div>
 
         <div class="reg-note">
@@ -230,7 +236,7 @@ footer{background:var(--green-deep);color:var(--white);}
           <div class="step-title">Vos informations</div>
           <div class="step-sub">Créez votre compte élève.</div>
           <div class="frow">
-            <div class="fg"><label>Nom <span class="req">*</span></label><input type="text" id="fNom" placeholder="Dupont"></div>
+            <div class="fg"><label>Nom <span class="req">*</span></label><input type="text" id="fNom" placeholder="Votre nom"></div>
             <div class="fg"><label>Prénom <span class="req">*</span></label><input type="text" id="fPrenom" placeholder="Mohammed"></div>
           </div>
           <div class="fg"><label>Kounia / Pseudo</label><input type="text" id="fKounia" placeholder="Abou Hamza..."><div class="hint">Surnom utilisé pendant les cours (optionnel).</div></div>
@@ -457,4 +463,5 @@ async function doSubmit(){
   }
 }
 </script>
+<script src="/content-loader.js"></script>
 </body></html>
