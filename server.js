@@ -353,6 +353,18 @@ app.get('/api/health', async (req, res) => {
 });
 
 // ─── SPA FALLBACK ────────────────────────────────────────────
+// Adresses avec barre oblique → page correspondante avec tiret
+// (/admin/gerant → /admin-gerant, /espace/eleve → /espace-eleve, etc.)
+app.get('/:a/:b', (req, res, next) => {
+  const page = req.params.a + '-' + req.params.b;
+  const knownPages = [
+    'nos-cours', 'tarifs', 'qui-sommes-nous', 'reglement',
+    'inscription', 'espace-eleve', 'espace-professeur',
+    'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test',
+  ];
+  if (knownPages.includes(page)) return res.redirect('/' + page);
+  next();
+});
 // Serve HTML files for known routes
 const htmlPages = [
   'nos-cours', 'tarifs', 'qui-sommes-nous', 'reglement',
