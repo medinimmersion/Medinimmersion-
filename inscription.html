@@ -64,7 +64,7 @@ footer{background:var(--green-deep);color:var(--white);}
 .footer-bottom{padding:1.25rem 0;text-align:center;color:rgba(255,255,255,0.35);font-size:0.8rem;}
 @media(max-width:1024px){.footer-grid{grid-template-columns:1fr 1fr;gap:2.5rem;}}
 @media(max-width:768px){.nav-links{display:none;}.hamburger{display:flex;}section{padding:3.5rem 0;}.footer-grid{grid-template-columns:1fr;gap:2rem;}}
-.page-hero{background:var(--green-deep);padding:6rem 0 3.5rem;text-align:center;position:relative;overflow:hidden;}
+.page-hero{background:var(--green-deep);padding:7rem 0 4.5rem;text-align:center;position:relative;overflow:hidden;}
 .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%,rgba(184,149,58,0.12),transparent 60%);}
 .page-hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.5rem);font-weight:700;color:var(--white);margin-bottom:0.75rem;position:relative;}
 .page-hero h1 em{font-style:italic;color:var(--gold-light);}
@@ -172,6 +172,11 @@ footer{background:var(--green-deep);color:var(--white);}
 </nav>
 
 <div class="page-hero">
+  <!-- Photo de fond (gérée depuis l'espace gérant ; si vide, le bandeau reste vert) -->
+  <div style="display:none;position:absolute;inset:0;">
+    <img data-content-img="inscription_photo" src="" alt="" style="width:100%;height:100%;object-fit:cover;">
+    <div style="position:absolute;inset:0;background:linear-gradient(rgba(15,61,38,0.5),rgba(15,61,38,0.72));"></div>
+  </div>
   <div class="container">
     <h1>S'<em>inscrire</em></h1>
     <p>Rejoignez Médin'Immersion en quelques minutes.</p>
@@ -186,10 +191,6 @@ footer{background:var(--green-deep);color:var(--white);}
       <div class="reg-info">
         <h2>Commencez votre<br><em>parcours aujourd'hui</em></h2>
         <p data-content="inscription_intro">Remplissez le formulaire en 3 étapes. Dès votre paiement validé, votre espace membre s'ouvre immédiatement.</p>
-
-        <div class="reg-photo" style="display:none;">
-          <img data-content-img="inscription_photo" src="" alt="Élèves de Médin'Immersion en cours en ligne" loading="lazy">
-        </div>
 
         <div class="reg-feature">
           <div class="rf-icon">📝</div>
@@ -463,5 +464,5 @@ async function doSubmit(){
   }
 }
 </script>
-<script src="/content-loader.js"></script>
+<script src="/content-loader.js?v=6"></script>
 </body></html>

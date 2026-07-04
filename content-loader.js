@@ -54,12 +54,18 @@
 
       // Photos de sections automatiques
       // (clé "img_<page>_section<N>" : N = numéro du bloc en partant du haut)
-      document.querySelectorAll('section').forEach((sec, i) => {
+      let blocks = Array.from(document.querySelectorAll('section'));
+      if (!blocks.length) {
+        blocks = Array.from(document.body.children).filter(el =>
+          !['NAV', 'FOOTER', 'SCRIPT', 'STYLE'].includes(el.tagName)
+        );
+      }
+      blocks.forEach((sec, i) => {
         const sk = 'img_' + page + '_section' + (i + 1);
         const sc = content[sk];
         if (sc && sc.type === 'image' && sc.has_image) {
           const block = document.createElement('div');
-          block.style.cssText = 'text-align:center;padding:2.5rem 1.5rem 0;';
+          block.style.cssText = 'text-align:center;padding:2.5rem 1.5rem 0;position:relative;';
           block.innerHTML = '<img src="/api/content/img/' + sk + '?t=' + Date.now() + '" alt="" loading="lazy" style="max-width:820px;width:100%;border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,0.12);">';
           const target = sec.querySelector('.container') || sec;
           target.appendChild(block);
