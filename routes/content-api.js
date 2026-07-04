@@ -73,15 +73,15 @@ module.exports = function (pool, opts) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  // Sauvegarder une image (base64, max ~5 Mo)
+  // Sauvegarder une image (base64, max ~5 Mo) — crée l'emplacement s'il n'existe pas
   router.post('/api/content/admin/image', requireContentAdmin, async (req, res) => {
-    const { key, data, mime } = req.body || {};
+    const { key, data, mime, label } = req.body || {};
     if (!key || !data) return res.status(400).json({ error: 'key et data requis' });
     if (data.length > 7000000) return res.status(413).json({ error: 'Image trop lourde (max ~5 Mo). Compressez-la.' });
     try {
       await pool.query(
-        "INSERT INTO site_content (key, type, value, mime, updated_at) VALUES ($1,'image',$2,$3,NOW()) ON CONFLICT (key) DO UPDATE SET type='image', value=$2, mime=$3, updated_at=NOW()",
-        [key, data, mime || 'image/jpeg']
+        "INSERT INTO site_content (key, type, value, mime, label, updated_at) VALUES ($1,'image',$2,$3,$4,NOW()) ON CONFLICT (key) DO UPDATE SET type='image', value=$2, mime=$3, label=COALESCE($4, site_content.label), updated_at=NOW()",
+        [key, data, mime || 'image/jpeg', label || null]
       );
       res.json({ ok: true });
     } catch (e) { res.status(500).json({ error: e.message }); }
