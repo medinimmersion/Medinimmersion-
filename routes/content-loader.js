@@ -26,6 +26,9 @@
         const c = content[key];
         if (c && c.type === 'image' && c.has_image) {
           el.src = '/api/content/img/' + encodeURIComponent(key) + '?t=' + Date.now();
+          if (el.parentElement && el.parentElement.style.display === 'none') {
+            el.parentElement.style.display = '';
+          }
         }
       });
     })
