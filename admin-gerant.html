@@ -717,6 +717,50 @@ boot();
     cmsLoaded = true;
     box.innerHTML = '';
 
+    // ── Outil : ajouter une photo dans une section de n'importe quelle page ──
+    const tool = document.createElement('div');
+    tool.className = 'cms-item';
+    tool.style.borderColor = 'var(--gold)';
+    tool.innerHTML = '<div class="cms-label">➕ Ajouter une photo dans une section</div>' +
+      '<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;">Choisis la page, le numéro du bloc (1 = premier bloc en partant du haut de la page), puis la photo. Elle apparaîtra centrée à la fin de ce bloc.</div>' +
+      '<select class="search" id="cmsAddPage">' +
+        '<option value="accueil">Accueil</option>' +
+        '<option value="nos-cours">Nos cours</option>' +
+        '<option value="tarifs">Tarifs</option>' +
+        '<option value="qui-sommes-nous">Qui sommes-nous</option>' +
+        '<option value="reglement">Règlement</option>' +
+        '<option value="inscription">Inscription</option>' +
+        '<option value="merci">Merci</option>' +
+      '</select>' +
+      '<select class="search" id="cmsAddSection">' +
+        '<option value="1">Bloc 1 (haut de page)</option><option value="2">Bloc 2</option><option value="3">Bloc 3</option><option value="4">Bloc 4</option><option value="5">Bloc 5</option><option value="6">Bloc 6</option>' +
+      '</select>' +
+      '<input type="file" accept="image/*" id="cmsAddFile" style="display:block;margin:0.3rem 0;font-size:0.82rem;">' +
+      '<div class="acts"><button class="btn btn-gold" id="cmsAddBtn">📤 Ajouter la photo</button><span class="cms-status" id="cmsAddSt"></span></div>';
+    box.appendChild(tool);
+    document.getElementById('cmsAddBtn').onclick = async () => {
+      const p = document.getElementById('cmsAddPage').value;
+      const n = document.getElementById('cmsAddSection').value;
+      const f = document.getElementById('cmsAddFile');
+      const st = document.getElementById('cmsAddSt');
+      const btn = document.getElementById('cmsAddBtn');
+      if (!f.files.length) { cmsStatus(st, 'Choisissez une image d\'abord', false); return; }
+      btn.disabled = true; cmsStatus(st, 'Compression…', true);
+      try {
+        const b64 = await cmsCompress(f.files[0]);
+        cmsStatus(st, 'Envoi…', true);
+        const pageNames = {'accueil':'Accueil','nos-cours':'Nos cours','tarifs':'Tarifs','qui-sommes-nous':'Qui sommes-nous','reglement':'Règlement','inscription':'Inscription','merci':'Merci'};
+        await cmsApi('/admin/image', { method: 'POST', body: JSON.stringify({
+          key: 'img_' + p + '_section' + n,
+          data: b64, mime: 'image/jpeg',
+          label: pageNames[p] + ' — Photo du bloc ' + n
+        })});
+        cmsStatus(st, '✓ Photo ajoutée', true);
+        cmsLoaded = false; cmsLoad();
+      } catch (e) { cmsStatus(st, e.message, false); btn.disabled = false; }
+    };
+
+
     // Regrouper par page (partie du nom avant le tiret)
     const groups = {};
     items.forEach(it => {
@@ -789,7 +833,7 @@ boot();
     const panel = document.createElement('div');
     panel.className = 'panel';
     panel.id = 'p-contenu';
-    panel.innerHTML = '<h2>Contenu du site (v5)</h2>' +
+    panel.innerHTML = '<h2>Contenu du site (v6)</h2>' +
       '<p class="sub">Modifie les textes et images des pages publiques — visible immédiatement, sans redéploiement.</p>' +
       '<div id="listContenu" class="loading">Chargement…</div>';
     app.appendChild(panel);
