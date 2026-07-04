@@ -1,22 +1,19 @@
 // ============================================================
 // API DE GESTION DU CONTENU DU SITE (textes + images)
-// Fichier : content-api.js (à placer dans le dossier routes/)
+// Fichier : routes/content-api.js
+// Chargé automatiquement par server.js via la liste routeFiles.
 //
-// Dans server.js, ajouter ces 2 lignes :
-//   app.use(express.json({ limit: '10mb' }));   // AVANT les routes (remplace express.json() si déjà présent)
-//   app.use('/api/content', require('./routes/content-api')(pool));  // pool = ton pool PostgreSQL existant
-//
-// Sur Render, ajouter la variable d'environnement :
-//   CONTENT_ADMIN_KEY = un mot de passe long de ton choix
+// Variable d'environnement requise sur Render :
+//   CONTENT_ADMIN_KEY = mot de passe de gestion du contenu
 // ============================================================
 
 const express = require('express');
 
-module.exports = function (pool) {
+module.exports = function (pool, opts) {
   const router = express.Router();
 
   // Vérification gérant (clé secrète dans l'en-tête)
-  function requireAdmin(req, res, next) {
+  function requireContentAdmin(req, res, next) {
     const key = req.headers['x-admin-key'];
     if (!process.env.CONTENT_ADMIN_KEY || key !== process.env.CONTENT_ADMIN_KEY) {
       return res.status(401).json({ error: 'Non autorisé' });
@@ -27,7 +24,7 @@ module.exports = function (pool) {
   // ---------- PUBLIC ----------
 
   // Tous les textes (sans le base64 des images, trop lourd)
-  router.get('/', async (req, res) => {
+  router.get('/api/content', async (req, res) => {
     try {
       const r = await pool.query(
         "SELECT key, type, CASE WHEN type='text' THEN value ELSE NULL END AS value, (type='image' AND value IS NOT NULL) AS has_image FROM site_content"
@@ -38,8 +35,8 @@ module.exports = function (pool) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
-  // Une image (servie comme vraie image, avec cache)
-  router.get('/img/:key', async (req, res) => {
+  // Une image (servie comme vraie image, avec cache court)
+  router.get('/api/content/img/:key', async (req, res) => {
     try {
       const r = await pool.query('SELECT value, mime FROM site_content WHERE key=$1 AND type=$2', [req.params.key, 'image']);
       if (!r.rows.length || !r.rows[0].value) return res.status(404).end();
@@ -53,7 +50,7 @@ module.exports = function (pool) {
   // ---------- GÉRANT ----------
 
   // Liste complète pour l'espace gérant (avec labels)
-  router.get('/admin/list', requireAdmin, async (req, res) => {
+  router.get('/api/content/admin/list', requireContentAdmin, async (req, res) => {
     try {
       const r = await pool.query(
         "SELECT key, type, label, CASE WHEN type='text' THEN value ELSE NULL END AS value, (type='image' AND value IS NOT NULL) AS has_image, updated_at FROM site_content ORDER BY key"
@@ -63,7 +60,7 @@ module.exports = function (pool) {
   });
 
   // Sauvegarder un texte
-  router.post('/admin/text', requireAdmin, async (req, res) => {
+  router.post('/api/content/admin/text', requireContentAdmin, async (req, res) => {
     const { key, value } = req.body || {};
     if (!key || typeof value !== 'string') return res.status(400).json({ error: 'key et value requis' });
     try {
@@ -76,10 +73,10 @@ module.exports = function (pool) {
   });
 
   // Sauvegarder une image (base64, max ~5 Mo)
-  router.post('/admin/image', requireAdmin, async (req, res) => {
+  router.post('/api/content/admin/image', requireContentAdmin, async (req, res) => {
     const { key, data, mime } = req.body || {};
     if (!key || !data) return res.status(400).json({ error: 'key et data requis' });
-    if (data.length > 7_000_000) return res.status(413).json({ error: 'Image trop lourde (max ~5 Mo). Compressez-la.' });
+    if (data.length > 7000000) return res.status(413).json({ error: 'Image trop lourde (max ~5 Mo). Compressez-la.' });
     try {
       await pool.query(
         "INSERT INTO site_content (key, type, value, mime, updated_at) VALUES ($1,'image',$2,$3,NOW()) ON CONFLICT (key) DO UPDATE SET type='image', value=$2, mime=$3, updated_at=NOW()",
