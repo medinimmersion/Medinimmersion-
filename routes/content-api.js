@@ -87,5 +87,13 @@ module.exports = function (pool, opts) {
     } catch (e) { res.status(500).json({ error: e.message }); }
   });
 
+  // Supprimer une image (l'emplacement reste, l'image disparaît du site)
+  router.delete('/api/content/admin/image/:key', requireContentAdmin, async (req, res) => {
+    try {
+      await pool.query("UPDATE site_content SET value=NULL, updated_at=NOW() WHERE key=$1 AND type='image'", [req.params.key]);
+      res.json({ ok: true });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+  });
+
   return router;
 };
