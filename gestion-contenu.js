@@ -23,20 +23,22 @@
   `;
   document.head.appendChild(S);
 
-  function getKey() {
-    let k = localStorage.getItem('cms_admin_key');
-    if (!k) {
-      k = prompt('Clé de gestion du contenu (CONTENT_ADMIN_KEY définie sur Render) :');
-      if (k) localStorage.setItem('cms_admin_key', k.trim());
-    }
-    return (k || '').trim();
+  // Utilise la connexion gérant existante (même token que le reste de la page)
+  function gerantHeaders() {
+    const GT = localStorage.getItem('gerant_token') || '';
+    return {
+      'Content-Type': 'application/json',
+      'x-gerant-token': GT,
+      'x-admin-token': GT,
+      'Authorization': 'Bearer ' + GT
+    };
   }
 
   async function api(path, opts = {}) {
-    opts.headers = Object.assign({ 'x-admin-key': getKey(), 'Content-Type': 'application/json' }, opts.headers || {});
+    opts.headers = Object.assign(gerantHeaders(), opts.headers || {});
     const r = await fetch('/api/content' + path, opts);
-    if (r.status === 401) { localStorage.removeItem('cms_admin_key'); throw new Error('Clé invalide. Rouvrez l\'onglet Contenu pour la ressaisir.'); }
     const j = await r.json().catch(() => ({}));
+    if (r.status === 401) throw new Error('Session gérant expirée. Déconnectez-vous puis reconnectez-vous.');
     if (!r.ok) throw new Error(j.error || 'Erreur serveur');
     return j;
   }
