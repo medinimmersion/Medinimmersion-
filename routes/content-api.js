@@ -2,9 +2,8 @@
 // API DE GESTION DU CONTENU DU SITE (textes + images)
 // Fichier : routes/content-api.js
 // Chargé automatiquement par server.js via la liste routeFiles.
-//
-// Variable d'environnement requise sur Render :
-//   CONTENT_ADMIN_KEY = mot de passe de gestion du contenu
+// Protection : authentification gérant existante (aucune
+// variable d'environnement supplémentaire nécessaire).
 // ============================================================
 
 const express = require('express');
@@ -12,14 +11,16 @@ const express = require('express');
 module.exports = function (pool, opts) {
   const router = express.Router();
 
-  // Vérification gérant (clé secrète dans l'en-tête)
-  function requireContentAdmin(req, res, next) {
+  // Protection : on réutilise l'authentification gérant existante du site.
+  // (fallback sur CONTENT_ADMIN_KEY si jamais requireAdmin n'est pas fourni)
+  function fallbackKeyCheck(req, res, next) {
     const key = req.headers['x-admin-key'];
     if (!process.env.CONTENT_ADMIN_KEY || key !== process.env.CONTENT_ADMIN_KEY) {
       return res.status(401).json({ error: 'Non autorisé' });
     }
     next();
   }
+  const requireContentAdmin = (opts && opts.requireAdmin) ? opts.requireAdmin : fallbackKeyCheck;
 
   // ---------- PUBLIC ----------
 
