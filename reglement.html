@@ -12,8 +12,8 @@ body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);
 .container{max-width:1180px;margin:0 auto;padding:0 2rem;}
 nav{position:sticky;top:0;left:0;right:0;z-index:1000;background:rgba(253,250,243,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(184,149,58,0.15);transition:box-shadow 0.3s;}
 nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,0.08);}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem;max-width:1180px;margin:0 auto;}
-.nav-logo img{height:52px;width:auto;}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:0.4rem 1.25rem;max-width:1180px;margin:0 auto;}
+.nav-logo img{height:74px;width:auto;}
 .nav-links{display:flex;list-style:none;gap:1.75rem;align-items:center;}
 .nav-links a{text-decoration:none;color:var(--text);font-size:0.875rem;font-weight:500;letter-spacing:0.02em;transition:color 0.2s;}
 .nav-links a:hover,.nav-links a.active-page{color:var(--green);}
@@ -95,11 +95,11 @@ footer{background:var(--green-deep);color:var(--white);}
 </style></head><body>
 <nav id="mainNav">
   <div class="nav-inner">
-    <a href="/index.html" class="nav-logo"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
-    <ul class="nav-links"><li><a href="/index.html">Accueil</a></li><li><a href="/qui-sommes-nous.html">Qui sommes-nous</a></li><li><a href="/nos-cours.html">Nos cours</a></li><li><a href="/tarifs.html">Tarifs</a></li><li><a href="/reglement.html" class="active-page">Règlement</a></li><li><a href="/espace-eleve.html">Espace membre</a></li><li><a href="/inscription.html" class="nav-cta">S'inscrire →</a></li></ul>
+    <a href="/" class="nav-logo"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
+    <ul class="nav-links"><li><a href="/">Accueil</a></li><li><a href="/qui-sommes-nous">Qui sommes-nous</a></li><li><a href="/nos-cours">Nos cours</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/reglement" class="active-page">Règlement</a></li><li><a href="/espace-eleve">Espace membre</a></li><li><a href="/inscription" class="nav-cta">S'inscrire →</a></li></ul>
     <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
   </div>
-  <div class="mobile-menu" id="mobileMenu"><a href="/index.html">Accueil</a><a href="/qui-sommes-nous.html">Qui sommes-nous</a><a href="/nos-cours.html">Nos cours</a><a href="/tarifs.html">Tarifs</a><a href="/reglement.html">Règlement</a><a href="/espace-eleve.html">Espace membre</a><a href="/inscription.html" style="color:var(--green);font-weight:700;">S'inscrire →</a></div>
+  <div class="mobile-menu" id="mobileMenu"><a href="/">Accueil</a><a href="/qui-sommes-nous">Qui sommes-nous</a><a href="/nos-cours">Nos cours</a><a href="/tarifs">Tarifs</a><a href="/reglement">Règlement</a><a href="/espace-eleve">Espace membre</a><a href="/inscription" style="color:var(--green);font-weight:700;">S'inscrire →</a></div>
 </nav>
 
 <div class="page-hero">
@@ -276,7 +276,7 @@ footer{background:var(--green-deep);color:var(--white);}
         </div>
 
         <div style="text-align:center;margin-top:2rem;" class="reveal">
-          <a href="/inscription.html" class="btn-gold">J'accepte et je m'inscris →</a>
+          <a href="/inscription" class="btn-gold">J'accepte et je m'inscris →</a>
         </div>
       </div>
     </div>
@@ -286,7 +286,7 @@ footer{background:var(--green-deep);color:var(--white);}
 <footer>
   <div class="footer-top"><div class="container"><div class="footer-grid">
     <div class="footer-brand"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"><p class="footer-tagline">École d'arabe et de Coran en ligne.</p></div>
-    <div class="footer-col"><h4>Navigation</h4><ul class="footer-links"><li><a href="/index.html">Accueil</a></li><li><a href="/nos-cours.html">Nos cours</a></li><li><a href="/tarifs.html">Tarifs</a></li><li><a href="/reglement.html">Règlement</a></li><li><a href="/inscription.html">S'inscrire</a></li></ul></div>
+    <div class="footer-col"><h4>Navigation</h4><ul class="footer-links"><li><a href="/">Accueil</a></li><li><a href="/nos-cours">Nos cours</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/reglement">Règlement</a></li><li><a href="/inscription">S'inscrire</a></li></ul></div>
     <div class="footer-col footer-contact"><h4>Contact</h4><p>📞 <a href="tel:+213659668685">+213 659 668 685</a></p><p>✉️ <a href="mailto:medinimmersion@gmail.com">medinimmersion@gmail.com</a></p></div>
   </div></div></div>
   <div class="footer-gold-rule"></div>
@@ -298,4 +298,5 @@ document.getElementById('hamburger').addEventListener('click',()=>document.getEl
 const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')}),{threshold:0.08});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 </script>
+<script src="/content-loader.js?v=6"></script>
 </body></html>
