@@ -2,89 +2,74 @@ const express = require('express');
 
 module.exports = function(pool, opts) {
   const router = express.Router();
-
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
-  // ─── POST /api/oustaz/chat ───
   router.post('/api/oustaz/chat', async (req, res) => {
-    const { message, history, lang, level, student_name, gender, persona } = req.body || {};
-    if (!message || !GEMINI_KEY) return res.status(400).json({ error: 'Message et GEMINI_API_KEY requis' });
-
-    const isFem = String(gender || '').toLowerCase() === 'femme';
-    const pName = persona || (isFem ? 'Oustaza Oum Adam' : 'Oustaz Abou Adam');
-
-    const systemPrompt = `Tu es ${pName}, ${isFem ? "professeure d'arabe chaleureuse" : "professeur d'arabe chaleureux"} de l'école Médin'Immersion. Tu parles à l'oral avec ${isFem ? 'une élève (une sœur)' : 'un élève (un frère)'} — conversation vocale en temps réel.
-- Tu es ${isFem ? 'une femme : parle de toi au féminin' : 'un homme : parle de toi au masculin'}, et adresse-toi à l'élève ${isFem ? 'au féminin, en français comme en arabe (baraka Allahou fiki, ahsanti, kayfa hâluki...)' : 'au masculin, en français comme en arabe (baraka Allahou fik, ahsant, kayfa hâluk...)'}. 
-- Niveau : ${level || 'Débutant'}. Langue : ${lang === 'ar' ? 'Arabe' : 'Français'}.
-- Réponds en 2-3 phrases ORALES COURTES (comme dans une vraie conversation), jamais de listes ni de texte long.
-- Si on te demande quelque chose en arabe, réponds d'abord en arabe, puis traduis brièvement en français.
-- Sois bienveillant(e), encourage l'élève, utilise le bon genre de politesse.`;
-
     try {
-      const historyFormatted = history.slice(-6).map(m => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.text }]
-      }));
+      const { message, history, lang, level, student_name, gender, persona } = req.body || {};
+      
+      if (!message) return res.status(400).json({ error: 'Message required' });
+      if (!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
 
-      const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + GEMINI_KEY, {
+      const isFem = String(gender || '').toLowerCase() === 'femme';
+      const pName = persona || (isFem ? 'Oustaza Oum Adam' : 'Oustaz Abou Adam');
+
+      const systemPrompt = 'Tu es ' + pName + '. Réponds en 2-3 phrases courtes en ' + (lang === 'ar' ? 'arabe' : 'français') + '.';
+
+      const contents = [
+        ...(history || []).slice(-4).map(m => ({
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.text }]
+        })),
+        { role: 'user', parts: [{ text: message }] }
+      ];
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + GEMINI_KEY;
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: [
-            ...historyFormatted,
-            { role: 'user', parts: [{ text: message }] }
-          ],
-          generationConfig: {
-            maxOutputTokens: 180,
-            temperature: 0.75,
-            thinkingConfig: { thinkingBudget: 0 }
-          }
+          contents,
+          generationConfig: { maxOutputTokens: 150, temperature: 0.7 }
         })
       });
 
-      const gd = await gr.json();
-      if (!gr.ok) {
-        console.error('[oustaz/chat gemini]', gd.error?.message || JSON.stringify(gd));
-        return res.status(gr.status).json({ error: gd.error?.message || 'Gemini error' });
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('[GEMINI ERROR]', data);
+        return res.status(response.status).json({ error: data.error?.message || 'Gemini API error' });
       }
 
-      const text = gd.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      if (!text) return res.status(500).json({ error: 'Pas de réponse de Gemini' });
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!reply) return res.status(500).json({ error: 'No response from Gemini' });
 
-      res.json({ response: text });
-    } catch (e) {
-      console.error('[oustaz/chat]', e.message);
-      res.status(500).json({ error: e.message });
+      res.json({ response: reply });
+    } catch (err) {
+      console.error('[CHAT EXCEPTION]', err.message);
+      res.status(500).json({ error: err.message });
     }
   });
 
-  // ─── POST /api/oustaz/tts ───
-  function pcmToWav(pcm, sampleRate) {
-    const header = Buffer.alloc(44);
-    header.write('RIFF', 0); header.writeUInt32LE(36 + pcm.length, 4); header.write('WAVE', 8);
-    header.write('fmt ', 12); header.writeUInt32LE(16, 16); header.writeUInt16LE(1, 20);
-    header.writeUInt16LE(1, 22); header.writeUInt32LE(sampleRate, 24);
-    header.writeUInt32LE(sampleRate * 2, 28); header.writeUInt16LE(2, 32); header.writeUInt16LE(16, 34);
-    header.write('data', 36); header.writeUInt32LE(pcm.length, 40);
-    return Buffer.concat([header, pcm]);
-  }
-
   router.post('/api/oustaz/tts', async (req, res) => {
-    const { text, lang, gender } = req.body || {};
-    if (!text || !GEMINI_KEY) return res.status(400).json({ error: 'Texte et GEMINI_API_KEY requis' });
-
-    const isFem = String(gender || '').toLowerCase() === 'femme';
-    const voiceName = isFem ? (process.env.GEMINI_TTS_VOICE_F || 'Sulafat') : (process.env.GEMINI_TTS_VOICE_M || 'Charon');
-    const ttsModel = 'gemini-2.5-flash-preview-tts';
-
     try {
-      const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + ttsModel + ':generateContent?key=' + GEMINI_KEY, {
+      const { text, gender } = req.body || {};
+      if (!text) return res.status(400).json({ error: 'Text required' });
+      if (!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
+
+      const isFem = String(gender || '').toLowerCase() === 'femme';
+      const voiceName = isFem ? 'Sulafat' : 'Charon';
+
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=' + GEMINI_KEY;
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: String(text).slice(0, 1500) }] }],
+          contents: [{ parts: [{ text: String(text).slice(0, 500) }] }],
           generationConfig: {
             responseModalities: ['AUDIO'],
             speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
@@ -92,28 +77,27 @@ module.exports = function(pool, opts) {
         })
       });
 
-      const gd = await gr.json();
-      if (gr.ok) {
-        const part = gd.candidates?.[0]?.content?.parts?.find(p => p.inlineData && p.inlineData.data);
-        if (part) {
-          const pcm = Buffer.from(part.inlineData.data, 'base64');
-          const rateMatch = /rate=(\d+)/.exec(part.inlineData.mimeType || '');
-          const wav = pcmToWav(pcm, rateMatch ? parseInt(rateMatch[1], 10) : 24000);
-          res.set({ 'Content-Type': 'audio/wav', 'Content-Length': wav.length, 'Cache-Control': 'no-store' });
-          return res.send(wav);
-        }
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('[TTS ERROR]', data);
+        return res.status(response.status).json({ error: data.error?.message || 'TTS failed' });
       }
-      console.error('[oustaz/tts gemini]', gd.error?.message);
-      return res.status(503).json({ error: gd.error?.message || 'TTS failed' });
-    } catch (e) {
-      console.error('[oustaz/tts]', e.message);
-      return res.status(500).json({ error: e.message });
+
+      const audio = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+      if (!audio) return res.status(500).json({ error: 'No audio data' });
+
+      const wav = Buffer.from(audio.inlineData.data, 'base64');
+      res.set('Content-Type', 'audio/wav');
+      res.send(wav);
+    } catch (err) {
+      console.error('[TTS EXCEPTION]', err.message);
+      res.status(500).json({ error: err.message });
     }
   });
 
-  // ─── GET /api/oustaz/quota ───
   router.get('/api/oustaz/quota', (req, res) => {
-    res.json({ gemini: 'active', openai: 'disabled' });
+    res.json({ status: 'ok', gemini: GEMINI_KEY ? 'configured' : 'missing' });
   });
 
   return router;
