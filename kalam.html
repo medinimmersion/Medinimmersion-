@@ -20,6 +20,8 @@ body{font-family:'DM Sans',sans-serif;background:radial-gradient(120% 90% at 50%
 
 /* ── Header ── */
 header{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.1rem;flex-shrink:0;}
+.persona{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(212,168,67,0.12);border:1px solid rgba(212,168,67,0.35);color:#D4A843;border-radius:50px;padding:0.35rem 0.9rem;font-size:0.8rem;font-weight:700;margin-bottom:0.6rem;}
+.persona .pe{font-size:1.1rem;}
 .brand{display:flex;align-items:center;gap:0.6rem;text-decoration:none;color:var(--ink);}
 .brand img{height:34px;background:var(--cream);border-radius:9px;padding:4px 7px;}
 .brand-name{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.25rem;letter-spacing:0.01em;}
@@ -133,6 +135,7 @@ body.listening .orb svg{display:none;}
 <main>
   <div id="feed" aria-live="polite"></div>
   <div class="stage">
+    <div class="persona" id="personaBadge" style="display:none;"><span class="pe" id="personaEmoji"></span><span id="personaName"></span></div>
     <div class="status" id="status">Touche l'orbe et parle</div>
     <div class="orb-wrap">
       <svg class="ring" viewBox="0 0 118 118" aria-hidden="true">
@@ -181,6 +184,12 @@ const DAILY_SECONDS = 180;               // 3 min / jour
 const $ = id => document.getElementById(id);
 
 let token=null, student=null;
+function PERSONA(){
+  const f = (student?.gender||'').toLowerCase()==='femme';
+  return f
+    ? {name:'Oustaza Oum Adam',  short:'Oustaza', ar:'الأستاذة', emoji:'🧕🏽', gender:'femme'}
+    : {name:'Oustaz Abou Adam', short:'Oustaz',  ar:'الأستاذ',  emoji:'🧔🏽', gender:'homme'};
+}
 let lang='fr', level='debutant';
 let history=[];                           // {role, content}
 let autoMode=true;
@@ -261,8 +270,12 @@ $('liBtn').onclick=async()=>{
 };
 function welcome(){
   loadQuota();
+  const p=PERSONA();
+  $('personaEmoji').textContent=p.emoji;
+  $('personaName').textContent=p.name;
+  $('personaBadge').style.display='inline-flex';
   const name=student?.prenom||student?.kounia||'';
-  addMsg('hint',`As-salamou alaykoum${name?' '+name:''} ! Choisis ta langue et ton niveau, puis touche l'orbe doré pour parler.`);
+  addMsg('hint',`As-salamou alaykoum${name?' '+name:''} ! Je suis ${p.name}. Choisis ta langue et ton niveau, puis touche l'orbe doré pour parler avec moi.`);
 }
 
 /* ── UI helpers ── */
@@ -399,12 +412,12 @@ async function userSaid(text){
   stopListening(true);
   addMsg('user',text);
   history.push({role:'user',content:text});
-  setBodyState('thinking'); setStatus('Oustaz réfléchit…');
+  setBodyState('thinking'); setStatus(PERSONA().short+' réfléchit…');
   try{
     const r=await fetch('/api/student/oustaz/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
-      body:JSON.stringify({message:text,history:history.slice(-12),lang,level,student_name:student?.prenom||student?.kounia||null})
+      body:JSON.stringify({message:text,history:history.slice(-12),lang,level,student_name:student?.prenom||student?.kounia||null,gender:PERSONA().gender,persona:PERSONA().name})
     });
     addMsg('hint','📥 réponse serveur: '+r.status);
     const d=await r.json();
@@ -421,7 +434,7 @@ async function userSaid(text){
 
 /* ── Synthèse vocale : serveur (naturelle) → fallback navigateur ── */
 async function speak(text){
-  setBodyState('speaking'); setStatus(lang==='ar'?'الأستاذ يتكلم…':'Oustaz parle…','speaking');
+  setBodyState('speaking'); setStatus(lang==='ar'?PERSONA().ar+' يتكلم…':PERSONA().short+' parle…','speaking');
   stopTick();
   const done=()=>{
     setBodyState(''); 
@@ -432,7 +445,7 @@ async function speak(text){
   };
   /* 1) Voix serveur (OpenAI) */
   try{
-    const r=await fetch('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang})});
+    const r=await fetch('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,gender:PERSONA().gender,persona:PERSONA().name})});
     if(r.ok){
       const blob=await r.blob();
       currentAudio=new Audio(URL.createObjectURL(blob));
@@ -445,8 +458,14 @@ async function speak(text){
   if('speechSynthesis' in window){
     const u=new SpeechSynthesisUtterance(text);
     u.lang=langCode(); u.rate=0.95;
-    const voices=speechSynthesis.getVoices();
-    const v=voices.find(v=>v.lang.startsWith(langCode().slice(0,2))&&/natural|enhanced|premium/i.test(v.name))||voices.find(v=>v.lang.startsWith(langCode().slice(0,2)));
+    const fem = PERSONA().gender==='femme';
+    u.pitch = fem ? 1.12 : 0.92;
+    const voices=speechSynthesis.getVoices().filter(v=>v.lang.startsWith(langCode().slice(0,2)));
+    const femRx=/female|femme|woman|salma|amira|hoda|laila|zira|denise|audrey|marie|julie|amelie|chantal|charlotte|aria/i;
+    const malRx=/male(?!e)|homme|\bman\b|tarik|naayf|hamed|majed|paul|henri|nicolas|thomas|george|guy/i;
+    const byGender = voices.find(v=> fem ? femRx.test(v.name) : malRx.test(v.name));
+    const quality  = voices.find(v=>/natural|enhanced|premium/i.test(v.name));
+    const v = byGender || quality || voices[0];
     if(v) u.voice=v;
     u.onend=done; u.onerror=done;
     speechSynthesis.speak(u);
