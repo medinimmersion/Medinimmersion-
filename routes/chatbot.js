@@ -3,7 +3,7 @@ const express = require('express');
 module.exports = function(pool, opts) {
   const router = express.Router();
 
-  router.post('/api/oustaz/chat', async (req, res) => {
+  router.post('/chat', async (req, res) => {
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
     const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
@@ -57,7 +57,7 @@ module.exports = function(pool, opts) {
     }
   });
 
-  router.post('/api/oustaz/tts', async (req, res) => {
+  router.post('/tts', async (req, res) => {
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
 
     try {
@@ -106,7 +106,7 @@ module.exports = function(pool, opts) {
     }
   });
 
-  router.get('/api/oustaz/quota', (req, res) => {
+  router.get('/quota', (req, res) => {
     res.json({ ok: true });
   });
 
