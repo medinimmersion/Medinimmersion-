@@ -7,6 +7,8 @@ module.exports = function(pool, opts) {
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
     const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
+    console.log('[chat] Incoming request, GEMINI_KEY:', GEMINI_KEY ? '✓' : '✗', 'MODEL:', GEMINI_MODEL);
+
     try {
       const { message, history, lang, level, student_name, gender, persona } = req.body;
       if (!message || !GEMINI_KEY) return res.status(400).json({ error: 'Missing data' });
@@ -34,18 +36,21 @@ module.exports = function(pool, opts) {
         }
       };
 
+      console.log('[chat] Calling Gemini...');
       const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + GEMINI_KEY, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
+      console.log('[chat] Gemini response status:', response.status);
       const data = await response.json();
 
       if (!response.ok || data.error) {
-        console.error('Gemini error:', data.error || data);
+        console.error('[chat] Gemini error:', data.error || data);
         return res.status(500).json({ error: data.error?.message || 'Gemini failed' });
       }
+      console.log('[chat] Gemini success');
 
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!text) return res.status(500).json({ error: 'No response' });
