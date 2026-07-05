@@ -447,7 +447,7 @@ async function speak(text){
   if(window.__srvTtsFails===undefined) window.__srvTtsFails=0;
   if(window.__srvTtsFails<2){
     try{
-      const r=await fetch('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,gender:PERSONA().gender,persona:PERSONA().name})});
+      const r=await fetch('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,gender:PERSONA().gender,persona:PERSONA().name,student_gender:student?.gender||'homme'})});
       if(r.ok){
         window.__srvTtsFails=0;
         const blob=await r.blob();
@@ -467,11 +467,12 @@ async function speak(text){
     u.pitch = fem ? 1.12 : 0.92;
     if(!window.__lockedVoice || window.__lockedVoiceLang!==langCode()){
       const voices=speechSynthesis.getVoices().filter(v=>v.lang.startsWith(langCode().slice(0,2)));
+      const fem = PERSONA().gender==='femme';
       const femRx=/female|femme|woman|salma|amira|hoda|laila|zira|denise|audrey|marie|julie|amelie|chantal|charlotte|aria/i;
       const malRx=/male(?!e)|homme|\bman\b|tarik|naayf|hamed|majed|paul|henri|nicolas|thomas|george|guy/i;
       const byGender = voices.find(v=> fem ? femRx.test(v.name) : malRx.test(v.name));
       const quality  = voices.find(v=>/natural|enhanced|premium/i.test(v.name));
-      window.__lockedVoice = byGender || quality || voices[0] || null;
+      window.__lockedVoice = byGender || quality || voices[fem ? voices.length-1 : 0] || voices[0] || null;
       window.__lockedVoiceLang = langCode();
     }
     if(window.__lockedVoice) u.voice=window.__lockedVoice;
