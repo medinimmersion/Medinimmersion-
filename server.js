@@ -370,6 +370,7 @@ const htmlPages = [
   'nos-cours', 'tarifs', 'qui-sommes-nous', 'reglement',
   'inscription', 'espace-eleve', 'espace-professeur',
   'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test',
+  'blog', 'blog-apprendre-arabe-immersion', 'blog-choisir-professeur-coran',
 ];
 
 htmlPages.forEach(page => {
