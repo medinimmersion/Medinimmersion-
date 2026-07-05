@@ -8,4 +8,4 @@ Disallow: /kalam
 Disallow: /test-kalam
 Disallow: /api/
 
-Sitemap: https://www.medinimmersion.com/sitemap.xml
+Sitemap: https://medinimmersion.com/sitemap.xml
