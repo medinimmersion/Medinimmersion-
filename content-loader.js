@@ -12,6 +12,25 @@
 // ============================================================
 
 (function () {
+  // Lien "Blog" dans le menu de toutes les pages (sans modifier chaque page)
+  try {
+    if (!document.querySelector('.nav-links a[href="/blog"]')) {
+      const cta = document.querySelector('.nav-links .nav-cta');
+      if (cta && cta.parentElement && cta.parentElement.parentElement) {
+        const li = document.createElement('li');
+        li.innerHTML = '<a href="/blog"' + (location.pathname.indexOf('/blog') === 0 ? ' class="active-page"' : '') + '>Blog</a>';
+        cta.parentElement.parentElement.insertBefore(li, cta.parentElement);
+      }
+    }
+    const mm = document.getElementById('mobileMenu');
+    if (mm && !mm.querySelector('a[href="/blog"]')) {
+      const last = mm.lastElementChild;
+      const a = document.createElement('a');
+      a.href = '/blog'; a.textContent = 'Blog';
+      mm.insertBefore(a, last);
+    }
+  } catch (e) { /* silencieux */ }
+
   fetch('/api/content')
     .then(r => (r.ok ? r.json() : {}))
     .then(content => {
