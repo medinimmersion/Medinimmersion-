@@ -3,8 +3,7 @@ const express = require('express');
 module.exports = function(pool, opts) {
   const router = express.Router();
 
-  // ─── CHAT GEMINI ───
-  router.post('/chat', async (req, res) => {
+  router.post('/api/oustaz/chat', async (req, res) => {
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
     const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
@@ -38,8 +37,7 @@ module.exports = function(pool, opts) {
       const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + GEMINI_KEY, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        timeout: 30000
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
@@ -59,8 +57,7 @@ module.exports = function(pool, opts) {
     }
   });
 
-  // ─── TTS GEMINI ───
-  router.post('/tts', async (req, res) => {
+  router.post('/api/oustaz/tts', async (req, res) => {
     const GEMINI_KEY = process.env.GEMINI_API_KEY;
 
     try {
@@ -85,8 +82,7 @@ module.exports = function(pool, opts) {
       const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=' + GEMINI_KEY, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        timeout: 30000
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
@@ -110,7 +106,7 @@ module.exports = function(pool, opts) {
     }
   });
 
-  router.get('/quota', (req, res) => {
+  router.get('/api/oustaz/quota', (req, res) => {
     res.json({ ok: true });
   });
 
