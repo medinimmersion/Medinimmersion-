@@ -1,190 +1,122 @@
-/**
- * routes/chatbot.js — AI chat integration (OpenAI GPT-4o-mini)
- * Owns: /api/chat, /api/ia/chat (free conversation), /api/student/oustaz/chat (voice tutor)
- */
-'use strict';
+const express = require('express');
+const router = express.Router();
 
-module.exports = function (pool, opts) {
-  const router = require('express').Router();
-  const OpenAI = require('openai');
+// ════════════════════════════════════════════════════════════════
+// KALAM AI TUTOR — GEMINI ONLY (No OpenAI dependency)
+// Routes: /api/oustaz/chat, /api/oustaz/tts, /api/oustaz/quota
+// ════════════════════════════════════════════════════════════════
 
-  function getClient() {
-    return new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-      baseURL: process.env.OPENAI_BASE_URL || undefined
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+
+// ─── CHAT (Gemini) ───
+router.post('/chat', async (req, res) => {
+  const { message, history, lang, level, student_name, gender, persona } = req.body || {};
+  if (!message || !GEMINI_KEY) return res.status(400).json({ error: 'Message et GEMINI_API_KEY requis' });
+
+  const isFem = String(gender || '').toLowerCase() === 'femme';
+  const pName = persona || (isFem ? 'Oustaza Oum Adam' : 'Oustaz Abou Adam');
+
+  const systemPrompt = `Tu es ${pName}, ${isFem ? "professeure d'arabe chaleureuse" : "professeur d'arabe chaleureux"} de l'école Médin'Immersion. Tu parles à l'oral avec ${isFem ? 'une élève (une sœur)' : 'un élève (un frère)'} — conversation vocale en temps réel.
+- Tu es ${isFem ? 'une femme : parle de toi au féminin' : 'un homme : parle de toi au masculin'}, et adresse-toi à l'élève ${isFem ? 'au féminin, en français comme en arabe (baraka Allahou fiki, ahsanti, kayfa hâluki...)' : 'au masculin, en français comme en arabe (baraka Allahou fik, ahsant, kayfa hâluk...)'}. 
+- Niveau : ${level || 'Débutant'}. Langue : ${lang === 'ar' ? 'Arabe' : 'Français'}.
+- Réponds en 2-3 phrases ORALES COURTES (comme dans une vraie conversation), jamais de listes ni de texte long.
+- Si on te demande quelque chose en arabe, réponds d'abord en arabe, puis traduis brièvement en français.
+- Sois bienveillant(e), encourage l'élève, utilise le bon genre de politesse.`;
+
+  try {
+    const historyFormatted = history.slice(-6).map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.text }]
+    }));
+
+    const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + GEMINI_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [
+          ...historyFormatted,
+          { role: 'user', parts: [{ text: message }] }
+        ],
+        generationConfig: {
+          maxOutputTokens: 180,
+          temperature: 0.75,
+          thinkingConfig: { thinkingBudget: 0 }
+        }
+      })
     });
+
+    const gd = await gr.json();
+    if (!gr.ok) {
+      console.error('[oustaz/chat gemini]', gd.error?.message || JSON.stringify(gd));
+      return res.status(gr.status).json({ error: gd.error?.message || 'Gemini error' });
+    }
+
+    const text = gd.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!text) return res.status(500).json({ error: 'Pas de réponse de Gemini' });
+
+    res.json({ response: text });
+  } catch (e) {
+    console.error('[oustaz/chat]', e.message);
+    res.status(500).json({ error: e.message });
   }
+});
 
-  // POST /api/chatbot — general AI chatbot (floating widget on homepage)
-  router.post('/api/chatbot', async (req, res) => {
-    try {
-      const { message, conversation_id } = req.body;
-      if (!message) return res.status(400).json({ error: 'Message requis' });
+// ─── TTS (Gemini Text-to-Speech) ───
+function pcmToWav(pcm, sampleRate) {
+  const header = Buffer.alloc(44);
+  header.write('RIFF', 0); header.writeUInt32LE(36 + pcm.length, 4); header.write('WAVE', 8);
+  header.write('fmt ', 12); header.writeUInt32LE(16, 16); header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(1, 22); header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE(sampleRate * 2, 28); header.writeUInt16LE(2, 32); header.writeUInt16LE(16, 34);
+  header.write('data', 36); header.writeUInt32LE(pcm.length, 40);
+  return Buffer.concat([header, pcm]);
+}
 
-      const client = getClient();
-      const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
-      const messages = [
-        { role: 'system', content: 'Tu es un assistant d apprentissage de l arabe pour MedinImmersion. Réponds en français, sois clair et encourageant.' }
-      ];
+router.post('/tts', async (req, res) => {
+  const { text, lang, gender } = req.body || {};
+  if (!text || !GEMINI_KEY) return res.status(400).json({ error: 'Texte et GEMINI_API_KEY requis' });
 
-      if (conversation_id) {
-        const hist = await pool.query(
-          'SELECT role, content FROM ai_messages WHERE conversation_id = $1 ORDER BY created_at LIMIT 50',
-          [conversation_id]
-        );
-        hist.rows.forEach(m => messages.push({ role: m.role, content: m.content }));
+  const isFem = String(gender || '').toLowerCase() === 'femme';
+  const voiceName = isFem ? (process.env.GEMINI_TTS_VOICE_F || 'Sulafat') : (process.env.GEMINI_TTS_VOICE_M || 'Charon');
+  const ttsModel = 'gemini-2.5-flash-preview-tts';
+
+  try {
+    const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + ttsModel + ':generateContent?key=' + GEMINI_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: String(text).slice(0, 1500) }] }],
+        generationConfig: {
+          responseModalities: ['AUDIO'],
+          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+        }
+      })
+    });
+
+    const gd = await gr.json();
+    if (gr.ok) {
+      const part = gd.candidates?.[0]?.content?.parts?.find(p => p.inlineData && p.inlineData.data);
+      if (part) {
+        const pcm = Buffer.from(part.inlineData.data, 'base64');
+        const rateMatch = /rate=(\d+)/.exec(part.inlineData.mimeType || '');
+        const wav = pcmToWav(pcm, rateMatch ? parseInt(rateMatch[1], 10) : 24000);
+        res.set({ 'Content-Type': 'audio/wav', 'Content-Length': wav.length, 'Cache-Control': 'no-store' });
+        return res.send(wav);
       }
-      messages.push({ role: 'user', content: message });
-
-      const resp = await client.chat.completions.create({ model, messages });
-      res.json({ response: resp.choices[0].message.content });
-    } catch (err) { console.error('[chat]', err.message); res.status(500).json({ error: 'Erreur IA' }); }
-  });
-
-  // POST /api/ia/chat — free conversation (student ↔ Arabic AI tutor)
-  router.post('/api/ia/chat', async (req, res) => {
-    try {
-      const { message, teacher_type, student_level, conversation_id, student_id } = req.body;
-      if (!message) return res.status(400).json({ error: 'Message requis' });
-
-      const client = getClient();
-      const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
-      const teacherT = teacher_type || 'oustaz';
-      const level = student_level || 'debutant';
-
-      const systemPrompt = `Tu es un professeur d'arabe/${teacherT === 'oustaza' ? 'femme' : 'homme'} à MedinImmersion.
-Niveau de l'élève: ${level === 'debutant' ? 'Débutant (مبتدئ) — utilise vocabulaire simple et phrases courtes' : level === 'intermediaire' ? 'Intermédiaire (متوسط) — peux utiliser des phrases plus complexes' : 'Avancé (متقدم) — peux discuter de sujets variés'}.
-Règles:
-- Réponds EN FRANÇAIS mais inclots des mots/arabes courts naturellement
-- Corrige les erreurs arabes avec emoji ✏️ suivi de la correction
-- Encourage avec 🌟 أحسنت quand correct
-- Si erreur grave, explique doucement sans humilier
-- Réponds de manière encourageante et chaleureuse
-- Intégration culturelle: mentionne la culture arabo-islamique naturellement`;
-
-      // Get or create conversation
-      let convId = conversation_id;
-      if (!convId && student_id) {
-        const conv = await pool.query(
-          'INSERT INTO ai_conversations (student_id, teacher_type, student_level) VALUES ($1, $2, $3) RETURNING id',
-          [student_id, teacherT, level]
-        );
-        convId = conv.rows[0].id;
-      }
-
-      // Get history
-      const hist = convId ? await pool.query(
-        'SELECT role, content FROM ai_messages WHERE conversation_id = $1 ORDER BY created_at LIMIT 20',
-        [convId]
-      ) : { rows: [] };
-
-      const messages = [{ role: 'system', content: systemPrompt }];
-      hist.rows.forEach(m => messages.push({ role: m.role, content: m.content }));
-      messages.push({ role: 'user', content: message });
-
-      const resp = await client.chat.completions.create({ model, messages });
-      const reply = resp.choices[0].message.content;
-
-      // Save messages
-      if (convId) {
-        await pool.query(
-          'INSERT INTO ai_messages (conversation_id, role, content) VALUES ($1, $2, $3)',
-          [convId, 'user', message]
-        );
-        await pool.query(
-          'INSERT INTO ai_messages (conversation_id, role, content) VALUES ($1, $2, $3)',
-          [convId, 'assistant', reply]
-        );
-        await pool.query(
-          'UPDATE ai_conversations SET message_count = message_count + 1 WHERE id = $1',
-          [convId]
-        );
-      }
-
-      res.json({ response: reply, conversation_id: convId });
-    } catch (err) { console.error('[ia/chat]', err.message); res.status(500).json({ error: 'Erreur IA' }); }
-  });
-
-  // POST /api/student/oustaz/chat — tuteur vocal conversationnel (Kalam)
-  router.post('/api/student/oustaz/chat', async (req, res) => {
-    try {
-      const { message, history, lang, level, student_name } = req.body;
-      if (!message) return res.status(400).json({ error: 'Message requis' });
-
-      const client = getClient();
-      const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
-
-      const langName = lang === 'ar' ? 'arabe' : lang === 'en' ? 'anglais' : 'français';
-      const levelTxt = level === 'avance' ? 'avancé — conversation riche, sujets variés'
-        : level === 'intermediaire' ? 'intermédiaire — phrases complètes mais simples'
-        : 'débutant — mots simples, phrases très courtes, beaucoup de répétition';
-
-      const systemPrompt = `Tu es Oustaz Kalam, professeur d'arabe chaleureux de l'école Médin'Immersion, formé à Médine. Tu parles à l'oral avec un élève (conversation vocale en temps réel).
-
-RÈGLES ABSOLUES (voix) :
-- Réponds en 1 à 3 phrases courtes MAXIMUM. C'est une conversation parlée, pas un cours écrit.
-- JAMAIS d'emoji, JAMAIS de markdown, JAMAIS de listes, JAMAIS d'astérisques. Uniquement du texte parlé naturel.
-- Langue principale de l'élève : ${langName}. Réponds dans cette langue, en intégrant naturellement des mots et expressions arabes utiles (avec leur sens bref si l'élève est débutant).
-- Niveau de l'élève : ${levelTxt}.
-${student_name ? `- L'élève s'appelle ${student_name}. Utilise son prénom de temps en temps.` : ''}
-
-TON STYLE :
-- Chaleureux, vivant, encourageant, comme un vrai professeur en face à face. Salue avec "as-salamou alaykoum" au premier échange seulement.
-- Si l'élève parle arabe et fait une erreur, corrige-la doucement en une phrase ("On dit plutôt..."), puis continue la conversation.
-- Si l'élève réussit, félicite brièvement ("ahsant !", "mumtaz !") sans en faire trop.
-- Pose UNE question simple à la fin de la plupart de tes réponses pour faire parler l'élève.
-- Adapte-toi aux sujets de l'élève : vie quotidienne, famille, Coran, voyage, nourriture... Reste naturel.
-- Connaissances : langue arabe (fusha), bases de tajwid, culture de Médine, vocabulaire coranique. Si on te demande autre chose, ramène gentiment vers la pratique de l'arabe.`;
-
-      const messages = [{ role: 'system', content: systemPrompt }];
-      if (Array.isArray(history)) {
-        history.slice(-12).forEach(m => {
-          if (m && m.role && m.content) messages.push({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content).slice(0, 1000) });
-        });
-      }
-      messages.push({ role: 'user', content: String(message).slice(0, 1000) });
-
-      const resp = await client.chat.completions.create({ model, messages, max_tokens: 220, temperature: 0.8 });
-      let reply = resp.choices[0].message.content || '';
-      // Nettoyage pour la voix : retire emojis, markdown, listes
-      reply = reply.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
-                   .replace(/[*_#`>]/g, '')
-                   .replace(/^\s*[-•]\s*/gm, '')
-                   .replace(/\s{2,}/g, ' ')
-                   .trim();
-
-      res.json({ response: reply });
-    } catch (err) {
-      console.error('[oustaz/chat]', err.message);
-      const noKey = !process.env.OPENAI_API_KEY;
-      res.status(500).json({ error: noKey ? "Clé IA manquante : ajoute OPENAI_API_KEY dans Render → Environment." : 'Erreur IA, réessaie.' });
     }
-  });
+    console.error('[oustaz/tts gemini]', gd.error?.message);
+    return res.status(503).json({ error: gd.error?.message || 'TTS failed' });
+  } catch (e) {
+    console.error('[oustaz/tts]', e.message);
+    return res.status(500).json({ error: e.message });
+  }
+});
 
-  // POST /api/oustaz/tts — voix naturelle (OpenAI TTS), fallback navigateur côté client
-  router.post('/api/oustaz/tts', async (req, res) => {
-    try {
-      const { text, lang } = req.body;
-      if (!text) return res.status(400).json({ error: 'Texte requis' });
-      if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: 'TTS non configuré' });
+// ─── QUOTA ───
+router.get('/quota', (req, res) => {
+  res.json({ gemini: 'active', openai: 'disabled' });
+});
 
-      const client = getClient();
-      const voice = lang === 'ar' ? 'onyx' : 'alloy';
-      const speech = await client.audio.speech.create({
-        model: process.env.OPENAI_TTS_MODEL || 'tts-1',
-        voice,
-        input: String(text).slice(0, 1500),
-        response_format: 'mp3',
-        speed: 0.95,
-      });
-      const buffer = Buffer.from(await speech.arrayBuffer());
-      res.set({ 'Content-Type': 'audio/mpeg', 'Content-Length': buffer.length, 'Cache-Control': 'no-store' });
-      res.send(buffer);
-    } catch (err) {
-      console.error('[oustaz/tts]', err.message);
-      res.status(500).json({ error: 'TTS indisponible' });
-    }
-  });
-
-  return router;
-};
+module.exports = router;
