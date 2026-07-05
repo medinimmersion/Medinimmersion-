@@ -278,12 +278,11 @@ for (const name of routeFiles) {
     } else if (name === 'chatbot') {
       router = routeModule(pool, opts);
       app.use('/api/oustaz', router);
-      console.log(`[routes] ✓ ${name} (prefixed /api/oustaz)`);
-      continue;
+      console.log(`[routes] ✓ ${name}`);
     } else {
       router = routeModule(pool, opts);
     }
-    app.use(router);
+    if (name !== 'chatbot') app.use(router);
     console.log(`[routes] ✓ ${name}`);
   } catch (err) {
     console.error(`[routes] ✗ ${name}:`, err.message);
