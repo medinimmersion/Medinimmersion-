@@ -275,6 +275,11 @@ for (const name of routeFiles) {
       router = routeModule(pool, opts.requireAdmin, opts.requireTeacherAuth, opts.requireStudentAuth, opts.uploadToR2WithRetry, opts.FormDataLib);
     } else if (name === 'group-attendance') {
       router = routeModule(pool, opts.requireTeacherAuth, opts.requireAdmin);
+    } else if (name === 'chatbot') {
+      router = routeModule(pool, opts);
+      app.use('/api/oustaz', router);
+      console.log(`[routes] ✓ ${name} (prefixed /api/oustaz)`);
+      continue;
     } else {
       router = routeModule(pool, opts);
     }
