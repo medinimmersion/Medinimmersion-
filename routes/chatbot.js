@@ -108,7 +108,9 @@ Règles:
   // POST /api/student/oustaz/chat — tuteur vocal conversationnel (Kalam)
   router.post('/api/student/oustaz/chat', async (req, res) => {
     try {
-      const { message, history, lang, level, student_name } = req.body;
+      const { message, history, lang, level, student_name, gender, persona } = req.body;
+      const isFem = String(gender || '').toLowerCase() === 'femme';
+      const pName = persona || (isFem ? 'Oustaza Oum Adam' : 'Oustaz Abou Adam');
       if (!message) return res.status(400).json({ error: 'Message requis' });
 
       const client = getClient();
@@ -119,7 +121,8 @@ Règles:
         : level === 'intermediaire' ? 'intermédiaire — phrases complètes mais simples'
         : 'débutant — mots simples, phrases très courtes, beaucoup de répétition';
 
-      const systemPrompt = `Tu es Oustaz Kalam, professeur d'arabe chaleureux de l'école Médin'Immersion, formé à Médine. Tu parles à l'oral avec un élève (conversation vocale en temps réel).
+      const systemPrompt = `Tu es ${pName}, ${isFem ? "professeure d'arabe chaleureuse" : "professeur d'arabe chaleureux"} de l'école Médin'Immersion. Tu parles à l'oral avec ${isFem ? 'une élève (une sœur)' : 'un élève (un frère)'} — conversation vocale en temps réel.
+- Tu es ${isFem ? 'une femme : parle de toi au féminin' : 'un homme : parle de toi au masculin'}, et adresse-toi à l'élève ${isFem ? 'au féminin, en français comme en arabe (baraka Allahou fiki, ahsanti, kayfa hâluki...)' : 'au masculin, en français comme en arabe (baraka Allahou fik, ahsant, kayfa hâluk...)'}.
 
 RÈGLES ABSOLUES (voix) :
 - Réponds en 1 à 3 phrases courtes MAXIMUM. C'est une conversation parlée, pas un cours écrit.
@@ -162,7 +165,7 @@ TON STYLE :
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents,
-            generationConfig: { maxOutputTokens: 220, temperature: 0.8 }
+            generationConfig: { maxOutputTokens: 220, temperature: 0.8, thinkingConfig: { thinkingBudget: 0 } }
           })
         });
         const gd = await gr.json();
@@ -194,32 +197,76 @@ TON STYLE :
     }
   });
 
-  // POST /api/oustaz/tts — voix naturelle (OpenAI TTS), fallback navigateur côté client
+  // POST /api/oustaz/tts — voix naturelle : Gemini TTS (homme/femme), fallback OpenAI puis navigateur
+  function pcmToWav(pcm, sampleRate) {
+    const header = Buffer.alloc(44);
+    header.write('RIFF', 0); header.writeUInt32LE(36 + pcm.length, 4); header.write('WAVE', 8);
+    header.write('fmt ', 12); header.writeUInt32LE(16, 16); header.writeUInt16LE(1, 20);
+    header.writeUInt16LE(1, 22); header.writeUInt32LE(sampleRate, 24);
+    header.writeUInt32LE(sampleRate * 2, 28); header.writeUInt16LE(2, 32); header.writeUInt16LE(16, 34);
+    header.write('data', 36); header.writeUInt32LE(pcm.length, 40);
+    return Buffer.concat([header, pcm]);
+  }
   router.post('/api/oustaz/tts', async (req, res) => {
-    try {
-      const { text, lang } = req.body;
-      if (!text) return res.status(400).json({ error: 'Texte requis' });
-      if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: 'TTS non configuré' });
+    const { text, lang, gender } = req.body || {};
+    if (!text) return res.status(400).json({ error: 'Texte requis' });
+    const isFem = String(gender || '').toLowerCase() === 'femme';
 
-      const client = getClient();
-      const voice = lang === 'ar' ? 'onyx' : 'alloy';
-      const speech = await client.audio.speech.create({
-        model: process.env.OPENAI_TTS_MODEL || 'tts-1',
-        voice,
-        input: String(text).slice(0, 1500),
-        response_format: 'mp3',
-        speed: 0.95,
-      });
-      const buffer = Buffer.from(await speech.arrayBuffer());
-      res.set({ 'Content-Type': 'audio/mpeg', 'Content-Length': buffer.length, 'Cache-Control': 'no-store' });
-      res.send(buffer);
-    } catch (err) {
-      console.error('[oustaz/tts]', err.message);
-      res.status(500).json({ error: 'TTS indisponible' });
+    // 1) Gemini TTS (clé déjà en place, voix naturelles)
+    const GEMINI_KEY = process.env.GEMINI_API_KEY;
+    if (GEMINI_KEY) {
+      try {
+        const voiceName = isFem ? (process.env.GEMINI_TTS_VOICE_F || 'Sulafat') : (process.env.GEMINI_TTS_VOICE_M || 'Charon');
+        const ttsModel = process.env.GEMINI_TTS_MODEL || 'gemini-2.5-flash-preview-tts';
+        const gr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${GEMINI_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: String(text).slice(0, 1500) }] }],
+            generationConfig: {
+              responseModalities: ['AUDIO'],
+              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+            }
+          })
+        });
+        const gd = await gr.json();
+        if (gr.ok) {
+          const part = gd.candidates?.[0]?.content?.parts?.find(p => p.inlineData && p.inlineData.data);
+          if (part) {
+            const pcm = Buffer.from(part.inlineData.data, 'base64');
+            const rateMatch = /rate=(\d+)/.exec(part.inlineData.mimeType || '');
+            const wav = pcmToWav(pcm, rateMatch ? parseInt(rateMatch[1], 10) : 24000);
+            res.set({ 'Content-Type': 'audio/wav', 'Content-Length': wav.length, 'Cache-Control': 'no-store' });
+            return res.send(wav);
+          }
+        } else {
+          console.error('[oustaz/tts gemini]', gd.error && gd.error.message);
+        }
+      } catch (e) { console.error('[oustaz/tts gemini]', e.message); }
     }
+
+    // 2) Fallback OpenAI TTS (si une clé existe encore)
+    if (process.env.OPENAI_API_KEY) {
+      try {
+        const client = getClient();
+        const voice = isFem ? 'nova' : 'onyx';
+        const speech = await client.audio.speech.create({
+          model: process.env.OPENAI_TTS_MODEL || 'tts-1',
+          voice,
+          input: String(text).slice(0, 1500),
+          response_format: 'mp3',
+          speed: 0.95,
+        });
+        const buffer = Buffer.from(await speech.arrayBuffer());
+        res.set({ 'Content-Type': 'audio/mpeg', 'Content-Length': buffer.length, 'Cache-Control': 'no-store' });
+        return res.send(buffer);
+      } catch (err) { console.error('[oustaz/tts openai]', err.message); }
+    }
+
+    // 3) Rien de disponible → le client utilisera la voix du navigateur
+    return res.status(503).json({ error: 'TTS non configuré' });
   });
 
-  // ── Temps Kalam : l'élève lit son quota (reset quotidien automatique) ──
   router.get('/api/oustaz/quota', opts.requireStudentAuth, async (req, res) => {
     try {
       const r = await pool.query(
