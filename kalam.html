@@ -371,7 +371,7 @@ function startListening(){
   recognition=new SR();
   recognition.lang=langCode();
   recognition.interimResults=true;
-  recognition.continuous=false;
+  recognition.continuous=true;
   recognition.maxAlternatives=1;
 
   recognition.onstart=()=>{ recActive=true; setBodyState('listening'); setStatus(lang==='ar'?'استمع إليك…':'Je t\'écoute…','listening'); animateBars(); startTick(); if(!started){started=true;} };
