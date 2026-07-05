@@ -443,30 +443,38 @@ async function speak(text){
     if(autoMode){ setTimeout(()=>startListening(),350); }
     else setStatus('À toi — touche l\'orbe');
   };
-  /* 1) Voix serveur (OpenAI) */
-  try{
-    const r=await fetch('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,gender:PERSONA().gender,persona:PERSONA().name})});
-    if(r.ok){
-      const blob=await r.blob();
-      currentAudio=new Audio(URL.createObjectURL(blob));
-      currentAudio.onended=done; currentAudio.onerror=done;
-      await currentAudio.play();
-      return;
-    }
-  }catch{}
+  /* 1) Voix serveur (Gemini/OpenAI) — désactivée pour la session après 2 échecs, pour garder UNE voix stable */
+  if(window.__srvTtsFails===undefined) window.__srvTtsFails=0;
+  if(window.__srvTtsFails<2){
+    try{
+      const r=await fetch('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,gender:PERSONA().gender,persona:PERSONA().name})});
+      if(r.ok){
+        window.__srvTtsFails=0;
+        const blob=await r.blob();
+        currentAudio=new Audio(URL.createObjectURL(blob));
+        currentAudio.onended=done; currentAudio.onerror=done;
+        await currentAudio.play();
+        return;
+      }
+      window.__srvTtsFails++;
+    }catch{ window.__srvTtsFails++; }
+  }
   /* 2) Fallback navigateur */
   if('speechSynthesis' in window){
     const u=new SpeechSynthesisUtterance(text);
     u.lang=langCode(); u.rate=0.95;
     const fem = PERSONA().gender==='femme';
     u.pitch = fem ? 1.12 : 0.92;
-    const voices=speechSynthesis.getVoices().filter(v=>v.lang.startsWith(langCode().slice(0,2)));
-    const femRx=/female|femme|woman|salma|amira|hoda|laila|zira|denise|audrey|marie|julie|amelie|chantal|charlotte|aria/i;
-    const malRx=/male(?!e)|homme|\bman\b|tarik|naayf|hamed|majed|paul|henri|nicolas|thomas|george|guy/i;
-    const byGender = voices.find(v=> fem ? femRx.test(v.name) : malRx.test(v.name));
-    const quality  = voices.find(v=>/natural|enhanced|premium/i.test(v.name));
-    const v = byGender || quality || voices[0];
-    if(v) u.voice=v;
+    if(!window.__lockedVoice || window.__lockedVoiceLang!==langCode()){
+      const voices=speechSynthesis.getVoices().filter(v=>v.lang.startsWith(langCode().slice(0,2)));
+      const femRx=/female|femme|woman|salma|amira|hoda|laila|zira|denise|audrey|marie|julie|amelie|chantal|charlotte|aria/i;
+      const malRx=/male(?!e)|homme|\bman\b|tarik|naayf|hamed|majed|paul|henri|nicolas|thomas|george|guy/i;
+      const byGender = voices.find(v=> fem ? femRx.test(v.name) : malRx.test(v.name));
+      const quality  = voices.find(v=>/natural|enhanced|premium/i.test(v.name));
+      window.__lockedVoice = byGender || quality || voices[0] || null;
+      window.__lockedVoiceLang = langCode();
+    }
+    if(window.__lockedVoice) u.voice=window.__lockedVoice;
     u.onend=done; u.onerror=done;
     speechSynthesis.speak(u);
   } else done();
