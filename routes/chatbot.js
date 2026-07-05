@@ -1,5 +1,7 @@
 const express = require('express');
-const router = express.Router();
+
+module.exports = function(pool, opts) {
+  const router = express.Router();
 
 // ════════════════════════════════════════════════════════════════
 // KALAM AI TUTOR — GEMINI ONLY (No OpenAI dependency)
@@ -10,7 +12,7 @@ const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 // ─── CHAT (Gemini) ───
-router.post('/api/oustaz/chat', async (req, res) => {
+router.post('/chat', async (req, res) => {
   const { message, history, lang, level, student_name, gender, persona } = req.body || {};
   if (!message || !GEMINI_KEY) return res.status(400).json({ error: 'Message et GEMINI_API_KEY requis' });
 
@@ -74,7 +76,7 @@ function pcmToWav(pcm, sampleRate) {
   return Buffer.concat([header, pcm]);
 }
 
-router.post('/api/oustaz/tts', async (req, res) => {
+router.post('/tts', async (req, res) => {
   const { text, lang, gender } = req.body || {};
   if (!text || !GEMINI_KEY) return res.status(400).json({ error: 'Texte et GEMINI_API_KEY requis' });
 
@@ -115,8 +117,9 @@ router.post('/api/oustaz/tts', async (req, res) => {
 });
 
 // ─── QUOTA ───
-router.get('/api/oustaz/quota', (req, res) => {
+router.get('/quota', (req, res) => {
   res.json({ gemini: 'active', openai: 'disabled' });
 });
 
-module.exports = router;
+  return router;
+};
