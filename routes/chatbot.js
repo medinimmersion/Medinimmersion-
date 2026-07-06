@@ -9,6 +9,7 @@ module.exports = function (pool, opts) {
   const OpenAI = require('openai');
 
   function getClient() {
+    if (!process.env.OPENAI_API_KEY) return null;
     return new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
       baseURL: process.env.OPENAI_BASE_URL || undefined
@@ -171,6 +172,7 @@ TON STYLE :
       } else {
         // ── OpenAI (fallback si pas de clé Gemini) ──
         const client = getClient();
+        if (!client) throw new Error('Aucune clé IA disponible (pas de GEMINI_API_KEY ni OPENAI_API_KEY)');
         const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
         const resp = await client.chat.completions.create({ model, messages, max_tokens: 220, temperature: 0.8 });
         reply = resp.choices[0].message.content || '';
