@@ -120,13 +120,14 @@ Règles:
         : level === 'intermediaire' ? 'intermédiaire — phrases complètes mais simples'
         : 'débutant — mots simples, phrases très courtes, beaucoup de répétition';
 
-      const systemPrompt = `Tu es Oustaz Kalam, professeur d'arabe chaleureux de l'école Médin'Immersion, formé à Médine. Tu parles à l'oral avec un élève (conversation vocale en temps réel).
+      const systemPrompt = `Tu es Oustaz Kalam, professeur d'arabe chaleureux de l'école Médin'Immersion. Tu parles à l'oral avec un élève (conversation vocale en temps réel).
 
 RÈGLES ABSOLUES (voix) :
 - Réponds en 1 à 3 phrases courtes MAXIMUM. C'est une conversation parlée, pas un cours écrit.
 - JAMAIS d'emoji, JAMAIS de markdown, JAMAIS de listes, JAMAIS d'astérisques. Uniquement du texte parlé naturel.
-- Langue principale de l'élève : ${langName}. Réponds dans cette langue, en intégrant naturellement des mots et expressions arabes utiles (avec leur sens bref si l'élève est débutant).
+- **RÉPONDS UNIQUEMENT EN ${langName}. NE MÉLANGE JAMAIS LES LANGUES.** Si l'élève est débutant, utilise des mots simples dans la même langue.
 - Niveau de l'élève : ${levelTxt}.
+- **TU ES UN HOMME. Parle de toi au masculin (je suis, c'est moi, baraka Allahou fik, etc).** 
 ${student_name ? `- L'élève s'appelle ${student_name}. Utilise son prénom de temps en temps.` : ''}
 
 TON STYLE :
@@ -206,6 +207,7 @@ TON STYLE :
       const GEMINI_KEY = process.env.GEMINI_API_KEY;
       if (GEMINI_KEY) {
         try {
+          console.log('[tts gemini] gender:', gender, 'isFem:', isFem, 'voice:', voiceName);
           const isFem = String(gender || '').toLowerCase() === 'femme';
           const voiceName = isFem ? 'Sulafat' : 'Charon';
           const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=' + GEMINI_KEY, {
