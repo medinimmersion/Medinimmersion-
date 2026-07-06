@@ -9,7 +9,6 @@ module.exports = function (pool, opts) {
   const OpenAI = require('openai');
 
   function getClient() {
-    if (!process.env.OPENAI_API_KEY) return null;
     return new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
       baseURL: process.env.OPENAI_BASE_URL || undefined
@@ -172,7 +171,6 @@ TON STYLE :
       } else {
         // ── OpenAI (fallback si pas de clé Gemini) ──
         const client = getClient();
-        if (!client) throw new Error('Aucune clé IA disponible (pas de GEMINI_API_KEY ni OPENAI_API_KEY)');
         const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
         const resp = await client.chat.completions.create({ model, messages, max_tokens: 220, temperature: 0.8 });
         reply = resp.choices[0].message.content || '';
@@ -196,13 +194,13 @@ TON STYLE :
     }
   });
 
-  // POST /api/oustaz/tts — voix naturelle : Gemini TTS (prioritaire), OpenAI fallback, navigateur dernier recours
+  // POST /api/oustaz/tts — voix naturelle
   router.post('/api/oustaz/tts', async (req, res) => {
     try {
       const { text, lang, gender } = req.body;
       if (!text) return res.status(400).json({ error: 'Texte requis' });
 
-      // 1) Essai Gemini TTS (prioritaire)
+      // 1) Essai Gemini TTS d'abord (meilleure qualité arabe)
       const GEMINI_KEY = process.env.GEMINI_API_KEY;
       if (GEMINI_KEY) {
         try {
@@ -229,35 +227,28 @@ TON STYLE :
             }
           }
         } catch (e) {
-          console.log('[oustaz/tts gemini fallback]', e.message);
+          console.log('[tts gemini]', e.message);
         }
       }
 
-      // 2) Fallback OpenAI TTS (si Gemini échoue ou pas dispo)
-      const client = getClient();
-      if (client) {
-        try {
-          const voice = lang === 'ar' ? 'onyx' : 'alloy';
-          const speech = await client.audio.speech.create({
-            model: process.env.OPENAI_TTS_MODEL || 'tts-1',
-            voice,
-            input: String(text).slice(0, 1500),
-            response_format: 'mp3',
-            speed: 0.95,
-          });
-          const buffer = Buffer.from(await speech.arrayBuffer());
-          res.set({ 'Content-Type': 'audio/mpeg', 'Content-Length': buffer.length, 'Cache-Control': 'no-store' });
-          return res.send(buffer);
-        } catch (e) {
-          console.log('[oustaz/tts openai fallback]', e.message);
-        }
-      }
+      // 2) Fallback OpenAI (comme avant)
+      if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: 'TTS non configuré' });
 
-      // 3) Aucune TTS serveur disponible : le navigateur utilisera sa propre voix
-      res.status(503).json({ error: 'TTS non disponible, utilisation voix navigateur' });
+      const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const voice = lang === 'ar' ? 'onyx' : 'alloy';
+      const speech = await client.audio.speech.create({
+        model: process.env.OPENAI_TTS_MODEL || 'tts-1',
+        voice,
+        input: String(text).slice(0, 1500),
+        response_format: 'mp3',
+        speed: 0.95,
+      });
+      const buffer = Buffer.from(await speech.arrayBuffer());
+      res.set({ 'Content-Type': 'audio/mpeg', 'Content-Length': buffer.length, 'Cache-Control': 'no-store' });
+      res.send(buffer);
     } catch (err) {
       console.error('[oustaz/tts]', err.message);
-      res.status(500).json({ error: 'TTS erreur' });
+      res.status(500).json({ error: 'TTS indisponible' });
     }
   });
 
