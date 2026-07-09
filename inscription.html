@@ -214,7 +214,7 @@ footer{background:var(--green-deep);color:var(--white);}
         </div>
 
         <div class="reg-note">
-          🛒 <strong>Panier 1ère inscription :</strong> PDF du niveau (5€) + Frais d'inscription (10€, une seule fois) = <strong>15€</strong> + cours choisi.<br><br>
+          🛒 <strong>Panier 1ère inscription :</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi.<br><br>
           En vous inscrivant, vous acceptez le <a href="/reglement" style="color:var(--green);font-weight:600;">règlement intérieur</a>.
         </div>
       </div>
@@ -247,8 +247,8 @@ footer{background:var(--green-deep);color:var(--white);}
           <div class="fg">
             <label>Vous êtes <span class="req">*</span></label>
             <div class="gender-row">
-              <div class="gender-opt"><input type="radio" name="fg" id="gH" value="homme"><label for="gH">🧔 Frère</label></div>
-              <div class="gender-opt"><input type="radio" name="fg" id="gF" value="femme"><label for="gF">🧕 Sœur</label></div>
+              <div class="gender-opt"><input type="radio" name="fg" id="gH" value="homme"><label for="gH"><img src="/Image/Screenshot_2026-04-27-16-50-28-810_com.openai.chatgpt-edit.jpg" alt="Frère" style="width:36px;height:36px;object-fit:cover;border-radius:50%;vertical-align:middle;margin-right:0.4rem;"> Frère</label></div>
+              <div class="gender-opt"><input type="radio" name="fg" id="gF" value="femme"><label for="gF"><img src="/Image/Screenshot_2026-04-27-17-17-11-656_com.openai.chatgpt-edit.jpg" alt="Sœur" style="width:36px;height:36px;object-fit:cover;border-radius:50%;vertical-align:middle;margin-right:0.4rem;"> Sœur</label></div>
             </div>
           </div>
           <button class="btn-next" onclick="goStep(2)">Choisir mon cours →</button>
@@ -301,9 +301,8 @@ footer{background:var(--green-deep);color:var(--white);}
             <div class="sum-row"><span class="sl">Format</span><span class="sv" id="sumFormat">–</span></div>
             <div class="sum-row"><span class="sl">Heures</span><span class="sv" id="sumHeures">–</span></div>
             <div class="sum-row"><span class="sl">Cours</span><span class="sv" id="sumPrixCours">–</span></div>
-            <div class="sum-row"><span class="sl">PDF niveau</span><span class="sv">5€</span></div>
-            <div class="sum-row"><span class="sl">Frais inscription</span><span class="sv">10€ <em style="font-size:0.75em;color:var(--text-muted);">*1ère fois</em></span></div>
-            <div class="sum-row total"><span class="sl">Total</span><span class="sv" id="sumTotal">–</span></div>
+            <div class="sum-row"><span class="sl">PDF du niveau</span><span class="sv">Prix communiqué par l'école</span></div>
+            <div class="sum-row"><span class="sl">Frais inscription</span><span class="sv">5€ <em style="font-size:0.75em;color:var(--text-muted);">*1ère fois uniquement</em></span></div>
           </div>
           <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">Après validation, vous recevrez un email avec le lien de paiement PayPal.</p>
           <button class="btn-back" onclick="goStep(2)">← Modifier</button>
@@ -430,7 +429,7 @@ function fillSummary(){
   document.getElementById('sumFormat').textContent=FNAMES[sFormat]||sFormat;
   document.getElementById('sumHeures').textContent=sHours+'h';
   document.getElementById('sumPrixCours').textContent=price+'€';
-  document.getElementById('sumTotal').textContent=(price+15)+'€';
+  document.getElementById('sumTotal').textContent=(price+5)+'€';
 }
 
 async function doSubmit(){
