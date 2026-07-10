@@ -1,5 +1,5 @@
 /**
- * routes/chatbot.js — AI chat integration (OpenAI GPT-4o-mini)
+ * routes/chatbot.js — AI chat integration (Gemini + fallback OpenAI)
  * Owns: /api/chat, /api/ia/chat (free conversation), /api/student/oustaz/chat (voice tutor)
  */
 'use strict';
@@ -7,6 +7,11 @@
 module.exports = function (pool, opts) {
   const router = require('express').Router();
   const OpenAI = require('openai');
+
+  // Support both GEMINI_API_KEY and GOOGLE_GEMINI_API_KEY
+  function getGeminiKey() {
+    return process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
+  }
 
   function getClient() {
     if (!process.env.OPENAI_API_KEY) return null;
@@ -147,7 +152,7 @@ TON STYLE :
       messages.push({ role: 'user', content: String(message).slice(0, 1000) });
 
       let reply = '';
-      const GEMINI_KEY = process.env.GEMINI_API_KEY;
+      const GEMINI_KEY = getGeminiKey();
       if (GEMINI_KEY) {
         // ── Gemini (gratuit) ──
         const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
@@ -188,10 +193,10 @@ TON STYLE :
       res.json({ response: reply });
     } catch (err) {
       console.error('[oustaz/chat]', err.status || '', err.message);
-      const noKey = !process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY;
+      const noKey = !process.env.OPENAI_API_KEY && !getGeminiKey();
       const detail = err && (err.status || err.code) ? `${err.status||''} ${err.code||''} ${err.message||''}`.trim() : (err.message || 'inconnue');
       res.status(500).json({
-        error: noKey ? "Clé IA manquante : ajoute GEMINI_API_KEY dans Render → Environment." : 'Erreur IA, réessaie.',
+        error: noKey ? "Clé IA manquante : ajoute GEMINI_API_KEY ou GOOGLE_GEMINI_API_KEY dans Render → Environment." : 'Erreur IA, réessaie.',
         detail
       });
     }
@@ -204,12 +209,14 @@ TON STYLE :
       if (!text) return res.status(400).json({ error: 'Texte requis' });
 
       // 1) Essai Gemini TTS d'abord (meilleure qualité arabe)
-      const GEMINI_KEY = process.env.GEMINI_API_KEY;
+      const GEMINI_KEY = getGeminiKey();
       if (GEMINI_KEY) {
         try {
-          console.log('[tts gemini] gender:', gender, 'isFem:', isFem, 'voice:', voiceName);
+          // FIX: déclarer les variables AVANT le console.log
           const isFem = String(gender || '').toLowerCase() === 'femme';
           const voiceName = isFem ? 'Sulafat' : 'Charon';
+          console.log('[tts gemini] gender:', gender, 'isFem:', isFem, 'voice:', voiceName);
+          
           const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=' + GEMINI_KEY, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
