@@ -369,7 +369,7 @@ app.get('/:a/:b', (req, res, next) => {
   const knownPages = [
     'nos-cours', 'tarifs', 'qui-sommes-nous', 'reglement',
     'inscription', 'espace-eleve', 'espace-professeur',
-    'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test',
+    'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test', 'kalam-live',
   ];
   if (knownPages.includes(page)) return res.redirect('/' + page);
   next();
@@ -378,7 +378,7 @@ app.get('/:a/:b', (req, res, next) => {
 const htmlPages = [
   'nos-cours', 'tarifs', 'qui-sommes-nous', 'reglement',
   'inscription', 'espace-eleve', 'espace-professeur',
-  'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test',
+  'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test', 'kalam-live',
   'blog', 'blog-apprendre-arabe-immersion', 'blog-choisir-professeur-coran',
 ];
 
@@ -414,7 +414,17 @@ app.use((err, req, res, next) => {
 });
 
 // ─── START ───────────────────────────────────────────────────
-app.listen(PORT, () => {
+const http = require('http');
+const httpServer = http.createServer(app);
+
+// Proxy WebSocket temps réel pour Kalam (Gemini Live) — voix en streaming
+try {
+  require('./kalam-live-ws')(httpServer, pool, opts);
+} catch (e) {
+  console.error('[kalam-live] non chargé:', e.message);
+}
+
+httpServer.listen(PORT, () => {
   console.log(`\n🕌 MedinImmersion démarré sur le port ${PORT}`);
   console.log(`   URL: http://localhost:${PORT}`);
   console.log(`   ENV: ${process.env.NODE_ENV || 'development'}`);
