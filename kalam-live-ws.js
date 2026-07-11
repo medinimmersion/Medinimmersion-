@@ -11,19 +11,43 @@ function getGeminiKey() {
   return process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
 }
 
-// On essaie plusieurs modèles/versions d'API Live jusqu'à en trouver un qui marche
-// avec la clé (les noms/accès varient selon les comptes). Surchargable via env.
-const ATTEMPTS = process.env.GEMINI_LIVE_MODEL
-  ? [{ ver: 'v1beta', model: process.env.GEMINI_LIVE_MODEL }]
+// Modèles de secours si la découverte automatique échoue. Surchargable via env.
+const FALLBACK_MODELS = process.env.GEMINI_LIVE_MODEL
+  ? [process.env.GEMINI_LIVE_MODEL]
   : [
-      { ver: 'v1beta', model: 'models/gemini-2.0-flash-live-001' },
-      { ver: 'v1beta', model: 'models/gemini-live-2.5-flash-preview' },
-      { ver: 'v1alpha', model: 'models/gemini-2.0-flash-live-001' },
-      { ver: 'v1alpha', model: 'models/gemini-live-2.5-flash-preview' },
-      { ver: 'v1beta', model: 'models/gemini-2.5-flash-preview-native-audio-dialog' },
+      'models/gemini-2.0-flash-exp',
+      'models/gemini-2.0-flash-live-001',
+      'models/gemini-live-2.5-flash-preview',
+      'models/gemini-2.5-flash-preview-native-audio-dialog',
     ];
 function wsUrl(ver, key) {
   return `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.${ver}.GenerativeService.BidiGenerateContent?key=${key}`;
+}
+
+// Demande à Google la liste des modèles qui supportent le temps réel (bidiGenerateContent).
+async function discoverLiveModels(key) {
+  const found = [];
+  for (const ver of ['v1beta', 'v1alpha']) {
+    try {
+      const r = await fetch(`https://generativelanguage.googleapis.com/${ver}/models?key=${key}&pageSize=1000`);
+      const d = await r.json();
+      (d.models || []).forEach(m => {
+        const methods = m.supportedGenerationMethods || m.supported_generation_methods || [];
+        if (methods.some(x => /bidi/i.test(x))) found.push(m.name);
+      });
+      if (found.length) return { ver, models: [...new Set(found)] };
+    } catch (e) { console.error('[kalam-live] discover ' + ver + ':', e.message); }
+  }
+  return { ver: 'v1beta', models: [] };
+}
+
+// Construit la liste d'essais (modèles découverts d'abord, puis secours), sur les deux versions.
+function buildAttempts(discovered) {
+  const attempts = [];
+  const push = (ver, model) => { if (!attempts.some(a => a.ver === ver && a.model === model)) attempts.push({ ver, model }); };
+  if (discovered.models.length) discovered.models.forEach(m => push(discovered.ver, m));
+  FALLBACK_MODELS.forEach(m => { push('v1beta', m); push('v1alpha', m); });
+  return attempts;
 }
 
 function buildSystemPrompt({ lang, level, gender, studentName, studentContext }) {
@@ -101,6 +125,11 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
       }
     });
 
+    // Découvre les modèles temps réel réellement dispo pour cette clé, puis construit la liste d'essais
+    const discovered = await discoverLiveModels(KEY);
+    const ATTEMPTS = buildAttempts(discovered);
+    console.log('[kalam-live] modèles découverts:', discovered.models.join(', ') || '(aucun)', '| essais:', ATTEMPTS.length);
+
     let upstream = null;      // upstream courant
     let setupOk = false;      // un modèle a réussi
     let idx = 0;              // index de tentative
@@ -110,7 +139,8 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
     function tryNext() {
       if (setupOk) return;
       if (idx >= ATTEMPTS.length) {
-        try { client.send(JSON.stringify({ error: 'Aucun modèle Gemini Live accessible avec cette clé. Détails: ' + failReasons.join(' | ') })); } catch {}
+        const disc = discovered.models.length ? 'Dispo: ' + discovered.models.join(', ') + '. ' : 'Aucun modèle temps réel trouvé pour cette clé. ';
+        try { client.send(JSON.stringify({ error: disc + 'Refus: ' + failReasons.join(' | ') })); } catch {}
         try { client.close(); } catch {}
         return;
       }
@@ -158,5 +188,5 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
     client.on('error', () => { try { upstream && upstream.close(); } catch {} });
   });
 
-  console.log('[kalam-live] Proxy WebSocket Gemini Live actif sur /ws/kalam (' + ATTEMPTS.length + ' modèle(s) à essayer)');
+  console.log('[kalam-live] Proxy WebSocket Gemini Live actif sur /ws/kalam (découverte auto + ' + FALLBACK_MODELS.length + ' secours)');
 };
