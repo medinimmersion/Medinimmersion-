@@ -11,9 +11,20 @@ function getGeminiKey() {
   return process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
 }
 
-// Modèle Live (audio bidirectionnel temps réel). Surchargable via env.
-const LIVE_MODEL = process.env.GEMINI_LIVE_MODEL || 'models/gemini-2.0-flash-live-001';
-const GEMINI_WS = 'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent';
+// On essaie plusieurs modèles/versions d'API Live jusqu'à en trouver un qui marche
+// avec la clé (les noms/accès varient selon les comptes). Surchargable via env.
+const ATTEMPTS = process.env.GEMINI_LIVE_MODEL
+  ? [{ ver: 'v1beta', model: process.env.GEMINI_LIVE_MODEL }]
+  : [
+      { ver: 'v1beta', model: 'models/gemini-2.0-flash-live-001' },
+      { ver: 'v1beta', model: 'models/gemini-live-2.5-flash-preview' },
+      { ver: 'v1alpha', model: 'models/gemini-2.0-flash-live-001' },
+      { ver: 'v1alpha', model: 'models/gemini-live-2.5-flash-preview' },
+      { ver: 'v1beta', model: 'models/gemini-2.5-flash-preview-native-audio-dialog' },
+    ];
+function wsUrl(ver, key) {
+  return `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.${ver}.GenerativeService.BidiGenerateContent?key=${key}`;
+}
 
 function buildSystemPrompt({ lang, level, gender, studentName, studentContext }) {
   const langName = lang === 'ar' ? 'arabe' : lang === 'en' ? 'anglais' : 'français';
@@ -83,60 +94,69 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
 
     const systemText = buildSystemPrompt({ lang, level, gender, studentName, studentContext });
 
-    // Connexion montante vers Gemini Live
-    const upstream = new WebSocket(`${GEMINI_WS}?key=${KEY}`);
-    let upstreamOpen = false;
-    let setupOk = false;
-    const queue = [];
+    const setupMsg = JSON.stringify({
+      setup: {
+        generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } } },
+        systemInstruction: { parts: [{ text: systemText }] }
+      }
+    });
 
-    upstream.on('open', () => {
-      upstreamOpen = true;
-      upstream.send(JSON.stringify({
-        setup: {
-          model: LIVE_MODEL,
-          generationConfig: {
-            responseModalities: ['AUDIO'],
-            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
-          },
-          systemInstruction: { parts: [{ text: systemText }] }
+    let upstream = null;      // upstream courant
+    let setupOk = false;      // un modèle a réussi
+    let idx = 0;              // index de tentative
+    const queue = [];         // messages navigateur en attente
+    const failReasons = [];
+
+    function tryNext() {
+      if (setupOk) return;
+      if (idx >= ATTEMPTS.length) {
+        try { client.send(JSON.stringify({ error: 'Aucun modèle Gemini Live accessible avec cette clé. Détails: ' + failReasons.join(' | ') })); } catch {}
+        try { client.close(); } catch {}
+        return;
+      }
+      const { ver, model } = ATTEMPTS[idx++];
+      const up = new WebSocket(wsUrl(ver, KEY));
+      upstream = up;
+      let thisOk = false;
+
+      up.on('open', () => {
+        // injecte le modèle dans le setup pour cette tentative
+        const m = JSON.parse(setupMsg); m.setup.model = model;
+        up.send(JSON.stringify(m));
+      });
+      up.on('message', (data) => {
+        const txt = typeof data === 'string' ? data : data.toString();
+        if (!thisOk) {
+          if (txt.indexOf('setupComplete') === -1) return; // essai en cours de validation : on ne transmet rien encore
+          thisOk = true; setupOk = true;
+          console.log('[kalam-live] ✓ modèle actif:', ver, model);
+          while (queue.length) { try { up.send(queue.shift()); } catch {} }
         }
-      }));
-      // vide la file d'attente des messages client reçus avant l'ouverture
-      while (queue.length) upstream.send(queue.shift());
-    });
+        if (client.readyState === WebSocket.OPEN) { try { client.send(txt); } catch {} }
+      });
+      up.on('close', (code, reason) => {
+        const r = reason ? reason.toString() : '';
+        if (!thisOk && !setupOk) {
+          failReasons.push(`${model}(${code}${r ? ':' + r.slice(0, 80) : ''})`);
+          console.log('[kalam-live] ✗', ver, model, 'code', code, r);
+          setTimeout(tryNext, 120); // essai suivant
+        } else if (thisOk) {
+          try { client.close(); } catch {}
+        }
+      });
+      up.on('error', (e) => { console.log('[kalam-live] err', ver, model, e.message); /* close suivra */ });
+    }
+    tryNext();
 
-    // Gemini → navigateur
-    upstream.on('message', (data) => {
-      const txt = typeof data === 'string' ? data : data.toString();
-      if (!setupOk && txt.indexOf('setupComplete') !== -1) { setupOk = true; console.log('[kalam-live] setupComplete reçu (modèle ' + LIVE_MODEL + ')'); }
-      if (client.readyState === WebSocket.OPEN) {
-        try { client.send(txt); } catch {}
-      }
-    });
-    upstream.on('close', (code, reason) => {
-      const r = reason ? reason.toString() : '';
-      console.log('[kalam-live] Gemini fermé — code', code, 'raison:', r, '(modèle', LIVE_MODEL + ')');
-      // Si fermé AVANT le setupComplete, c'est un refus (clé/modèle/accès) : on remonte le détail.
-      if (!setupOk) {
-        try { client.send(JSON.stringify({ error: `Gemini a fermé (code ${code}${r ? ' — ' + r : ''}). Modèle: ${LIVE_MODEL}` })); } catch {}
-      }
-      try { client.close(); } catch {}
-    });
-    upstream.on('error', (e) => {
-      console.error('[kalam-live] upstream error:', e.message, '(modèle', LIVE_MODEL + ')');
-      try { client.send(JSON.stringify({ error: 'Gemini Live error: ' + e.message + ' (modèle ' + LIVE_MODEL + ')' })); } catch {}
-      try { client.close(); } catch {}
-    });
-
-    // navigateur → Gemini
+    // navigateur → Gemini (bufferise tant qu'aucun modèle n'a réussi)
     client.on('message', (data) => {
       const msg = typeof data === 'string' ? data : data.toString();
-      if (upstreamOpen && upstream.readyState === WebSocket.OPEN) upstream.send(msg);
+      if (setupOk && upstream && upstream.readyState === WebSocket.OPEN) upstream.send(msg);
       else queue.push(msg);
     });
-    client.on('close', () => { try { upstream.close(); } catch {} });
-    client.on('error', () => { try { upstream.close(); } catch {} });
+    client.on('close', () => { try { upstream && upstream.close(); } catch {} });
+    client.on('error', () => { try { upstream && upstream.close(); } catch {} });
   });
 
-  console.log('[kalam-live] Proxy WebSocket Gemini Live actif sur /ws/kalam (modèle ' + LIVE_MODEL + ')');
+  console.log('[kalam-live] Proxy WebSocket Gemini Live actif sur /ws/kalam (' + ATTEMPTS.length + ' modèle(s) à essayer)');
 };
