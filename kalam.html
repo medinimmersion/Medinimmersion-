@@ -200,6 +200,8 @@ let history=[];
 let autoMode=true;
 let recognition=null, recActive=false, manualStop=false, lastInterim='';
 let recSession=0;
+let finalBuffer='', silenceTimer=null;
+const SILENCE_MS=1400; // temps de pause avant que Kalam considère que tu as fini de parler
 let currentAudio=null;
 let secondsLeft=180, totalSeconds=180, unlimited=false, tickInt=null, started=false, consumeBuffer=0;
 
@@ -351,39 +353,61 @@ async function ensureMic(){
 
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 function langCode(){ return lang==='ar'?'ar-SA':lang==='en'?'en-US':'fr-FR'; }
+// Envoie ce que l'élève a dit, une fois qu'il a vraiment fini (après une pause).
+function commitTurn(session){
+  if(session!==recSession) return;
+  clearTimeout(silenceTimer); silenceTimer=null;
+  const t=(finalBuffer+' '+lastInterim).trim();
+  finalBuffer=''; lastInterim='';
+  recSession++; // clôt cette session d'écoute
+  try{ recognition&&recognition.abort(); }catch{}
+  recActive=false;
+  if(t){ clearInterim(); userSaid(t); }
+  else if(autoMode && !manualStop && secondsLeft>0){ setTimeout(()=>startListening(),150); }
+  else { if(document.body.className==='listening') setBodyState(''); }
+}
 function startListening(){
   if(!SR){ addMsg('hint','Ton navigateur ne supporte pas la reconnaissance vocale. Utilise Chrome.'); return; }
   if(secondsLeft<=0){ endOfQuota(); return; }
   manualStop=false;
+  clearTimeout(silenceTimer); silenceTimer=null;
+  finalBuffer=''; lastInterim='';
   const mySession=++recSession;
   recognition=new SR();
   recognition.lang=langCode();
   recognition.interimResults=true;
-  recognition.continuous=false;
+  recognition.continuous=true; // on gère nous-mêmes la fin de tour (pause) pour ne pas te couper
   recognition.maxAlternatives=1;
 
   recognition.onstart=()=>{ if(mySession!==recSession) return; recActive=true; setBodyState('listening'); setStatus(lang==='ar'?'استمع إليك…':'Je t\'écoute…','listening'); startTick(); if(!started){started=true;} };
   recognition.onresult=(ev)=>{
     if(mySession!==recSession) return; // micro déjà coupé (ex: Kalam a commencé à parler) — on ignore
-    let interim='', final='';
+    let interim='';
     for(let i=ev.resultIndex;i<ev.results.length;i++){
       const t=ev.results[i][0].transcript;
-      if(ev.results[i].isFinal) final+=t; else interim+=t;
+      if(ev.results[i].isFinal) finalBuffer+=t+' '; else interim+=t;
     }
-    if(interim){ showInterim(interim); lastInterim=interim; }
-    if(final){ clearInterim(); lastInterim=''; recSession++; userSaid(final.trim()); }
+    lastInterim=interim;
+    const shown=(finalBuffer+' '+interim).trim();
+    if(shown) showInterim(shown);
+    // On attend une vraie pause avant d'envoyer : reset du minuteur à chaque parole.
+    clearTimeout(silenceTimer);
+    silenceTimer=setTimeout(()=>commitTurn(mySession),SILENCE_MS);
   };
   recognition.onerror=(ev)=>{
     if(mySession!==recSession) return;
     recActive=false;
     if(ev.error==='no-speech'){ if(autoMode&&!manualStop&&secondsLeft>0){ try{recognition.abort();}catch{} setTimeout(()=>startListening(),250); } else { setBodyState(''); setStatus('Je n\'ai rien entendu — touche l\'orbe'); } return; }
     if(ev.error==='not-allowed'){ setBodyState(''); setStatus('Micro non autorisé'); addMsg('hint','Autorise le micro pour parler avec Kalam.'); return; }
+    if(ev.error==='aborted') return; // arrêt volontaire, rien à signaler
     setBodyState(''); setStatus('Petit souci de micro — touche l\'orbe pour réessayer');
   };
   recognition.onend=()=>{
     if(mySession!==recSession) return; // évite qu'un micro pas encore coupé ne capte la voix de Kalam
     recActive=false;
-    if(lastInterim && lastInterim.trim()){ const t=lastInterim.trim(); lastInterim=''; clearInterim(); recSession++; userSaid(t); return; }
+    // Si du texte est en attente, on l'envoie ; sinon on relance l'écoute en mode continu.
+    if((finalBuffer+lastInterim).trim()){ commitTurn(mySession); return; }
+    if(autoMode && !manualStop && secondsLeft>0){ setTimeout(()=>startListening(),200); return; }
     if(document.body.className==='listening') setBodyState('');
   };
   try{ recognition.start(); }catch{}
@@ -391,6 +415,8 @@ function startListening(){
 function stopListening(silent){
   manualStop=true;
   recSession++; // invalide immédiatement tout résultat tardif de l'ancienne écoute
+  clearTimeout(silenceTimer); silenceTimer=null;
+  finalBuffer=''; lastInterim='';
   try{ recognition&&recognition.abort(); }catch{}
   recActive=false; stopTick();
   if(!silent) setBodyState('');
@@ -429,7 +455,7 @@ async function fetchWithTimeout(url,opts,ms){
 }
 
 async function speak(text){
-  setBodyState('speaking'); setStatus(lang==='ar'?PERSONA().ar+' يتكلم…':PERSONA().short+' parle…','speaking');
+  setBodyState('speaking'); setStatus(lang==='ar'?PERSONA().ar+' يتكلم… (المس للقطع)':PERSONA().short+' parle… (touche l\'orbe pour le couper)','speaking');
   stopTick();
   const done=()=>{
     setBodyState('');

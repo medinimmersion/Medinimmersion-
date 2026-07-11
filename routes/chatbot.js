@@ -161,6 +161,18 @@ Règles:
     } catch (err) { console.error('[ia/chat]', err.message); res.status(500).json({ error: 'Erreur IA' }); }
   });
 
+  // Identifie l'élève à partir du token Bearer, SANS bloquer si absent/expiré
+  // (Kalam doit rester utilisable même sans session valide).
+  function optionalStudentId(req) {
+    try {
+      const auth = req.headers.authorization || '';
+      if (!auth.startsWith('Bearer ')) return null;
+      const entry = opts.studentTokens && opts.studentTokens.get(auth.slice(7));
+      if (!entry || Date.now() > entry.expires) return null;
+      return entry.id;
+    } catch { return null; }
+  }
+
   // POST /api/student/oustaz/chat — tuteur vocal conversationnel (Kalam)
   router.post('/api/student/oustaz/chat', async (req, res) => {
     try {
@@ -172,6 +184,31 @@ Règles:
         : level === 'intermediaire' ? 'intermédiaire — phrases complètes mais simples'
         : 'débutant — mots simples, phrases très courtes, beaucoup de répétition';
 
+      // ── Contexte réel de l'élève : niveau du programme, page en cours, notes du prof, livre ──
+      let studentContext = '';
+      const studentId = optionalStudentId(req);
+      if (studentId) {
+        try {
+          const pr = await pool.query(
+            'SELECT niveau, current_page, notes FROM student_progression WHERE student_id = $1',
+            [studentId]);
+          if (pr.rows.length) {
+            const { niveau, current_page, notes } = pr.rows[0];
+            const bk = await pool.query(
+              "SELECT name, file_url FROM library_books WHERE name = $1 AND statut = 'approuve' LIMIT 1",
+              [`Niveau ${niveau}`]);
+            const bookName = bk.rows[0]?.name || `Niveau ${niveau}`;
+            studentContext = `
+
+CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel — ne le récite jamais mot pour mot, sers-t'en pour t'adapter) :
+- Niveau réel dans le programme Médine : Niveau ${niveau} (manuel « ${bookName} »), page en cours : ${current_page || 1}.
+- Adapte STRICTEMENT ton vocabulaire et tes thèmes à ce niveau ${niveau} du programme (pas au-dessus).
+${notes ? `- Remarque du professeur sur cet élève : « ${String(notes).slice(0, 300)} ». Tiens-en compte avec bienveillance.` : ''}
+- Tu peux proposer de réviser ou pratiquer ce qui correspond à ce niveau et à cette page, et poser des questions dans ce thème.`;
+          }
+        } catch (e) { console.error('[oustaz/chat] contexte élève:', e.message); }
+      }
+
       const systemPrompt = `Tu es Oustaz Kalam, professeur d'arabe chaleureux de l'école Médin'Immersion. Tu parles à l'oral avec un élève (conversation vocale en temps réel).
 
 RÈGLES ABSOLUES (voix) :
@@ -179,7 +216,7 @@ RÈGLES ABSOLUES (voix) :
 - JAMAIS d'emoji, JAMAIS de markdown, JAMAIS de listes, JAMAIS d'astérisques. Uniquement du texte parlé naturel.
 - **RÉPONDS UNIQUEMENT EN ${langName}. NE MÉLANGE JAMAIS LES LANGUES.** Si l'élève est débutant, utilise des mots simples dans la même langue.
 - Niveau de l'élève : ${levelTxt}.
-- **TU ES UN HOMME. Parle de toi au masculin (je suis, c'est moi, baraka Allahou fik, etc).** 
+- **TU ES UN HOMME. Parle de toi au masculin (je suis, c'est moi, baraka Allahou fik, etc).**
 ${student_name ? `- L'élève s'appelle ${student_name}. Utilise son prénom de temps en temps.` : ''}
 
 TON STYLE :
@@ -188,7 +225,7 @@ TON STYLE :
 - Si l'élève réussit, félicite brièvement ("ahsant !", "mumtaz !") sans en faire trop.
 - Pose UNE question simple à la fin de la plupart de tes réponses pour faire parler l'élève.
 - Adapte-toi aux sujets de l'élève : vie quotidienne, famille, Coran, voyage, nourriture... Reste naturel.
-- Connaissances : langue arabe (fusha), bases de tajwid, culture de Médine, vocabulaire coranique. Si on te demande autre chose, ramène gentiment vers la pratique de l'arabe.`;
+- Connaissances : langue arabe (fusha), bases de tajwid, culture de Médine, vocabulaire coranique. Si on te demande autre chose, ramène gentiment vers la pratique de l'arabe.${studentContext}`;
 
       const messages = [{ role: 'system', content: systemPrompt }];
       if (Array.isArray(history)) {
