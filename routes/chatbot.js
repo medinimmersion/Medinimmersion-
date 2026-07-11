@@ -35,6 +35,18 @@ module.exports = function (pool, opts) {
     });
   }
 
+  // Évite qu'un modèle Gemini lent/en panne ne bloque toute la conversation :
+  // on abandonne après `ms` et on bascule vers le prochain fallback.
+  async function fetchWithTimeout(url, options, ms) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   // POST /api/chatbot — general AI chatbot (floating widget on homepage)
   router.post('/api/chatbot', async (req, res) => {
     try {
@@ -164,32 +176,38 @@ TON STYLE :
 
       let reply = '';
       const GEMINI_KEY = getGeminiKey();
+      let geminiErr = null;
       if (GEMINI_KEY) {
-        // ── Gemini ──
-        const geminiModel = getGeminiModel();
-        const contents = [];
-        if (Array.isArray(history)) {
-          history.slice(-12).forEach(m => {
-            if (m && m.role && m.content) contents.push({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(m.content).slice(0, 1000) }] });
-          });
+        // ── Gemini (avec timeout : on ne reste jamais bloqué dessus) ──
+        try {
+          const geminiModel = getGeminiModel();
+          const contents = [];
+          if (Array.isArray(history)) {
+            history.slice(-12).forEach(m => {
+              if (m && m.role && m.content) contents.push({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(m.content).slice(0, 1000) }] });
+            });
+          }
+          contents.push({ role: 'user', parts: [{ text: String(message).slice(0, 1000) }] });
+          const gr = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${GEMINI_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents,
+              generationConfig: { maxOutputTokens: 220, temperature: 0.8 }
+            })
+          }, 12000);
+          const gd = await gr.json();
+          if (!gr.ok) { const e = new Error(gd.error?.message || 'Gemini error'); e.status = gr.status; throw e; }
+          reply = gd.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        } catch (e) {
+          geminiErr = e;
         }
-        contents.push({ role: 'user', parts: [{ text: String(message).slice(0, 1000) }] });
-        const gr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${GEMINI_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            contents,
-            generationConfig: { maxOutputTokens: 220, temperature: 0.8 }
-          })
-        });
-        const gd = await gr.json();
-        if (!gr.ok) { const e = new Error(gd.error?.message || 'Gemini error'); e.status = gr.status; throw e; }
-        reply = gd.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      } else {
-        // ── OpenAI (fallback si pas de clé Gemini) ──
+      }
+      if (!reply) {
+        // ── OpenAI (si pas de clé Gemini, ou si Gemini a échoué/expiré) ──
         const client = getClient();
-        if (!client) throw new Error('Aucune clé IA disponible (pas de GEMINI_API_KEY ni OPENAI_API_KEY)');
+        if (!client) throw geminiErr || new Error('Aucune clé IA disponible (pas de GEMINI_API_KEY ni OPENAI_API_KEY)');
         const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
         const resp = await client.chat.completions.create({ model, messages, max_tokens: 220, temperature: 0.8 });
         reply = resp.choices[0].message.content || '';
@@ -261,7 +279,7 @@ TON STYLE :
         let lastErr = '';
         for (const ttsModel of GEMINI_TTS_MODELS) {
           try {
-            const gr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${GEMINI_KEY}`, {
+            const gr = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${GEMINI_KEY}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -271,7 +289,7 @@ TON STYLE :
                   speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
                 }
               })
-            });
+            }, 9000);
             const gd = await gr.json();
             if (gr.ok && gd.candidates?.[0]?.content?.parts) {
               const part = gd.candidates[0].content.parts.find(p => p.inlineData);
