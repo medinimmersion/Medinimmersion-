@@ -100,7 +100,20 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 .modal{background:var(--white);border-radius:20px;padding:2rem;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;}
 .modal h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--green-deep);margin-bottom:1.25rem;}
 .modal-close{float:right;background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--text-muted);}
-@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.dash-body{padding:1rem}.topbar{padding:0.75rem 1rem}.dash-nav{padding:0 0.5rem}.dash-tab{padding:0.8rem 0.7rem;font-size:0.78rem}.student-row{flex-wrap:wrap}.s-hours{margin-left:0}}
+/* ── Hero card (design harmonisé avec l'espace élève) ── */
+.hero-card{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--green) 0%,var(--green-deep) 100%);border-radius:26px;padding:2rem 2.1rem;color:var(--white);margin-bottom:1.25rem;box-shadow:0 16px 44px rgba(15,61,38,0.25);}
+.hero-glow{position:absolute;top:-80px;right:-50px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,0.20),transparent 68%);pointer-events:none;}
+.hero-label{position:relative;color:var(--gold-light);font-size:0.72rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.85rem;}
+.hero-title{position:relative;font-family:'Cormorant Garamond',serif;font-size:clamp(2.1rem,6vw,3rem);font-weight:700;line-height:1.05;margin-bottom:0.5rem;color:var(--white);}
+.hero-sub{position:relative;color:rgba(255,255,255,0.72);font-size:0.95rem;line-height:1.5;max-width:440px;margin-bottom:1.6rem;}
+.hero-stats{position:relative;display:flex;gap:2.4rem;margin-bottom:0;flex-wrap:wrap;}
+.hstat-val{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--gold-light);line-height:1;}
+.hstat-lbl{color:rgba(255,255,255,0.6);font-size:0.85rem;margin-top:0.25rem;}
+.hero-card.compact{padding:1.5rem 1.75rem;margin-bottom:1.5rem;}
+.hero-card.compact .hero-label{margin-bottom:0.5rem;}
+.hero-card.compact .hero-title{font-size:clamp(1.7rem,5vw,2.2rem);margin-bottom:0.25rem;}
+.hero-card.compact .hero-sub{margin-bottom:0;}
+@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.dash-body{padding:1rem}.topbar{padding:0.75rem 1rem}.dash-nav{padding:0 0.5rem}.dash-tab{padding:0.8rem 0.7rem;font-size:0.78rem}.student-row{flex-wrap:wrap}.s-hours{margin-left:0}.hero-card{padding:1.6rem 1.5rem}.hero-stats{gap:1.6rem}}
 </style></head><body>
 
 <!-- LOADING -->
@@ -149,15 +162,17 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 
     <!-- ACCUEIL -->
     <div class="dash-panel active" id="panel-accueil">
-      <div style="margin-bottom:1.5rem;">
-        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);">Tableau de bord</h2>
-        <p style="color:var(--text-muted);font-size:0.85rem;" id="dashDate">–</p>
-      </div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="sc-icon">👨‍🎓</div><div class="sc-val" id="statEleves">–</div><div class="sc-label">Élèves actifs</div></div>
-        <div class="stat-card"><div class="sc-icon">📅</div><div class="sc-val" id="statSessions">–</div><div class="sc-label">Sessions ce mois</div></div>
-        <div class="stat-card"><div class="sc-icon">⏱️</div><div class="sc-val" id="statHeures">–</div><div class="sc-label">Heures ce mois</div></div>
-        <div class="stat-card"><div class="sc-icon">📅</div><div class="sc-val" id="statProchain">–</div><div class="sc-label">Prochain cours</div></div>
+      <div class="hero-card">
+        <div class="hero-glow"></div>
+        <div class="hero-label">Tableau de bord professeur</div>
+        <h2 class="hero-title">Mon activité</h2>
+        <p class="hero-sub" id="dashDate">–</p>
+        <div class="hero-stats">
+          <div class="hstat"><div class="hstat-val" id="statEleves">–</div><div class="hstat-lbl">Élèves actifs</div></div>
+          <div class="hstat"><div class="hstat-val" id="statSessions">–</div><div class="hstat-lbl">Sessions ce mois</div></div>
+          <div class="hstat"><div class="hstat-val" id="statHeures">–</div><div class="hstat-lbl">Heures ce mois</div></div>
+          <div class="hstat"><div class="hstat-val" id="statProchain" style="font-size:1.5rem;">–</div><div class="hstat-lbl">Prochain cours</div></div>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
         <div>
@@ -173,7 +188,7 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 
     <!-- ÉLÈVES -->
     <div class="dash-panel" id="panel-eleves">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mes élèves</h2>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace professeur</div><h2 class="hero-title">Mes élèves</h2><p class="hero-sub">Suis, contacte et accompagne tes élèves.</p></div>
       <div class="search-bar">
         <input type="text" id="searchStudents" placeholder="🔍 Rechercher un élève..." oninput="filterStudents()">
       </div>
@@ -186,32 +201,31 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 
     <!-- SESSIONS -->
     <div class="dash-panel" id="panel-sessions">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mes sessions</h2>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace professeur</div><h2 class="hero-title">Mes sessions</h2><p class="hero-sub">Tes cours passés et à venir.</p></div>
       <div id="allSessionsList"></div>
     </div>
 
     <!-- PLANNING -->
     <div class="dash-panel" id="panel-planning">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mon planning</h2>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace professeur</div><h2 class="hero-title">Mon planning</h2><p class="hero-sub">Ton emploi du temps de la semaine.</p></div>
       <div id="planningList"></div>
     </div>
 
     <!-- GROUPES -->
     <div class="dash-panel" id="panel-groupes">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mes groupes</h2>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace professeur</div><h2 class="hero-title">Mes groupes</h2><p class="hero-sub">Tes classes et cours collectifs.</p></div>
       <div id="groupesList"></div>
     </div>
 
     <!-- LIVRES -->
     <div class="dash-panel" id="panel-livres">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:0.5rem;">Bibliothèque</h2>
-      <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">Assigne des livres à tes élèves.</p>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace professeur</div><h2 class="hero-title">Bibliothèque</h2><p class="hero-sub">Assigne des livres et des PDF à tes élèves.</p></div>
       <div id="livresList"></div>
     </div>
 
     <!-- PROFIL -->
     <div class="dash-panel" id="panel-profil">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mon profil</h2>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace professeur</div><h2 class="hero-title">Mon profil</h2><p class="hero-sub">Tes informations et ton compte.</p></div>
       <div style="background:var(--white);border:1px solid var(--beige);border-radius:18px;padding:2rem;max-width:560px;">
         <div id="profilContent"></div>
         <hr style="border:none;border-top:1px solid var(--beige);margin:1.5rem 0;">

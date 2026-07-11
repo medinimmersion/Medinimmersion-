@@ -179,6 +179,10 @@ footer{background:var(--green-deep);color:var(--white);}
 .hero-bar{position:relative;height:11px;background:rgba(255,255,255,0.14);border-radius:50px;overflow:hidden;margin-bottom:1.2rem;}
 .hero-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:50px;transition:width 1.1s ease;}
 .hero-pill{position:relative;display:inline-block;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);font-weight:800;font-size:0.95rem;padding:0.6rem 1.5rem;border-radius:50px;}
+.hero-card.compact{padding:1.5rem 1.75rem;margin-bottom:1.5rem;}
+.hero-card.compact .hero-label{margin-bottom:0.5rem;}
+.hero-card.compact .hero-title{font-size:clamp(1.7rem,5vw,2.2rem);margin-bottom:0.25rem;}
+.hero-card.compact .hero-sub{margin-bottom:0;}
 /* ── Aperçu tiles ── */
 .apercu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.9rem;margin-bottom:1.5rem;}
 .ap-tile{background:var(--white);border:1px solid var(--beige);border-radius:16px;padding:1.15rem 1.25rem;display:flex;flex-direction:column;justify-content:center;min-height:90px;min-width:0;}
@@ -299,7 +303,7 @@ footer{background:var(--green-deep);color:var(--white);}
 
     <!-- PLANNING -->
     <div class="dash-panel" id="panel-planning">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mon planning</h2>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace élève</div><h2 class="hero-title">Mon planning</h2><p class="hero-sub">Tous tes cours à venir et passés.</p></div>
       <div id="allSessions" class="planning-grid"></div>
     </div>
 
@@ -323,19 +327,19 @@ footer{background:var(--green-deep);color:var(--white);}
 
     <!-- BIBLIOTHÈQUE -->
     <div class="dash-panel" id="panel-bibliotheque">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Ma bibliothèque</h2>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace élève</div><h2 class="hero-title">Ma bibliothèque</h2><p class="hero-sub">Tes manuels et PDF, classés par niveau.</p></div>
       <div id="booksGrid" class="books-grid"></div>
     </div>
 
     <!-- MESSAGES -->
     <div class="dash-panel" id="panel-messages">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mes messages</h2>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace élève</div><h2 class="hero-title">Mes messages</h2><p class="hero-sub">Les échanges avec ton école et tes professeurs.</p></div>
       <div id="allMessages" class="msg-list"></div>
     </div>
 
     <!-- PROFIL -->
     <div class="dash-panel" id="panel-profil">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Mon profil</h2>
+      <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace élève</div><h2 class="hero-title">Mon profil</h2><p class="hero-sub">Tes informations personnelles et ton compte.</p></div>
       <div style="background:var(--white);border:1px solid var(--beige);border-radius:18px;padding:2rem;max-width:600px;">
         <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;">
           <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-mid));color:var(--white);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;" id="profilAvatar">?</div>
