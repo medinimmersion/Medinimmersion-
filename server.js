@@ -265,6 +265,7 @@ const routeFiles = [
   'teacher-permissions',
   'misc',
   'content-api',
+  'kalam-live-token',
 ];
 
 for (const name of routeFiles) {

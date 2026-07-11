@@ -288,41 +288,77 @@ function playChunk(i16){
 function stopPlayback(){ scheduled.forEach(s=>{try{s.stop();}catch{}}); scheduled=[]; if(outCtx) playHead=outCtx.currentTime; }
 
 // ── WebSocket / session ──
+let directSetup=null;    // setup à envoyer si connexion directe à Google
+let triedProxy=false;    // a-t-on déjà basculé sur le proxy ?
 async function start(){
   if(running) return;
   if(secondsLeft<=0){ endOfQuota(); return; }
+  triedProxy=false; directSetup=null;
   setStatus('Connexion…','thinking'); setBodyState('thinking'); dbg('Ouverture du micro…');
   // 1) micro
   try{
     micStream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   }catch(e){ setStatus('Micro refusé'); setBodyState(''); dbg('Autorise le micro pour parler.'); return; }
-  // 2) websocket
+  // 2) on tente la connexion DIRECTE à Google (rapide) ; sinon proxy serveur (secours)
+  const p=PERSONA();
+  const qs=new URLSearchParams({lang,level,gender:p.gender,name:student?.prenom||student?.kounia||''});
+  try{
+    const tr=await fetch('/api/kalam/live-token?'+qs,{headers:{'Authorization':'Bearer '+(token||'')}});
+    if(tr.ok){
+      const td=await tr.json();
+      if(td && td.ok && td.wsUrl && td.setup){ directSetup=td.setup; dbg('Connexion directe à Google…'); openWS(td.wsUrl); return; }
+    }
+    dbg('Jeton direct indisponible, passage par le serveur…');
+  }catch(e){ dbg('Jeton direct indisponible, passage par le serveur…'); }
+  connectProxy();
+}
+function connectProxy(){
+  triedProxy=true; directSetup=null;
   const proto=location.protocol==='https:'?'wss:':'ws:';
   const p=PERSONA();
   const qs=new URLSearchParams({lang,level,gender:p.gender,name:student?.prenom||student?.kounia||'',token:token||''});
-  ws=new WebSocket(`${proto}//${location.host}/ws/kalam?${qs}`);
+  dbg('Connexion via le serveur…');
+  openWS(`${proto}//${location.host}/ws/kalam?${qs}`);
+}
+function openWS(url){
+  try{ ws=new WebSocket(url); }catch(e){ dbg('WebSocket impossible: '+e.message); return; }
   clearTimeout(readyWatch);
   readyWatch=setTimeout(()=>{
     if(!running){
+      if(!triedProxy){ dbg('Direct trop lent, bascule sur le serveur…'); try{ws&&ws.close();}catch{} connectProxy(); return; }
       setStatus('Le serveur temps réel ne répond pas');
-      dbg('Pas de réponse de Gemini Live après 12s. Si le site vient d\'être mis à jour, attends 2-3 min (installation en cours) puis réessaie. Sinon le modèle Live n\'est peut-être pas accessible avec cette clé.');
+      dbg('Pas de réponse après 12s. Si le site vient d\'être mis à jour, attends 2-3 min puis réessaie.');
       try{ micStream&&micStream.getTracks().forEach(t=>t.stop()); }catch{}
       try{ ws&&ws.close(); }catch{}
       setBodyState('');
     }
   },12000);
-  ws.onopen=()=>{ dbg('Connecté au serveur. En attente de Gemini Live…'); };
-  ws.onerror=()=>{ dbg('Impossible de joindre le serveur temps réel (/ws/kalam). Le déploiement n\'est peut-être pas terminé.'); };
-  ws.onclose=()=>{ clearTimeout(readyWatch); if(!running){ setStatus('Connexion fermée avant le démarrage'); dbg('Le serveur a fermé la connexion. Souvent : redéploiement pas fini, ou modèle Gemini Live non accessible. Réessaie dans 2-3 min.'); setBodyState(''); } else { dbg('Connexion fermée.'); stop(); } };
+  ws.onopen=()=>{
+    if(directSetup){ try{ ws.send(JSON.stringify({setup:directSetup})); }catch{} dbg('Google connecté — configuration envoyée…'); }
+    else dbg('Serveur connecté. En attente de Gemini…');
+  };
+  ws.onerror=()=>{ dbg('Souci de connexion temps réel.'); };
+  ws.onclose=()=>{
+    clearTimeout(readyWatch);
+    if(running){ dbg('Connexion fermée.'); stop(); return; }
+    // Fermé avant le démarrage : si c'était le direct, on tente le proxy
+    if(!triedProxy){ dbg('Direct fermé, bascule sur le serveur…'); connectProxy(); return; }
+    setStatus('Connexion fermée avant le démarrage');
+    dbg('Le serveur a fermé la connexion. Réessaie dans 2-3 min.');
+    setBodyState('');
+  };
   ws.onmessage=async(ev)=>{
     let data=ev.data; if(data instanceof Blob) data=await data.text();
     let msg; try{ msg=JSON.parse(data); }catch{ return; }
-    if(msg.error){ clearTimeout(readyWatch); setStatus('Erreur temps réel'); dbg('Gemini Live : '+msg.error); return; }
+    if(msg.error){
+      clearTimeout(readyWatch);
+      if(!running && !triedProxy){ dbg('Direct refusé ('+msg.error+'), bascule sur le serveur…'); try{ws&&ws.close();}catch{} connectProxy(); return; }
+      setStatus('Erreur temps réel'); dbg('Gemini Live : '+msg.error); return;
+    }
     if(msg.setupComplete){ onReady(); return; }
     const sc=msg.serverContent;
     if(sc){
       if(sc.interrupted){ stopPlayback(); setBodyState('listening'); }
-      // Transcriptions : ce que dit l'élève / ce que dit Kalam → affichées dans le fil
       if(sc.inputTranscription && sc.inputTranscription.text){ appendTranscript('user', sc.inputTranscription.text); }
       if(sc.outputTranscription && sc.outputTranscription.text){ appendTranscript('ai', sc.outputTranscription.text); }
       const parts=(sc.modelTurn&&sc.modelTurn.parts)||[];

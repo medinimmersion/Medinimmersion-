@@ -206,3 +206,37 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
 
   console.log('[kalam-live] Proxy WebSocket Gemini Live actif sur /ws/kalam (découverte auto + ' + FALLBACK_MODELS.length + ' secours)');
 };
+
+// Crée un jeton éphémère pour que le NAVIGATEUR parle directement à Google (sans détour serveur).
+async function createEphemeralToken(key, apiVersion) {
+  const now = Date.now();
+  const body = {
+    uses: 1,
+    expireTime: new Date(now + 30 * 60 * 1000).toISOString(),
+    newSessionExpireTime: new Date(now + 2 * 60 * 1000).toISOString()
+  };
+  const r = await fetch(`https://generativelanguage.googleapis.com/${apiVersion}/auth_tokens?key=${key}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((d.error && d.error.message) || ('HTTP ' + r.status));
+  return d.name; // ex: "auth_tokens/xxxxx"
+}
+
+// Découvre un modèle Live pour une version d'API précise (v1alpha pour les jetons éphémères).
+async function discoverLiveModelsForVersion(key, apiVersion) {
+  try {
+    const r = await fetch(`https://generativelanguage.googleapis.com/${apiVersion}/models?key=${key}&pageSize=1000`);
+    const d = await r.json();
+    const models = (d.models || [])
+      .filter(m => (m.supportedGenerationMethods || m.supported_generation_methods || []).some(x => /bidi/i.test(x)))
+      .map(m => m.name);
+    return [...new Set(models)];
+  } catch { return []; }
+}
+
+module.exports.buildSystemPrompt = buildSystemPrompt;
+module.exports.discoverLiveModels = discoverLiveModels;
+module.exports.discoverLiveModelsForVersion = discoverLiveModelsForVersion;
+module.exports.createEphemeralToken = createEphemeralToken;
+module.exports.FALLBACK_MODELS = FALLBACK_MODELS;
