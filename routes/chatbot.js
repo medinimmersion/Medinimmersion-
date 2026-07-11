@@ -213,45 +213,84 @@ TON STYLE :
     }
   });
 
+  // GET /api/oustaz/tts-debug — diagnostic : teste chaque modèle TTS Gemini et rapporte le résultat (sans exposer la clé)
+  router.get('/api/oustaz/tts-debug', async (req, res) => {
+    const GEMINI_KEY = getGeminiKey();
+    if (!GEMINI_KEY) return res.json({ error: 'Pas de clé Gemini configurée' });
+    const results = [];
+    for (const ttsModel of GEMINI_TTS_MODELS) {
+      try {
+        const gr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${GEMINI_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Bonjour' }] }],
+            generationConfig: {
+              responseModalities: ['AUDIO'],
+              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Charon' } } }
+            }
+          })
+        });
+        const gd = await gr.json();
+        const hasAudio = !!(gd.candidates?.[0]?.content?.parts || []).find(p => p.inlineData);
+        results.push({ model: ttsModel, httpStatus: gr.status, ok: gr.ok && hasAudio, error: gr.ok ? null : (gd.error?.message || 'inconnu') });
+      } catch (e) {
+        results.push({ model: ttsModel, httpStatus: null, ok: false, error: e.message });
+      }
+    }
+    res.json({ results });
+  });
+
   // POST /api/oustaz/tts — voix naturelle
+  // Liste de modèles TTS Gemini à essayer dans l'ordre (le premier qui marche est utilisé)
+  const GEMINI_TTS_MODELS = [
+    'gemini-2.5-flash-preview-tts',
+    'gemini-2.5-flash-tts',
+    'gemini-2.5-pro-preview-tts',
+    'gemini-2.5-pro-tts'
+  ];
   router.post('/api/oustaz/tts', async (req, res) => {
     try {
       const { text, lang, gender } = req.body;
       if (!text) return res.status(400).json({ error: 'Texte requis' });
 
-      // 1) Essai Gemini TTS d'abord (meilleure qualité arabe)
+      // 1) Essai Gemini TTS d'abord (meilleure qualité arabe) — on essaie plusieurs modèles
       const GEMINI_KEY = getGeminiKey();
       if (GEMINI_KEY) {
-        try {
-          // FIX: déclarer les variables AVANT le console.log
-          const isFem = String(gender || '').toLowerCase() === 'femme';
-          const voiceName = isFem ? 'Sulafat' : 'Charon';
-          console.log('[tts gemini] gender:', gender, 'isFem:', isFem, 'voice:', voiceName);
-
-          const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=' + GEMINI_KEY, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: String(text).slice(0, 500) }] }],
-              generationConfig: {
-                responseModalities: ['AUDIO'],
-                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+        const isFem = String(gender || '').toLowerCase() === 'femme';
+        const voiceName = isFem ? 'Sulafat' : 'Charon';
+        let lastErr = '';
+        for (const ttsModel of GEMINI_TTS_MODELS) {
+          try {
+            const gr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${GEMINI_KEY}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: String(text).slice(0, 500) }] }],
+                generationConfig: {
+                  responseModalities: ['AUDIO'],
+                  speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+                }
+              })
+            });
+            const gd = await gr.json();
+            if (gr.ok && gd.candidates?.[0]?.content?.parts) {
+              const part = gd.candidates[0].content.parts.find(p => p.inlineData);
+              if (part) {
+                const wav = Buffer.from(part.inlineData.data, 'base64');
+                console.log('[tts gemini] OK avec modèle:', ttsModel, 'voice:', voiceName);
+                res.set({ 'Content-Type': 'audio/wav', 'Content-Length': wav.length, 'Cache-Control': 'no-store', 'X-TTS-Model': ttsModel });
+                return res.send(wav);
               }
-            })
-          });
-          const gd = await gr.json();
-          if (gr.ok && gd.candidates?.[0]?.content?.parts) {
-            const part = gd.candidates[0].content.parts.find(p => p.inlineData);
-            if (part) {
-              const wav = Buffer.from(part.inlineData.data, 'base64');
-              res.set({ 'Content-Type': 'audio/wav', 'Content-Length': wav.length, 'Cache-Control': 'no-store' });
-              return res.send(wav);
             }
+            lastErr = gd.error?.message || `HTTP ${gr.status}`;
+            console.log(`[tts gemini] échec modèle ${ttsModel}:`, lastErr);
+          } catch (e) {
+            lastErr = e.message;
+            console.log(`[tts gemini] erreur modèle ${ttsModel}:`, e.message);
           }
-          if (!gr.ok) console.log('[tts gemini] erreur API:', gd.error?.message || gr.status);
-        } catch (e) {
-          console.log('[tts gemini]', e.message);
         }
+        console.log('[tts gemini] tous les modèles ont échoué, dernier détail:', lastErr);
       }
 
       // 2) Fallback OpenAI (comme avant)
