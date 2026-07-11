@@ -327,11 +327,11 @@ TON STYLE :
   });
 
   // POST /api/oustaz/tts — voix naturelle
-  // Confirmé par test le 11/07/2026 : gemini-2.5-pro-preview-tts fonctionne (200 OK).
-  // Les autres échouent (400 ou 404) — on les garde en fallback au cas où Google change ça.
+  // 'flash' d'abord : nettement plus rapide (~2-3s vs ~6s pour 'pro'), qualité très proche.
+  // 'pro' en secours si 'flash' échoue (400/404 selon les jours côté Google).
   const GEMINI_TTS_MODELS = [
-    'gemini-2.5-pro-preview-tts',
-    'gemini-2.5-flash-preview-tts'
+    'gemini-2.5-flash-preview-tts',
+    'gemini-2.5-pro-preview-tts'
   ];
   router.post('/api/oustaz/tts', async (req, res) => {
     try {
@@ -348,7 +348,7 @@ TON STYLE :
         let lastErr = '';
         // La génération audio est plus lente que le texte : timeout généreux pour le
         // 1er modèle (confirmé fonctionnel), plus court pour le 2e (simple filet de sécurité).
-        const ttsTimeouts = [20000, 12000];
+        const ttsTimeouts = [12000, 20000]; // flash (rapide) puis pro (plus lent) en secours
         for (let i = 0; i < GEMINI_TTS_MODELS.length; i++) {
           const ttsModel = GEMINI_TTS_MODELS[i];
           try {
