@@ -167,6 +167,27 @@ footer{background:var(--green-deep);color:var(--white);}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.books-grid{grid-template-columns:1fr 1fr}.dash-body{padding:1.25rem}.dash-topbar{padding:0.75rem 1rem}}
 @media(max-width:480px){.stats-row{grid-template-columns:1fr 1fr}.books-grid{grid-template-columns:1fr}}
+/* ── Hero progression card (tableau de bord redesign) ── */
+.hero-card{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--green) 0%,var(--green-deep) 100%);border-radius:26px;padding:2rem 2.1rem;color:var(--white);margin-bottom:1.1rem;box-shadow:0 16px 44px rgba(15,61,38,0.25);}
+.hero-glow{position:absolute;top:-80px;right:-50px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,0.20),transparent 68%);pointer-events:none;}
+.hero-label{position:relative;color:var(--gold-light);font-size:0.72rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.85rem;}
+.hero-title{position:relative;font-family:'Cormorant Garamond',serif;font-size:clamp(2.1rem,6vw,3rem);font-weight:700;line-height:1.05;margin-bottom:0.5rem;color:var(--white);}
+.hero-sub{position:relative;color:rgba(255,255,255,0.72);font-size:0.95rem;line-height:1.5;max-width:420px;margin-bottom:1.6rem;}
+.hero-stats{position:relative;display:flex;gap:2.4rem;margin-bottom:1.6rem;flex-wrap:wrap;}
+.hstat-val{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--gold-light);line-height:1;}
+.hstat-lbl{color:rgba(255,255,255,0.6);font-size:0.85rem;margin-top:0.25rem;}
+.hero-bar{position:relative;height:11px;background:rgba(255,255,255,0.14);border-radius:50px;overflow:hidden;margin-bottom:1.2rem;}
+.hero-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:50px;transition:width 1.1s ease;}
+.hero-pill{position:relative;display:inline-block;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);font-weight:800;font-size:0.95rem;padding:0.6rem 1.5rem;border-radius:50px;}
+/* ── Aperçu tiles ── */
+.apercu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.9rem;margin-bottom:1.5rem;}
+.ap-tile{background:var(--white);border:1px solid var(--beige);border-radius:16px;padding:1.15rem 1.25rem;display:flex;flex-direction:column;justify-content:center;min-height:90px;min-width:0;}
+.ap-val,.ap-lbl{overflow-wrap:anywhere;}
+.ap-val{font-weight:700;color:var(--green-deep);font-size:1.15rem;line-height:1.2;}
+.ap-lbl{color:var(--text-muted);font-size:0.75rem;margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;}
+.ap-tile.ap-status{background:linear-gradient(135deg,var(--gold-light),var(--gold));border:none;align-items:center;justify-content:center;text-align:center;}
+.ap-tile.ap-status .ap-val{color:var(--green-deep);font-size:1.25rem;}
+@media(max-width:768px){.apercu-grid{grid-template-columns:1fr 1fr;}.hero-stats{gap:1.6rem;}.hero-card{padding:1.6rem 1.5rem;}}
 </style></head><body>
 
 <!-- LOADING -->
@@ -227,15 +248,29 @@ footer{background:var(--green-deep);color:var(--white);}
 
     <!-- ACCUEIL -->
     <div class="dash-panel active" id="panel-accueil">
-      <div style="margin-bottom:1.5rem;">
-        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);">Tableau de bord</h2>
-        <p style="color:var(--text-muted);font-size:0.875rem;" id="dashDate">–</p>
+      <!-- HERO PROGRESSION -->
+      <div class="hero-card">
+        <div class="hero-glow"></div>
+        <div class="hero-label">Tableau de bord élève</div>
+        <h2 class="hero-title">Ma progression</h2>
+        <p class="hero-sub">11 niveaux — du débutant au niveau avancé</p>
+        <div class="hero-stats">
+          <div class="hstat"><div class="hstat-val">11</div><div class="hstat-lbl">Niveaux</div></div>
+          <div class="hstat"><div class="hstat-val" id="statPDF">–</div><div class="hstat-lbl">PDFs perso</div></div>
+          <div class="hstat"><div class="hstat-val">∞</div><div class="hstat-lbl">Cours Zoom</div></div>
+        </div>
+        <div class="hero-bar"><div class="hero-bar-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="hero-pill" id="levelBadge">Niveau – / 11</div>
       </div>
-      <div class="stats-row">
-        <div class="stat-card"><div class="sc-icon">📊</div><div class="sc-val" id="statNiveau">–</div><div class="sc-label">Niveau actuel</div></div>
-        <div class="stat-card"><div class="sc-icon">⏱️</div><div class="sc-val" id="statHeures">–</div><div class="sc-label">Heures restantes</div></div>
-        <div class="stat-card"><div class="sc-icon">📅</div><div class="sc-val" id="statProchain">–</div><div class="sc-label">Prochain cours</div></div>
-        <div class="stat-card"><div class="sc-icon">📚</div><div class="sc-val" id="statPDF">–</div><div class="sc-label">PDFs disponibles</div></div>
+
+      <!-- APERÇU -->
+      <div class="apercu-grid">
+        <div class="ap-tile"><div class="ap-val" id="statNiveau">Niveau –</div><div class="ap-lbl">Niveau actuel</div></div>
+        <div class="ap-tile"><div class="ap-val">Arabe Immersion</div><div class="ap-lbl">Programme</div></div>
+        <div class="ap-tile ap-status"><div class="ap-val" id="statStatus">En cours</div></div>
+        <div class="ap-tile"><div class="ap-val" id="statProchain">–</div><div class="ap-lbl">Prochain cours</div></div>
+        <div class="ap-tile"><div class="ap-val" id="statProf">–</div><div class="ap-lbl">Professeur</div></div>
+        <div class="ap-tile"><div class="ap-val" id="statHeures">–</div><div class="ap-lbl">Heures restantes</div></div>
       </div>
       <!-- KALAM BANNER -->
       <a href="/kalam" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--green-deep),var(--green-mid));border:1px solid rgba(212,168,67,0.3);border-radius:18px;padding:1.25rem 1.75rem;margin-bottom:1.5rem;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;gap:1rem;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
@@ -250,14 +285,6 @@ footer{background:var(--green-deep);color:var(--white);}
         <div style="background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.5rem 1.25rem;border-radius:50px;font-weight:700;font-size:0.82rem;white-space:nowrap;flex-shrink:0;">Commencer →</div>
       </a>
 
-      <div class="level-box">
-        <div class="level-header">
-          <div class="level-title">Progression globale</div>
-          <div class="level-badge" id="levelBadge">Niveau –</div>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-        <div class="progress-labels"><span>Niveau 1</span><span id="progressPct">0%</span><span>Niveau 11</span></div>
-      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
         <div>
           <h3 style="font-weight:700;font-size:0.92rem;color:var(--green-deep);margin-bottom:1rem;">📅 Prochains cours</h3>
@@ -391,13 +418,14 @@ async function loadDashboard(){
   document.getElementById('profilAvatar').textContent=initials.toUpperCase();
   document.getElementById('profilName').textContent=(s.prenom||'')+' '+(s.nom||'');
   document.getElementById('profilCourse').textContent=formatCourse(s.course_type)+' — '+formatFormat(s.format);
-  document.getElementById('dashDate').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  {const dd=document.getElementById('dashDate');if(dd)dd.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 
   // Level & progress
   const level=s.level||1;
   const pct=Math.round(((level-1)/10)*100);
-  document.getElementById('statNiveau').textContent=level;
-  ['levelBadge','levelBadge2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='Niveau '+level;});
+  {const sn=document.getElementById('statNiveau');if(sn)sn.textContent='Niveau '+level;}
+  {const lb=document.getElementById('levelBadge');if(lb)lb.textContent='Niveau '+level+' / 11';}
+  {const lb2=document.getElementById('levelBadge2');if(lb2)lb2.textContent='Niveau '+level;}
   ['progressFill','progressFill2'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width=pct+'%';});
   ['progressPct','progressPct2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=pct+'%';});
 
@@ -431,6 +459,7 @@ async function loadPlanning(){
     renderSessions(sessions,'allSessions',false);
     const next=sessions.find(s=>new Date(s.date_heure)>new Date());
     document.getElementById('statProchain').textContent=next?formatDate(next.date_heure):'–';
+    {const sp=document.getElementById('statProf');if(sp)sp.textContent=next&&next.teacher_name?next.teacher_name:'–';}
   }catch{
     document.getElementById('upcomingSessions').innerHTML=emptyState('📅','Aucun cours planifié','Votre planning apparaîtra ici après confirmation de votre inscription.');
     document.getElementById('allSessions').innerHTML=emptyState('📅','Aucun cours planifié','Contactez-nous sur WhatsApp pour planifier vos cours.');
