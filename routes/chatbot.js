@@ -194,7 +194,13 @@ TON STYLE :
             body: JSON.stringify({
               systemInstruction: { parts: [{ text: systemPrompt }] },
               contents,
-              generationConfig: { maxOutputTokens: 220, temperature: 0.8 }
+              generationConfig: {
+                maxOutputTokens: 400,
+                temperature: 0.8,
+                // Désactive le "thinking" interne : sinon il consomme le budget de tokens
+                // en réflexion invisible et coupe la réponse visible en plein mot.
+                thinkingConfig: { thinkingBudget: 0 }
+              }
             })
           }, 12000);
           const gd = await gr.json();
