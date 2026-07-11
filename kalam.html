@@ -352,7 +352,7 @@ function startListening(){
       if(ev.results[i].isFinal) final+=t; else interim+=t;
     }
     if(interim){ showInterim(interim); lastInterim=interim; }
-    if(final){ clearInterim(); lastInterim=''; addMsg('hint','🎙️ capté (final): '+final.trim()); userSaid(final.trim()); }
+    if(final){ clearInterim(); lastInterim=''; userSaid(final.trim()); }
   };
   recognition.onerror=(ev)=>{
     recActive=false;
@@ -362,7 +362,7 @@ function startListening(){
   };
   recognition.onend=()=>{
     recActive=false;
-    if(lastInterim && lastInterim.trim()){ const t=lastInterim.trim(); lastInterim=''; clearInterim(); addMsg('hint','🎙️ capté (fin): '+t); userSaid(t); return; }
+    if(lastInterim && lastInterim.trim()){ const t=lastInterim.trim(); lastInterim=''; clearInterim(); userSaid(t); return; }
     if(document.body.className==='listening') setBodyState('');
   };
   try{ recognition.start(); }catch{}
@@ -376,8 +376,7 @@ function stopListening(silent){
 function restartRecognition(){ stopListening(true); setTimeout(()=>startListening(),200); }
 
 async function userSaid(text){
-  if(!text){ addMsg('hint','⚠️ texte vide, rien à envoyer'); return; }
-  addMsg('hint','📤 envoi à l\'IA…');
+  if(!text) return;
   stopListening(true);
   addMsg('user',text);
   history.push({role:'user',content:text});
@@ -388,7 +387,6 @@ async function userSaid(text){
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
       body:JSON.stringify({message:text,history:history.slice(-12),lang,level,student_name:student?.prenom||student?.kounia||null,gender:PERSONA().gender,persona:PERSONA().name})
     });
-    addMsg('hint','📥 réponse serveur: '+r.status);
     const d=await r.json();
     if(!r.ok) throw new Error((d.error||'Erreur IA')+' '+(d.detail||''));
     const reply=d.response||'…';
