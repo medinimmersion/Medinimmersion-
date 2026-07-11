@@ -40,8 +40,17 @@ if (fs.existsSync(path.join(__dirname, 'public'))) {
 } else {
   publicDir = __dirname;
 }
-app.use(express.static(publicDir, { maxAge: '1h', etag: true }));
-app.use(express.static(__dirname, { maxAge: '1h', etag: true }));
+// Les pages HTML ne doivent jamais rester en cache navigateur : sinon un correctif déployé
+// côté serveur peut sembler ne "jamais s'appliquer" alors qu'il est bien en ligne.
+const staticOpts = {
+  maxAge: '1h',
+  etag: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+  }
+};
+app.use(express.static(publicDir, staticOpts));
+app.use(express.static(__dirname, staticOpts));
 
 // ─── RATE LIMITERS ───────────────────────────────────────────
 const authLimiter = rateLimit({
@@ -375,15 +384,18 @@ const htmlPages = [
 
 htmlPages.forEach(page => {
   app.get(`/${page}`, (req, res) => {
+    res.set('Cache-Control', 'no-cache');
     res.sendFile(path.join(__dirname, `${page}.html`), (err) => { if (err) res.sendFile(path.join(publicDir, `${page}.html`), (e) => { if (e) res.status(404).json({error: 'Page non trouvée'}); }); });
   });
   app.get(`/${page}.html`, (req, res) => {
+    res.set('Cache-Control', 'no-cache');
     res.sendFile(path.join(__dirname, `${page}.html`), (err) => { if (err) res.sendFile(path.join(publicDir, `${page}.html`), (e) => { if (e) res.status(404).json({error: 'Page non trouvée'}); }); });
   });
 });
 
 // Root → index.html
 app.get('/', (req, res) => {
+  res.set('Cache-Control', 'no-cache');
   res.sendFile(path.join(publicDir, 'index.html'));
 });
 
