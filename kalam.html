@@ -179,8 +179,7 @@ body.listening .orb svg{display:none;}
 </div>
 
 <script>
-/* ════════ KALAM — conversation vocale fluide ════════ */
-const DAILY_SECONDS = 180;               // 3 min / jour
+const DAILY_SECONDS = 180;
 const $ = id => document.getElementById(id);
 
 let token=null, student=null;
@@ -191,14 +190,12 @@ function PERSONA(){
     : {name:'Oustaz Abou Adam', short:'Oustaz',  ar:'الأستاذ',  emoji:'🧔🏽', gender:'homme'};
 }
 let lang='fr', level='debutant';
-let history=[];                           // {role, content}
+let history=[];
 let autoMode=true;
 let recognition=null, recActive=false, manualStop=false, lastInterim='';
-let audioCtx=null, analyser=null, micStream=null, rafId=null;
 let currentAudio=null;
 let secondsLeft=180, totalSeconds=180, unlimited=false, tickInt=null, started=false, consumeBuffer=0;
 
-/* ── Quota géré par le serveur (défini par le gérant) ── */
 async function loadQuota(){
   try{
     const r=await fetch('/api/oustaz/quota',{headers:{'Authorization':'Bearer '+token}});
@@ -223,7 +220,6 @@ function startTick(){
     if(!unlimited){ secondsLeft--; }
     consumeBuffer++;
     drawTimer();
-    // Toutes les 10s, on enregistre la consommation côté serveur
     if(consumeBuffer>=10){ pushConsume(consumeBuffer); consumeBuffer=0; }
     if(!unlimited && secondsLeft<=0){ pushConsume(consumeBuffer); consumeBuffer=0; endOfQuota(); }
   },1000);
@@ -242,7 +238,6 @@ function endOfQuota(){
   addMsg('hint','Tu as utilisé tout ton temps Kalam. Contacte ton école pour en obtenir davantage 🌙');
 }
 
-/* ── Auth ── */
 async function checkAuth(){
   token=localStorage.getItem('medin_token')||localStorage.getItem('studentToken');
   if(!token){ $('loginOverlay').style.display='flex'; return; }
@@ -278,7 +273,6 @@ function welcome(){
   addMsg('hint',`As-salamou alaykoum${name?' '+name:''} ! Je suis ${p.name}. Choisis ta langue et ton niveau, puis touche l'orbe doré pour parler avec moi.`);
 }
 
-/* ── UI helpers ── */
 function setStatus(t,cls){ const s=$('status'); s.textContent=t; s.className='status'+(cls?' '+cls:''); }
 function setBodyState(st){ document.body.className=st||''; }
 function addMsg(kind,text){
@@ -296,7 +290,6 @@ function showInterim(t){
 }
 function clearInterim(){ if(interimEl){interimEl.remove();interimEl=null;} }
 
-/* ── Chips ── */
 document.querySelectorAll('.chip.lang').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.chip.lang').forEach(x=>x.classList.remove('on'));
   b.classList.add('on'); lang=b.dataset.lang;
@@ -316,8 +309,6 @@ $('muteBtn').onclick=()=>{
   micMuted=!micMuted;
   $('muteBtn').classList.toggle('on',micMuted);
   if(micMuted){
-    // Couper UNIQUEMENT l'écoute (pour ne plus capter les bruits / ta voix).
-    // Kalam continue de parler et de répondre normalement.
     manualStop=true;
     stopListening(true);
     $('muteBtn').title='Micro coupé — touche pour réactiver';
@@ -325,19 +316,14 @@ $('muteBtn').onclick=()=>{
   }else{
     manualStop=false;
     $('muteBtn').title='Couper le micro';
-    // Si Kalam n'est pas en train de parler, on réactive l'écoute
     if(document.body.className!=='speaking'){ startListening(); }
   }
 };
 
-/* ── Micro + niveau sonore ── */
 async function ensureMic(){
-  // Sur Android, garder un flux getUserMedia ouvert empêche la reconnaissance
-  // vocale de capter le son. On demande donc juste l'autorisation, puis on
-  // libère immédiatement le micro pour le laisser à SpeechRecognition.
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    stream.getTracks().forEach(t=>t.stop());   // on relâche tout de suite
+    stream.getTracks().forEach(t=>t.stop());
     return true;
   }catch(e){
     addMsg('hint','Micro refusé. Autorise le micro dans les réglages de ton navigateur pour utiliser Kalam.');
@@ -345,23 +331,7 @@ async function ensureMic(){
     return false;
   }
 }
-function animateBars(){
-  if(!analyser) return;
-  const data=new Uint8Array(analyser.frequencyBinCount);
-  const bars=$('bars').children;
-  const loop=()=>{
-    analyser.getByteFrequencyData(data);
-    for(let i=0;i<bars.length;i++){
-      const v=data[i*3+2]||0;
-      bars[i].style.height=Math.max(6,(v/255)*36)+'px';
-    }
-    rafId=requestAnimationFrame(loop);
-  };
-  loop();
-}
-function stopBars(){ cancelAnimationFrame(rafId); }
 
-/* ── Reconnaissance vocale ── */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 function langCode(){ return lang==='ar'?'ar-SA':lang==='en'?'en-US':'fr-FR'; }
 function startListening(){
@@ -371,10 +341,10 @@ function startListening(){
   recognition=new SR();
   recognition.lang=langCode();
   recognition.interimResults=true;
-  recognition.continuous=true;
+  recognition.continuous=false;
   recognition.maxAlternatives=1;
 
-  recognition.onstart=()=>{ recActive=true; setBodyState('listening'); setStatus(lang==='ar'?'استمع إليك…':'Je t\'écoute…','listening'); animateBars(); startTick(); if(!started){started=true;} };
+  recognition.onstart=()=>{ recActive=true; setBodyState('listening'); setStatus(lang==='ar'?'استمع إليك…':'Je t\'écoute…','listening'); startTick(); if(!started){started=true;} };
   recognition.onresult=(ev)=>{
     let interim='', final='';
     for(let i=ev.resultIndex;i<ev.results.length;i++){
@@ -385,13 +355,13 @@ function startListening(){
     if(final){ clearInterim(); lastInterim=''; addMsg('hint','🎙️ capté (final): '+final.trim()); userSaid(final.trim()); }
   };
   recognition.onerror=(ev)=>{
-    recActive=false; stopBars();
+    recActive=false;
     if(ev.error==='no-speech'){ if(autoMode&&!manualStop&&secondsLeft>0){ try{recognition.stop();}catch{} setTimeout(()=>startListening(),250); } else { setBodyState(''); setStatus('Je n\'ai rien entendu — touche l\'orbe'); } return; }
     if(ev.error==='not-allowed'){ setBodyState(''); setStatus('Micro non autorisé'); addMsg('hint','Autorise le micro pour parler avec Kalam.'); return; }
     setBodyState(''); setStatus('Petit souci de micro — touche l\'orbe pour réessayer');
   };
   recognition.onend=()=>{
-    recActive=false; stopBars();
+    recActive=false;
     if(lastInterim && lastInterim.trim()){ const t=lastInterim.trim(); lastInterim=''; clearInterim(); addMsg('hint','🎙️ capté (fin): '+t); userSaid(t); return; }
     if(document.body.className==='listening') setBodyState('');
   };
@@ -400,12 +370,11 @@ function startListening(){
 function stopListening(silent){
   manualStop=true;
   try{ recognition&&recognition.stop(); }catch{}
-  recActive=false; stopBars(); stopTick();
+  recActive=false; stopTick();
   if(!silent) setBodyState('');
 }
 function restartRecognition(){ stopListening(true); setTimeout(()=>startListening(),200); }
 
-/* ── Tour de parole ── */
 async function userSaid(text){
   if(!text){ addMsg('hint','⚠️ texte vide, rien à envoyer'); return; }
   addMsg('hint','📤 envoi à l\'IA…');
@@ -432,7 +401,6 @@ async function userSaid(text){
   }
 }
 
-/* ── Synthèse vocale : serveur (naturelle) → fallback navigateur ── */
 async function speak(text){
   setBodyState('speaking'); setStatus(lang==='ar'?PERSONA().ar+' يتكلم…':PERSONA().short+' parle…','speaking');
   stopTick();
@@ -443,35 +411,30 @@ async function speak(text){
     if(autoMode){ setTimeout(()=>startListening(),350); }
     else setStatus('À toi — touche l\'orbe');
   };
-  /* 1) Voix serveur (Gemini/OpenAI) — désactivée pour la session après 2 échecs, pour garder UNE voix stable */
-  if(window.__srvTtsFails===undefined) window.__srvTtsFails=0;
-  if(window.__srvTtsFails<2){
-    try{
-      const r=await fetch('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,gender:PERSONA().gender,persona:PERSONA().name,student_gender:student?.gender||'homme'})});
-      if(r.ok){
-        window.__srvTtsFails=0;
-        const blob=await r.blob();
-        currentAudio=new Audio(URL.createObjectURL(blob));
-        currentAudio.onended=done; currentAudio.onerror=done;
-        await currentAudio.play();
-        return;
-      }
-      window.__srvTtsFails++;
-    }catch{ window.__srvTtsFails++; }
-  }
-  /* 2) Fallback navigateur */
+  // On essaie TOUJOURS la voix Gemini (serveur) en priorité — pas d'abandon après échec,
+  // pour ne jamais rester bloqué sur la voix robot du navigateur si Gemini remarche.
+  try{
+    const r=await fetch('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,gender:PERSONA().gender,persona:PERSONA().name,student_gender:student?.gender||'homme'})});
+    if(r.ok){
+      const blob=await r.blob();
+      currentAudio=new Audio(URL.createObjectURL(blob));
+      currentAudio.onended=done; currentAudio.onerror=done;
+      await currentAudio.play();
+      return;
+    }
+  }catch{}
   if('speechSynthesis' in window){
     const u=new SpeechSynthesisUtterance(text);
     u.lang=langCode(); u.rate=0.95;
     const fem = PERSONA().gender==='femme';
-    u.pitch = fem ? 1.12 : 0.92;
+    u.pitch = fem ? 1.15 : 0.85;
     if(!window.__lockedVoice || window.__lockedVoiceLang!==langCode()){
       const voices=speechSynthesis.getVoices().filter(v=>v.lang.startsWith(langCode().slice(0,2)));
       const fem = PERSONA().gender==='femme';
-      const femRx=/female|femme|woman|salma|amira|hoda|laila|zira|denise|audrey|marie|julie|amelie|chantal|charlotte|aria/i;
-      const malRx=/male(?!e)|homme|\bman\b|tarik|naayf|hamed|majed|paul|henri|nicolas|thomas|george|guy/i;
+      const femRx=/female|femme|woman|salma|amira|hoda|laila|zira|denise|audrey|marie|julie|amelie|chantal|charlotte|aria|female/i;
+      const malRx=/male(?!e)|homme|\bman\b|tarik|naayf|hamed|majed|paul|henri|nicolas|thomas|george|guy|male|fr-FR/i;
       const byGender = voices.find(v=> fem ? femRx.test(v.name) : malRx.test(v.name));
-      const quality  = voices.find(v=>/natural|enhanced|premium/i.test(v.name));
+      const quality  = voices.find(v=>/natural|enhanced|premium|network/i.test(v.name));
       window.__lockedVoice = byGender || quality || voices[fem ? voices.length-1 : 0] || voices[0] || null;
       window.__lockedVoiceLang = langCode();
     }
@@ -485,19 +448,16 @@ function stopSpeaking(){
   try{ window.speechSynthesis&&speechSynthesis.cancel(); }catch{}
 }
 
-/* ── Orbe ── */
 $('orb').onclick=async()=>{
   if(secondsLeft<=0){ endOfQuota(); return; }
   if(document.body.className==='speaking'){ stopSpeaking(); startListening(); return; }
   if(recActive){ stopListening(); setStatus('En pause — touche l\'orbe pour reprendre'); return; }
   const ok=await ensureMic(); if(!ok) return;
-  if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();
   startListening();
 };
 
 checkAuth();
 
-/* Saisie texte de secours (si le micro ne capte pas) */
 (function(){
   const ti=document.getElementById('textInput'), sb=document.getElementById('sendText');
   function send(){ const v=ti.value.trim(); if(!v)return; ti.value=''; try{stopListening(true);}catch{} userSaid(v); }
