@@ -130,6 +130,11 @@ body.listening .orb svg{display:none;}
     <button class="chip lvl" data-lvl="intermediaire">Intermédiaire</button>
     <button class="chip lvl" data-lvl="avance">Avancé</button>
   </div>
+  <div class="chip-divider"></div>
+  <div class="chip-group" role="group" aria-label="Professeur">
+    <button class="chip prof on" data-gender="homme">🧔🏽 Oustaz</button>
+    <button class="chip prof" data-gender="femme">🧕🏽 Oustaza</button>
+  </div>
 </div>
 
 <main>
@@ -183,8 +188,9 @@ const DAILY_SECONDS = 180;
 const $ = id => document.getElementById(id);
 
 let token=null, student=null;
+let teacherGender='homme';
 function PERSONA(){
-  const f = (student?.gender||'').toLowerCase()==='femme';
+  const f = teacherGender==='femme';
   return f
     ? {name:'Oustaza Oum Adam',  short:'Oustaza', ar:'الأستاذة', emoji:'🧕🏽', gender:'femme'}
     : {name:'Oustaz Abou Adam', short:'Oustaz',  ar:'الأستاذ',  emoji:'🧔🏽', gender:'homme'};
@@ -266,12 +272,14 @@ $('liBtn').onclick=async()=>{
 };
 function welcome(){
   loadQuota();
+  teacherGender = (student?.gender||'').toLowerCase()==='femme' ? 'femme' : 'homme';
+  document.querySelectorAll('.chip.prof').forEach(x=>x.classList.toggle('on', x.dataset.gender===teacherGender));
   const p=PERSONA();
   $('personaEmoji').textContent=p.emoji;
   $('personaName').textContent=p.name;
   $('personaBadge').style.display='inline-flex';
   const name=student?.prenom||student?.kounia||'';
-  addMsg('hint',`As-salamou alaykoum${name?' '+name:''} ! Je suis ${p.name}. Choisis ta langue et ton niveau, puis touche l'orbe doré pour parler avec moi.`);
+  addMsg('hint',`As-salamou alaykoum${name?' '+name:''} ! Je suis ${p.name}. Choisis ta langue, ton niveau et ton professeur, puis touche l'orbe doré pour parler avec moi.`);
 }
 
 function setStatus(t,cls){ const s=$('status'); s.textContent=t; s.className='status'+(cls?' '+cls:''); }
@@ -299,6 +307,14 @@ document.querySelectorAll('.chip.lang').forEach(b=>b.onclick=()=>{
 document.querySelectorAll('.chip.lvl').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('.chip.lvl').forEach(x=>x.classList.remove('on'));
   b.classList.add('on'); level=b.dataset.lvl;
+});
+document.querySelectorAll('.chip.prof').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.chip.prof').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); teacherGender=b.dataset.gender;
+  const p=PERSONA();
+  $('personaEmoji').textContent=p.emoji;
+  $('personaName').textContent=p.name;
+  $('personaBadge').style.display='inline-flex';
 });
 $('autoBtn').onclick=()=>{
   autoMode=!autoMode;
