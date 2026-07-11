@@ -71,7 +71,9 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
         }
       };
 
-      const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.${apiVersion}.GenerativeService.BidiGenerateContent?access_token=${encodeURIComponent(token)}`;
+      // Avec un jeton éphémère, le point d'accès est BidiGenerateContentConstrained
+      // (BidiGenerateContent n'accepte que les clés API complètes).
+      const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.${apiVersion}.GenerativeService.BidiGenerateContentConstrained?access_token=${encodeURIComponent(token)}`;
       res.json({ ok: true, wsUrl, setup, model });
     } catch (e) {
       console.error('[live-token]', e.message);

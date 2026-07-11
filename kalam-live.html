@@ -410,7 +410,7 @@ function onReady(){
   $('controls').style.display='flex';
   $('muteBtn').classList.remove('muted'); $('muteBtn').textContent='🎙️'; $('muteLabel').textContent='Micro actif';
   userTurn();
-  dbg('En ligne. Parle librement.');
+  dbg(triedProxy?'En ligne (via serveur). Parle librement.':'⚡ En ligne (connexion directe Google). Parle librement.');
   startTick();
   // démarre la capture micro
   micCtx=new (window.AudioContext||window.webkitAudioContext)();
