@@ -360,14 +360,17 @@ function stop(){
   if(secondsLeft>0) setStatus('Conversation terminée — touche « Démarrer » pour reprendre');
 }
 
-// Bouton micro : couper/reprendre (Kalam n'entend plus quand c'est coupé)
+// Bouton micro : couper = "j'ai fini, réponds maintenant" (Kalam n'entend plus après)
 $('muteBtn').onclick=()=>{
   micMuted=!micMuted;
   $('muteBtn').classList.toggle('muted',micMuted);
   $('muteBtn').textContent=micMuted?'🔇':'🎙️';
   $('muteLabel').textContent=micMuted?'Micro coupé':'Micro actif';
-  if(micMuted){ setStatus('🔇 Micro coupé — touche le micro pour reprendre','muted'); }
-  else if(document.body.className.indexOf('speaking')===-1){ userTurn(); }
+  if(micMuted){
+    // signal explicite de fin de parole → Gemini répond tout de suite (pas d'attente de silence)
+    try{ ws&&ws.readyState===1 && ws.send(JSON.stringify({realtimeInput:{audioStreamEnd:true}})); }catch{}
+    setBodyState('thinking'); setStatus('🔇 Micro coupé — Kalam prépare sa réponse…','muted');
+  } else if(document.body.className.indexOf('speaking')===-1){ userTurn(); }
 };
 
 $('mainBtn').onclick=()=>{ running?stop():start(); };
