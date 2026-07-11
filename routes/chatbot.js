@@ -351,6 +351,7 @@ TON STYLE :
         const ttsTimeouts = [12000, 20000]; // flash (rapide) puis pro (plus lent) en secours
         for (let i = 0; i < GEMINI_TTS_MODELS.length; i++) {
           const ttsModel = GEMINI_TTS_MODELS[i];
+          const t0 = Date.now();
           try {
             const gr = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${GEMINI_KEY}`, {
               method: 'POST',
@@ -372,16 +373,16 @@ TON STYLE :
                 const rateMatch = String(part.inlineData.mimeType || '').match(/rate=(\d+)/);
                 const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
                 const wav = pcmToWav(pcm, sampleRate);
-                console.log('[tts gemini] OK avec modèle:', ttsModel, 'voice:', voiceName, 'rate:', sampleRate);
-                res.set({ 'Content-Type': 'audio/wav', 'Content-Length': wav.length, 'Cache-Control': 'no-store', 'X-TTS-Model': ttsModel });
+                console.log(`[tts gemini] OK modèle:${ttsModel} voice:${voiceName} en ${Date.now()-t0}ms (chars:${String(text).length})`);
+                res.set({ 'Content-Type': 'audio/wav', 'Content-Length': wav.length, 'Cache-Control': 'no-store', 'X-TTS-Model': ttsModel, 'X-TTS-Ms': String(Date.now()-t0) });
                 return res.send(wav);
               }
             }
             lastErr = gd.error?.message || `HTTP ${gr.status}`;
-            console.log(`[tts gemini] échec modèle ${ttsModel}:`, lastErr);
+            console.log(`[tts gemini] échec ${ttsModel} après ${Date.now()-t0}ms:`, lastErr);
           } catch (e) {
             lastErr = e.message;
-            console.log(`[tts gemini] erreur modèle ${ttsModel}:`, e.message);
+            console.log(`[tts gemini] erreur ${ttsModel} après ${Date.now()-t0}ms:`, e.message);
           }
         }
         console.log('[tts gemini] tous les modèles ont échoué, dernier détail:', lastErr);
