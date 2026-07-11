@@ -124,6 +124,9 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
       setup: {
         generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } } },
         systemInstruction: { parts: [{ text: systemText }] },
+        // Transcriptions texte de la voix (élève + Kalam) pour afficher la conversation
+        inputAudioTranscription: {},
+        outputAudioTranscription: {},
         // Détection de fin de parole plus réactive : répond dès ~350ms de silence
         // (au lieu de ~1s+ par défaut) pour une conversation plus vive.
         realtimeInputConfig: {
