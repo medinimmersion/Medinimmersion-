@@ -283,7 +283,11 @@ TON STYLE :
         const isFem = String(gender || '').toLowerCase() === 'femme';
         const voiceName = isFem ? 'Sulafat' : 'Charon';
         let lastErr = '';
-        for (const ttsModel of GEMINI_TTS_MODELS) {
+        // La génération audio est plus lente que le texte : timeout généreux pour le
+        // 1er modèle (confirmé fonctionnel), plus court pour le 2e (simple filet de sécurité).
+        const ttsTimeouts = [20000, 12000];
+        for (let i = 0; i < GEMINI_TTS_MODELS.length; i++) {
+          const ttsModel = GEMINI_TTS_MODELS[i];
           try {
             const gr = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${GEMINI_KEY}`, {
               method: 'POST',
@@ -295,7 +299,7 @@ TON STYLE :
                   speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
                 }
               })
-            }, 9000);
+            }, ttsTimeouts[i] || 12000);
             const gd = await gr.json();
             if (gr.ok && gd.candidates?.[0]?.content?.parts) {
               const part = gd.candidates[0].content.parts.find(p => p.inlineData);
@@ -320,7 +324,10 @@ TON STYLE :
       if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: 'TTS non configuré' });
 
       const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const voice = lang === 'ar' ? 'onyx' : 'alloy';
+      // Le genre doit toujours primer, sinon on entend une voix de femme (alloy)
+      // même quand la persona est "Oustaz" (homme), quelle que soit la langue.
+      const isFemOpenAI = String(gender || '').toLowerCase() === 'femme';
+      const voice = isFemOpenAI ? 'shimmer' : 'onyx';
       const speech = await client.audio.speech.create({
         model: process.env.OPENAI_TTS_MODEL || 'tts-1',
         voice,

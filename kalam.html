@@ -193,6 +193,7 @@ let lang='fr', level='debutant';
 let history=[];
 let autoMode=true;
 let recognition=null, recActive=false, manualStop=false, lastInterim='';
+let recSession=0;
 let currentAudio=null;
 let secondsLeft=180, totalSeconds=180, unlimited=false, tickInt=null, started=false, consumeBuffer=0;
 
@@ -338,38 +339,43 @@ function startListening(){
   if(!SR){ addMsg('hint','Ton navigateur ne supporte pas la reconnaissance vocale. Utilise Chrome.'); return; }
   if(secondsLeft<=0){ endOfQuota(); return; }
   manualStop=false;
+  const mySession=++recSession;
   recognition=new SR();
   recognition.lang=langCode();
   recognition.interimResults=true;
   recognition.continuous=false;
   recognition.maxAlternatives=1;
 
-  recognition.onstart=()=>{ recActive=true; setBodyState('listening'); setStatus(lang==='ar'?'استمع إليك…':'Je t\'écoute…','listening'); startTick(); if(!started){started=true;} };
+  recognition.onstart=()=>{ if(mySession!==recSession) return; recActive=true; setBodyState('listening'); setStatus(lang==='ar'?'استمع إليك…':'Je t\'écoute…','listening'); startTick(); if(!started){started=true;} };
   recognition.onresult=(ev)=>{
+    if(mySession!==recSession) return; // micro déjà coupé (ex: Kalam a commencé à parler) — on ignore
     let interim='', final='';
     for(let i=ev.resultIndex;i<ev.results.length;i++){
       const t=ev.results[i][0].transcript;
       if(ev.results[i].isFinal) final+=t; else interim+=t;
     }
     if(interim){ showInterim(interim); lastInterim=interim; }
-    if(final){ clearInterim(); lastInterim=''; userSaid(final.trim()); }
+    if(final){ clearInterim(); lastInterim=''; recSession++; userSaid(final.trim()); }
   };
   recognition.onerror=(ev)=>{
+    if(mySession!==recSession) return;
     recActive=false;
-    if(ev.error==='no-speech'){ if(autoMode&&!manualStop&&secondsLeft>0){ try{recognition.stop();}catch{} setTimeout(()=>startListening(),250); } else { setBodyState(''); setStatus('Je n\'ai rien entendu — touche l\'orbe'); } return; }
+    if(ev.error==='no-speech'){ if(autoMode&&!manualStop&&secondsLeft>0){ try{recognition.abort();}catch{} setTimeout(()=>startListening(),250); } else { setBodyState(''); setStatus('Je n\'ai rien entendu — touche l\'orbe'); } return; }
     if(ev.error==='not-allowed'){ setBodyState(''); setStatus('Micro non autorisé'); addMsg('hint','Autorise le micro pour parler avec Kalam.'); return; }
     setBodyState(''); setStatus('Petit souci de micro — touche l\'orbe pour réessayer');
   };
   recognition.onend=()=>{
+    if(mySession!==recSession) return; // évite qu'un micro pas encore coupé ne capte la voix de Kalam
     recActive=false;
-    if(lastInterim && lastInterim.trim()){ const t=lastInterim.trim(); lastInterim=''; clearInterim(); userSaid(t); return; }
+    if(lastInterim && lastInterim.trim()){ const t=lastInterim.trim(); lastInterim=''; clearInterim(); recSession++; userSaid(t); return; }
     if(document.body.className==='listening') setBodyState('');
   };
   try{ recognition.start(); }catch{}
 }
 function stopListening(silent){
   manualStop=true;
-  try{ recognition&&recognition.stop(); }catch{}
+  recSession++; // invalide immédiatement tout résultat tardif de l'ancienne écoute
+  try{ recognition&&recognition.abort(); }catch{}
   recActive=false; stopTick();
   if(!silent) setBodyState('');
 }
@@ -439,7 +445,7 @@ async function speak(text){
   // jamais rester bloqué si le serveur est lent — et un vrai repli si l'audio plante
   // en cours de lecture (avant, ça restait juste silencieux).
   try{
-    const r=await fetchWithTimeout('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,gender:PERSONA().gender,persona:PERSONA().name,student_gender:student?.gender||'homme'})},12000);
+    const r=await fetchWithTimeout('/api/oustaz/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,lang,gender:PERSONA().gender,persona:PERSONA().name,student_gender:student?.gender||'homme'})},35000);
     if(r.ok){
       const blob=await r.blob();
       if(blob.size>0){
