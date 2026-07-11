@@ -242,12 +242,11 @@ TON STYLE :
   });
 
   // POST /api/oustaz/tts — voix naturelle
-  // Liste de modèles TTS Gemini à essayer dans l'ordre (le premier qui marche est utilisé)
+  // Confirmé par test le 11/07/2026 : gemini-2.5-pro-preview-tts fonctionne (200 OK).
+  // Les autres échouent (400 ou 404) — on les garde en fallback au cas où Google change ça.
   const GEMINI_TTS_MODELS = [
-    'gemini-2.5-flash-preview-tts',
-    'gemini-2.5-flash-tts',
     'gemini-2.5-pro-preview-tts',
-    'gemini-2.5-pro-tts'
+    'gemini-2.5-flash-preview-tts'
   ];
   router.post('/api/oustaz/tts', async (req, res) => {
     try {
