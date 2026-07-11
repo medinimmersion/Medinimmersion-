@@ -86,6 +86,7 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
     // Connexion montante vers Gemini Live
     const upstream = new WebSocket(`${GEMINI_WS}?key=${KEY}`);
     let upstreamOpen = false;
+    let setupOk = false;
     const queue = [];
 
     upstream.on('open', () => {
@@ -106,14 +107,24 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
 
     // Gemini → navigateur
     upstream.on('message', (data) => {
+      const txt = typeof data === 'string' ? data : data.toString();
+      if (!setupOk && txt.indexOf('setupComplete') !== -1) { setupOk = true; console.log('[kalam-live] setupComplete reçu (modèle ' + LIVE_MODEL + ')'); }
       if (client.readyState === WebSocket.OPEN) {
-        try { client.send(typeof data === 'string' ? data : data.toString()); } catch {}
+        try { client.send(txt); } catch {}
       }
     });
-    upstream.on('close', () => { try { client.close(); } catch {} });
+    upstream.on('close', (code, reason) => {
+      const r = reason ? reason.toString() : '';
+      console.log('[kalam-live] Gemini fermé — code', code, 'raison:', r, '(modèle', LIVE_MODEL + ')');
+      // Si fermé AVANT le setupComplete, c'est un refus (clé/modèle/accès) : on remonte le détail.
+      if (!setupOk) {
+        try { client.send(JSON.stringify({ error: `Gemini a fermé (code ${code}${r ? ' — ' + r : ''}). Modèle: ${LIVE_MODEL}` })); } catch {}
+      }
+      try { client.close(); } catch {}
+    });
     upstream.on('error', (e) => {
-      console.error('[kalam-live] upstream error:', e.message);
-      try { client.send(JSON.stringify({ error: 'Gemini Live: ' + e.message })); } catch {}
+      console.error('[kalam-live] upstream error:', e.message, '(modèle', LIVE_MODEL + ')');
+      try { client.send(JSON.stringify({ error: 'Gemini Live error: ' + e.message + ' (modèle ' + LIVE_MODEL + ')' })); } catch {}
       try { client.close(); } catch {}
     });
 
