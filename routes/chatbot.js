@@ -251,7 +251,7 @@ TON STYLE :
             contents: [{ parts: [{ text: 'Bonjour' }] }],
             generationConfig: {
               responseModalities: ['AUDIO'],
-              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Charon' } } }
+              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Puck' } } }
             }
           })
         });
@@ -281,7 +281,9 @@ TON STYLE :
       const GEMINI_KEY = getGeminiKey();
       if (GEMINI_KEY) {
         const isFem = String(gender || '').toLowerCase() === 'femme';
-        const voiceName = isFem ? 'Sulafat' : 'Charon';
+        // 'Charon' sonnait trop peu masculin à l'oreille malgré son étiquette Google —
+        // 'Puck' est une voix bien plus nettement masculine.
+        const voiceName = isFem ? 'Sulafat' : 'Puck';
         let lastErr = '';
         // La génération audio est plus lente que le texte : timeout généreux pour le
         // 1er modèle (confirmé fonctionnel), plus court pour le 2e (simple filet de sécurité).
