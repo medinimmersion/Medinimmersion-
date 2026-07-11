@@ -47,6 +47,30 @@ module.exports = function (pool, opts) {
     }
   }
 
+  // Gemini TTS renvoie du PCM 16 bits BRUT (sans en-tête de fichier). Envoyé tel quel
+  // en "audio/wav", aucun navigateur ne sait le lire → l'élément <audio> échoue et le
+  // front bascule sur la voix robotique du navigateur. On enrobe donc le PCM d'un
+  // vrai en-tête WAV (44 octets) pour produire un fichier réellement lisible.
+  function pcmToWav(pcm, sampleRate = 24000, channels = 1, bitsPerSample = 16) {
+    const byteRate = sampleRate * channels * (bitsPerSample / 8);
+    const blockAlign = channels * (bitsPerSample / 8);
+    const header = Buffer.alloc(44);
+    header.write('RIFF', 0);
+    header.writeUInt32LE(36 + pcm.length, 4);
+    header.write('WAVE', 8);
+    header.write('fmt ', 12);
+    header.writeUInt32LE(16, 16);
+    header.writeUInt16LE(1, 20);           // format PCM
+    header.writeUInt16LE(channels, 22);
+    header.writeUInt32LE(sampleRate, 24);
+    header.writeUInt32LE(byteRate, 28);
+    header.writeUInt16LE(blockAlign, 32);
+    header.writeUInt16LE(bitsPerSample, 34);
+    header.write('data', 36);
+    header.writeUInt32LE(pcm.length, 40);
+    return Buffer.concat([header, pcm]);
+  }
+
   // POST /api/chatbot — general AI chatbot (floating widget on homepage)
   router.post('/api/chatbot', async (req, res) => {
     try {
@@ -306,8 +330,12 @@ TON STYLE :
             if (gr.ok && gd.candidates?.[0]?.content?.parts) {
               const part = gd.candidates[0].content.parts.find(p => p.inlineData);
               if (part) {
-                const wav = Buffer.from(part.inlineData.data, 'base64');
-                console.log('[tts gemini] OK avec modèle:', ttsModel, 'voice:', voiceName);
+                const pcm = Buffer.from(part.inlineData.data, 'base64');
+                // Gemini indique le taux dans le mimeType, ex: "audio/L16;codec=pcm;rate=24000"
+                const rateMatch = String(part.inlineData.mimeType || '').match(/rate=(\d+)/);
+                const sampleRate = rateMatch ? parseInt(rateMatch[1], 10) : 24000;
+                const wav = pcmToWav(pcm, sampleRate);
+                console.log('[tts gemini] OK avec modèle:', ttsModel, 'voice:', voiceName, 'rate:', sampleRate);
                 res.set({ 'Content-Type': 'audio/wav', 'Content-Length': wav.length, 'Cache-Control': 'no-store', 'X-TTS-Model': ttsModel });
                 return res.send(wav);
               }
