@@ -305,14 +305,16 @@ footer{background:var(--green-deep);color:var(--white);}
 
     <!-- PROGRESSION -->
     <div class="dash-panel" id="panel-progression">
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--green-deep);margin-bottom:1.5rem;">Ma progression</h2>
-      <div class="level-box" style="margin-bottom:1.5rem;">
-        <div class="level-header">
-          <div class="level-title">Votre niveau</div>
-          <div class="level-badge" id="levelBadge2">Niveau –</div>
+      <div class="hero-card" style="margin-bottom:1.25rem;">
+        <div class="hero-glow"></div>
+        <div class="hero-label">Ma progression</div>
+        <h2 class="hero-title">Votre niveau</h2>
+        <p class="hero-sub">Ta progression à travers les 11 niveaux du programme, du débutant au niveau avancé.</p>
+        <div class="hero-bar"><div class="hero-bar-fill" id="progressFill2" style="width:0%"></div></div>
+        <div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;">
+          <div class="hero-pill" id="levelBadge2">Niveau – / 11</div>
+          <span style="color:rgba(255,255,255,0.72);font-size:0.9rem;font-weight:600;"><span id="progressPct2">0%</span> complété</span>
         </div>
-        <div class="progress-bar"><div class="progress-fill" id="progressFill2" style="width:0%"></div></div>
-        <div class="progress-labels"><span>Niveau 1</span><span id="progressPct2">0%</span><span>Niveau 11</span></div>
       </div>
       <div id="progressionDetails" style="background:var(--white);border:1px solid var(--beige);border-radius:18px;padding:1.75rem;">
         <p style="color:var(--text-muted);font-size:0.875rem;">Chargement des détails…</p>
@@ -425,7 +427,7 @@ async function loadDashboard(){
   const pct=Math.round(((level-1)/10)*100);
   {const sn=document.getElementById('statNiveau');if(sn)sn.textContent='Niveau '+level;}
   {const lb=document.getElementById('levelBadge');if(lb)lb.textContent='Niveau '+level+' / 11';}
-  {const lb2=document.getElementById('levelBadge2');if(lb2)lb2.textContent='Niveau '+level;}
+  {const lb2=document.getElementById('levelBadge2');if(lb2)lb2.textContent='Niveau '+level+' / 11';}
   ['progressFill','progressFill2'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width=pct+'%';});
   ['progressPct','progressPct2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=pct+'%';});
 
