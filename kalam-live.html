@@ -148,7 +148,7 @@ const IMG_OUSTAZA='/images/Screenshot_2026-04-27-17-17-11-656_com.openai.chatgpt
 
 let token=null, student=null;
 let lang='fr', level='debutant', teacherGender='homme';
-let ws=null, running=false;
+let ws=null, running=false, readyWatch=null;
 let micCtx=null, micStream=null, micProc=null, micSrc=null;
 let outCtx=null, playHead=0, scheduled=[];
 let secondsLeft=180, totalSeconds=180, unlimited=false, tickInt=null, consumeBuffer=0;
@@ -267,13 +267,23 @@ async function start(){
   const p=PERSONA();
   const qs=new URLSearchParams({lang,level,gender:p.gender,name:student?.prenom||student?.kounia||'',token:token||''});
   ws=new WebSocket(`${proto}//${location.host}/ws/kalam?${qs}`);
-  ws.onopen=()=>{ dbg('Connecté à Kalam Live.'); };
-  ws.onerror=()=>{ dbg('Erreur de connexion temps réel.'); };
-  ws.onclose=()=>{ if(running){ dbg('Connexion fermée.'); stop(); } };
+  clearTimeout(readyWatch);
+  readyWatch=setTimeout(()=>{
+    if(!running){
+      setStatus('Le serveur temps réel ne répond pas');
+      dbg('Pas de réponse de Gemini Live après 12s. Si le site vient d\'être mis à jour, attends 2-3 min (installation en cours) puis réessaie. Sinon le modèle Live n\'est peut-être pas accessible avec cette clé.');
+      try{ micStream&&micStream.getTracks().forEach(t=>t.stop()); }catch{}
+      try{ ws&&ws.close(); }catch{}
+      setBodyState('');
+    }
+  },12000);
+  ws.onopen=()=>{ dbg('Connecté au serveur. En attente de Gemini Live…'); };
+  ws.onerror=()=>{ dbg('Impossible de joindre le serveur temps réel (/ws/kalam). Le déploiement n\'est peut-être pas terminé.'); };
+  ws.onclose=()=>{ clearTimeout(readyWatch); if(!running){ setStatus('Connexion fermée avant le démarrage'); dbg('Le serveur a fermé la connexion. Souvent : redéploiement pas fini, ou modèle Gemini Live non accessible. Réessaie dans 2-3 min.'); setBodyState(''); } else { dbg('Connexion fermée.'); stop(); } };
   ws.onmessage=async(ev)=>{
     let data=ev.data; if(data instanceof Blob) data=await data.text();
     let msg; try{ msg=JSON.parse(data); }catch{ return; }
-    if(msg.error){ dbg('Erreur : '+msg.error); return; }
+    if(msg.error){ clearTimeout(readyWatch); setStatus('Erreur temps réel'); dbg('Gemini Live : '+msg.error); return; }
     if(msg.setupComplete){ onReady(); return; }
     const sc=msg.serverContent;
     if(sc){
@@ -288,6 +298,7 @@ async function start(){
 }
 
 function onReady(){
+  clearTimeout(readyWatch);
   running=true;
   $('mainBtn').textContent='■ Arrêter';
   $('mainBtn').classList.add('stop');
