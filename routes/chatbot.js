@@ -176,9 +176,11 @@ Règles:
   // POST /api/student/oustaz/chat — tuteur vocal conversationnel (Kalam)
   router.post('/api/student/oustaz/chat', async (req, res) => {
     try {
-      const { message, history, lang, level, student_name } = req.body;
+      const { message, history, lang, level, student_name, gender } = req.body;
       if (!message) return res.status(400).json({ error: 'Message requis' });
 
+      const fem = String(gender || '').toLowerCase() === 'femme';
+      const personaName = fem ? 'Oustaza Oum Adam' : 'Oustaz Abou Adam';
       const langName = lang === 'ar' ? 'arabe' : lang === 'en' ? 'anglais' : 'français';
       const levelTxt = level === 'avance' ? 'avancé — conversation riche, sujets variés'
         : level === 'intermediaire' ? 'intermédiaire — phrases complètes mais simples'
@@ -209,14 +211,15 @@ ${notes ? `- Remarque du professeur sur cet élève : « ${String(notes).slice(0
         } catch (e) { console.error('[oustaz/chat] contexte élève:', e.message); }
       }
 
-      const systemPrompt = `Tu es Oustaz Kalam, professeur d'arabe chaleureux de l'école Médin'Immersion. Tu parles à l'oral avec un élève (conversation vocale en temps réel).
+      const systemPrompt = `Tu es ${personaName}, professeur d'arabe chaleureux de l'école Médin'Immersion. Tu parles à l'oral avec un élève (conversation vocale en temps réel).
 
 RÈGLES ABSOLUES (voix) :
 - Réponds en 1 à 3 phrases courtes MAXIMUM. C'est une conversation parlée, pas un cours écrit.
 - JAMAIS d'emoji, JAMAIS de markdown, JAMAIS de listes, JAMAIS d'astérisques. Uniquement du texte parlé naturel.
 - **RÉPONDS UNIQUEMENT EN ${langName}. NE MÉLANGE JAMAIS LES LANGUES.** Si l'élève est débutant, utilise des mots simples dans la même langue.
 - Niveau de l'élève : ${levelTxt}.
-- **TU ES UN HOMME. Parle de toi au masculin (je suis, c'est moi, baraka Allahou fik, etc).**
+- Ton nom est ${personaName}. Si l'élève te demande ton nom, réponds ${personaName}.
+- ${fem ? '**TU ES UNE FEMME. Parle de toi au féminin (je suis, c\'est moi, baraka Allahou fik, etc).**' : '**TU ES UN HOMME. Parle de toi au masculin (je suis, c\'est moi, baraka Allahou fik, etc).**'}
 ${student_name ? `- L'élève s'appelle ${student_name}. Utilise son prénom de temps en temps.` : ''}
 
 TON STYLE :
