@@ -375,8 +375,11 @@ app.get('/:a/:b', (req, res, next) => {
   if (knownPages.includes(page)) return res.redirect('/' + page);
   next();
 });
-// L'ancien Kalam est remplacé par Kalam Live (conversation temps réel)
-app.get(['/kalam', '/kalam.html'], (req, res) => res.redirect('/kalam-live'));
+// L'ancien Kalam est remplacé par Kalam Live : /kalam sert directement la page temps réel
+app.get(['/kalam', '/kalam.html'], (req, res) => {
+  res.set('Cache-Control', 'no-cache');
+  res.sendFile(path.join(__dirname, 'kalam-live.html'));
+});
 
 // Serve HTML files for known routes
 const htmlPages = [
