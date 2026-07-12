@@ -22,6 +22,7 @@ nav.scrolled{box-shadow:0 4px 24px rgba(0,0,0,0.08);}
 .nav-links a:hover,.nav-links a.active-page{color:var(--green);}
 .nav-cta{background:var(--green)!important;color:var(--white)!important;padding:0.5rem 1.3rem;border-radius:50px;font-weight:600!important;transition:background 0.2s,transform 0.2s!important;}
 .nav-cta:hover{background:var(--green-deep)!important;transform:translateY(-1px);}
+.nav-kalam{display:none;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);font-weight:800;font-size:0.82rem;padding:0.5rem 1rem;border-radius:50px;text-decoration:none;white-space:nowrap;box-shadow:0 4px 14px rgba(184,149,58,0.35);}
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
 .hamburger span{width:24px;height:2px;background:var(--text);border-radius:2px;display:block;transition:0.3s;}
 .mobile-menu{display:none;flex-direction:column;gap:0;background:var(--cream);border-top:1px solid var(--beige);padding:0.5rem 2rem 1rem;}
@@ -66,7 +67,7 @@ footer{background:var(--green-deep);color:var(--white);}
 .footer-gold-rule{height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
 .footer-bottom{padding:1.25rem 0;text-align:center;color:rgba(255,255,255,0.35);font-size:0.8rem;}
 @media(max-width:1024px){.footer-grid{grid-template-columns:1fr 1fr;gap:2.5rem;}}
-@media(max-width:768px){.nav-links{display:none;}.hamburger{display:flex;}section{padding:3.5rem 0;}.footer-grid{grid-template-columns:1fr;gap:2rem;}}
+@media(max-width:768px){.nav-links{display:none;}.nav-kalam{display:inline-block;margin-left:auto;margin-right:0.9rem;}.hamburger{display:flex;}section{padding:3.5rem 0;}.footer-grid{grid-template-columns:1fr;gap:2rem;}}
 /* HERO */
 .hero{background:var(--green-deep);display:flex;flex-direction:column;position:relative;overflow:hidden;}
 .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(184,149,58,0.08) 0%,transparent 60%);}
@@ -74,9 +75,9 @@ footer{background:var(--green-deep);color:var(--white);}
 .hero-inner{max-width:520px;width:100%;display:flex;flex-direction:column;align-items:center;text-align:center;}
 .hero-card-inner{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:2rem 1.75rem;width:100%;margin-bottom:2rem;animation:fadeUp 0.7s ease 0.2s both;}
 .hero-arabic{font-family:'Amiri',serif;font-size:clamp(1.5rem,4vw,2rem);color:var(--gold-light);direction:rtl;margin-bottom:1.1rem;line-height:1.6;}
-.hero-title{font-family:'DM Sans',sans-serif;font-size:clamp(1.15rem,3vw,1.35rem);font-weight:700;color:var(--white);line-height:1.5;margin-bottom:1.5rem;}
+.hero-title{font-family:'DM Sans',sans-serif;font-size:clamp(1.2rem,3vw,1.4rem);font-weight:800;color:var(--white);line-height:1.5;margin-bottom:1.5rem;text-shadow:0 2px 10px rgba(0,0,0,0.45);}
 .hero-points{list-style:none;text-align:left;display:flex;flex-direction:column;gap:0.85rem;}
-.hero-points li{display:flex;align-items:flex-start;gap:0.75rem;color:rgba(255,255,255,0.88);font-size:0.97rem;line-height:1.5;}
+.hero-points li{display:flex;align-items:flex-start;gap:0.75rem;color:#fff;font-weight:600;font-size:0.99rem;line-height:1.5;text-shadow:0 2px 8px rgba(0,0,0,0.5);}
 .hero-points li::before{content:'✔';color:var(--gold-light);font-size:0.85rem;flex-shrink:0;margin-top:0.15em;}
 .hero-actions{width:100%;animation:fadeUp 0.7s ease 0.4s both;}
 .hero-actions .btn-gold{width:100%;justify-content:center;font-size:1rem;padding:1rem 2rem;border-radius:50px;}
@@ -134,6 +135,7 @@ footer{background:var(--green-deep);color:var(--white);}
       <li><a href="/kalam-ai" style="color:var(--gold);font-weight:700;">✨ Kalam AI</a></li>
       <li><a href="/inscription" class="nav-cta">S'inscrire →</a></li>
     </ul>
+    <a class="nav-kalam" href="/kalam-ai">✨ Kalam Live</a>
     <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
   </div>
   <div class="mobile-menu" id="mobileMenu">

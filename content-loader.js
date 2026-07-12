@@ -63,7 +63,7 @@
           const wrap = document.createElement('div');
           wrap.style.cssText = 'position:absolute;inset:0;';
           wrap.innerHTML = '<img src="/api/content/img/' + bk + '?t=' + Date.now() + '" alt="" style="width:100%;height:100%;object-fit:cover;">' +
-            '<div style="position:absolute;inset:0;background:linear-gradient(rgba(15,61,38,0.5),rgba(15,61,38,0.72));"></div>';
+            '<div style="position:absolute;inset:0;background:linear-gradient(rgba(15,61,38,0.32),rgba(15,61,38,0.55));"></div>';
           hero.prepend(wrap);
           Array.from(hero.children).forEach(ch => {
             if (ch !== wrap && getComputedStyle(ch).position === 'static') ch.style.position = 'relative';
