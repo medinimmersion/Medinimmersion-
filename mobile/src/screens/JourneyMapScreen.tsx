@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGameState } from '../hooks/useGameState';
+import { useAppSettings } from '../hooks/useAppSettings';
 import { Phase } from '../types';
 
 const PHASES: { id: Phase; emoji: string; name: string; arabicName: string }[] =

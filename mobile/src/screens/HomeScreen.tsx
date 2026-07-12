@@ -2,38 +2,54 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGameState } from '../hooks/useGameState';
+import { useAppSettings } from '../hooks/useAppSettings';
 
 export default function HomeScreen({ navigation }) {
   const { userProgress } = useGameState();
+  const { t, getTheme } = useAppSettings();
+  const theme = getTheme();
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-b from-purple-50 to-white">
+    <SafeAreaView style={{ backgroundColor: theme.colors.background }} className="flex-1">
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         {/* Header */}
         <View className="px-6 py-6">
-          <Text className="text-3xl font-bold text-gray-900 mb-2">
+          <Text style={{ color: theme.colors.text }} className="text-3xl font-bold mb-2">
             أهلا وسهلا
           </Text>
-          <Text className="text-base text-gray-600">
-            Welcome to MédinImmersion RIHLA
+          <Text style={{ color: theme.colors.textSecondary }} className="text-base">
+            {t('welcome')}
           </Text>
         </View>
 
         {/* Progress Card */}
-        <View className="mx-6 mb-6 bg-white rounded-3xl p-6 shadow-sm">
+        <View
+          style={{
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+          }}
+          className="mx-6 mb-6 rounded-3xl p-6 border"
+        >
           <View className="flex-row justify-between items-start mb-4">
             <View>
-              <Text className="text-sm text-gray-500 mb-1">Streak</Text>
+              <Text style={{ color: theme.colors.textSecondary }} className="text-sm mb-1">
+                {t('home_streak')}
+              </Text>
               <View className="flex-row items-center gap-2">
-                <Text className="text-3xl font-bold text-orange-500">
+                <Text
+                  style={{ color: theme.colors.primary }}
+                  className="text-3xl font-bold"
+                >
                   {userProgress?.streakDays || 0}
                 </Text>
                 <Text className="text-2xl">🔥</Text>
               </View>
             </View>
             <View className="items-end">
-              <Text className="text-sm text-gray-500 mb-1">Level</Text>
-              <Text className="text-3xl font-bold text-purple-600">
+              <Text style={{ color: theme.colors.textSecondary }} className="text-sm mb-1">
+                {t('home_level')}
+              </Text>
+              <Text style={{ color: theme.colors.primary }} className="text-3xl font-bold">
                 {userProgress?.currentLevel || 1}
               </Text>
             </View>
@@ -42,17 +58,20 @@ export default function HomeScreen({ navigation }) {
           {/* Progress Bar */}
           <View className="mt-6">
             <View className="flex-row justify-between mb-2">
-              <Text className="text-xs font-semibold text-gray-600">
-                Letters Mastered
+              <Text style={{ color: theme.colors.text }} className="text-xs font-semibold">
+                {t('home_letters_mastered')}
               </Text>
-              <Text className="text-xs font-semibold text-purple-600">
+              <Text style={{ color: theme.colors.primary }} className="text-xs font-semibold">
                 {userProgress?.masteredLetters?.length || 0}/28
               </Text>
             </View>
-            <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <View
+              style={{ backgroundColor: theme.colors.border }}
+              className="h-2 rounded-full overflow-hidden"
+            >
               <View
-                className="h-full bg-gradient-to-r from-purple-500 to-purple-600"
                 style={{
+                  backgroundColor: theme.colors.primary,
                   width: `${
                     ((userProgress?.masteredLetters?.length || 0) / 28) * 100
                   }%`,
@@ -61,17 +80,24 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
 
-          <View className="mt-4 pt-4 border-t border-gray-200">
+          <View
+            style={{ borderTopColor: theme.colors.border }}
+            className="mt-4 pt-4 border-t"
+          >
             <View className="flex-row justify-between">
               <View className="items-center flex-1">
-                <Text className="text-xs text-gray-500 mb-1">Total XP</Text>
-                <Text className="font-bold text-gray-900">
+                <Text style={{ color: theme.colors.textSecondary }} className="text-xs mb-1">
+                  {t('home_total_xp')}
+                </Text>
+                <Text style={{ color: theme.colors.text }} className="font-bold">
                   {userProgress?.totalXP || 0}
                 </Text>
               </View>
               <View className="items-center flex-1">
-                <Text className="text-xs text-gray-500 mb-1">Mastered</Text>
-                <Text className="font-bold text-gray-900">
+                <Text style={{ color: theme.colors.textSecondary }} className="text-xs mb-1">
+                  {t('home_achievements')}
+                </Text>
+                <Text style={{ color: theme.colors.text }} className="font-bold">
                   {userProgress?.masteredLetters?.length || 0}
                 </Text>
               </View>
@@ -81,19 +107,20 @@ export default function HomeScreen({ navigation }) {
 
         {/* Quick Actions */}
         <View className="mx-6 mb-6">
-          <Text className="text-lg font-bold text-gray-900 mb-3">
-            Quick Start
+          <Text style={{ color: theme.colors.text }} className="text-lg font-bold mb-3">
+            {t('home_quick_start')}
           </Text>
           <View className="gap-3">
             <TouchableOpacity
               onPress={() => navigation.navigate('Journey')}
-              className="bg-purple-600 rounded-2xl p-4 flex-row items-center gap-4 active:bg-purple-700"
+              style={{ backgroundColor: theme.colors.primary }}
+              className="rounded-2xl p-4 flex-row items-center gap-4"
             >
               <Ionicons name="map" size={24} color="white" />
               <View className="flex-1">
-                <Text className="text-white font-bold">Journey Map</Text>
-                <Text className="text-purple-100 text-xs">
-                  Continue learning
+                <Text className="text-white font-bold">{t('home_journey_map')}</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)' }} className="text-xs">
+                  {t('home_journey_desc')}
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="white" />
@@ -101,14 +128,17 @@ export default function HomeScreen({ navigation }) {
 
             <TouchableOpacity
               onPress={() => navigation.navigate('Practice')}
-              className="bg-blue-600 rounded-2xl p-4 flex-row items-center gap-4 active:bg-blue-700"
+              style={{ backgroundColor: theme.colors.secondary }}
+              className="rounded-2xl p-4 flex-row items-center gap-4"
             >
               <Ionicons name="mic" size={24} color="white" />
               <View className="flex-1">
                 <Text className="text-white font-bold">
-                  Practice Pronunciation
+                  {t('home_pronunciation')}
                 </Text>
-                <Text className="text-blue-100 text-xs">With Kalam AI</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)' }} className="text-xs">
+                  {t('home_pronunciation_desc')}
+                </Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="white" />
             </TouchableOpacity>
@@ -118,17 +148,24 @@ export default function HomeScreen({ navigation }) {
         {/* Recent Achievements */}
         {userProgress?.achievements && userProgress.achievements.length > 0 && (
           <View className="mx-6 mb-8">
-            <Text className="text-lg font-bold text-gray-900 mb-3">
-              Recent Achievements
+            <Text style={{ color: theme.colors.text }} className="text-lg font-bold mb-3">
+              {t('home_achievements_unlocked')}
             </Text>
             <View className="flex-row gap-3">
               {userProgress.achievements.slice(-3).map((achievement, index) => (
                 <View
                   key={index}
-                  className="flex-1 bg-yellow-50 rounded-2xl p-3 items-center"
+                  style={{
+                    backgroundColor: theme.colors.accent,
+                    borderColor: theme.colors.border,
+                  }}
+                  className="flex-1 rounded-2xl p-3 items-center border"
                 >
                   <Text className="text-2xl mb-1">🏆</Text>
-                  <Text className="text-xs font-semibold text-center text-gray-900">
+                  <Text
+                    style={{ color: theme.colors.text }}
+                    className="text-xs font-semibold text-center"
+                  >
                     {achievement.title}
                   </Text>
                 </View>
