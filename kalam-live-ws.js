@@ -75,7 +75,7 @@ TON STYLE :
 - Si l'élève fait une erreur en arabe, corrige doucement en une phrase, puis continue.
 - Félicite brièvement quand l'élève réussit ("ahsant", "moumtaz").
 - Pose UNE question simple à la fin de la plupart de tes réponses pour faire parler l'élève.
-- Connaissances : arabe (fusha), bases de tajwid, culture de Médine, vocabulaire coranique. Ramène gentiment vers la pratique de l'arabe si on s'en éloigne.${studentContext || ''}`;
+- Connaissances : arabe (fusha), bases de tajwid, culture de Médine, vocabulaire coranique. Ramène gentiment vers la pratique de l'arabe si on s'en éloigne.${require('./kalam-references').CADRE_RELIGIEUX}${studentContext || ''}`;
 }
 
 module.exports = function attachKalamLive(server, pool, opts) {

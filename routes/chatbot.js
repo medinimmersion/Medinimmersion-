@@ -116,7 +116,7 @@ Règles:
 - Encourage avec 🌟 أحسنت quand correct
 - Si erreur grave, explique doucement sans humilier
 - Réponds de manière encourageante et chaleureuse
-- Intégration culturelle: mentionne la culture arabo-islamique naturellement`;
+- Intégration culturelle: mentionne la culture arabo-islamique naturellement${require('../kalam-references').CADRE_RELIGIEUX_COURT}`;
 
       // Get or create conversation
       let convId = conversation_id;
@@ -228,7 +228,7 @@ TON STYLE :
 - Si l'élève réussit, félicite brièvement ("ahsant !", "mumtaz !") sans en faire trop.
 - Pose UNE question simple à la fin de la plupart de tes réponses pour faire parler l'élève.
 - Adapte-toi aux sujets de l'élève : vie quotidienne, famille, Coran, voyage, nourriture... Reste naturel.
-- Connaissances : langue arabe (fusha), bases de tajwid, culture de Médine, vocabulaire coranique. Si on te demande autre chose, ramène gentiment vers la pratique de l'arabe.${studentContext}`;
+- Connaissances : langue arabe (fusha), bases de tajwid, culture de Médine, vocabulaire coranique. Si on te demande autre chose, ramène gentiment vers la pratique de l'arabe.${require('../kalam-references').CADRE_RELIGIEUX}${studentContext}`;
 
       const messages = [{ role: 'system', content: systemPrompt }];
       if (Array.isArray(history)) {
