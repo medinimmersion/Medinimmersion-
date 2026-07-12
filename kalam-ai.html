@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Kalam AI — Ton professeur d'arabe IA · Médin'Immersion</title>
+<meta name="description" content="Kalam AI : parle arabe tous les jours avec ton professeur IA, à l'oral et en temps réel. Forfaits dès 2,90 €/mois.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
+<style>
+:root{
+  --green-deep:#0F3D26;--green:#1B5E3A;--green-mid:#17512F;
+  --gold:#B8953A;--gold-light:#D4A843;--gold-pale:#F0E0A8;
+  --cream:#FDFAF3;--beige:#E9E1CC;--ink:#1E241F;--muted:#6B7267;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);}
+.ar{font-family:'Amiri',serif;}
+a{color:inherit;}
+header{position:sticky;top:0;z-index:20;background:rgba(253,250,243,0.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--beige);}
+.head-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1.25rem;}
+.head-in img{height:54px;display:block;}
+.head-links{display:flex;align-items:center;gap:0.9rem;font-size:0.88rem;font-weight:600;}
+.head-links a{text-decoration:none;color:var(--green-deep);}
+.head-links .cta{background:var(--green);color:#fff;padding:0.5rem 1.1rem;border-radius:50px;}
+/* Hero */
+.hero{background:radial-gradient(120% 120% at 50% 0%,#15543A 0%,var(--green-deep) 60%,#0A2C1C 100%);color:#fff;text-align:center;padding:3.5rem 1.25rem 3rem;}
+.hero .ar-line{font-family:'Amiri',serif;color:var(--gold-light);font-size:1.6rem;margin-bottom:0.8rem;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.1rem,5vw,3.2rem);line-height:1.15;margin-bottom:0.9rem;}
+.hero h1 span{color:var(--gold-light);}
+.hero p{color:rgba(255,255,255,0.82);max-width:560px;margin:0 auto 1.6rem;font-size:1rem;line-height:1.7;}
+.hero .btn-gold{display:inline-block;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);font-weight:800;text-decoration:none;padding:0.95rem 2.2rem;border-radius:50px;box-shadow:0 6px 22px rgba(212,168,67,0.4);}
+.badges{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-top:1.4rem;}
+.badge{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);border-radius:50px;padding:0.4rem 1rem;font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.85);}
+/* Sections */
+section{max-width:1080px;margin:0 auto;padding:3rem 1.25rem;}
+h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clamp(1.7rem,3.5vw,2.3rem);text-align:center;margin-bottom:0.5rem;}
+.sub{text-align:center;color:var(--muted);margin-bottom:2.2rem;font-size:0.95rem;}
+/* Forfaits */
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;}
+.plan{background:#fff;border:2px solid var(--beige);border-radius:18px;padding:1.5rem 1.25rem;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;}
+.plan:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,0,0,0.08);}
+.plan.on{border-color:var(--gold);box-shadow:0 10px 30px rgba(184,149,58,0.22);}
+.plan .emo{font-size:1.7rem;}
+.plan h3{font-size:1.05rem;color:var(--green-deep);margin:0.4rem 0 0.2rem;}
+.plan .price{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--green-deep);}
+.plan .price small{font-size:0.85rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:600;}
+.plan .quota{display:inline-block;background:var(--cream);border:1px solid var(--beige);border-radius:50px;padding:0.3rem 0.9rem;font-size:0.8rem;font-weight:700;color:var(--gold);margin-top:0.5rem;}
+.plan .pop{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;font-size:0.68rem;font-weight:800;letter-spacing:0.05em;padding:0.22rem 0.8rem;border-radius:50px;}
+/* Objectifs */
+.goals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.8rem;}
+.goal{background:#fff;border:2px solid var(--beige);border-radius:14px;padding:1rem;cursor:pointer;transition:all 0.15s;display:flex;gap:0.7rem;align-items:flex-start;}
+.goal.on{border-color:var(--green);background:#F4FAF6;}
+.goal .emo{font-size:1.4rem;}
+.goal b{display:block;color:var(--green-deep);font-size:0.92rem;}
+.goal small{color:var(--muted);font-size:0.78rem;line-height:1.5;display:block;margin-top:0.15rem;}
+/* Formulaire */
+.form-card{background:#fff;border:1px solid var(--beige);border-radius:20px;padding:1.8rem 1.5rem;max-width:520px;margin:0 auto;}
+.form-card input,.form-card select{width:100%;padding:0.85rem 1rem;border-radius:12px;border:1.5px solid var(--beige);background:var(--cream);font-family:inherit;font-size:0.95rem;margin-bottom:0.7rem;}
+.frow{display:flex;gap:0.7rem;}
+.frow>*{flex:1;}
+.form-card button{width:100%;padding:1rem;border:none;border-radius:50px;background:var(--green);color:#fff;font-family:inherit;font-weight:800;font-size:1rem;cursor:pointer;margin-top:0.4rem;}
+.err{display:none;background:#FDECEC;color:#B3261E;border:1px solid #F5C6C2;border-radius:10px;padding:0.6rem 0.9rem;font-size:0.85rem;margin-bottom:0.7rem;}
+.summary{background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:0.8rem 1rem;font-size:0.85rem;color:var(--muted);margin-bottom:0.8rem;}
+.summary b{color:var(--green-deep);}
+/* Confirmation */
+.confirm{display:none;background:#fff;border:2px solid var(--gold);border-radius:20px;padding:2rem 1.5rem;max-width:520px;margin:0 auto;text-align:center;}
+.confirm .ar-line{font-family:'Amiri',serif;color:var(--gold);font-size:1.4rem;margin-bottom:0.5rem;}
+.confirm h3{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.6rem;margin-bottom:0.7rem;}
+.confirm p{color:var(--muted);font-size:0.92rem;line-height:1.7;margin-bottom:1rem;}
+.confirm .pay{display:inline-block;background:#003087;color:#fff;font-weight:800;text-decoration:none;padding:0.9rem 2rem;border-radius:50px;margin-bottom:0.8rem;}
+.confirm .try{display:inline-block;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);font-weight:800;text-decoration:none;padding:0.9rem 2rem;border-radius:50px;}
+footer{text-align:center;color:var(--muted);font-size:0.8rem;padding:2rem 1rem 2.5rem;border-top:1px solid var(--beige);}
+@media(max-width:640px){.frow{flex-direction:column;gap:0;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-in">
+    <a href="/"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
+    <div class="head-links">
+      <a href="/kalam">Déjà inscrit ? Se connecter</a>
+      <a class="cta" href="#inscription">S'inscrire</a>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="ar-line">تَكَلَّمْ بِالْعَرَبِيَّةِ كُلَّ يَوْمٍ</div>
+  <h1>Kalam <span>AI</span><br>Ton professeur d'arabe, disponible 24h/24</h1>
+  <p>Parle arabe à l'oral, en temps réel, avec Oustaz Abou Adam ou Oustaza Oum Adam.
+  Il t'écoute, te corrige avec douceur et s'adapte à ton niveau — comme un vrai professeur de Médine, à tout moment.</p>
+  <a class="btn-gold" href="#forfaits">Voir les forfaits →</a>
+  <div class="badges">
+    <span class="badge">🎙️ Conversation vocale en temps réel</span>
+    <span class="badge">📖 Programme de Médine</span>
+    <span class="badge">🕌 Voie des salafs</span>
+    <span class="badge">🇫🇷 🇸🇦 🇬🇧 3 langues</span>
+  </div>
+</div>
+
+<section id="forfaits">
+  <h2>Choisis ton forfait</h2>
+  <p class="sub">Sans engagement — chaque forfait est valable 30 jours et se règle simplement via PayPal.</p>
+  <div class="plans" id="plans"><div style="text-align:center;color:var(--muted);grid-column:1/-1;">Chargement des forfaits…</div></div>
+</section>
+
+<section id="objectif" style="padding-top:0;">
+  <h2>Ton objectif</h2>
+  <p class="sub">Dis-nous où tu en es : Kalam adaptera ses conversations à ton but.</p>
+  <div class="goals" id="goals">
+    <div class="goal" data-obj="alphabet"><span class="emo">🔤</span><span><b>Apprendre l'alphabet</b><small>Je pars de zéro : lettres, sons et voyelles. <em>Livre d'apprentissage requis (bientôt disponible ici).</em></small></span></div>
+    <div class="goal" data-obj="lecture"><span class="emo">📖</span><span><b>Apprendre à lire</b><small>Je connais les lettres, je veux lire couramment. <em>Livre de lecture requis (bientôt disponible ici).</em></small></span></div>
+    <div class="goal" data-obj="ecriture"><span class="emo">✍️</span><span><b>Apprendre à écrire</b><small>Je veux écrire l'arabe correctement. <em>Livre d'écriture requis (bientôt disponible ici).</em></small></span></div>
+    <div class="goal on" data-obj="conversation"><span class="emo">🗣️</span><span><b>Parler & converser</b><small>Je veux pratiquer l'oral et progresser en conversation. Aucun livre requis.</small></span></div>
+  </div>
+</section>
+
+<section id="inscription" style="padding-top:0;">
+  <h2>Crée ton compte</h2>
+  <p class="sub">Ton compte est prêt en 30 secondes. 3 minutes d'essai offertes chaque jour en attendant l'activation de ton forfait.</p>
+
+  <div class="form-card" id="formCard">
+    <div class="summary" id="summary">Forfait choisi : <b>—</b> · Objectif : <b>Parler & converser</b></div>
+    <div class="err" id="err"></div>
+    <div class="frow">
+      <input id="fPrenom" placeholder="Prénom *">
+      <input id="fNom" placeholder="Nom *">
+    </div>
+    <input id="fEmail" type="email" placeholder="Email">
+    <input id="fWhatsapp" placeholder="WhatsApp (ex : +33612345678)">
+    <select id="fGender"><option value="">— Je suis… —</option><option value="homme">Un homme (Oustaz Abou Adam)</option><option value="femme">Une femme (Oustaza Oum Adam)</option></select>
+    <input id="fPwd" type="password" placeholder="Mot de passe (4 caractères min.) *" autocomplete="new-password">
+    <button id="goBtn">Créer mon compte Kalam AI →</button>
+  </div>
+
+  <div class="confirm" id="confirm">
+    <div class="ar-line">بَارَكَ اللَّهُ فِيكَ</div>
+    <h3 id="cTitle">Compte créé !</h3>
+    <p id="cMsg"></p>
+    <a class="pay" id="cPay" href="#" target="_blank" rel="noopener">💳 Payer via PayPal</a><br>
+    <a class="try" href="/kalam">🎙️ Essayer Kalam maintenant</a>
+    <p style="margin-top:0.9rem;font-size:0.8rem;">Ton forfait est activé dès que l'école confirme la réception du paiement (généralement sous 24 h).</p>
+  </div>
+</section>
+
+<footer>
+  Médin'Immersion — L'apprentissage en action · <a href="/">medinimmersion.com</a>
+</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let packages=[], selPkg=null, selObj='conversation';
+const OBJ_LABELS={alphabet:"Apprendre l'alphabet",lecture:'Apprendre à lire',ecriture:'Apprendre à écrire',conversation:'Parler & converser'};
+const PLAN_EMOJI={'Découverte':'🌱','Apprentissage':'📖','Progression':'🚀','Immersion':'♾️'};
+
+function quotaTxt(m){ return m===-1?'Illimité':(m>=60?(m/60)+' h / jour':m+' min / jour'); }
+function refreshSummary(){
+  const p=packages.find(x=>x.id===selPkg);
+  $('summary').innerHTML='Forfait choisi : <b>'+(p?p.name+' — '+Number(p.price_euros).toFixed(2).replace('.',',')+' €/mois':'—')+'</b> · Objectif : <b>'+OBJ_LABELS[selObj]+'</b>';
+}
+async function loadPackages(){
+  try{
+    const r=await fetch('/api/kalam/packages');
+    packages=await r.json();
+    if(!Array.isArray(packages)||!packages.length){ $('plans').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);">Forfaits bientôt disponibles.</div>'; return; }
+    packages.sort((a,b)=>a.price_euros-b.price_euros);
+    $('plans').innerHTML=packages.map((p,i)=>`
+      <div class="plan${p.id===selPkg?' on':''}" data-id="${p.id}">
+        ${p.name==='Progression'?'<span class="pop">LE PLUS CHOISI</span>':''}
+        <div class="emo">${PLAN_EMOJI[p.name]||'⭐'}</div>
+        <h3>${p.name}</h3>
+        <div class="price">${Number(p.price_euros).toFixed(2).replace('.',',')} €<small> /mois</small></div>
+        <div class="quota">${quotaTxt(p.minutes_per_day)}</div>
+      </div>`).join('');
+    document.querySelectorAll('.plan').forEach(el=>el.onclick=()=>{
+      selPkg=parseInt(el.dataset.id,10);
+      document.querySelectorAll('.plan').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.id,10)===selPkg));
+      refreshSummary();
+    });
+  }catch{ $('plans').innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);">Impossible de charger les forfaits — réessaie.</div>'; }
+}
+document.querySelectorAll('.goal').forEach(el=>el.onclick=()=>{
+  selObj=el.dataset.obj;
+  document.querySelectorAll('.goal').forEach(x=>x.classList.toggle('on',x.dataset.obj===selObj));
+  refreshSummary();
+});
+$('goBtn').onclick=async()=>{
+  const err=$('err'); err.style.display='none';
+  if(!selPkg){ err.textContent='Choisis d\'abord un forfait ci-dessus.'; err.style.display='block'; document.getElementById('forfaits').scrollIntoView({behavior:'smooth'}); return; }
+  const body={
+    prenom:$('fPrenom').value.trim(), nom:$('fNom').value.trim(),
+    email:$('fEmail').value.trim(), whatsapp:$('fWhatsapp').value.trim(),
+    gender:$('fGender').value, password:$('fPwd').value,
+    package_id:selPkg, objectif:selObj
+  };
+  if(!body.prenom||!body.nom){ err.textContent='Prénom et nom requis.'; err.style.display='block'; return; }
+  if(!body.email&&!body.whatsapp){ err.textContent='Email ou WhatsApp requis (c\'est ton identifiant de connexion).'; err.style.display='block'; return; }
+  if(!body.password||body.password.length<4){ err.textContent='Mot de passe requis (4 caractères minimum).'; err.style.display='block'; return; }
+  $('goBtn').disabled=true; $('goBtn').textContent='Création du compte…';
+  try{
+    const r=await fetch('/api/kalam/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Erreur serveur');
+    $('formCard').style.display='none';
+    $('confirm').style.display='block';
+    $('cTitle').textContent='Bienvenue '+(d.student?.prenom||'')+' !';
+    $('cMsg').innerHTML='Ton compte Kalam AI est créé.<br>Forfait <b>'+d.package.name+'</b> — <b>'+String(d.package.price_euros).replace('.',',')+' €/mois</b>. Règle-le via PayPal pour l\'activer :';
+    $('cPay').href=d.paypal;
+    $('confirm').scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    err.textContent=e.message; err.style.display='block';
+    $('goBtn').disabled=false; $('goBtn').textContent='Créer mon compte Kalam AI →';
+  }
+};
+loadPackages();
+</script>
+</body>
+</html>

@@ -267,6 +267,7 @@ const routeFiles = [
   'content-api',
   'kalam-live-token',
   'kalam-books',
+  'kalam-signup',
 ];
 
 for (const name of routeFiles) {
@@ -371,7 +372,7 @@ app.get('/:a/:b', (req, res, next) => {
   const knownPages = [
     'nos-cours', 'tarifs', 'qui-sommes-nous', 'reglement',
     'inscription', 'espace-eleve', 'espace-professeur',
-    'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test', 'kalam-live',
+    'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test', 'kalam-live', 'kalam-ai',
   ];
   if (knownPages.includes(page)) return res.redirect('/' + page);
   next();
@@ -386,7 +387,7 @@ app.get(['/kalam', '/kalam.html'], (req, res) => {
 const htmlPages = [
   'nos-cours', 'tarifs', 'qui-sommes-nous', 'reglement',
   'inscription', 'espace-eleve', 'espace-professeur',
-  'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test', 'kalam-live',
+  'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test', 'kalam-live', 'kalam-ai',
   'blog', 'blog-apprendre-arabe-immersion', 'blog-choisir-professeur-coran',
 ];
 
