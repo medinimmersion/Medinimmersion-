@@ -474,6 +474,40 @@ TON STYLE :
     } catch (err) { console.error('[admin/kalam-reset]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // ── Temps Kalam : vue d'ensemble pour le gérant (tous les élèves + leur temps) ──
+  router.get('/api/admin/kalam/times', opts.requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query(`
+        SELECT id, nom, prenom, kounia, email,
+               COALESCE(kalam_seconds_total, 180) AS total,
+               CASE WHEN kalam_quota_date = CURRENT_DATE THEN COALESCE(kalam_seconds_used, 0) ELSE 0 END AS used_today
+        FROM students
+        WHERE COALESCE(validation_status, '') NOT IN ('rejected', 'refuse')
+        ORDER BY nom NULLS LAST, prenom NULLS LAST`);
+      res.json(r.rows);
+    } catch (err) { console.error('[admin/kalam/times]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // ── Temps Kalam : réglage groupé pour plusieurs élèves à la fois ──
+  // body: { student_ids: [..], minutes: n } ou { student_ids, unlimited: true } ou { student_ids, disable: true }
+  router.post('/api/admin/kalam/times/bulk', opts.requireAdmin, async (req, res) => {
+    try {
+      const ids = (Array.isArray(req.body.student_ids) ? req.body.student_ids : [])
+        .map(x => parseInt(x, 10)).filter(n => Number.isInteger(n) && n > 0);
+      if (!ids.length) return res.status(400).json({ error: 'Aucun élève sélectionné.' });
+      let total;
+      if (req.body.disable) total = 0;
+      else if (req.body.unlimited) total = -1;
+      else {
+        const m = parseInt(req.body.minutes, 10);
+        if (isNaN(m) || m < 0) return res.status(400).json({ error: 'Nombre de minutes invalide.' });
+        total = m * 60;
+      }
+      const r = await pool.query('UPDATE students SET kalam_seconds_total = $2 WHERE id = ANY($1)', [ids, total]);
+      res.json({ success: true, updated: r.rowCount, kalam_seconds_total: total });
+    } catch (err) { console.error('[admin/kalam/bulk]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   // ════════ FORFAITS & PAIEMENTS KALAM ════════
 
   // Liste des forfaits actifs (public — pour l'élève et le gérant)

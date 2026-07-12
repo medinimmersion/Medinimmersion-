@@ -172,6 +172,34 @@ module.exports = function (pool, opts) {
     } catch (err) { console.error('[teacher/progression]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // PUT /api/teacher/progression/:student_id — le professeur met à jour niveau + page du livre
+  router.put('/api/teacher/progression/:student_id', requireTeacherAuth, async (req, res) => {
+    try {
+      // Seuls les élèves assignés à ce professeur sont modifiables
+      const assigned = await pool.query(
+        'SELECT 1 FROM teacher_student_assignments WHERE teacher_id = $1 AND student_id = $2',
+        [req.teacherId, req.params.student_id]);
+      if (!assigned.rowCount) return res.status(403).json({ error: 'Cet élève ne vous est pas assigné.' });
+
+      let { niveau, current_page } = req.body;
+      niveau = niveau === undefined || niveau === null || niveau === '' ? null : parseInt(niveau, 10);
+      current_page = current_page === undefined || current_page === null || current_page === '' ? null : parseInt(current_page, 10);
+      if (niveau !== null && (isNaN(niveau) || niveau < 1 || niveau > 11)) return res.status(400).json({ error: 'Niveau invalide (1 à 11).' });
+      if (current_page !== null && (isNaN(current_page) || current_page < 1)) return res.status(400).json({ error: 'Page invalide.' });
+
+      const result = await pool.query(
+        `INSERT INTO student_progression (student_id, niveau, current_page, updated_by, updated_at)
+         VALUES ($1, COALESCE($2, 1), COALESCE($3, 1), 'teacher', NOW())
+         ON CONFLICT (student_id) DO UPDATE SET
+           niveau = COALESCE($2, student_progression.niveau),
+           current_page = COALESCE($3, student_progression.current_page),
+           updated_by = 'teacher', updated_at = NOW()
+         RETURNING *`,
+        [req.params.student_id, niveau, current_page]);
+      res.json(result.rows[0]);
+    } catch (err) { console.error('[teacher/update-progression]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   // GET /api/teacher/notifications
   router.get('/api/teacher/notifications', requireTeacherAuth, async (req, res) => {
     try {
