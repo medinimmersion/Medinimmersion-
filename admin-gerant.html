@@ -153,12 +153,16 @@ a{color:inherit;}
   <div class="panel" id="p-paiements">
     <h2>Paiements</h2>
     <p class="sub">Suis et valide séparément les paiements des cours et de Kalam.</p>
-    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
-      <button class="btn btn-green" id="paySubCours" onclick="switchPaySub('cours')">📚 Cours</button>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <button class="btn btn-green" id="paySubCours" onclick="switchPaySub('cours')">🎓 Cours</button>
       <button class="btn btn-soft" id="paySubKalam" onclick="switchPaySub('kalam')">🎙️ Kalam</button>
+      <button class="btn btn-soft" id="paySubLivres" onclick="switchPaySub('livres')">📚 Livres</button>
     </div>
     <div id="paySubCoursBox">
       <div id="listPaiements" class="loading">Chargement…</div>
+    </div>
+    <div id="paySubLivresBox" style="display:none;">
+      <div id="listBoutique" class="loading">Chargement…</div>
     </div>
     <div id="paySubKalamBox" style="display:none;">
       <button class="btn btn-gold" onclick="openAssignKalam()" style="margin-bottom:1rem;">➕ Attribuer un forfait Kalam</button>
@@ -588,12 +592,39 @@ async function setPay(id,status){
 
 /* ───────── PAIEMENTS KALAM ───────── */
 function switchPaySub(which){
-  const cours=which==='cours';
-  $('paySubCoursBox').style.display=cours?'block':'none';
-  $('paySubKalamBox').style.display=cours?'none':'block';
-  $('paySubCours').className='btn '+(cours?'btn-green':'btn-soft');
-  $('paySubKalam').className='btn '+(cours?'btn-soft':'btn-green');
-  if(!cours) loadKalamPay();
+  $('paySubCoursBox').style.display=which==='cours'?'block':'none';
+  $('paySubKalamBox').style.display=which==='kalam'?'block':'none';
+  $('paySubLivresBox').style.display=which==='livres'?'block':'none';
+  $('paySubCours').className='btn '+(which==='cours'?'btn-green':'btn-soft');
+  $('paySubKalam').className='btn '+(which==='kalam'?'btn-green':'btn-soft');
+  $('paySubLivres').className='btn '+(which==='livres'?'btn-green':'btn-soft');
+  if(which==='kalam') loadKalamPay();
+  if(which==='livres') loadBoutique();
+}
+async function loadBoutique(){
+  try{
+    const r=await fetch('/api/admin/boutique/orders',{headers:H()}); const list=await r.json();
+    if(!Array.isArray(list)||!list.length){ $('listBoutique').innerHTML='<div class="empty">Aucune commande de PDF.</div>'; return; }
+    $('listBoutique').innerHTML=list.map(o=>{
+      const paid=(o.payment_status||'')==='paid';
+      const nom=esc([o.prenom,o.nom].filter(Boolean).join(' ')||'—');
+      return `<div class="row"><div class="r-top">
+        <div><div class="name">${nom}</div>
+        <div class="meta">${esc(o.email||'')}${o.whatsapp?' · '+esc(o.whatsapp):''}<br>${esc(o.items||'')}<br><b>${Number(o.total).toFixed(2)}€</b> · ${new Date(o.created_at).toLocaleDateString('fr-FR')}</div></div>
+        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-warn">En attente</span>'}</div>
+        <div class="acts">${paid
+          ?`<button class="btn btn-soft" onclick="setBoutiquePay(${o.id},'unpaid')">Annuler le paiement</button>`
+          :`<button class="btn btn-ok" onclick="setBoutiquePay(${o.id},'paid')">✅ Paiement reçu (envoyer les PDF)</button>`}</div></div>`;
+    }).join('');
+  }catch{ $('listBoutique').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function setBoutiquePay(id,status){
+  try{
+    const r=await fetch('/api/admin/boutique/orders/'+id,{method:'PATCH',headers:H(),body:JSON.stringify({payment_status:status})});
+    if(!r.ok) throw 0;
+    toast(status==='paid'?'Paiement validé ✓ — pense à envoyer les PDF !':'Paiement annulé');
+    loadBoutique();
+  }catch{ toast('Échec — réessaie.'); }
 }
 let cacheKalamPkgs=[];
 async function openAssignKalam(){
