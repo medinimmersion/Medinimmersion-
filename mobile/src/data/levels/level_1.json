@@ -1,0 +1,621 @@
+{
+  "level": 1,
+  "title": "INITIATION",
+  "arabicTitle": "المستوى الأول",
+  "order": 1,
+  "duration_weeks": 2,
+  "total_vocabulary": 25,
+  "total_dialogues": 5,
+  "grammar_topics": 3,
+  "xp_reward": 200,
+  "character_focus": "Meet Oustaz Abou Adam, your guide",
+  "narrative_milestone": "First Words Unlocked",
+
+  "vocabulary": [
+    {
+      "id": "L1_V001",
+      "arabic": "السلام عليكم",
+      "transliteration": "assalamu alaykum",
+      "english": "Peace be upon you (Islamic greeting)",
+      "difficulty": "easy",
+      "context": "greeting",
+      "example_sentence": "عندما تقابل صديقك تقول: السلام عليكم",
+      "example_translation": "When you meet your friend you say: Peace be upon you"
+    },
+    {
+      "id": "L1_V002",
+      "arabic": "وعليكم السلام",
+      "transliteration": "wa alaykum assalam",
+      "english": "And upon you be peace (Response to greeting)",
+      "difficulty": "easy",
+      "context": "greeting",
+      "example_sentence": "ترد على التحية: وعليكم السلام",
+      "example_translation": "You reply to the greeting: And upon you be peace"
+    },
+    {
+      "id": "L1_V003",
+      "arabic": "صباح الخير",
+      "transliteration": "sabah al-khair",
+      "english": "Good morning",
+      "difficulty": "easy",
+      "context": "greeting",
+      "example_sentence": "في الصباح تقول: صباح الخير",
+      "example_translation": "In the morning you say: Good morning"
+    },
+    {
+      "id": "L1_V004",
+      "arabic": "مساء الخير",
+      "transliteration": "masaa al-khair",
+      "english": "Good evening",
+      "difficulty": "easy",
+      "context": "greeting",
+      "example_sentence": "في المساء تقول: مساء الخير",
+      "example_translation": "In the evening you say: Good evening"
+    },
+    {
+      "id": "L1_V005",
+      "arabic": "كيف حالك؟",
+      "transliteration": "kayf haluka",
+      "english": "How are you? (to male)",
+      "difficulty": "easy",
+      "context": "greeting",
+      "example_sentence": "عندما تسأل صديقك: كيف حالك؟",
+      "example_translation": "When you ask your friend: How are you?"
+    },
+    {
+      "id": "L1_V006",
+      "arabic": "أنا بخير",
+      "transliteration": "ana bikhair",
+      "english": "I am well",
+      "difficulty": "easy",
+      "context": "greeting",
+      "example_sentence": "ترد: أنا بخير، والحمد لله",
+      "example_translation": "You reply: I am well, praise be to God"
+    },
+    {
+      "id": "L1_V007",
+      "arabic": "اسمي",
+      "transliteration": "ismi",
+      "english": "My name is",
+      "difficulty": "easy",
+      "context": "introduction",
+      "example_sentence": "اسمي محمد",
+      "example_translation": "My name is Muhammad"
+    },
+    {
+      "id": "L1_V008",
+      "arabic": "ما اسمك؟",
+      "transliteration": "ma ismuka?",
+      "english": "What is your name?",
+      "difficulty": "easy",
+      "context": "introduction",
+      "example_sentence": "ما اسمك يا صديقي؟",
+      "example_translation": "What is your name, my friend?"
+    },
+    {
+      "id": "L1_V009",
+      "arabic": "يسعدني",
+      "transliteration": "yusaduni",
+      "english": "It pleases me / Nice to meet you",
+      "difficulty": "easy",
+      "context": "introduction",
+      "example_sentence": "يسعدني التعرف عليك",
+      "example_translation": "It pleases me to meet you"
+    },
+    {
+      "id": "L1_V010",
+      "arabic": "من أين أنت؟",
+      "transliteration": "min ayn ant?",
+      "english": "Where are you from?",
+      "difficulty": "easy",
+      "context": "introduction",
+      "example_sentence": "من أين أنت يا محمد؟",
+      "example_translation": "Where are you from, Muhammad?"
+    },
+    {
+      "id": "L1_V011",
+      "arabic": "أنا من",
+      "transliteration": "ana min",
+      "english": "I am from",
+      "difficulty": "easy",
+      "context": "introduction",
+      "example_sentence": "أنا من المدينة المنورة",
+      "example_translation": "I am from Medina"
+    },
+    {
+      "id": "L1_V012",
+      "arabic": "شكراً",
+      "transliteration": "shukran",
+      "english": "Thank you",
+      "difficulty": "easy",
+      "context": "politeness",
+      "example_sentence": "شكراً على مساعدتك",
+      "example_translation": "Thank you for your help"
+    },
+    {
+      "id": "L1_V013",
+      "arabic": "عفواً",
+      "transliteration": "afwan",
+      "english": "You're welcome",
+      "difficulty": "easy",
+      "context": "politeness",
+      "example_sentence": "عفواً، لا تذكر",
+      "example_translation": "You're welcome, don't mention it"
+    },
+    {
+      "id": "L1_V014",
+      "arabic": "من فضلك",
+      "transliteration": "min fadlak",
+      "english": "Please (to male)",
+      "difficulty": "easy",
+      "context": "politeness",
+      "example_sentence": "من فضلك، ساعدني",
+      "example_translation": "Please, help me"
+    },
+    {
+      "id": "L1_V015",
+      "arabic": "نعم",
+      "transliteration": "na'am",
+      "english": "Yes",
+      "difficulty": "easy",
+      "context": "basic",
+      "example_sentence": "هل تريد ماء؟ نعم، من فضلك",
+      "example_translation": "Do you want water? Yes, please"
+    },
+    {
+      "id": "L1_V016",
+      "arabic": "لا",
+      "transliteration": "la",
+      "english": "No",
+      "difficulty": "easy",
+      "context": "basic",
+      "example_sentence": "هل أنت تعب؟ لا، أنا بخير",
+      "example_translation": "Are you tired? No, I'm fine"
+    },
+    {
+      "id": "L1_V017",
+      "arabic": "أنا",
+      "transliteration": "ana",
+      "english": "I",
+      "difficulty": "easy",
+      "context": "pronouns",
+      "example_sentence": "أنا طالب",
+      "example_translation": "I am a student"
+    },
+    {
+      "id": "L1_V018",
+      "arabic": "أنت",
+      "transliteration": "ant",
+      "english": "You (to male)",
+      "difficulty": "easy",
+      "context": "pronouns",
+      "example_sentence": "أنت معلم جيد",
+      "example_translation": "You are a good teacher"
+    },
+    {
+      "id": "L1_V019",
+      "arabic": "هو",
+      "transliteration": "huwa",
+      "english": "He",
+      "difficulty": "easy",
+      "context": "pronouns",
+      "example_sentence": "هو من مصر",
+      "example_translation": "He is from Egypt"
+    },
+    {
+      "id": "L1_V020",
+      "arabic": "هي",
+      "transliteration": "hiya",
+      "english": "She",
+      "difficulty": "easy",
+      "context": "pronouns",
+      "example_sentence": "هي معلمة اللغة",
+      "example_translation": "She is the language teacher"
+    },
+    {
+      "id": "L1_V021",
+      "arabic": "طالب",
+      "transliteration": "talib",
+      "english": "Student",
+      "difficulty": "easy",
+      "context": "occupation",
+      "example_sentence": "أنا طالب في الجامعة",
+      "example_translation": "I am a student at the university"
+    },
+    {
+      "id": "L1_V022",
+      "arabic": "معلم",
+      "transliteration": "mu'allim",
+      "english": "Teacher",
+      "difficulty": "easy",
+      "context": "occupation",
+      "example_sentence": "هو معلم اللغة العربية",
+      "example_translation": "He is an Arabic language teacher"
+    },
+    {
+      "id": "L1_V023",
+      "arabic": "صديق",
+      "transliteration": "sadiq",
+      "english": "Friend",
+      "difficulty": "easy",
+      "context": "relationships",
+      "example_sentence": "محمد صديقي الجديد",
+      "example_translation": "Muhammad is my new friend"
+    },
+    {
+      "id": "L1_V024",
+      "arabic": "ماء",
+      "transliteration": "maa",
+      "english": "Water",
+      "difficulty": "easy",
+      "context": "food_drink",
+      "example_sentence": "أريد شرب ماء",
+      "example_translation": "I want to drink water"
+    },
+    {
+      "id": "L1_V025",
+      "arabic": "خبز",
+      "transliteration": "khubz",
+      "english": "Bread",
+      "difficulty": "easy",
+      "context": "food_drink",
+      "example_sentence": "هل تريد خبز؟",
+      "example_translation": "Do you want bread?"
+    }
+  ],
+
+  "grammar_topics": [
+    {
+      "id": "L1_G001",
+      "title": "Personal Pronouns (أنا، أنت، هو، هي)",
+      "description": "In Arabic, personal pronouns are used to refer to people. The main pronouns are: أنا (I), أنت (you-male), أنتِ (you-female), هو (he), and هي (she).",
+      "rule": "Each pronoun has a specific form and is used based on the gender and number of the person being referred to.",
+      "examples": [
+        {
+          "arabic": "أنا طالب",
+          "english": "I am a student",
+          "explanation": "Using أنا (I) to refer to oneself"
+        },
+        {
+          "arabic": "أنت معلم",
+          "english": "You are a teacher",
+          "explanation": "Using أنت (you-male) to address a male"
+        },
+        {
+          "arabic": "هو من مصر",
+          "english": "He is from Egypt",
+          "explanation": "Using هو (he) to refer to a male person"
+        },
+        {
+          "arabic": "هي طبيبة",
+          "english": "She is a doctor",
+          "explanation": "Using هي (she) to refer to a female person"
+        }
+      ]
+    },
+    {
+      "id": "L1_G002",
+      "title": "Basic Verb Structure - Present Tense of 'to be'",
+      "description": "In Arabic, the verb 'to be' (يكون) is often implied rather than stated explicitly. When describing someone or something, we simply place the subject and description together.",
+      "rule": "Subject + Description = Complete sentence (verb 'to be' is implied)",
+      "examples": [
+        {
+          "arabic": "أنا بخير",
+          "english": "I am well",
+          "explanation": "Subject (أنا) + description (بخير) = complete thought"
+        },
+        {
+          "arabic": "هو معلم",
+          "english": "He is a teacher",
+          "explanation": "Subject (هو) + noun (معلم) = complete sentence"
+        },
+        {
+          "arabic": "هي من المدينة",
+          "english": "She is from the city",
+          "explanation": "Subject (هي) + prepositional phrase (من المدينة)"
+        }
+      ]
+    },
+    {
+      "id": "L1_G003",
+      "title": "Islamic Greetings and Responses",
+      "description": "Arabic has specific greetings that carry cultural and religious significance. The most common is 'السلام عليكم' (peace be upon you) and the response 'وعليكم السلام' (and upon you be peace).",
+      "rule": "Greetings follow a pattern: greeting + response. Other greetings include صباح الخير (good morning) and مساء الخير (good evening).",
+      "examples": [
+        {
+          "arabic": "السلام عليكم - وعليكم السلام",
+          "english": "Peace be upon you - And upon you be peace",
+          "explanation": "The primary Islamic greeting and its response"
+        },
+        {
+          "arabic": "صباح الخير - صباح النور",
+          "english": "Good morning - Morning of light",
+          "explanation": "Morning greeting and poetic response"
+        },
+        {
+          "arabic": "كيف حالك؟ - أنا بخير",
+          "english": "How are you? - I am well",
+          "explanation": "Question about wellbeing and response"
+        }
+      ]
+    }
+  ],
+
+  "dialogues": [
+    {
+      "id": "L1_D001",
+      "title": "First Meeting",
+      "situation": "Two people meet for the first time in Medina",
+      "speakers": ["Ahmed", "Fatima"],
+      "script": [
+        {
+          "speaker": "Ahmed",
+          "arabic": "السلام عليكم",
+          "english": "Peace be upon you",
+          "phonetic": "assalamu alaykum"
+        },
+        {
+          "speaker": "Fatima",
+          "arabic": "وعليكم السلام ورحمة الله",
+          "english": "And upon you be peace and God's mercy",
+          "phonetic": "wa alaykum assalam wa rahmat allah"
+        },
+        {
+          "speaker": "Ahmed",
+          "arabic": "أنا اسمي أحمد",
+          "english": "My name is Ahmed",
+          "phonetic": "ana ismi ahmad"
+        },
+        {
+          "speaker": "Fatima",
+          "arabic": "يسعدني التعرف عليك. أنا فاطمة",
+          "english": "It pleases me to meet you. I am Fatima",
+          "phonetic": "yusaduni attaaruf alayik, ana fatima"
+        },
+        {
+          "speaker": "Ahmed",
+          "arabic": "من أين أنتِ يا فاطمة؟",
+          "english": "Where are you from, Fatima?",
+          "phonetic": "min ayn anti ya fatima"
+        },
+        {
+          "speaker": "Fatima",
+          "arabic": "أنا من مصر، والحمد لله على السلامة",
+          "english": "I am from Egypt, praise be to God for your safe arrival",
+          "phonetic": "ana min misr, wa alhamd lillah ala assalam"
+        }
+      ],
+      "vocabulary_introduced": ["السلام عليكم", "اسمي", "يسعدني", "من أين"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "L1_D002",
+      "title": "At the Coffee Shop",
+      "situation": "A student orders tea at a local café",
+      "speakers": ["Waiter", "Student"],
+      "script": [
+        {
+          "speaker": "Waiter",
+          "arabic": "السلام عليكم، أهلاً وسهلاً",
+          "english": "Welcome, peace be upon you",
+          "phonetic": "assalamu alaykum, ahlan wa sahlan"
+        },
+        {
+          "speaker": "Student",
+          "arabic": "وعليكم السلام. أريد شاي من فضلك",
+          "english": "And upon you be peace. I want tea, please",
+          "phonetic": "wa alaykum assalam. ureed shai min fadlak"
+        },
+        {
+          "speaker": "Waiter",
+          "arabic": "نعم، شاي بسكر أم بدون سكر؟",
+          "english": "Yes, tea with sugar or without sugar?",
+          "phonetic": "na'am, shai bi sukkar am bidun sukkar"
+        },
+        {
+          "speaker": "Student",
+          "arabic": "بسكر من فضلك",
+          "english": "With sugar, please",
+          "phonetic": "bi sukkar min fadlak"
+        },
+        {
+          "speaker": "Waiter",
+          "arabic": "حاضر. هل تريد خبز أيضاً؟",
+          "english": "Right away. Do you also want bread?",
+          "phonetic": "hadir, hal tureed khubz aydan"
+        },
+        {
+          "speaker": "Student",
+          "arabic": "نعم، شكراً",
+          "english": "Yes, thank you",
+          "phonetic": "na'am, shukran"
+        }
+      ],
+      "vocabulary_introduced": ["شاي", "سكر", "خبز", "شكراً"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "L1_D003",
+      "title": "Classroom Introduction",
+      "situation": "Teacher introduces himself to new students",
+      "speakers": ["Teacher", "Class"],
+      "script": [
+        {
+          "speaker": "Teacher",
+          "arabic": "السلام عليكم يا طلاب",
+          "english": "Peace be upon you, students",
+          "phonetic": "assalamu alaykum ya tallab"
+        },
+        {
+          "speaker": "Class",
+          "arabic": "وعليكم السلام يا معلم",
+          "english": "And upon you be peace, teacher",
+          "phonetic": "wa alaykum assalam ya mu'allim"
+        },
+        {
+          "speaker": "Teacher",
+          "arabic": "أنا معلم اللغة العربية. اسمي هو الدكتور سليم",
+          "english": "I am an Arabic language teacher. My name is Dr. Salim",
+          "phonetic": "ana mu'allim alugha alarabiya, ismi huwa addoktor salim"
+        },
+        {
+          "speaker": "Class",
+          "arabic": "أهلاً بك يا دكتور",
+          "english": "Welcome, doctor",
+          "phonetic": "ahlan bik ya doktor"
+        },
+        {
+          "speaker": "Teacher",
+          "arabic": "شكراً. نحن سنتعلم العربية معاً",
+          "english": "Thank you. We will learn Arabic together",
+          "phonetic": "shukran, nahnu snataalum alarabiya ma'an"
+        }
+      ],
+      "vocabulary_introduced": ["طالب", "معلم", "لغة", "عربية"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "L1_D004",
+      "title": "Asking for Help",
+      "situation": "A student asks a friend for help",
+      "speakers": ["Student 1", "Student 2"],
+      "script": [
+        {
+          "speaker": "Student 1",
+          "arabic": "السلام عليكم يا صديقي",
+          "english": "Peace be upon you, my friend",
+          "phonetic": "assalamu alaykum ya sadeeqy"
+        },
+        {
+          "speaker": "Student 2",
+          "arabic": "وعليكم السلام. كيف حالك؟",
+          "english": "And upon you be peace. How are you?",
+          "phonetic": "wa alaykum assalam, kayf haluk"
+        },
+        {
+          "speaker": "Student 1",
+          "arabic": "أنا بخير. هل تستطيع أن تساعدني؟",
+          "english": "I am well. Can you help me?",
+          "phonetic": "ana bikhair, hal tastatee an tusaadny"
+        },
+        {
+          "speaker": "Student 2",
+          "arabic": "نعم، من فضلك. في ماذا؟",
+          "english": "Yes, please. In what?",
+          "phonetic": "na'am, min fadlak, fi maza"
+        },
+        {
+          "speaker": "Student 1",
+          "arabic": "أحتاج إلى مساعدة في اللغة العربية",
+          "english": "I need help with Arabic language",
+          "phonetic": "ahtaj ila musaada fi alugha alarabiya"
+        }
+      ],
+      "vocabulary_introduced": ["صديق", "تساعد", "أحتاج"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "L1_D005",
+      "title": "Daily Farewell",
+      "situation": "Two friends say goodbye at the end of the day",
+      "speakers": ["Zainab", "Noor"],
+      "script": [
+        {
+          "speaker": "Zainab",
+          "arabic": "يا نور، أنا ذاهبة إلى البيت الآن",
+          "english": "Noor, I am going home now",
+          "phonetic": "ya noor, ana zahiba ila albayt al'an"
+        },
+        {
+          "speaker": "Noor",
+          "arabic": "حسناً. إلى اللقاء يا زينب",
+          "english": "Okay. See you later, Zainab",
+          "phonetic": "hasnan, ila alliqaa ya zainab"
+        },
+        {
+          "speaker": "Zainab",
+          "arabic": "إلى اللقاء. تصبحي على خير",
+          "english": "Goodbye. Good night",
+          "phonetic": "ila alliqaa, tasbahi ala khair"
+        },
+        {
+          "speaker": "Noor",
+          "arabic": "وأنتِ من أهل الخير",
+          "english": "And you too be well",
+          "phonetic": "wa anti min ahl alkhair"
+        }
+      ],
+      "vocabulary_introduced": ["بيت", "ذاهب", "إلى اللقاء"],
+      "difficulty": "easy"
+    }
+  ],
+
+  "cultural_insights": [
+    {
+      "title": "Islamic Greetings - The Heart of Arabic Culture",
+      "description": "The greeting 'السلام عليكم' (peace be upon you) is more than just a hello. It carries spiritual and cultural significance. It's a prayer for the well-being of the person you're addressing. This greeting is used by Muslims worldwide and reflects the values of peace and blessing in Islamic culture.",
+      "relevance": "Understanding these greetings helps you connect authentically with Arabic speakers and shows respect for their culture."
+    },
+    {
+      "title": "Hospitality in Arab Culture",
+      "description": "Arabs place tremendous value on hospitality. The phrase 'أهلاً وسهلاً' (Ahlan wa Sahlan - literally 'your family and ease') is not just a welcome, but an invitation into the family. Offering tea, coffee, or refreshments to guests is a fundamental part of Arab hospitality.",
+      "relevance": "When you learn to greet and respond appropriately, you're participating in this beautiful tradition of hospitality."
+    },
+    {
+      "title": "The Importance of Respect in Address",
+      "description": "Arabic has different forms of address based on gender, age, and social status. Using the correct form shows respect and understanding. For example, 'يا معلم' (O teacher) or 'يا دكتور' (O doctor) is used to show respect to professionals and elders.",
+      "relevance": "Learning these respectful forms of address is essential for proper communication in Arab society."
+    }
+  ],
+
+  "exercises": [
+    {
+      "id": "L1_E001",
+      "type": "multiple_choice",
+      "question": "What does 'السلام عليكم' mean?",
+      "options": ["Good morning", "Peace be upon you", "Thank you", "Where are you from?"],
+      "correct_answer": 1,
+      "explanation": "Correct! 'السلام عليكم' is the primary Islamic greeting meaning 'Peace be upon you'."
+    },
+    {
+      "id": "L1_E002",
+      "type": "multiple_choice",
+      "question": "How do you respond to 'السلام عليكم'?",
+      "options": ["عفواً", "وعليكم السلام", "شكراً", "أنا بخير"],
+      "correct_answer": 1,
+      "explanation": "Correct! The proper response is 'وعليكم السلام' (And upon you be peace)."
+    },
+    {
+      "id": "L1_E003",
+      "type": "multiple_choice",
+      "question": "Which word means 'student'?",
+      "options": ["معلم", "طالب", "صديق", "ماء"],
+      "correct_answer": 1,
+      "explanation": "Correct! 'طالب' (talib) means student."
+    },
+    {
+      "id": "L1_E004",
+      "type": "multiple_choice",
+      "question": "How do you say 'My name is Muhammad'?",
+      "options": ["ما اسمك؟", "اسمي محمد", "من أين أنت؟", "أنا من مصر"],
+      "correct_answer": 1,
+      "explanation": "Correct! 'اسمي محمد' means 'My name is Muhammad'."
+    },
+    {
+      "id": "L1_E005",
+      "type": "multiple_choice",
+      "question": "What does 'بخير' mean?",
+      "options": ["Thank you", "Bread", "Well/Good", "Water"],
+      "correct_answer": 2,
+      "explanation": "Correct! 'بخير' means well or good, used to respond to 'How are you?'"
+    }
+  ],
+
+  "milestone_celebration": {
+    "title": "First Words Unlocked! 🎉",
+    "description": "Congratulations! You've learned your first 25 Arabic words and basic greetings. You can now introduce yourself and have simple conversations!",
+    "reward_xp": 200,
+    "character_scene": "Oustaz Abou Adam nods approvingly and says: 'Excellent! You've taken your first steps on this beautiful journey of learning Arabic. Onwards to Level 2!'",
+    "next_milestone": "Level 2 Unlocked - Master the 28 Arabic Letters"
+  }
+}
