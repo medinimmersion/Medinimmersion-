@@ -268,6 +268,7 @@ const routeFiles = [
   'kalam-live-token',
   'kalam-books',
   'kalam-signup',
+  'boutique',
 ];
 
 for (const name of routeFiles) {
@@ -387,7 +388,7 @@ app.get(['/kalam', '/kalam.html'], (req, res) => {
 const htmlPages = [
   'nos-cours', 'tarifs', 'qui-sommes-nous', 'reglement',
   'inscription', 'espace-eleve', 'espace-professeur',
-  'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test', 'kalam-live', 'kalam-ai',
+  'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test', 'kalam-live', 'kalam-ai', 'boutique',
   'blog', 'blog-apprendre-arabe-immersion', 'blog-choisir-professeur-coran',
 ];
 
