@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
-  FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGameState } from '../hooks/useGameState';
@@ -29,6 +28,8 @@ const PHASES: { id: Phase; emoji: string; name: string; arabicName: string }[] =
 
 export default function JourneyMapScreen({ navigation }) {
   const { letters, userProgress } = useGameState();
+  const { getTheme } = useAppSettings();
+  const theme = getTheme();
   const [selectedPhase, setSelectedPhase] = useState<Phase>('MEDINA');
 
   const currentPhaseConfig = PHASES.find((p) => p.id === selectedPhase);
@@ -49,7 +50,7 @@ export default function JourneyMapScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ backgroundColor: theme.colors.background }} className="flex-1">
       {/* Phase Carousel */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-4">
         <View className="pl-6 pr-4 flex-row gap-3">
@@ -57,19 +58,23 @@ export default function JourneyMapScreen({ navigation }) {
             <TouchableOpacity
               key={phase.id}
               onPress={() => setSelectedPhase(phase.id)}
-              className={`px-6 py-3 rounded-full justify-center items-center ${
-                selectedPhase === phase.id
-                  ? 'bg-purple-600'
-                  : 'bg-gray-100'
-              }`}
+              style={{
+                backgroundColor:
+                  selectedPhase === phase.id
+                    ? theme.colors.primary
+                    : theme.colors.surface,
+              }}
+              className="px-6 py-3 rounded-full justify-center items-center"
             >
               <Text className="text-xl mb-1">{phase.emoji}</Text>
               <Text
-                className={`text-xs font-semibold ${
-                  selectedPhase === phase.id
-                    ? 'text-white'
-                    : 'text-gray-600'
-                }`}
+                style={{
+                  color:
+                    selectedPhase === phase.id
+                      ? theme.colors.background
+                      : theme.colors.textSecondary,
+                }}
+                className="text-xs font-semibold"
               >
                 {phase.name}
               </Text>
@@ -80,19 +85,28 @@ export default function JourneyMapScreen({ navigation }) {
 
       {/* Phase Info */}
       <View className="px-6 mb-4">
-        <View className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-4">
+        <View
+          style={{
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+          }}
+          className="rounded-2xl p-4 border"
+        >
           <View className="flex-row items-center gap-3 mb-2">
             <Text className="text-4xl">{currentPhaseConfig?.emoji}</Text>
             <View className="flex-1">
-              <Text className="text-xl font-bold text-gray-900">
+              <Text
+                style={{ color: theme.colors.text }}
+                className="text-xl font-bold"
+              >
                 {currentPhaseConfig?.name}
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text style={{ color: theme.colors.textSecondary }} className="text-sm">
                 {currentPhaseConfig?.arabicName}
               </Text>
             </View>
           </View>
-          <Text className="text-xs text-gray-500">
+          <Text style={{ color: theme.colors.textSecondary }} className="text-xs">
             {phaseLetters.length} letters to master
           </Text>
         </View>
@@ -107,18 +121,27 @@ export default function JourneyMapScreen({ navigation }) {
               <TouchableOpacity
                 key={index}
                 onPress={() => handleLetterPress(letter.id)}
-                className={`w-[23%] aspect-square rounded-2xl items-center justify-center ${
-                  status === 'mastered'
-                    ? 'bg-green-100'
-                    : status === 'completed'
-                    ? 'bg-blue-100'
-                    : 'bg-gray-100'
-                }`}
+                style={{
+                  backgroundColor:
+                    status === 'mastered'
+                      ? theme.colors.success
+                      : status === 'completed'
+                      ? theme.colors.secondary
+                      : theme.colors.surface,
+                  opacity: status === 'mastered' ? 0.2 : status === 'completed' ? 0.15 : 1,
+                }}
+                className="w-[23%] aspect-square rounded-2xl items-center justify-center"
               >
-                <Text className="text-4xl font-bold text-purple-600 mb-1">
+                <Text
+                  style={{ color: theme.colors.primary }}
+                  className="text-4xl font-bold mb-1"
+                >
                   {letter.forms.isolated}
                 </Text>
-                <Text className="text-xs font-semibold text-gray-600 text-center">
+                <Text
+                  style={{ color: theme.colors.textSecondary }}
+                  className="text-xs font-semibold text-center"
+                >
                   {letter.transliteration}
                 </Text>
                 {status === 'mastered' && (
@@ -126,7 +149,7 @@ export default function JourneyMapScreen({ navigation }) {
                     <Ionicons
                       name="checkmark-circle"
                       size={16}
-                      color="#10b981"
+                      color={theme.colors.success}
                     />
                   </View>
                 )}

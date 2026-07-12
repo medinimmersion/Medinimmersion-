@@ -22,14 +22,14 @@ export const themes: Record<ThemeName, Theme> = {
   medinimmersion: {
     name: 'medinimmersion',
     colors: {
-      primary: '#d97706',        // Gold/Amber
-      secondary: '#b45309',      // Dark Gold
-      accent: '#f59e0b',         // Light Gold
-      background: '#fffbeb',     // Cream
-      surface: '#fef3c7',        // Light Gold background
-      text: '#78350f',           // Dark Brown
-      textSecondary: '#92400e',  // Medium Brown
-      border: '#fcd34d',         // Lighter Gold
+      primary: '#2d5016',        // Deep Forest Green (MédinImmersion)
+      secondary: '#d97706',      // Gold/Amber
+      accent: '#fbbf24',         // Light Gold
+      background: '#f0fdf4',     // Very Light Green
+      surface: '#dcfce7',        // Light Green
+      text: '#1b4332',           // Dark Green
+      textSecondary: '#40916c',  // Medium Green
+      border: '#b7e4c7',         // Light Green Border
       success: '#10b981',        // Green
       warning: '#f59e0b',        // Amber
       error: '#ef4444',          // Red

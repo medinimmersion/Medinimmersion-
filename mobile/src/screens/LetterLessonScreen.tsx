@@ -8,11 +8,14 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useGameState } from '../hooks/useGameState';
+import { useAppSettings } from '../hooks/useAppSettings';
 
 export default function LetterLessonScreen({ route, navigation }) {
   const { letterId } = route.params || {};
   const { letters, currentLetter, setCurrentLetter, addXP, masterLesson } =
     useGameState();
+  const { getTheme } = useAppSettings();
+  const theme = getTheme();
 
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -27,8 +30,11 @@ export default function LetterLessonScreen({ route, navigation }) {
 
   if (!currentLetter) {
     return (
-      <SafeAreaView className="flex-1 bg-white items-center justify-center">
-        <Text className="text-gray-600">Loading lesson...</Text>
+      <SafeAreaView
+        style={{ backgroundColor: theme.colors.background }}
+        className="flex-1 items-center justify-center"
+      >
+        <Text style={{ color: theme.colors.textSecondary }}>Loading lesson...</Text>
       </SafeAreaView>
     );
   }
@@ -76,25 +82,35 @@ export default function LetterLessonScreen({ route, navigation }) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={{ backgroundColor: theme.colors.background }} className="flex-1">
       {/* Header */}
-      <View className="px-4 py-3 border-b border-gray-200">
+      <View
+        style={{
+          borderBottomColor: theme.colors.border,
+        }}
+        className="px-4 py-3 border-b"
+      >
         <View className="flex-row justify-between items-center mb-3">
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back" size={28} color="#000" />
+            <Ionicons name="chevron-back" size={28} color={theme.colors.text} />
           </TouchableOpacity>
-          <Text className="text-lg font-bold text-gray-800">
+          <Text style={{ color: theme.colors.text }} className="text-lg font-bold">
             {currentLetter.arabicName}
           </Text>
-          <Text className="text-sm font-semibold text-purple-600">
+          <Text style={{ color: theme.colors.primary }} className="text-sm font-semibold">
             {currentStep + 1}/{lessonSteps.length}
           </Text>
         </View>
         {/* Progress bar */}
-        <View className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+        <View
+          style={{ backgroundColor: theme.colors.border }}
+          className="w-full h-2 rounded-full overflow-hidden"
+        >
           <View
-            className="h-full bg-gradient-to-r from-purple-500 to-purple-600"
-            style={{ width: `${progress}%` }}
+            style={{
+              backgroundColor: theme.colors.primary,
+              width: `${progress}%`,
+            }}
           />
         </View>
       </View>
@@ -104,39 +120,62 @@ export default function LetterLessonScreen({ route, navigation }) {
         {currentLessonStep.type === 'introduction' && (
           <View className="p-6">
             <View className="items-center mb-6">
-              <Text className="text-7xl font-bold text-purple-600 mb-4">
+              <Text
+                style={{ color: theme.colors.primary }}
+                className="text-7xl font-bold mb-4"
+              >
                 {currentLetter.forms.isolated}
               </Text>
-              <Text className="text-2xl font-bold text-gray-800 mb-2">
+              <Text style={{ color: theme.colors.text }} className="text-2xl font-bold mb-2">
                 {currentLetter.arabicName}
               </Text>
-              <Text className="text-lg text-gray-600">
+              <Text style={{ color: theme.colors.textSecondary }} className="text-lg">
                 {currentLetter.transliteration}
               </Text>
             </View>
 
-            <View className="bg-purple-50 p-4 rounded-xl border border-purple-200 mb-6">
-              <Text className="text-sm font-semibold text-gray-700 mb-2">
+            <View
+              style={{
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+              }}
+              className="p-4 rounded-xl border mb-6"
+            >
+              <Text
+                style={{ color: theme.colors.text }}
+                className="text-sm font-semibold mb-2"
+              >
                 Anatomical Guide:
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text style={{ color: theme.colors.textSecondary }} className="text-sm">
                 {currentLetter.anatomicalNotes}
               </Text>
             </View>
 
-            <View className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-              <Text className="text-sm font-semibold text-gray-700 mb-2">
+            <View
+              style={{
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+              }}
+              className="p-4 rounded-xl border"
+            >
+              <Text
+                style={{ color: theme.colors.text }}
+                className="text-sm font-semibold mb-2"
+              >
                 Difficulty Level:
               </Text>
               <View className="flex-row gap-1">
                 {[...Array(5)].map((_, i) => (
                   <View
                     key={i}
-                    className={`h-2 flex-1 rounded ${
-                      i < currentLetter.difficultyLevel
-                        ? 'bg-orange-500'
-                        : 'bg-gray-300'
-                    }`}
+                    style={{
+                      backgroundColor:
+                        i < currentLetter.difficultyLevel
+                          ? theme.colors.secondary
+                          : theme.colors.border,
+                    }}
+                    className="h-2 flex-1 rounded"
                   />
                 ))}
               </View>
@@ -148,28 +187,53 @@ export default function LetterLessonScreen({ route, navigation }) {
         {currentLessonStep.type === 'pronunciation' && (
           <View className="p-6">
             <View className="items-center mb-8">
-              <View className="w-40 h-40 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 items-center justify-center mb-6">
-                <Text className="text-6xl font-bold text-purple-600">
+              <View
+                style={{
+                  backgroundColor: theme.colors.surface,
+                }}
+                className="w-40 h-40 rounded-full items-center justify-center mb-6"
+              >
+                <Text
+                  style={{ color: theme.colors.primary }}
+                  className="text-6xl font-bold"
+                >
                   {currentLetter.forms.isolated}
                 </Text>
               </View>
 
-              <Text className="text-xl font-semibold text-gray-800 mb-6 text-center">
+              <Text
+                style={{ color: theme.colors.text }}
+                className="text-xl font-semibold mb-6 text-center"
+              >
                 {currentLetter.pronunciation}
               </Text>
 
-              <TouchableOpacity className="w-20 h-20 rounded-full items-center justify-center mb-6 bg-gradient-to-br from-purple-500 to-purple-700">
-                <Ionicons name="play" size={32} color="white" />
+              <TouchableOpacity
+                style={{ backgroundColor: theme.colors.primary }}
+                className="w-20 h-20 rounded-full items-center justify-center mb-6"
+              >
+                <Ionicons name="play" size={32} color={theme.colors.background} />
               </TouchableOpacity>
 
-              <Text className="text-center text-gray-600 text-sm mb-6">
+              <Text
+                style={{ color: theme.colors.textSecondary }}
+                className="text-center text-sm mb-6"
+              >
                 Tap to hear pronunciation
               </Text>
             </View>
 
-            <View className="bg-amber-50 p-4 rounded-xl border border-amber-200">
-              <Text className="font-semibold text-gray-800 mb-2">💡 Tip:</Text>
-              <Text className="text-sm text-gray-600">
+            <View
+              style={{
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+              }}
+              className="p-4 rounded-xl border"
+            >
+              <Text style={{ color: theme.colors.text }} className="font-semibold mb-2">
+                💡 Tip:
+              </Text>
+              <Text style={{ color: theme.colors.textSecondary }} className="text-sm">
                 Listen to the pronunciation multiple times. Try mimicking the
                 sound naturally without forcing it. Pronunciation improves with
                 practice!
@@ -181,7 +245,7 @@ export default function LetterLessonScreen({ route, navigation }) {
         {/* Forms Step */}
         {currentLessonStep.type === 'forms' && (
           <View className="p-6">
-            <Text className="text-lg font-bold text-gray-800 mb-6">
+            <Text style={{ color: theme.colors.text }} className="text-lg font-bold mb-6">
               Letter Forms in Different Positions
             </Text>
 
@@ -193,13 +257,28 @@ export default function LetterLessonScreen({ route, navigation }) {
             ].map((item, index) => (
               <View
                 key={index}
-                className="mb-4 p-4 bg-white rounded-xl border border-gray-200"
+                style={{
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.border,
+                }}
+                className="mb-4 p-4 rounded-xl border"
               >
-                <Text className="text-sm font-semibold text-gray-600 mb-3">
+                <Text
+                  style={{ color: theme.colors.textSecondary }}
+                  className="text-sm font-semibold mb-3"
+                >
                   {item.position}
                 </Text>
-                <View className="h-20 items-center justify-center bg-gray-50 rounded-lg">
-                  <Text className="text-5xl font-bold text-purple-600">
+                <View
+                  style={{
+                    backgroundColor: theme.colors.background,
+                  }}
+                  className="h-20 items-center justify-center rounded-lg"
+                >
+                  <Text
+                    style={{ color: theme.colors.primary }}
+                    className="text-5xl font-bold"
+                  >
                     {item.form}
                   </Text>
                 </View>
@@ -211,23 +290,32 @@ export default function LetterLessonScreen({ route, navigation }) {
         {/* Examples Step */}
         {currentLessonStep.type === 'examples' && (
           <View className="p-6">
-            <Text className="text-lg font-bold text-gray-800 mb-6">
+            <Text style={{ color: theme.colors.text }} className="text-lg font-bold mb-6">
               Example Words
             </Text>
 
             {currentLetter.exampleWords.map((word, index) => (
               <TouchableOpacity
                 key={index}
-                className="mb-4 p-4 bg-white rounded-xl border border-gray-200 active:bg-gray-50"
+                style={{
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.border,
+                }}
+                className="mb-4 p-4 rounded-xl border"
               >
                 <View className="flex-row justify-between items-center">
                   <View className="flex-1">
-                    <Text className="text-xl font-bold text-gray-800 mb-1">
+                    <Text style={{ color: theme.colors.text }} className="text-xl font-bold mb-1">
                       {word}
                     </Text>
                   </View>
-                  <TouchableOpacity className="bg-purple-100 p-3 rounded-full">
-                    <Ionicons name="volume-high" size={20} color="#8B5CF6" />
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: theme.colors.surface,
+                    }}
+                    className="p-3 rounded-full"
+                  >
+                    <Ionicons name="volume-high" size={20} color={theme.colors.primary} />
                   </TouchableOpacity>
                 </View>
               </TouchableOpacity>
@@ -238,12 +326,21 @@ export default function LetterLessonScreen({ route, navigation }) {
         {/* Quiz Step */}
         {currentLessonStep.type === 'quiz' && (
           <View className="p-6">
-            <Text className="text-lg font-bold text-gray-800 mb-6">
+            <Text style={{ color: theme.colors.text }} className="text-lg font-bold mb-6">
               Knowledge Check
             </Text>
 
-            <View className="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
-              <Text className="text-base font-semibold text-gray-800 mb-4">
+            <View
+              style={{
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+              }}
+              className="mb-6 p-4 rounded-xl border"
+            >
+              <Text
+                style={{ color: theme.colors.text }}
+                className="text-base font-semibold mb-4"
+              >
                 Question 1: Which word contains {currentLetter.arabicName}?
               </Text>
 
@@ -258,9 +355,13 @@ export default function LetterLessonScreen({ route, navigation }) {
                   onPress={() =>
                     handleQuizComplete(index === 0 ? 100 : Math.max(0, 50))
                   }
-                  className="mb-3 p-4 bg-white rounded-lg border border-gray-200 active:bg-gray-100"
+                  style={{
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.border,
+                  }}
+                  className="mb-3 p-4 rounded-lg border"
                 >
-                  <Text className="text-base font-semibold text-gray-800">
+                  <Text style={{ color: theme.colors.text }} className="text-base font-semibold">
                     {option}
                   </Text>
                 </TouchableOpacity>
@@ -274,20 +375,27 @@ export default function LetterLessonScreen({ route, navigation }) {
           <TouchableOpacity
             onPress={handlePreviousStep}
             disabled={currentStep === 0}
-            className={`flex-1 py-3 rounded-lg border-2 items-center ${
-              currentStep === 0 ? 'border-gray-200 opacity-50' : 'border-gray-300'
-            }`}
+            style={{
+              borderColor:
+                currentStep === 0 ? theme.colors.border : theme.colors.textSecondary,
+              opacity: currentStep === 0 ? 0.5 : 1,
+            }}
+            className="flex-1 py-3 rounded-lg border-2 items-center"
           >
-            <Text className="font-bold text-gray-800">← Back</Text>
+            <Text style={{ color: theme.colors.text }} className="font-bold">
+              ← Back
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleNextStep}
-            className={`flex-1 py-3 rounded-lg items-center ${
-              currentStep === lessonSteps.length - 1
-                ? 'bg-green-500'
-                : 'bg-purple-600'
-            }`}
+            style={{
+              backgroundColor:
+                currentStep === lessonSteps.length - 1
+                  ? theme.colors.success
+                  : theme.colors.primary,
+            }}
+            className="flex-1 py-3 rounded-lg items-center"
           >
             <Text className="font-bold text-white">
               {currentStep === lessonSteps.length - 1 ? 'Complete ✓' : 'Next →'}
