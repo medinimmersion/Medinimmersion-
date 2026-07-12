@@ -27,6 +27,40 @@ module.exports = function (pool, opts) {
     } catch (err) { console.error('[admin/students]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // POST /api/admin/students — le gérant crée un élève directement (validé, prêt à se connecter)
+  router.post('/api/admin/students', requireAdmin, async (req, res) => {
+    try {
+      const crypto = require('crypto');
+      const { nom, prenom, kounia, whatsapp, email, gender, password } = req.body || {};
+      if (!prenom || !nom) return res.status(400).json({ error: 'Prénom et nom requis.' });
+      if (!email && !whatsapp) return res.status(400).json({ error: 'Email ou WhatsApp requis (pour la connexion).' });
+
+      if (email) {
+        const e = await pool.query('SELECT id FROM students WHERE LOWER(email) = LOWER($1)', [email.trim()]);
+        if (e.rows.length) return res.status(409).json({ error: 'Cet email est déjà utilisé.' });
+      }
+      if (whatsapp) {
+        const w = await pool.query(
+          'SELECT id FROM students WHERE REPLACE(REPLACE(whatsapp, $1, $2), $3, $4) = REPLACE(REPLACE($5, $1, $2), $3, $4)',
+          ['+', '', ' ', '', whatsapp]);
+        if (w.rows.length) return res.status(409).json({ error: 'Ce numéro WhatsApp est déjà utilisé.' });
+      }
+
+      const pwd = (password && String(password).length >= 4)
+        ? String(password)
+        : crypto.randomBytes(8).toString('base64').replace(/[^a-zA-Z0-9]/g, 'x').substring(0, 10);
+
+      const r = await pool.query(
+        `INSERT INTO students (nom, prenom, kounia, whatsapp, email, gender, password_hash, validation_status, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'valide', 'active')
+         RETURNING id, nom, prenom, kounia, whatsapp, email, gender`,
+        [nom.trim(), prenom.trim(), (kounia || '').trim() || null, (whatsapp || '').trim() || null,
+         email ? email.trim().toLowerCase() : null, gender || null, hashPassword(pwd)]);
+
+      res.json({ success: true, student: r.rows[0], password: pwd, password_generated: !(password && String(password).length >= 4) });
+    } catch (err) { console.error('[admin/create-student]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   // GET /api/admin/bookings — all bookings with student info
   router.get('/api/admin/bookings', requireAdmin, async (req, res) => {
     try {

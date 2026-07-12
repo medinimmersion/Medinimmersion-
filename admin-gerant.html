@@ -106,6 +106,24 @@ a{color:inherit;}
   <div class="panel on" id="p-eleves">
     <h2>Élèves</h2>
     <p class="sub">Consulte, accède à l'espace de chaque élève et suis ses cours.</p>
+    <button class="btn btn-green" onclick="document.getElementById('newStudentForm').style.display='block'" style="margin-bottom:1rem;">➕ Créer un élève</button>
+    <div id="newStudentForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <div style="display:flex;gap:0.5rem;">
+        <input class="search" id="nsPrenom" placeholder="Prénom *" style="flex:1;">
+        <input class="search" id="nsNom" placeholder="Nom *" style="flex:1;">
+      </div>
+      <input class="search" id="nsKounia" placeholder="Kounia (optionnel)">
+      <input class="search" id="nsEmail" type="email" placeholder="Email (email ou WhatsApp requis)">
+      <input class="search" id="nsWhatsapp" placeholder="WhatsApp (ex: +33612345678)">
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Genre</label>
+      <select class="search" id="nsGender"><option value="">— Genre —</option><option value="homme">Homme</option><option value="femme">Femme</option></select>
+      <input class="search" id="nsPwd" placeholder="Mot de passe (vide = généré automatiquement)">
+      <div class="acts">
+        <button class="btn btn-green" onclick="createStudent()">Créer l'élève</button>
+        <button class="btn btn-soft" onclick="document.getElementById('newStudentForm').style.display='none'">Annuler</button>
+      </div>
+      <div id="nsMsg" style="font-size:0.82rem;margin-top:0.5rem;"></div>
+    </div>
     <input class="search" id="searchEleve" placeholder="Rechercher un élève (nom, email…)">
     <div id="listEleves" class="loading">Chargement…</div>
   </div>
@@ -319,6 +337,32 @@ $('searchEleve').oninput=e=>{
   const q=e.target.value.toLowerCase().trim();
   renderEleves(!q?cacheEleves:cacheEleves.filter(s=>[s.nom,s.prenom,s.kounia,s.email,s.whatsapp].some(v=>(v||'').toLowerCase().includes(q))));
 };
+async function createStudent(){
+  const msg=$('nsMsg'); msg.textContent=''; msg.style.color='var(--muted)';
+  const body={
+    prenom:$('nsPrenom').value.trim(), nom:$('nsNom').value.trim(),
+    kounia:$('nsKounia').value.trim(), email:$('nsEmail').value.trim(),
+    whatsapp:$('nsWhatsapp').value.trim(), gender:$('nsGender').value,
+    password:$('nsPwd').value
+  };
+  if(!body.prenom||!body.nom){ msg.textContent='Prénom et nom requis.'; msg.style.color='#B3261E'; return; }
+  if(!body.email&&!body.whatsapp){ msg.textContent='Email ou WhatsApp requis (pour que l\'élève puisse se connecter).'; msg.style.color='#B3261E'; return; }
+  try{
+    const r=await fetch('/api/admin/students',{method:'POST',headers:H(),body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Erreur serveur');
+    toast('Élève créé ✓');
+    if(d.password_generated){
+      msg.style.color='var(--green)';
+      msg.innerHTML='✓ Élève créé. <b>Mot de passe généré : '+esc(d.password)+'</b> — note-le et transmets-le à l\'élève.';
+    }else{
+      msg.style.color='var(--green)'; msg.textContent='✓ Élève créé avec le mot de passe choisi.';
+      $('newStudentForm').style.display='none';
+    }
+    ['nsPrenom','nsNom','nsKounia','nsEmail','nsWhatsapp','nsPwd'].forEach(i=>$(i).value=''); $('nsGender').value='';
+    loadEleves();
+  }catch(e){ msg.textContent=e.message; msg.style.color='#B3261E'; }
+}
 async function viewStudent(id){
   try{
     const r=await fetch('/api/admin/impersonate/student/'+id,{method:'POST',headers:H()});
