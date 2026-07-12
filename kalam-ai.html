@@ -110,10 +110,15 @@ footer{text-align:center;color:var(--muted);font-size:0.8rem;padding:2rem 1rem 2
   <h2>Ton objectif</h2>
   <p class="sub">Dis-nous où tu en es : Kalam adaptera ses conversations à ton but.</p>
   <div class="goals" id="goals">
-    <div class="goal" data-obj="alphabet"><span class="emo">🔤</span><span><b>Apprendre l'alphabet</b><small>Je pars de zéro : lettres, sons et voyelles. <em>Livre d'apprentissage requis (bientôt disponible ici).</em></small></span></div>
-    <div class="goal" data-obj="lecture"><span class="emo">📖</span><span><b>Apprendre à lire</b><small>Je connais les lettres, je veux lire couramment. <em>Livre de lecture requis (bientôt disponible ici).</em></small></span></div>
-    <div class="goal" data-obj="ecriture"><span class="emo">✍️</span><span><b>Apprendre à écrire</b><small>Je veux écrire l'arabe correctement. <em>Livre d'écriture requis (bientôt disponible ici).</em></small></span></div>
+    <div class="goal" data-obj="alphabet"><span class="emo">🔤</span><span><b>Apprendre l'alphabet</b><small>Je pars de zéro : lettres, sons et voyelles. <em>Livre requis — choisis-le ci-dessous.</em></small></span></div>
+    <div class="goal" data-obj="lecture"><span class="emo">📖</span><span><b>Apprendre à lire</b><small>Je connais les lettres, je veux lire couramment. <em>Livre requis — choisis-le ci-dessous.</em></small></span></div>
+    <div class="goal" data-obj="ecriture"><span class="emo">✍️</span><span><b>Apprendre à écrire</b><small>Je veux écrire l'arabe correctement. <em>Livre requis — choisis-le ci-dessous.</em></small></span></div>
     <div class="goal on" data-obj="conversation"><span class="emo">🗣️</span><span><b>Parler & converser</b><small>Je veux pratiquer l'oral et progresser en conversation. Aucun livre requis.</small></span></div>
+  </div>
+  <div id="bookBox" style="display:none;max-width:520px;margin:1.6rem auto 0;background:#fff;border:2px solid var(--gold);border-radius:16px;padding:1.1rem 1.2rem;">
+    <div style="font-weight:700;color:var(--green-deep);font-size:0.95rem;margin-bottom:0.55rem;">📚 Choisis ton livre du programme de Médine</div>
+    <select id="bookSel" style="width:100%;padding:0.85rem 1rem;border-radius:12px;border:1.5px solid var(--beige);background:var(--cream);font-family:inherit;font-size:0.95rem;"></select>
+    <div style="color:var(--muted);font-size:0.78rem;margin-top:0.5rem;">Le livre te sera remis après confirmation du paiement. Si tu ne sais pas quel niveau choisir, commence par le Niveau 1.</div>
   </div>
 </section>
 
@@ -151,14 +156,34 @@ footer{text-align:center;color:var(--muted);font-size:0.8rem;padding:2rem 1rem 2
 
 <script>
 const $=id=>document.getElementById(id);
-let packages=[], selPkg=null, selObj='conversation';
+let packages=[], books=[], selPkg=null, selObj='conversation';
 const OBJ_LABELS={alphabet:"Apprendre l'alphabet",lecture:'Apprendre à lire',ecriture:'Apprendre à écrire',conversation:'Parler & converser'};
 const PLAN_EMOJI={'Découverte':'🌱','Apprentissage':'📖','Progression':'🚀','Immersion':'♾️'};
+const NEEDS_BOOK=['alphabet','lecture','ecriture'];
 
 function quotaTxt(m){ return m===-1?'Illimité':(m>=60?(m/60)+' h / jour':m+' min / jour'); }
+function eur(n){ return Number(n).toFixed(2).replace('.',','); }
+function selectedBook(){
+  if(!NEEDS_BOOK.includes(selObj)) return null;
+  const n=parseInt($('bookSel').value,10);
+  return books.find(b=>b.niveau===n)||null;
+}
 function refreshSummary(){
   const p=packages.find(x=>x.id===selPkg);
-  $('summary').innerHTML='Forfait choisi : <b>'+(p?p.name+' — '+Number(p.price_euros).toFixed(2).replace('.',',')+' €/mois':'—')+'</b> · Objectif : <b>'+OBJ_LABELS[selObj]+'</b>';
+  const bk=selectedBook();
+  const total=(p?Number(p.price_euros):0)+(bk?bk.price_euros:0);
+  let html='Forfait : <b>'+(p?p.name+' — '+eur(p.price_euros)+' €/mois':'—')+'</b> · Objectif : <b>'+OBJ_LABELS[selObj]+'</b>';
+  if(bk) html+='<br>Livre : <b>'+bk.label+' — '+eur(bk.price_euros)+' €</b>';
+  if(p) html+='<br>Total aujourd\'hui : <b>'+eur(total)+' €</b>'+(bk?' (forfait + livre)':'');
+  $('summary').innerHTML=html;
+}
+async function loadBooks(){
+  try{
+    const r=await fetch('/api/kalam/books');
+    books=await r.json();
+    $('bookSel').innerHTML=books.map(b=>`<option value="${b.niveau}">${b.label} — ${eur(b.price_euros)} €</option>`).join('');
+    $('bookSel').onchange=refreshSummary;
+  }catch{}
 }
 async function loadPackages(){
   try{
@@ -184,17 +209,20 @@ async function loadPackages(){
 document.querySelectorAll('.goal').forEach(el=>el.onclick=()=>{
   selObj=el.dataset.obj;
   document.querySelectorAll('.goal').forEach(x=>x.classList.toggle('on',x.dataset.obj===selObj));
+  $('bookBox').style.display=NEEDS_BOOK.includes(selObj)?'block':'none';
   refreshSummary();
 });
 $('goBtn').onclick=async()=>{
   const err=$('err'); err.style.display='none';
   if(!selPkg){ err.textContent='Choisis d\'abord un forfait ci-dessus.'; err.style.display='block'; document.getElementById('forfaits').scrollIntoView({behavior:'smooth'}); return; }
+  const bk=selectedBook();
   const body={
     prenom:$('fPrenom').value.trim(), nom:$('fNom').value.trim(),
     email:$('fEmail').value.trim(), whatsapp:$('fWhatsapp').value.trim(),
     gender:$('fGender').value, password:$('fPwd').value,
-    package_id:selPkg, objectif:selObj
+    package_id:selPkg, objectif:selObj, book_niveau:bk?bk.niveau:null
   };
+  if(NEEDS_BOOK.includes(selObj)&&!bk){ err.textContent='Choisis ton livre (requis pour cet objectif).'; err.style.display='block'; return; }
   if(!body.prenom||!body.nom){ err.textContent='Prénom et nom requis.'; err.style.display='block'; return; }
   if(!body.email&&!body.whatsapp){ err.textContent='Email ou WhatsApp requis (c\'est ton identifiant de connexion).'; err.style.display='block'; return; }
   if(!body.password||body.password.length<4){ err.textContent='Mot de passe requis (4 caractères minimum).'; err.style.display='block'; return; }
@@ -206,7 +234,10 @@ $('goBtn').onclick=async()=>{
     $('formCard').style.display='none';
     $('confirm').style.display='block';
     $('cTitle').textContent='Bienvenue '+(d.student?.prenom||'')+' !';
-    $('cMsg').innerHTML='Ton compte Kalam AI est créé.<br>Forfait <b>'+d.package.name+'</b> — <b>'+String(d.package.price_euros).replace('.',',')+' €/mois</b>. Règle-le via PayPal pour l\'activer :';
+    let msg='Ton compte Kalam AI est créé.<br>Forfait <b>'+d.package.name+'</b> — <b>'+String(d.package.price_euros).replace('.',',')+' €/mois</b>';
+    if(d.book) msg+='<br>Livre <b>'+d.book.label+'</b> — <b>'+eur(d.book.price_euros)+' €</b>';
+    msg+='<br><b>Total : '+String(d.total).replace('.',',')+' €</b>. Règle-le via PayPal pour tout activer :';
+    $('cMsg').innerHTML=msg;
     $('cPay').href=d.paypal;
     $('confirm').scrollIntoView({behavior:'smooth'});
   }catch(e){
@@ -215,6 +246,7 @@ $('goBtn').onclick=async()=>{
   }
 };
 loadPackages();
+loadBooks();
 </script>
 </body>
 </html>
