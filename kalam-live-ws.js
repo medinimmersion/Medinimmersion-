@@ -12,12 +12,13 @@ function getGeminiKey() {
 }
 
 // Modèles de secours si la découverte automatique échoue. Surchargable via env.
+// Priorisés pour la vitesse avec les jetons éphémères (v1alpha).
 const FALLBACK_MODELS = process.env.GEMINI_LIVE_MODEL
   ? [process.env.GEMINI_LIVE_MODEL]
   : [
-      'models/gemini-3.1-flash-live-preview',
       'models/gemini-2.0-flash-exp',
       'models/gemini-2.0-flash-live-001',
+      'models/gemini-3.1-flash-live-preview',
       'models/gemini-live-2.5-flash-preview',
       'models/gemini-2.5-flash-preview-native-audio-dialog',
     ];
@@ -220,7 +221,16 @@ async function createEphemeralToken(key, apiVersion) {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
   });
   const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error((d.error && d.error.message) || ('HTTP ' + r.status));
+  if (!r.ok) {
+    const msg = (d.error && d.error.message) || (d.message) || ('HTTP ' + r.status);
+    console.error('[kalam-live] Token: réponse API non-ok', { status: r.status, message: msg, body: d });
+    throw new Error(msg);
+  }
+  if (!d.name) {
+    console.error('[kalam-live] Token: pas de "name" dans la réponse', d);
+    throw new Error('Token response missing "name" field');
+  }
+  console.log('[kalam-live] Token créé avec succès: ' + d.name);
   return d.name; // ex: "auth_tokens/xxxxx"
 }
 

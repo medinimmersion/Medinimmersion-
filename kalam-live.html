@@ -98,10 +98,13 @@ body.speaking .orb{box-shadow:0 0 0 8px rgba(46,139,87,0.6),0 8px 52px rgba(46,1
     <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion">
     <span class="brand-name">Kalam<span> Live</span></span>
   </a>
-  <div class="live-tag"><span class="live-dot"></span>Temps réel</div>
-  <div class="timer" id="timer">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-    <span class="tleft" id="timeLeft">3:00</span>
+  <div style="display:flex; gap:0.8rem; align-items:center;">
+    <div class="live-tag"><span class="live-dot"></span>Temps réel</div>
+    <div class="connection-badge" id="connBadge" style="background:rgba(212,168,67,0.15); border:1px solid rgba(212,168,67,0.4); color:var(--gold-light); border-radius:50px; padding:0.25rem 0.7rem; font-size:0.7rem; font-weight:700; letter-spacing:0.05em; display:none;">↔ Chargement…</div>
+    <div class="timer" id="timer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span class="tleft" id="timeLeft">3:00</span>
+    </div>
   </div>
 </header>
 
@@ -180,6 +183,7 @@ let ws=null, running=false, readyWatch=null, micMuted=false;
 let micCtx=null, micStream=null, micProc=null, micSrc=null;
 let outCtx=null, playHead=0, scheduled=[];
 let secondsLeft=180, totalSeconds=180, unlimited=false, tickInt=null, consumeBuffer=0;
+let lastUserInputTime=0, modelResponseStartTime=0;
 
 function PERSONA(){
   return teacherGender==='femme'
@@ -307,9 +311,12 @@ async function start(){
     if(tr.ok){
       const td=await tr.json();
       if(td && td.ok && td.wsUrl && td.setup){ directSetup=td.setup; dbg('Connexion directe à Google…'); openWS(td.wsUrl); return; }
+      dbg('Réponse jeton invalide (ok='+(td?.ok)+', wsUrl='+(!!td?.wsUrl)+', setup='+(!!td?.setup)+'), proxy…');
+    }else{
+      const err=await tr.json().catch(()=>({}));
+      dbg('Jeton HTTP '+tr.status+' ('+((err?.error)||'?')+'), proxy…');
     }
-    dbg('Jeton direct indisponible, passage par le serveur…');
-  }catch(e){ dbg('Jeton direct indisponible, passage par le serveur…'); }
+  }catch(e){ dbg('Jeton indirect refusé ('+e.message+'), proxy…'); }
   connectProxy();
 }
 function connectProxy(){
@@ -376,17 +383,24 @@ let userBubble=null, aiBubble=null;
 function appendTranscript(kind, text){
   if(kind==='user'){
     if(aiBubble){ aiBubble=null; } // l'élève reprend la parole → nouvelle bulle IA plus tard
-    if(!userBubble){ userBubble=addMsg('user',''); }
+    if(!userBubble){ userBubble=addMsg('user',''); lastUserInputTime=Date.now(); }
     userBubble.textContent += text;
   } else {
     if(userBubble){ userBubble=null; }
-    if(!aiBubble){ aiBubble=addMsg('ai',''); }
+    if(!aiBubble){ aiBubble=addMsg('ai',''); if(!modelResponseStartTime) modelResponseStartTime=Date.now(); }
     aiBubble.dataset.raw=(aiBubble.dataset.raw||'')+text;
     aiBubble.innerHTML=aiBubble.dataset.raw.replace(/([؀-ۿ][^<]*)/g,'<span class="ar">$1</span>');
   }
   const f=$('feed'); f.scrollTop=f.scrollHeight;
 }
-function closeBubbles(){ userBubble=null; aiBubble=null; }
+function closeBubbles(){
+  userBubble=null; aiBubble=null;
+  if(lastUserInputTime && modelResponseStartTime){
+    const latency=Math.round((modelResponseStartTime-lastUserInputTime)/100)/10;
+    console.log('[latency] User input → AI response: '+latency+'s');
+    lastUserInputTime=0; modelResponseStartTime=0;
+  }
+}
 function addMsg(kind,text){
   const d=document.createElement('div'); d.className='msg '+kind;
   if(text) d.textContent=text;
@@ -410,6 +424,8 @@ function onReady(){
   $('controls').style.display='flex';
   $('muteBtn').classList.remove('muted'); $('muteBtn').textContent='🎙️'; $('muteLabel').textContent='Micro actif';
   userTurn();
+  const connMsg=triedProxy?'via serveur':'⚡ directe';
+  $('connBadge').textContent='↔ '+connMsg; $('connBadge').style.display='block';
   dbg(triedProxy?'En ligne (via serveur). Parle librement.':'⚡ En ligne (connexion directe Google). Parle librement.');
   startTick();
   // démarre la capture micro
@@ -442,6 +458,7 @@ function stop(){
   $('mainBtn').textContent='▶ Démarrer la conversation';
   $('mainBtn').classList.remove('stop');
   $('controls').style.display='none';
+  $('connBadge').style.display='none';
   setBodyState('');
   if(secondsLeft>0) setStatus('Conversation terminée — touche « Démarrer » pour reprendre');
 }
