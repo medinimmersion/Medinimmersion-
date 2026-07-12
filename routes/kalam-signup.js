@@ -27,20 +27,28 @@ module.exports = function (pool, opts) {
   const router = require('express').Router();
   const crypto = require('crypto');
 
-  // Prépare la colonne objectif + les forfaits par défaut (idempotent)
+  // Prépare la colonne objectif + synchronise les forfaits officiels (idempotent).
+  // Les tarifs officiels de l'école priment : les anciens forfaits hors liste sont désactivés.
   (async () => {
     try {
       await pool.query("ALTER TABLE students ADD COLUMN IF NOT EXISTS kalam_objectif VARCHAR");
-      const n = await pool.query('SELECT COUNT(*)::int AS n FROM kalam_packages WHERE active = true');
-      if (n.rows[0].n === 0) {
-        for (const p of DEFAULT_PACKAGES) {
+      for (const p of DEFAULT_PACKAGES) {
+        const ex = await pool.query('SELECT id FROM kalam_packages WHERE name = $1 LIMIT 1', [p.name]);
+        if (ex.rows.length) {
+          await pool.query(
+            `UPDATE kalam_packages SET minutes_per_day = $2, price_euros = $3, duration_days = $4, active = true WHERE id = $1`,
+            [ex.rows[0].id, p.minutes_per_day, p.price_euros, p.duration_days]);
+        } else {
           await pool.query(
             `INSERT INTO kalam_packages (name, minutes_per_day, price_euros, duration_days)
              VALUES ($1, $2, $3, $4)`,
             [p.name, p.minutes_per_day, p.price_euros, p.duration_days]);
         }
-        console.log('[kalam-signup] 4 forfaits par défaut créés');
       }
+      const off = await pool.query(
+        `UPDATE kalam_packages SET active = false WHERE active = true AND name <> ALL($1) RETURNING name`,
+        [DEFAULT_PACKAGES.map(p => p.name)]);
+      console.log('[kalam-signup] forfaits synchronisés' + (off.rowCount ? ' (désactivés: ' + off.rows.map(r => r.name).join(', ') + ')' : ''));
     } catch (e) { console.error('[kalam-signup] init:', e.message); }
   })();
 
