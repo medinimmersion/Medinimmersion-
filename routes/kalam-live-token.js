@@ -50,7 +50,8 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
       // Les jetons éphémères sont servis en v1alpha
       const apiVersion = 'v1alpha';
       const models = await live.discoverLiveModelsForVersion(key, apiVersion);
-      const model = models[0] || live.FALLBACK_MODELS[0] || 'models/gemini-2.0-flash-live-001';
+      // Choisit le meilleur modèle dispo : d'abord selon notre ordre de préférence, sinon le 1er découvert
+      const model = live.FALLBACK_MODELS.find(f => models.includes(f)) || models[0] || live.FALLBACK_MODELS[0];
 
       const token = await live.createEphemeralToken(key, apiVersion);
 

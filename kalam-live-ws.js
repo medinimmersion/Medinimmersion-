@@ -15,6 +15,7 @@ function getGeminiKey() {
 const FALLBACK_MODELS = process.env.GEMINI_LIVE_MODEL
   ? [process.env.GEMINI_LIVE_MODEL]
   : [
+      'models/gemini-3.1-flash-live-preview',
       'models/gemini-2.0-flash-exp',
       'models/gemini-2.0-flash-live-001',
       'models/gemini-live-2.5-flash-preview',
