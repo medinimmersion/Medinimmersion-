@@ -1,0 +1,88 @@
+{
+  "level": 3,
+  "title": "INTERMEDIATE I",
+  "arabicTitle": "المستوى الثالث",
+  "order": 3,
+  "duration_weeks": 3,
+  "total_vocabulary": 80,
+  "total_dialogues": 8,
+  "grammar_topics": 3,
+  "xp_reward": 300,
+  "character_focus": "Oustaz guides deeper learning",
+  "narrative_milestone": "Word Master Unlocked",
+
+  "vocabulary": [
+    {
+      "id": "L3_V001",
+      "arabic": "[ARABIC WORD]",
+      "transliteration": "[romanized version]",
+      "english": "[English translation]",
+      "difficulty": "easy|medium|hard",
+      "context": "[category: educational, food, family, etc]",
+      "example_sentence": "[Full sentence in Arabic]",
+      "example_translation": "[English of example]"
+    }
+  ],
+
+  "grammar_topics": [
+    {
+      "id": "L3_G001",
+      "title": "[Grammar Concept Name]",
+      "description": "[Explanation]",
+      "rule": "[The grammatical rule]",
+      "examples": [
+        {
+          "arabic": "[Example word/phrase]",
+          "english": "[Translation]",
+          "explanation": "[Why this applies]"
+        }
+      ]
+    }
+  ],
+
+  "dialogues": [
+    {
+      "id": "L3_D001",
+      "title": "[Dialogue Title]",
+      "situation": "[Context/setting]",
+      "speakers": ["Speaker A", "Speaker B"],
+      "script": [
+        {
+          "speaker": "Speaker A",
+          "arabic": "[Arabic text]",
+          "english": "[English translation]",
+          "phonetic": "[how to pronounce]"
+        }
+      ],
+      "vocabulary_introduced": ["word1", "word2", "word3"],
+      "difficulty": "intermediate"
+    }
+  ],
+
+  "cultural_insights": [
+    {
+      "title": "[Cultural topic from Level 3]",
+      "description": "[What students learn about Arab culture]",
+      "relevance": "[How this connects to vocabulary/grammar]"
+    }
+  ],
+
+  "exercises": [
+    {
+      "id": "L3_E001",
+      "type": "multiple_choice",
+      "question": "[Question in English or Arabic]",
+      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+      "correct_answer": 0,
+      "explanation": "[Why this is correct]"
+    }
+  ],
+
+  "milestone_celebration": {
+    "title": "Word Master!",
+    "description": "You've learned compound word construction",
+    "reward_xp": 300,
+    "character_scene": "Oustaz celebrates your progress",
+    "next_milestone": "Level 4 Unlocked"
+  }
+}
