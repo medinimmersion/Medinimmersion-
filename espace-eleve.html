@@ -278,16 +278,30 @@ footer{background:var(--green-deep);color:var(--white);}
       </div>
       <!-- KALAM BANNER -->
       <a href="/kalam" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--green-deep),var(--green-mid));border:1px solid rgba(212,168,67,0.3);border-radius:18px;padding:1.25rem 1.75rem;margin-bottom:1.5rem;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;gap:1rem;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-        <div style="display:flex;align-items:center;gap:1rem;">
+        <div style="display:flex;align-items:center;gap:1rem;flex:1;">
           <div style="width:52px;height:52px;border-radius:50%;background:rgba(212,168,67,0.15);border:2px solid rgba(212,168,67,0.4);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">🎙️</div>
           <div>
             <div style="font-family:'Amiri',serif;font-size:1.2rem;color:var(--gold-light);direction:rtl;margin-bottom:0.15rem;">كَلاَم</div>
             <div style="font-weight:700;color:var(--white);font-size:0.95rem;">Pratique orale avec l'IA</div>
-            <div style="color:rgba(255,255,255,0.6);font-size:0.78rem;margin-top:0.1rem;">Parle arabe avec ton professeur IA · 3 min / jour</div>
+            <div style="color:rgba(255,255,255,0.6);font-size:0.78rem;margin-top:0.1rem;"><span id="kalamStatus">3 min / jour</span></div>
           </div>
         </div>
         <div style="background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.5rem 1.25rem;border-radius:50px;font-weight:700;font-size:0.82rem;white-space:nowrap;flex-shrink:0;">Commencer →</div>
       </a>
+
+      <!-- FORFAIT STATUS & UPGRADE -->
+      <div id="forfaitCard" style="background:var(--white);border:1.5px solid var(--beige);border-radius:18px;padding:1.75rem;margin-bottom:1.5rem;display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;flex-wrap:wrap;">
+          <div style="flex:1;">
+            <h3 style="font-weight:700;color:var(--green-deep);font-size:0.95rem;margin-bottom:0.5rem;">Mes forfaits</h3>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1rem;">
+              <div id="kalamForfaitInfo" style="font-size:0.85rem;padding:0.6rem 0.9rem;background:rgba(27,94,58,0.05);border-radius:8px;border-left:3px solid var(--green);">Kalam AI : <strong id="kalamForfaitDetails">–</strong></div>
+              <div id="arabicForfaitInfo" style="font-size:0.85rem;padding:0.6rem 0.9rem;background:rgba(184,149,58,0.08);border-radius:8px;border-left:3px solid var(--gold);">Arabe : <strong id="arabicForfaitDetails">–</strong></div>
+            </div>
+          </div>
+          <button class="btn-gold" onclick="openForfaitModal()" style="white-space:nowrap;">💳 Upgrader</button>
+        </div>
+      </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
         <div>
@@ -349,6 +363,15 @@ footer{background:var(--green-deep);color:var(--white);}
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- FORFAIT MODAL -->
+<div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem;" id="forfaitModal">
+  <div style="background:var(--white);border-radius:20px;padding:2rem;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;">
+    <button onclick="closeForfaitModal()" style="float:right;background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--text-muted);">✕</button>
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--green-deep);margin-bottom:1.25rem;">Mettre à jour mes forfaits</h3>
+    <div id="forfaitOptions" style="display:flex;flex-direction:column;gap:1rem;"></div>
   </div>
 </div>
 
@@ -630,7 +653,77 @@ async function checkIncomingCall(){
   document.body.appendChild(ov);
 })();
 
+// ─── FORFAITS ─────────────────
+async function loadForfaitInfo(){
+  try{
+    const res=await fetch('/api/member/me',{headers:{'Authorization':'Bearer '+token}});
+    if(!res.ok)return;
+    const s=await res.json();
+    const kalamData=s.kalam_minutes_per_day;
+    const kalamRemaining=s.kalam_remaining_today||0;
+    const arabicData=s.forfait_arabe;
+
+    if(kalamData||arabicData){
+      const card=document.getElementById('forfaitCard');
+      card.style.display='block';
+
+      if(kalamData){
+        let kalamStatus='';
+        if(kalamData===-1) kalamStatus='Illimité';
+        else if(kalamData) kalamStatus=kalamData+' min/jour (reste '+kalamRemaining+' min aujourd\'hui)';
+        else kalamStatus='Essai gratuit · 3 min/jour';
+        document.getElementById('kalamForfaitDetails').textContent=kalamStatus;
+        document.getElementById('kalamStatus').textContent=kalamStatus;
+      }
+
+      if(arabicData){
+        document.getElementById('arabicForfaitDetails').textContent=arabicData;
+      }else{
+        document.getElementById('arabicForfaitInfo').style.display='none';
+      }
+    }
+  }catch(e){
+    console.error('Error loading forfait info:',e);
+  }
+}
+function openForfaitModal(){
+  document.getElementById('forfaitModal').style.display='flex';
+  loadForfaitOptions();
+}
+function closeForfaitModal(){
+  document.getElementById('forfaitModal').style.display='none';
+}
+async function loadForfaitOptions(){
+  const container=document.getElementById('forfaitOptions');
+  container.innerHTML='<p style="color:var(--text-muted);font-size:0.875rem;">Chargement des offres…</p>';
+  try{
+    const [packages,books]=await Promise.all([
+      fetch('/api/kalam/books').then(r=>r.json()),
+      fetch('/api/kalam/books').then(r=>r.json())
+    ]);
+
+    let html=`<div style="background:var(--beige);padding:1rem;border-radius:12px;margin-bottom:1rem;">
+      <h4 style="font-weight:700;color:var(--green-deep);margin-bottom:0.5rem;">🎙️ Forfaits Kalam AI</h4>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">Accès à la pratique orale avec l\'IA</p>`;
+
+    html+=`<a href="/kalam-ai" style="display:block;background:linear-gradient(135deg,var(--green),var(--green-deep));color:var(--white);padding:0.9rem 1.2rem;border-radius:50px;text-decoration:none;text-align:center;font-weight:700;font-size:0.9rem;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Découvrir les forfaits Kalam →</a>`;
+    html+=`</div>`;
+
+    html+=`<div style="background:rgba(184,149,58,0.08);padding:1rem;border-radius:12px;">
+      <h4 style="font-weight:700;color:var(--green-deep);margin-bottom:0.5rem;">📗 Forfaits Arabe</h4>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">Cours particuliers et en groupe</p>`;
+
+    html+=`<button onclick="closeForfaitModal()" style="display:block;width:100%;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.9rem 1.2rem;border-radius:50px;border:none;text-decoration:none;text-align:center;font-weight:700;font-size:0.9rem;cursor:pointer;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">Voir les offres Arabe →</button>`;
+    html+=`</div>`;
+
+    container.innerHTML=html;
+  }catch(e){
+    container.innerHTML='<p style="color:#DC2626;font-size:0.875rem;">Erreur : impossible de charger les offres.</p>';
+  }
+}
+
 init();
 startCallPolling();
+loadForfaitInfo();
 </script>
 </body></html>

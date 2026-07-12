@@ -179,6 +179,17 @@ body.speaking .orb{box-shadow:0 0 0 8px rgba(46,139,87,0.6),0 8px 52px rgba(46,1
   </div>
 </div>
 
+<!-- End of Session -->
+<div class="overlay" id="sessionEndOverlay" style="display:none;">
+  <div class="panel">
+    <div style="font-size:2.5rem;margin-bottom:0.5rem;">⏰</div>
+    <h1>C'est terminé à demain inch'Allah</h1>
+    <p>Tu as utilisé tout ton temps Kalam pour aujourd'hui. Reviens demain pour continuer ta pratique !</p>
+    <button onclick="document.getElementById('sessionEndOverlay').style.display='none';location.href='/espace-eleve'" style="background:var(--green);color:#fff;margin-bottom:0.7rem;width:100%;padding:0.9rem;border:none;border-radius:50px;font-family:inherit;font-weight:700;font-size:0.95rem;cursor:pointer;">← Retour à mon espace</button>
+    <button onclick="upgradeForfait()" style="background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);width:100%;padding:0.9rem;border:none;border-radius:50px;font-family:inherit;font-weight:700;font-size:0.95rem;cursor:pointer;">💳 Upgrader mon forfait</button>
+  </div>
+</div>
+
 <script>
 const $ = id => document.getElementById(id);
 const IMG_OUSTAZ='/images/Screenshot_2026-04-27-16-48-14-857_com.openai.chatgpt-edit.jpg';
@@ -264,7 +275,8 @@ function startTick(){
 }
 function stopTick(){ clearInterval(tickInt); tickInt=null; if(consumeBuffer>0){ pushConsume(consumeBuffer); consumeBuffer=0; } }
 async function pushConsume(sec){ if(!sec)return; try{ await fetch('/api/oustaz/quota/consume',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({seconds:sec})}); }catch{} }
-function endOfQuota(){ stop(); setStatus('Session terminée — à bientôt in shâ Allah !'); $('hintline').textContent='Tu as utilisé tout ton temps Kalam. Contacte ton école pour en obtenir davantage.'; }
+function endOfQuota(){ stop(); $('sessionEndOverlay').style.display='flex'; }
+function upgradeForfait(){ $('sessionEndOverlay').style.display='none'; location.href='/espace-eleve?tab=forfaits'; }
 
 // ── Chips ──
 document.querySelectorAll('.chip.lang').forEach(b=>b.onclick=()=>{ if(running)return; document.querySelectorAll('.chip.lang').forEach(x=>x.classList.remove('on')); b.classList.add('on'); lang=b.dataset.lang; });

@@ -181,6 +181,34 @@ module.exports = function (pool, opts) {
       const bk = await pool.query('SELECT course_type, format, hours FROM bookings WHERE student_id = $1 ORDER BY created_at DESC LIMIT 1', [s.id]).catch(()=>({rows:[]}));
       if (bk.rows[0]) { s.course_type = bk.rows[0].course_type; s.format = bk.rows[0].format; }
       const pdfc = await pool.query('SELECT COUNT(*) AS n FROM student_pdfs WHERE student_id = $1 AND file_url IS NOT NULL', [s.id]).catch(()=>({rows:[{n:0}]}));
+
+      // Kalam forfait info
+      try {
+        const kalamInfo = await pool.query(
+          `SELECT kp.minutes_per_day, kp.expires_at,
+                  GREATEST(0, COALESCE(kp.minutes_per_day, 3) - COALESCE((
+                    SELECT SUM(minutes_consumed) FROM kalam_sessions
+                    WHERE student_id = $1 AND DATE(session_start) = CURRENT_DATE
+                  ), 0)) AS kalam_remaining_today
+           FROM kalam_payments kp
+           WHERE kp.student_id = $1 AND kp.payment_status = 'paid'
+           AND (kp.expires_at IS NULL OR kp.expires_at > NOW())
+           ORDER BY kp.created_at DESC LIMIT 1`,
+          [req.studentId]
+        ).catch(()=>({rows:[]}));
+        if (kalamInfo.rows[0]) {
+          s.kalam_minutes_per_day = kalamInfo.rows[0].minutes_per_day;
+          s.kalam_expires_at = kalamInfo.rows[0].expires_at;
+          s.kalam_remaining_today = kalamInfo.rows[0].kalam_remaining_today;
+        } else {
+          s.kalam_minutes_per_day = 3; // default trial
+          s.kalam_remaining_today = 3;
+        }
+      } catch (e) {
+        s.kalam_minutes_per_day = 3;
+        s.kalam_remaining_today = 3;
+      }
+
       // Aliases attendus par la page
       s.level = s.niveau || 1;
       s.remaining_hours = Math.max(0, Number(s.hours_total||0) - Number(s.hours_done||0));

@@ -638,13 +638,59 @@ async function loadGroupes(){
     const r=await fetch('/api/professor/groups',{headers:{'X-Teacher-Token':token}});
     const list=await r.json();
     if(!Array.isArray(list)||!list.length){renderEmpty('groupesList','👥','Aucun groupe','Vos groupes de cours apparaîtront ici.');return;}
-    c.innerHTML=list.map(g=>`<div style="background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1rem;margin-bottom:0.7rem;">
+    c.innerHTML=`<div style="background:var(--white);border:1px solid var(--beige);border-radius:16px;padding:1.75rem;margin-bottom:2rem;">
+      <h3 style="font-weight:700;color:var(--green-deep);font-size:0.95rem;margin-bottom:1.25rem;">📈 Gérer la progression de groupe</h3>
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div>
+          <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:0.4rem;">Sélectionner un groupe</label>
+          <select id="progGroupSelect" style="width:100%;padding:0.7rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;outline:none;">
+            <option value="">-- Choisir un groupe --</option>
+            ${list.map(g=>`<option value="${g.id}">${g.name||'Groupe'} (${g.member_count||0} élève(s))</option>`).join('')}
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:0.4rem;">Niveau (1-11)</label>
+            <input type="number" id="progNiveau" min="1" max="11" placeholder="Ex: 5" style="width:100%;padding:0.7rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:0.4rem;">Page actuelle</label>
+            <input type="number" id="progPage" min="1" placeholder="Ex: 15" style="width:100%;padding:0.7rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;outline:none;">
+          </div>
+        </div>
+        <button class="btn-save" onclick="updateGroupProgression()">✓ Mettre à jour le groupe</button>
+        <div id="progStatus" style="font-size:0.82rem;color:var(--text-muted);display:none;"></div>
+      </div>
+    </div>` + list.map(g=>`<div style="background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1rem;margin-bottom:0.7rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <div><div style="font-weight:700;color:var(--green-deep);">${g.name||'Groupe'}</div>
         <div style="font-size:0.82rem;color:var(--text-muted);margin-top:0.2rem;">${g.member_count||0} élève(s)${g.course_type?' · '+formatCourse(g.course_type):''}</div></div>
         <button class="btn-sm btn-join" onclick="callGroup(${g.id})">📞 Appeler</button>
       </div></div>`).join('');
   }catch{ renderEmpty('groupesList','👥','Erreur de chargement',''); }
+}
+async function updateGroupProgression(){
+  const groupId=document.getElementById('progGroupSelect').value;
+  const niveau=document.getElementById('progNiveau').value;
+  const page=document.getElementById('progPage').value;
+  const status=document.getElementById('progStatus');
+  status.style.display='block';
+  status.textContent='Mise à jour en cours…';
+  if(!groupId){status.textContent='⚠️ Sélectionne un groupe.';status.style.color='var(--text-muted)';return;}
+  if(!niveau&&!page){status.textContent='⚠️ Remplis au moins un champ (Niveau ou Page).';status.style.color='var(--text-muted)';return;}
+  try{
+    const res=await fetch('/api/admin/progression/group/'+groupId,{method:'PUT',headers:{'Content-Type':'application/json','X-Teacher-Token':token},body:JSON.stringify({niveau:niveau?parseInt(niveau):null,current_page:page?parseInt(page):null})});
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Erreur');
+    status.textContent='✓ '+data.message||'Progression mise à jour';
+    status.style.color='var(--green)';
+    document.getElementById('progNiveau').value='';
+    document.getElementById('progPage').value='';
+    document.getElementById('progGroupSelect').value='';
+  }catch(e){
+    status.textContent='❌ '+e.message;
+    status.style.color='#DC2626';
+  }
 }
 async function callGroup(groupId){
   try{
