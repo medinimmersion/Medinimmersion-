@@ -418,24 +418,40 @@ async function openStudent(id){
       fetch('/api/teacher/progression/'+id,{headers:{'X-Teacher-Token':token}}),
       fetch('/api/notes/'+id,{headers:{'X-Teacher-Token':token}})
     ]);
-    const prog=progRes.ok?await progRes.json():{};
+    const prog=(progRes.ok?await progRes.json():null)||{};
     const notes=notesRes.ok?await notesRes.json():{};
-    const level=prog.level||s.level||1;
+    const level=prog.niveau||prog.level||s.level||1;
+    const page=prog.current_page||1;
     const pct=Math.round(((level-1)/10)*100);
     document.getElementById('modalContent').innerHTML=`
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;">
         <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Cours</div><div style="font-weight:700;font-size:0.88rem;">${formatCourse(s.course_type)}</div></div>
         <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Heures restantes</div><div style="font-weight:700;font-size:0.88rem;">${s.remaining_hours||0}h</div></div>
-        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Niveau</div><div style="font-weight:700;font-size:0.88rem;">${level} / 11</div></div>
         <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">WhatsApp</div><div style="font-weight:700;font-size:0.88rem;">${s.whatsapp||'–'}</div></div>
+        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Progression</div><div style="font-weight:700;font-size:0.88rem;">${pct}%</div></div>
       </div>
       <div style="margin-bottom:1.5rem;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;font-size:0.82rem;color:var(--text-muted);">
-          <span>Progression</span><span>${pct}%</span>
-        </div>
         <div style="height:8px;background:var(--beige);border-radius:50px;overflow:hidden;">
           <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold-light));border-radius:50px;"></div>
         </div>
+      </div>
+      <div style="background:var(--cream);border-radius:12px;padding:1rem;margin-bottom:1.5rem;">
+        <label style="display:block;font-size:0.82rem;font-weight:700;color:var(--green-deep);margin-bottom:0.6rem;">📖 Progression dans le programme de Médine</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Niveau (tome)</div>
+            <select id="progNiveau" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+              ${Array.from({length:11},(_,i)=>i+1).map(n=>`<option value="${n}"${n===level?' selected':''}>Niveau ${n}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Page du livre</div>
+            <input id="progPage" type="number" min="1" value="${page}" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+          </div>
+        </div>
+        <button class="btn-save" onclick="saveProgression(${id})">Enregistrer la progression</button>
+        <div id="progSaved" style="display:none;color:var(--green);font-size:0.82rem;margin-top:0.5rem;">✓ Progression enregistrée</div>
+        <div id="progErr" style="display:none;color:#B3261E;font-size:0.82rem;margin-top:0.5rem;"></div>
       </div>
       <div>
         <label style="display:block;font-size:0.82rem;font-weight:700;color:var(--green-deep);margin-bottom:0.5rem;">📝 Notes du professeur</label>
@@ -446,6 +462,21 @@ async function openStudent(id){
   }catch{
     document.getElementById('modalContent').innerHTML='<p style="color:var(--text-muted);">Impossible de charger les détails.</p>';
   }
+}
+
+async function saveProgression(studentId){
+  const niveau=parseInt(document.getElementById('progNiveau').value,10);
+  const current_page=parseInt(document.getElementById('progPage').value,10);
+  const ok=document.getElementById('progSaved'), ko=document.getElementById('progErr');
+  ok.style.display='none'; ko.style.display='none';
+  if(isNaN(current_page)||current_page<1){ ko.textContent='Page invalide.'; ko.style.display='block'; return; }
+  try{
+    const r=await fetch('/api/teacher/progression/'+studentId,{method:'PUT',headers:{'X-Teacher-Token':token,'Content-Type':'application/json'},body:JSON.stringify({niveau,current_page})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Erreur serveur');
+    ok.style.display='block';
+    setTimeout(()=>ok.style.display='none',3000);
+  }catch(e){ ko.textContent=e.message; ko.style.display='block'; }
 }
 
 async function saveNotes(studentId){
