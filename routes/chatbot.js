@@ -207,6 +207,7 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel — ne le récite jamais mot pour mot,
 - Adapte STRICTEMENT ton vocabulaire et tes thèmes à ce niveau ${niveau} du programme (pas au-dessus).
 ${notes ? `- Remarque du professeur sur cet élève : « ${String(notes).slice(0, 300)} ». Tiens-en compte avec bienveillance.` : ''}
 - Tu peux proposer de réviser ou pratiquer ce qui correspond à ce niveau et à cette page, et poser des questions dans ce thème.`;
+            studentContext += await require('../kalam-books').buildBookContext(pool, niveau, current_page);
           }
         } catch (e) { console.error('[oustaz/chat] contexte élève:', e.message); }
       }

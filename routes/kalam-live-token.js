@@ -41,6 +41,7 @@ module.exports = function (pool, opts) {
             studentContext = `
 
 CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau} du programme Médine, page ${current_page || 1}. Adapte-toi strictement à ce niveau.${notes ? ` Remarque du professeur : « ${String(notes).slice(0, 200)} ».` : ''}`;
+            studentContext += await require('../kalam-books').buildBookContext(pool, niveau, current_page);
           }
         } catch (e) { console.error('[live-token] contexte:', e.message); }
       }
