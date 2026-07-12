@@ -266,6 +266,7 @@ const routeFiles = [
   'misc',
   'content-api',
   'kalam-live-token',
+  'kalam-books',
 ];
 
 for (const name of routeFiles) {
