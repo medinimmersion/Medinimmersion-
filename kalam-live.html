@@ -294,23 +294,27 @@ function stopPlayback(){ scheduled.forEach(s=>{try{s.stop();}catch{}}); schedule
 // ── WebSocket / session ──
 let directSetup=null;    // setup à envoyer si connexion directe à Google
 let triedProxy=false;    // a-t-on déjà basculé sur le proxy ?
+let modernAudio=false;   // format audio moderne (connexion directe v1alpha)
+let preferProxy=false;   // le direct a échoué en cours de session → rester sur le proxy
+let sessionStart=0;      // début de session (pour détecter une coupure immédiate)
 async function start(){
   if(running) return;
   if(secondsLeft<=0){ endOfQuota(); return; }
-  triedProxy=false; directSetup=null;
+  triedProxy=false; directSetup=null; modernAudio=false;
   setStatus('Connexion…','thinking'); setBodyState('thinking'); dbg('Ouverture du micro…');
   // 1) micro
   try{
     micStream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
   }catch(e){ setStatus('Micro refusé'); setBodyState(''); dbg('Autorise le micro pour parler.'); return; }
   // 2) on tente la connexion DIRECTE à Google (rapide) ; sinon proxy serveur (secours)
+  if(preferProxy){ connectProxy(); return; }
   const p=PERSONA();
   const qs=new URLSearchParams({lang,level,gender:p.gender,name:student?.prenom||student?.kounia||''});
   try{
     const tr=await fetch('/api/kalam/live-token?'+qs,{headers:{'Authorization':'Bearer '+(token||'')}});
     if(tr.ok){
       const td=await tr.json();
-      if(td && td.ok && td.wsUrl && td.setup){ directSetup=td.setup; dbg('Connexion directe à Google…'); openWS(td.wsUrl); return; }
+      if(td && td.ok && td.wsUrl && td.setup){ directSetup=td.setup; modernAudio=true; dbg('Connexion directe à Google…'); openWS(td.wsUrl); return; }
       dbg('Réponse jeton invalide (ok='+(td?.ok)+', wsUrl='+(!!td?.wsUrl)+', setup='+(!!td?.setup)+'), proxy…');
     }else{
       const err=await tr.json().catch(()=>({}));
@@ -320,7 +324,7 @@ async function start(){
   connectProxy();
 }
 function connectProxy(){
-  triedProxy=true; directSetup=null;
+  triedProxy=true; directSetup=null; modernAudio=false;
   const proto=location.protocol==='https:'?'wss:':'ws:';
   const p=PERSONA();
   const qs=new URLSearchParams({lang,level,gender:p.gender,name:student?.prenom||student?.kounia||'',token:token||''});
@@ -345,13 +349,21 @@ function openWS(url){
     else dbg('Serveur connecté. En attente de Gemini…');
   };
   ws.onerror=()=>{ dbg('Souci de connexion temps réel.'); };
-  ws.onclose=()=>{
+  ws.onclose=(ev)=>{
     clearTimeout(readyWatch);
-    if(running){ dbg('Connexion fermée.'); stop(); return; }
+    const info=' (code '+(ev&&ev.code||'?')+((ev&&ev.reason)?' : '+ev.reason:'')+')';
+    if(running){
+      // Google coupe juste après le démarrage (format refusé, etc.) → on repart via le serveur
+      if(!triedProxy && Date.now()-sessionStart<8000){
+        dbg('Google a coupé'+info+' — bascule sur le serveur…');
+        stop(); preferProxy=true; start(); return;
+      }
+      dbg('Connexion fermée'+info); stop(); return;
+    }
     // Fermé avant le démarrage : si c'était le direct, on tente le proxy
-    if(!triedProxy){ dbg('Direct fermé, bascule sur le serveur…'); connectProxy(); return; }
+    if(!triedProxy){ dbg('Direct fermé'+info+', bascule sur le serveur…'); connectProxy(); return; }
     setStatus('Connexion fermée avant le démarrage');
-    dbg('Le serveur a fermé la connexion. Réessaie dans 2-3 min.');
+    dbg('Le serveur a fermé la connexion'+info+'. Réessaie dans 2-3 min.');
     setBodyState('');
   };
   ws.onmessage=async(ev)=>{
@@ -418,7 +430,7 @@ function sendText(){
 
 function onReady(){
   clearTimeout(readyWatch);
-  running=true; micMuted=false; closeBubbles();
+  running=true; micMuted=false; sessionStart=Date.now(); closeBubbles();
   $('mainBtn').textContent='■ Arrêter';
   $('mainBtn').classList.add('stop');
   $('controls').style.display='flex';
@@ -441,7 +453,11 @@ function onReady(){
     const ds=downsampleTo16k(f32,srcRate);
     const i16=floatTo16(ds);
     const b64=b64FromBuf(i16.buffer);
-    try{ ws.send(JSON.stringify({realtimeInput:{mediaChunks:[{mimeType:'audio/pcm;rate=16000',data:b64}]}})); }catch{}
+    // Format moderne (connexion directe v1alpha) vs format historique (proxy v1beta)
+    const payload=modernAudio
+      ? {realtimeInput:{audio:{data:b64,mimeType:'audio/pcm;rate=16000'}}}
+      : {realtimeInput:{mediaChunks:[{mimeType:'audio/pcm;rate=16000',data:b64}]}};
+    try{ ws.send(JSON.stringify(payload)); }catch{}
   };
 }
 
