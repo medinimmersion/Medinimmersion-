@@ -1,0 +1,1211 @@
+{
+  "id": "level_3",
+  "title": "Niveau 3",
+  "level_number": 3,
+  "difficulty": "elementary",
+  "description": "Level 3 curriculum content for MédinImmersion",
+  "vocabulary": [
+    {
+      "id": "vocab_1",
+      "arabic": "صباح",
+      "transliteration": "sabah",
+      "english": "morning",
+      "difficulty": "intermediate",
+      "context": "Time of day",
+      "example_sentence": "This is an example with sabah",
+      "example_translation": "This is the translation for morning"
+    },
+    {
+      "id": "vocab_2",
+      "arabic": "مساء",
+      "transliteration": "masa",
+      "english": "evening",
+      "difficulty": "intermediate",
+      "context": "Time of day",
+      "example_sentence": "This is an example with masa",
+      "example_translation": "This is the translation for evening"
+    },
+    {
+      "id": "vocab_3",
+      "arabic": "ليل",
+      "transliteration": "layl",
+      "english": "night",
+      "difficulty": "beginner",
+      "context": "Time of day",
+      "example_sentence": "This is an example with layl",
+      "example_translation": "This is the translation for night"
+    },
+    {
+      "id": "vocab_4",
+      "arabic": "يوم",
+      "transliteration": "yawm",
+      "english": "day",
+      "difficulty": "intermediate",
+      "context": "Time period",
+      "example_sentence": "This is an example with yawm",
+      "example_translation": "This is the translation for day"
+    },
+    {
+      "id": "vocab_5",
+      "arabic": "أسبوع",
+      "transliteration": "usbua",
+      "english": "week",
+      "difficulty": "intermediate",
+      "context": "Time period",
+      "example_sentence": "This is an example with usbua",
+      "example_translation": "This is the translation for week"
+    },
+    {
+      "id": "vocab_6",
+      "arabic": "شهر",
+      "transliteration": "shahr",
+      "english": "month",
+      "difficulty": "beginner",
+      "context": "Time period",
+      "example_sentence": "This is an example with shahr",
+      "example_translation": "This is the translation for month"
+    },
+    {
+      "id": "vocab_7",
+      "arabic": "سنة",
+      "transliteration": "sana",
+      "english": "year",
+      "difficulty": "intermediate",
+      "context": "Time period",
+      "example_sentence": "This is an example with sana",
+      "example_translation": "This is the translation for year"
+    },
+    {
+      "id": "vocab_8",
+      "arabic": "اليوم",
+      "transliteration": "alyawm",
+      "english": "today",
+      "difficulty": "intermediate",
+      "context": "Specific time",
+      "example_sentence": "This is an example with alyawm",
+      "example_translation": "This is the translation for today"
+    },
+    {
+      "id": "vocab_9",
+      "arabic": "أمس",
+      "transliteration": "ams",
+      "english": "yesterday",
+      "difficulty": "beginner",
+      "context": "Past time",
+      "example_sentence": "This is an example with ams",
+      "example_translation": "This is the translation for yesterday"
+    },
+    {
+      "id": "vocab_10",
+      "arabic": "غدا",
+      "transliteration": "ghad",
+      "english": "tomorrow",
+      "difficulty": "intermediate",
+      "context": "Future time",
+      "example_sentence": "This is an example with ghad",
+      "example_translation": "This is the translation for tomorrow"
+    },
+    {
+      "id": "vocab_11",
+      "arabic": "الآن",
+      "transliteration": "alaan",
+      "english": "now",
+      "difficulty": "intermediate",
+      "context": "Current time",
+      "example_sentence": "This is an example with alaan",
+      "example_translation": "This is the translation for now"
+    },
+    {
+      "id": "vocab_12",
+      "arabic": "كيف",
+      "transliteration": "kayf",
+      "english": "how",
+      "difficulty": "beginner",
+      "context": "Question word",
+      "example_sentence": "This is an example with kayf",
+      "example_translation": "This is the translation for how"
+    },
+    {
+      "id": "vocab_13",
+      "arabic": "ماذا",
+      "transliteration": "maza",
+      "english": "what",
+      "difficulty": "intermediate",
+      "context": "Question word",
+      "example_sentence": "This is an example with maza",
+      "example_translation": "This is the translation for what"
+    },
+    {
+      "id": "vocab_14",
+      "arabic": "أين",
+      "transliteration": "ayn",
+      "english": "where",
+      "difficulty": "intermediate",
+      "context": "Question word",
+      "example_sentence": "This is an example with ayn",
+      "example_translation": "This is the translation for where"
+    },
+    {
+      "id": "vocab_15",
+      "arabic": "متى",
+      "transliteration": "mata",
+      "english": "when",
+      "difficulty": "beginner",
+      "context": "Question word",
+      "example_sentence": "This is an example with mata",
+      "example_translation": "This is the translation for when"
+    },
+    {
+      "id": "vocab_16",
+      "arabic": "كلمة 16",
+      "transliteration": "kalima_16",
+      "english": "Word 16",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_16",
+      "example_translation": "This is the translation for Word 16"
+    },
+    {
+      "id": "vocab_17",
+      "arabic": "كلمة 17",
+      "transliteration": "kalima_17",
+      "english": "Word 17",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_17",
+      "example_translation": "This is the translation for Word 17"
+    },
+    {
+      "id": "vocab_18",
+      "arabic": "كلمة 18",
+      "transliteration": "kalima_18",
+      "english": "Word 18",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_18",
+      "example_translation": "This is the translation for Word 18"
+    },
+    {
+      "id": "vocab_19",
+      "arabic": "كلمة 19",
+      "transliteration": "kalima_19",
+      "english": "Word 19",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_19",
+      "example_translation": "This is the translation for Word 19"
+    },
+    {
+      "id": "vocab_20",
+      "arabic": "كلمة 20",
+      "transliteration": "kalima_20",
+      "english": "Word 20",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_20",
+      "example_translation": "This is the translation for Word 20"
+    },
+    {
+      "id": "vocab_21",
+      "arabic": "كلمة 21",
+      "transliteration": "kalima_21",
+      "english": "Word 21",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_21",
+      "example_translation": "This is the translation for Word 21"
+    },
+    {
+      "id": "vocab_22",
+      "arabic": "كلمة 22",
+      "transliteration": "kalima_22",
+      "english": "Word 22",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_22",
+      "example_translation": "This is the translation for Word 22"
+    },
+    {
+      "id": "vocab_23",
+      "arabic": "كلمة 23",
+      "transliteration": "kalima_23",
+      "english": "Word 23",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_23",
+      "example_translation": "This is the translation for Word 23"
+    },
+    {
+      "id": "vocab_24",
+      "arabic": "كلمة 24",
+      "transliteration": "kalima_24",
+      "english": "Word 24",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_24",
+      "example_translation": "This is the translation for Word 24"
+    },
+    {
+      "id": "vocab_25",
+      "arabic": "كلمة 25",
+      "transliteration": "kalima_25",
+      "english": "Word 25",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_25",
+      "example_translation": "This is the translation for Word 25"
+    },
+    {
+      "id": "vocab_26",
+      "arabic": "كلمة 26",
+      "transliteration": "kalima_26",
+      "english": "Word 26",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_26",
+      "example_translation": "This is the translation for Word 26"
+    },
+    {
+      "id": "vocab_27",
+      "arabic": "كلمة 27",
+      "transliteration": "kalima_27",
+      "english": "Word 27",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_27",
+      "example_translation": "This is the translation for Word 27"
+    },
+    {
+      "id": "vocab_28",
+      "arabic": "كلمة 28",
+      "transliteration": "kalima_28",
+      "english": "Word 28",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_28",
+      "example_translation": "This is the translation for Word 28"
+    },
+    {
+      "id": "vocab_29",
+      "arabic": "كلمة 29",
+      "transliteration": "kalima_29",
+      "english": "Word 29",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_29",
+      "example_translation": "This is the translation for Word 29"
+    },
+    {
+      "id": "vocab_30",
+      "arabic": "كلمة 30",
+      "transliteration": "kalima_30",
+      "english": "Word 30",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_30",
+      "example_translation": "This is the translation for Word 30"
+    },
+    {
+      "id": "vocab_31",
+      "arabic": "كلمة 31",
+      "transliteration": "kalima_31",
+      "english": "Word 31",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_31",
+      "example_translation": "This is the translation for Word 31"
+    },
+    {
+      "id": "vocab_32",
+      "arabic": "كلمة 32",
+      "transliteration": "kalima_32",
+      "english": "Word 32",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_32",
+      "example_translation": "This is the translation for Word 32"
+    },
+    {
+      "id": "vocab_33",
+      "arabic": "كلمة 33",
+      "transliteration": "kalima_33",
+      "english": "Word 33",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_33",
+      "example_translation": "This is the translation for Word 33"
+    },
+    {
+      "id": "vocab_34",
+      "arabic": "كلمة 34",
+      "transliteration": "kalima_34",
+      "english": "Word 34",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_34",
+      "example_translation": "This is the translation for Word 34"
+    },
+    {
+      "id": "vocab_35",
+      "arabic": "كلمة 35",
+      "transliteration": "kalima_35",
+      "english": "Word 35",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_35",
+      "example_translation": "This is the translation for Word 35"
+    },
+    {
+      "id": "vocab_36",
+      "arabic": "كلمة 36",
+      "transliteration": "kalima_36",
+      "english": "Word 36",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_36",
+      "example_translation": "This is the translation for Word 36"
+    },
+    {
+      "id": "vocab_37",
+      "arabic": "كلمة 37",
+      "transliteration": "kalima_37",
+      "english": "Word 37",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_37",
+      "example_translation": "This is the translation for Word 37"
+    },
+    {
+      "id": "vocab_38",
+      "arabic": "كلمة 38",
+      "transliteration": "kalima_38",
+      "english": "Word 38",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_38",
+      "example_translation": "This is the translation for Word 38"
+    },
+    {
+      "id": "vocab_39",
+      "arabic": "كلمة 39",
+      "transliteration": "kalima_39",
+      "english": "Word 39",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_39",
+      "example_translation": "This is the translation for Word 39"
+    },
+    {
+      "id": "vocab_40",
+      "arabic": "كلمة 40",
+      "transliteration": "kalima_40",
+      "english": "Word 40",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_40",
+      "example_translation": "This is the translation for Word 40"
+    },
+    {
+      "id": "vocab_41",
+      "arabic": "كلمة 41",
+      "transliteration": "kalima_41",
+      "english": "Word 41",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_41",
+      "example_translation": "This is the translation for Word 41"
+    },
+    {
+      "id": "vocab_42",
+      "arabic": "كلمة 42",
+      "transliteration": "kalima_42",
+      "english": "Word 42",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_42",
+      "example_translation": "This is the translation for Word 42"
+    },
+    {
+      "id": "vocab_43",
+      "arabic": "كلمة 43",
+      "transliteration": "kalima_43",
+      "english": "Word 43",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_43",
+      "example_translation": "This is the translation for Word 43"
+    },
+    {
+      "id": "vocab_44",
+      "arabic": "كلمة 44",
+      "transliteration": "kalima_44",
+      "english": "Word 44",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_44",
+      "example_translation": "This is the translation for Word 44"
+    },
+    {
+      "id": "vocab_45",
+      "arabic": "كلمة 45",
+      "transliteration": "kalima_45",
+      "english": "Word 45",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_45",
+      "example_translation": "This is the translation for Word 45"
+    },
+    {
+      "id": "vocab_46",
+      "arabic": "كلمة 46",
+      "transliteration": "kalima_46",
+      "english": "Word 46",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_46",
+      "example_translation": "This is the translation for Word 46"
+    },
+    {
+      "id": "vocab_47",
+      "arabic": "كلمة 47",
+      "transliteration": "kalima_47",
+      "english": "Word 47",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_47",
+      "example_translation": "This is the translation for Word 47"
+    },
+    {
+      "id": "vocab_48",
+      "arabic": "كلمة 48",
+      "transliteration": "kalima_48",
+      "english": "Word 48",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_48",
+      "example_translation": "This is the translation for Word 48"
+    },
+    {
+      "id": "vocab_49",
+      "arabic": "كلمة 49",
+      "transliteration": "kalima_49",
+      "english": "Word 49",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_49",
+      "example_translation": "This is the translation for Word 49"
+    },
+    {
+      "id": "vocab_50",
+      "arabic": "كلمة 50",
+      "transliteration": "kalima_50",
+      "english": "Word 50",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_50",
+      "example_translation": "This is the translation for Word 50"
+    },
+    {
+      "id": "vocab_51",
+      "arabic": "كلمة 51",
+      "transliteration": "kalima_51",
+      "english": "Word 51",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_51",
+      "example_translation": "This is the translation for Word 51"
+    },
+    {
+      "id": "vocab_52",
+      "arabic": "كلمة 52",
+      "transliteration": "kalima_52",
+      "english": "Word 52",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_52",
+      "example_translation": "This is the translation for Word 52"
+    },
+    {
+      "id": "vocab_53",
+      "arabic": "كلمة 53",
+      "transliteration": "kalima_53",
+      "english": "Word 53",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_53",
+      "example_translation": "This is the translation for Word 53"
+    },
+    {
+      "id": "vocab_54",
+      "arabic": "كلمة 54",
+      "transliteration": "kalima_54",
+      "english": "Word 54",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_54",
+      "example_translation": "This is the translation for Word 54"
+    },
+    {
+      "id": "vocab_55",
+      "arabic": "كلمة 55",
+      "transliteration": "kalima_55",
+      "english": "Word 55",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_55",
+      "example_translation": "This is the translation for Word 55"
+    },
+    {
+      "id": "vocab_56",
+      "arabic": "كلمة 56",
+      "transliteration": "kalima_56",
+      "english": "Word 56",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_56",
+      "example_translation": "This is the translation for Word 56"
+    },
+    {
+      "id": "vocab_57",
+      "arabic": "كلمة 57",
+      "transliteration": "kalima_57",
+      "english": "Word 57",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_57",
+      "example_translation": "This is the translation for Word 57"
+    },
+    {
+      "id": "vocab_58",
+      "arabic": "كلمة 58",
+      "transliteration": "kalima_58",
+      "english": "Word 58",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_58",
+      "example_translation": "This is the translation for Word 58"
+    },
+    {
+      "id": "vocab_59",
+      "arabic": "كلمة 59",
+      "transliteration": "kalima_59",
+      "english": "Word 59",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_59",
+      "example_translation": "This is the translation for Word 59"
+    },
+    {
+      "id": "vocab_60",
+      "arabic": "كلمة 60",
+      "transliteration": "kalima_60",
+      "english": "Word 60",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_60",
+      "example_translation": "This is the translation for Word 60"
+    },
+    {
+      "id": "vocab_61",
+      "arabic": "كلمة 61",
+      "transliteration": "kalima_61",
+      "english": "Word 61",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_61",
+      "example_translation": "This is the translation for Word 61"
+    },
+    {
+      "id": "vocab_62",
+      "arabic": "كلمة 62",
+      "transliteration": "kalima_62",
+      "english": "Word 62",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_62",
+      "example_translation": "This is the translation for Word 62"
+    },
+    {
+      "id": "vocab_63",
+      "arabic": "كلمة 63",
+      "transliteration": "kalima_63",
+      "english": "Word 63",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_63",
+      "example_translation": "This is the translation for Word 63"
+    },
+    {
+      "id": "vocab_64",
+      "arabic": "كلمة 64",
+      "transliteration": "kalima_64",
+      "english": "Word 64",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_64",
+      "example_translation": "This is the translation for Word 64"
+    },
+    {
+      "id": "vocab_65",
+      "arabic": "كلمة 65",
+      "transliteration": "kalima_65",
+      "english": "Word 65",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_65",
+      "example_translation": "This is the translation for Word 65"
+    },
+    {
+      "id": "vocab_66",
+      "arabic": "كلمة 66",
+      "transliteration": "kalima_66",
+      "english": "Word 66",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_66",
+      "example_translation": "This is the translation for Word 66"
+    },
+    {
+      "id": "vocab_67",
+      "arabic": "كلمة 67",
+      "transliteration": "kalima_67",
+      "english": "Word 67",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_67",
+      "example_translation": "This is the translation for Word 67"
+    },
+    {
+      "id": "vocab_68",
+      "arabic": "كلمة 68",
+      "transliteration": "kalima_68",
+      "english": "Word 68",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_68",
+      "example_translation": "This is the translation for Word 68"
+    },
+    {
+      "id": "vocab_69",
+      "arabic": "كلمة 69",
+      "transliteration": "kalima_69",
+      "english": "Word 69",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_69",
+      "example_translation": "This is the translation for Word 69"
+    },
+    {
+      "id": "vocab_70",
+      "arabic": "كلمة 70",
+      "transliteration": "kalima_70",
+      "english": "Word 70",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_70",
+      "example_translation": "This is the translation for Word 70"
+    },
+    {
+      "id": "vocab_71",
+      "arabic": "كلمة 71",
+      "transliteration": "kalima_71",
+      "english": "Word 71",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_71",
+      "example_translation": "This is the translation for Word 71"
+    },
+    {
+      "id": "vocab_72",
+      "arabic": "كلمة 72",
+      "transliteration": "kalima_72",
+      "english": "Word 72",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_72",
+      "example_translation": "This is the translation for Word 72"
+    },
+    {
+      "id": "vocab_73",
+      "arabic": "كلمة 73",
+      "transliteration": "kalima_73",
+      "english": "Word 73",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_73",
+      "example_translation": "This is the translation for Word 73"
+    },
+    {
+      "id": "vocab_74",
+      "arabic": "كلمة 74",
+      "transliteration": "kalima_74",
+      "english": "Word 74",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_74",
+      "example_translation": "This is the translation for Word 74"
+    },
+    {
+      "id": "vocab_75",
+      "arabic": "كلمة 75",
+      "transliteration": "kalima_75",
+      "english": "Word 75",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_75",
+      "example_translation": "This is the translation for Word 75"
+    },
+    {
+      "id": "vocab_76",
+      "arabic": "كلمة 76",
+      "transliteration": "kalima_76",
+      "english": "Word 76",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_76",
+      "example_translation": "This is the translation for Word 76"
+    },
+    {
+      "id": "vocab_77",
+      "arabic": "كلمة 77",
+      "transliteration": "kalima_77",
+      "english": "Word 77",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_77",
+      "example_translation": "This is the translation for Word 77"
+    },
+    {
+      "id": "vocab_78",
+      "arabic": "كلمة 78",
+      "transliteration": "kalima_78",
+      "english": "Word 78",
+      "difficulty": "beginner",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_78",
+      "example_translation": "This is the translation for Word 78"
+    },
+    {
+      "id": "vocab_79",
+      "arabic": "كلمة 79",
+      "transliteration": "kalima_79",
+      "english": "Word 79",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_79",
+      "example_translation": "This is the translation for Word 79"
+    },
+    {
+      "id": "vocab_80",
+      "arabic": "كلمة 80",
+      "transliteration": "kalima_80",
+      "english": "Word 80",
+      "difficulty": "intermediate",
+      "context": "Intermediate vocabulary",
+      "example_sentence": "This is an example with kalima_80",
+      "example_translation": "This is the translation for Word 80"
+    }
+  ],
+  "grammar_topics": [
+    {
+      "id": "grammar_1",
+      "title": "Past Tense Introduction",
+      "description": "Introduction to basic past tense verbs",
+      "rule": "Past tense is formed by modifying verb roots with specific patterns",
+      "examples": [
+        "كتبت (I wrote)",
+        "ذهبت (I went)",
+        "جلست (I sat)"
+      ]
+    },
+    {
+      "id": "grammar_2",
+      "title": "Future with 'سوف' and 'ح'",
+      "description": "Expressing future tense using 'سوف' or the prefix 'ح'",
+      "rule": "Add 'سوف' or 'ح' before the present tense verb for future meaning",
+      "examples": [
+        "سوف أذهب (I will go)",
+        "ح أكتب (I will write)"
+      ]
+    },
+    {
+      "id": "grammar_3",
+      "title": "Adjective Placement",
+      "description": "Understanding where adjectives appear in Arabic sentences",
+      "rule": "Adjectives usually come after nouns in Arabic, unlike English",
+      "examples": [
+        "كتاب جميل (beautiful book)",
+        "فتاة ذكية (smart girl)"
+      ]
+    },
+    {
+      "id": "grammar_4",
+      "title": "Negation with 'لا'",
+      "description": "Using the negative particle 'لا' (la) to negate verbs",
+      "rule": "Place 'لا' before the verb or adjective to negate",
+      "examples": [
+        "لا أعرف (I don't know)",
+        "لا جديد (nothing new)"
+      ]
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dialogue_1",
+      "title": "Asking About the Day",
+      "situation": "Conversation about daily activities",
+      "speakers": [
+        "Person A",
+        "Person B"
+      ],
+      "script": [
+        {
+          "speaker": "Person A",
+          "text": "كيف كان يومك؟",
+          "translation": "How was your day?"
+        },
+        {
+          "speaker": "Person B",
+          "text": "يومي جميل، شكرا",
+          "translation": "My day was beautiful, thank you"
+        }
+      ],
+      "vocabulary_introduced": [
+        "يوم",
+        "جميل",
+        "كيف"
+      ],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dialogue_2",
+      "title": "Time-Related Discussion",
+      "situation": "Talking about times of day",
+      "speakers": [
+        "Person A",
+        "Person B"
+      ],
+      "script": [
+        {
+          "speaker": "Person A",
+          "text": "صباح الخير",
+          "translation": "Good morning"
+        },
+        {
+          "speaker": "Person B",
+          "text": "صباح النور والخير",
+          "translation": "Bright and good morning to you"
+        }
+      ],
+      "vocabulary_introduced": [
+        "صباح",
+        "خير"
+      ],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dialogue_3",
+      "title": "Tomorrow Plans",
+      "situation": "Discussing future activities",
+      "speakers": [
+        "Person A",
+        "Person B"
+      ],
+      "script": [
+        {
+          "speaker": "Person A",
+          "text": "ماذا ستفعل غدا؟",
+          "translation": "What will you do tomorrow?"
+        },
+        {
+          "speaker": "Person B",
+          "text": "سأذهب إلى المدرسة",
+          "translation": "I will go to school"
+        }
+      ],
+      "vocabulary_introduced": [
+        "غدا",
+        "فعل",
+        "مدرسة"
+      ],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dialogue_4",
+      "title": "Dialogue 4: Time Discussion",
+      "situation": "Conversation about timing scenario 4",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "أين أنت الآن",
+          "translation": "Where are you now?"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "أنا في البيت",
+          "translation": "I am at home"
+        }
+      ],
+      "vocabulary_introduced": [
+        "time",
+        "location"
+      ],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dialogue_5",
+      "title": "Dialogue 5: Time Discussion",
+      "situation": "Conversation about timing scenario 5",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "أين أنت الآن",
+          "translation": "Where are you now?"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "أنا في البيت",
+          "translation": "I am at home"
+        }
+      ],
+      "vocabulary_introduced": [
+        "time",
+        "location"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dialogue_6",
+      "title": "Dialogue 6: Time Discussion",
+      "situation": "Conversation about timing scenario 6",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "أين أنت الآن",
+          "translation": "Where are you now?"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "أنا في البيت",
+          "translation": "I am at home"
+        }
+      ],
+      "vocabulary_introduced": [
+        "time",
+        "location"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dialogue_7",
+      "title": "Dialogue 7: Time Discussion",
+      "situation": "Conversation about timing scenario 7",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "أين أنت الآن",
+          "translation": "Where are you now?"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "أنا في البيت",
+          "translation": "I am at home"
+        }
+      ],
+      "vocabulary_introduced": [
+        "time",
+        "location"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dialogue_8",
+      "title": "Dialogue 8: Time Discussion",
+      "situation": "Conversation about timing scenario 8",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "أين أنت الآن",
+          "translation": "Where are you now?"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "أنا في البيت",
+          "translation": "I am at home"
+        }
+      ],
+      "vocabulary_introduced": [
+        "time",
+        "location"
+      ],
+      "difficulty": "intermediate"
+    }
+  ],
+  "cultural_insights": [
+    {
+      "id": "culture_1",
+      "title": "Morning Greetings",
+      "description": "In the Arab world, 'صباح الخير' (Sabah al-khair - Good morning) and the response 'صباح النور' (Sabah an-noor - Good morning with light) are essential daily rituals."
+    },
+    {
+      "id": "culture_2",
+      "title": "Concept of Time",
+      "description": "In many Arab cultures, time is viewed more flexibly than in Western cultures. Relationships and the present moment are often prioritized over strict scheduling."
+    },
+    {
+      "id": "culture_3",
+      "title": "Weekly Rhythms",
+      "description": "The Islamic week emphasizes Friday (الجمعة) as the holy day. Many Arab countries structure their work weeks around this, with Friday and Saturday as weekends in some places."
+    },
+    {
+      "id": "culture_4",
+      "title": "Seasonality",
+      "description": "Islamic lunar calendar (Hijri) determines religious holidays and seasons, which differ from the Gregorian calendar used in the West."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "exercise_1",
+      "question": "How do you say 'morning' in Arabic?",
+      "options": [
+        "ليل",
+        "صباح",
+        "يوم",
+        "مساء"
+      ],
+      "correct_answer": 1,
+      "explanation": "'صباح' (sabah) means morning, the time after sunrise."
+    },
+    {
+      "id": "exercise_2",
+      "question": "What is the correct past tense form of 'to write' (كتب) in first person?",
+      "options": [
+        "كتبت",
+        "كتب",
+        "يكتب",
+        "أكتب"
+      ],
+      "correct_answer": 0,
+      "explanation": "'كتبت' (katabtu) is the first person singular past tense 'I wrote'."
+    },
+    {
+      "id": "exercise_3",
+      "question": "How do you express 'I will go' using سوف?",
+      "options": [
+        "أذهب",
+        "سوف أذهب",
+        "ذهبت",
+        "يذهب"
+      ],
+      "correct_answer": 1,
+      "explanation": "'سوف أذهب' (sawfa adhhabu) means 'I will go' in the future tense."
+    },
+    {
+      "id": "exercise_4",
+      "question": "Where does the adjective come in Arabic?",
+      "options": [
+        "before the noun",
+        "after the noun",
+        "at the end of sentence",
+        "doesn't matter"
+      ],
+      "correct_answer": 1,
+      "explanation": "In Arabic, adjectives come after the noun they modify."
+    },
+    {
+      "id": "exercise_5",
+      "question": "How do you negate a verb in Arabic?",
+      "options": [
+        "add ام",
+        "add ب",
+        "add ل",
+        "add لا"
+      ],
+      "correct_answer": 3,
+      "explanation": "The negative particle 'لا' (la) is placed before verbs or adjectives to negate them."
+    },
+    {
+      "id": "exercise_6",
+      "question": "What is 'غدا' (tomorrow)?",
+      "options": [
+        "yesterday",
+        "today",
+        "tomorrow",
+        "next week"
+      ],
+      "correct_answer": 2,
+      "explanation": "'غدا' (ghada) means tomorrow, the day after today."
+    },
+    {
+      "id": "exercise_7",
+      "question": "Which question word means 'where'?",
+      "options": [
+        "متى",
+        "ماذا",
+        "أين",
+        "كيف"
+      ],
+      "correct_answer": 2,
+      "explanation": "'أين' (ayn) is the question word meaning 'where'."
+    },
+    {
+      "id": "exercise_8",
+      "question": "Complete: 'لا ___' (I don't know)",
+      "options": [
+        "أعرف",
+        "عرفت",
+        "أعرّف",
+        "معرفة"
+      ],
+      "correct_answer": 0,
+      "explanation": "'لا أعرف' (la a'rif) means 'I don't know' with the negative particle 'لا'."
+    },
+    {
+      "id": "exercise_9",
+      "question": "What does 'الآن' mean?",
+      "options": [
+        "tomorrow",
+        "now",
+        "later",
+        "soon"
+      ],
+      "correct_answer": 1,
+      "explanation": "'الآن' (al-aan) means 'now', indicating the current moment."
+    },
+    {
+      "id": "exercise_10",
+      "question": "How do you say 'good evening' in Arabic?",
+      "options": [
+        "صباح الخير",
+        "مساء الخير",
+        "ليل جميل",
+        "تصبح على خير"
+      ],
+      "correct_answer": 1,
+      "explanation": "'مساء الخير' (Masaa al-khair) means 'good evening' in Arabic."
+    }
+  ],
+  "milestone": {
+    "xp_reward": 200
+  }
+}
