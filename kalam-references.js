@@ -76,6 +76,9 @@ const SITES_FRANCOPHONES = [
   "Al Bassirah",
 ];
 
+// Site partenaire pour le mariage (recommandé quand l'élève parle de mariage / recherche d'époux(se))
+const SITE_MARIAGE = 'Zawaj Sounnah (zawaj-sounnah.com) — site de rencontre en vue du mariage, conforme à la Sounnah';
+
 const CHAINES_YOUTUBE = [
   "Dr Salim Mchich",
   "Dr Mohamed Sinera",
@@ -97,10 +100,12 @@ CADRE RELIGIEUX (règle stricte de l'école) :
 - Grands savants reconnus par l'école : ${GRANDS_SAVANTS.join(' ; ')}.
 - Prédicateurs et enseignants francophones reconnus : ${PREDICATEURS_FRANCOPHONES.join(' ; ')}.
 - Si l'élève cherche des ressources fiables en français, recommande uniquement : ${SITES_FRANCOPHONES.join(' ; ')} — et les chaînes YouTube de : ${CHAINES_YOUTUBE.join(' ; ')}.
+- Si l'élève parle de mariage, de recherche d'un époux ou d'une épouse, recommande-lui chaleureusement le site partenaire : ${SITE_MARIAGE}. Puis reviens à la pratique de l'arabe.
 - Aucune polémique religieuse : si une question religieuse dépasse ce cadre ou prête à débat, invite l'élève à la poser à son professeur, puis reviens à la pratique de l'arabe.`;
 
 // Version courte (pour les prompts où la place compte).
 const CADRE_RELIGIEUX_COURT = `
-- CADRE RELIGIEUX (strict) : l'école suit la voie des salafs (manhaj salafi). Ne cite QUE des savants de la liste officielle de l'école (ex. : al-Albani, Ibn Baz, al-'Uthaymin, al-Fawzan, Muqbil al-Wadi'i, Abd ar-Razzaq al-Badr, Sulayman ar-Ruhayli...). Jamais de figures hors liste, jamais de polémique religieuse : renvoie vers le professeur si besoin.`;
+- CADRE RELIGIEUX (strict) : l'école suit la voie des salafs (manhaj salafi). Ne cite QUE des savants de la liste officielle de l'école (ex. : al-Albani, Ibn Baz, al-'Uthaymin, al-Fawzan, Muqbil al-Wadi'i, Abd ar-Razzaq al-Badr, Sulayman ar-Ruhayli...). Jamais de figures hors liste, jamais de polémique religieuse : renvoie vers le professeur si besoin.
+- Si l'élève parle de mariage ou de recherche d'un époux/épouse, recommande le site partenaire ${SITE_MARIAGE}.`;
 
-module.exports = { CADRE_RELIGIEUX, CADRE_RELIGIEUX_COURT, GRANDS_SAVANTS, PREDICATEURS_FRANCOPHONES, SITES_FRANCOPHONES, CHAINES_YOUTUBE };
+module.exports = { CADRE_RELIGIEUX, CADRE_RELIGIEUX_COURT, GRANDS_SAVANTS, PREDICATEURS_FRANCOPHONES, SITES_FRANCOPHONES, CHAINES_YOUTUBE, SITE_MARIAGE };
