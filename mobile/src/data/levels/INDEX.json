@@ -1,0 +1,202 @@
+{
+  "curriculum": {
+    "title": "MédinImmersion Arabic Curriculum",
+    "version": "1.0",
+    "total_levels": 11,
+    "structure_date": "2026-07-12",
+    "levels": [
+      {
+        "id": "level_1",
+        "number": 1,
+        "title": "Niveau 1",
+        "difficulty": "absolute_beginner",
+        "description": "Introduction to Arabic alphabet and basic pronunciation",
+        "content": {
+          "vocabulary": 25,
+          "grammar_topics": 3,
+          "dialogues": 5,
+          "cultural_insights": 3,
+          "exercises": 5
+        },
+        "xp_reward": 100,
+        "status": "existing"
+      },
+      {
+        "id": "level_2",
+        "number": 2,
+        "title": "Niveau 2",
+        "difficulty": "beginner",
+        "description": "Basic greetings, personal pronouns, and simple present tense",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 150,
+        "status": "completed"
+      },
+      {
+        "id": "level_3",
+        "number": 3,
+        "title": "Niveau 3",
+        "difficulty": "beginner",
+        "description": "Time expressions, past tense introduction, question words",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 200,
+        "status": "completed"
+      },
+      {
+        "id": "level_4",
+        "number": 4,
+        "title": "Niveau 4",
+        "difficulty": "elementary",
+        "description": "Expanding vocabulary, verb conjugations, sentence structure",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 250,
+        "status": "completed"
+      },
+      {
+        "id": "level_5",
+        "number": 5,
+        "title": "Niveau 5",
+        "difficulty": "elementary",
+        "description": "Family and relationships, complex sentences, more verb tenses",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 300,
+        "status": "completed"
+      },
+      {
+        "id": "level_6",
+        "number": 6,
+        "title": "Niveau 6",
+        "difficulty": "intermediate",
+        "description": "Daily activities, subjunctive mood, advanced grammar patterns",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 350,
+        "status": "completed"
+      },
+      {
+        "id": "level_7",
+        "number": 7,
+        "title": "Niveau 7",
+        "difficulty": "upper_intermediate",
+        "description": "Advanced dialogues, literature introduction, complex grammar",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 400,
+        "status": "completed"
+      },
+      {
+        "id": "level_8",
+        "number": 8,
+        "title": "Niveau 8",
+        "difficulty": "upper_intermediate",
+        "description": "Poetry and literary texts, nuanced grammar, cultural depth",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 450,
+        "status": "completed"
+      },
+      {
+        "id": "level_9",
+        "number": 9,
+        "title": "Niveau 9",
+        "difficulty": "advanced",
+        "description": "Advanced literary analysis, sophisticated language use, regional dialects",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 500,
+        "status": "completed"
+      },
+      {
+        "id": "level_10",
+        "number": 10,
+        "title": "Niveau 10",
+        "difficulty": "advanced",
+        "description": "Expert-level dialogues, scholarly texts, nuanced cultural discussions",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 550,
+        "status": "completed"
+      },
+      {
+        "id": "level_11",
+        "number": 11,
+        "title": "Niveau 11",
+        "difficulty": "mastery",
+        "description": "Mastery level - complete fluency in Modern Standard Arabic (MSA)",
+        "content": {
+          "vocabulary": 80,
+          "grammar_topics": 4,
+          "dialogues": 8,
+          "cultural_insights": 4,
+          "exercises": 10
+        },
+        "xp_reward": 600,
+        "status": "completed"
+      }
+    ],
+    "learning_path": {
+      "beginner_path": [1, 2, 3],
+      "elementary_path": [4, 5],
+      "intermediate_path": [6],
+      "upper_intermediate_path": [7, 8],
+      "advanced_path": [9, 10],
+      "mastery_path": [11]
+    },
+    "total_content": {
+      "vocabulary_items": 795,
+      "grammar_topics": 43,
+      "dialogues": 81,
+      "cultural_insights": 43,
+      "exercises": 105,
+      "total_xp_available": 3850
+    }
+  }
+}

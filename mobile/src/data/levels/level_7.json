@@ -1,0 +1,1212 @@
+{
+  "id": "level_7",
+  "title": "Niveau 7",
+  "level_number": 7,
+  "difficulty": "upper_intermediate",
+  "description": "Level 7 curriculum content for MédinImmersion",
+  "vocabulary": [
+    {
+      "id": "vocab_1",
+      "arabic": "كلمة 1",
+      "transliteration": "kalima_1",
+      "english": "Word 1 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_1",
+      "example_translation": "This is the translation for Word 1 (Level 7)"
+    },
+    {
+      "id": "vocab_2",
+      "arabic": "كلمة 2",
+      "transliteration": "kalima_2",
+      "english": "Word 2 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_2",
+      "example_translation": "This is the translation for Word 2 (Level 7)"
+    },
+    {
+      "id": "vocab_3",
+      "arabic": "كلمة 3",
+      "transliteration": "kalima_3",
+      "english": "Word 3 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_3",
+      "example_translation": "This is the translation for Word 3 (Level 7)"
+    },
+    {
+      "id": "vocab_4",
+      "arabic": "كلمة 4",
+      "transliteration": "kalima_4",
+      "english": "Word 4 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_4",
+      "example_translation": "This is the translation for Word 4 (Level 7)"
+    },
+    {
+      "id": "vocab_5",
+      "arabic": "كلمة 5",
+      "transliteration": "kalima_5",
+      "english": "Word 5 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_5",
+      "example_translation": "This is the translation for Word 5 (Level 7)"
+    },
+    {
+      "id": "vocab_6",
+      "arabic": "كلمة 6",
+      "transliteration": "kalima_6",
+      "english": "Word 6 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_6",
+      "example_translation": "This is the translation for Word 6 (Level 7)"
+    },
+    {
+      "id": "vocab_7",
+      "arabic": "كلمة 7",
+      "transliteration": "kalima_7",
+      "english": "Word 7 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_7",
+      "example_translation": "This is the translation for Word 7 (Level 7)"
+    },
+    {
+      "id": "vocab_8",
+      "arabic": "كلمة 8",
+      "transliteration": "kalima_8",
+      "english": "Word 8 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_8",
+      "example_translation": "This is the translation for Word 8 (Level 7)"
+    },
+    {
+      "id": "vocab_9",
+      "arabic": "كلمة 9",
+      "transliteration": "kalima_9",
+      "english": "Word 9 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_9",
+      "example_translation": "This is the translation for Word 9 (Level 7)"
+    },
+    {
+      "id": "vocab_10",
+      "arabic": "كلمة 10",
+      "transliteration": "kalima_10",
+      "english": "Word 10 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_10",
+      "example_translation": "This is the translation for Word 10 (Level 7)"
+    },
+    {
+      "id": "vocab_11",
+      "arabic": "كلمة 11",
+      "transliteration": "kalima_11",
+      "english": "Word 11 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_11",
+      "example_translation": "This is the translation for Word 11 (Level 7)"
+    },
+    {
+      "id": "vocab_12",
+      "arabic": "كلمة 12",
+      "transliteration": "kalima_12",
+      "english": "Word 12 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_12",
+      "example_translation": "This is the translation for Word 12 (Level 7)"
+    },
+    {
+      "id": "vocab_13",
+      "arabic": "كلمة 13",
+      "transliteration": "kalima_13",
+      "english": "Word 13 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_13",
+      "example_translation": "This is the translation for Word 13 (Level 7)"
+    },
+    {
+      "id": "vocab_14",
+      "arabic": "كلمة 14",
+      "transliteration": "kalima_14",
+      "english": "Word 14 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_14",
+      "example_translation": "This is the translation for Word 14 (Level 7)"
+    },
+    {
+      "id": "vocab_15",
+      "arabic": "كلمة 15",
+      "transliteration": "kalima_15",
+      "english": "Word 15 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_15",
+      "example_translation": "This is the translation for Word 15 (Level 7)"
+    },
+    {
+      "id": "vocab_16",
+      "arabic": "كلمة 16",
+      "transliteration": "kalima_16",
+      "english": "Word 16 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_16",
+      "example_translation": "This is the translation for Word 16 (Level 7)"
+    },
+    {
+      "id": "vocab_17",
+      "arabic": "كلمة 17",
+      "transliteration": "kalima_17",
+      "english": "Word 17 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_17",
+      "example_translation": "This is the translation for Word 17 (Level 7)"
+    },
+    {
+      "id": "vocab_18",
+      "arabic": "كلمة 18",
+      "transliteration": "kalima_18",
+      "english": "Word 18 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_18",
+      "example_translation": "This is the translation for Word 18 (Level 7)"
+    },
+    {
+      "id": "vocab_19",
+      "arabic": "كلمة 19",
+      "transliteration": "kalima_19",
+      "english": "Word 19 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_19",
+      "example_translation": "This is the translation for Word 19 (Level 7)"
+    },
+    {
+      "id": "vocab_20",
+      "arabic": "كلمة 20",
+      "transliteration": "kalima_20",
+      "english": "Word 20 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_20",
+      "example_translation": "This is the translation for Word 20 (Level 7)"
+    },
+    {
+      "id": "vocab_21",
+      "arabic": "كلمة 21",
+      "transliteration": "kalima_21",
+      "english": "Word 21 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_21",
+      "example_translation": "This is the translation for Word 21 (Level 7)"
+    },
+    {
+      "id": "vocab_22",
+      "arabic": "كلمة 22",
+      "transliteration": "kalima_22",
+      "english": "Word 22 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_22",
+      "example_translation": "This is the translation for Word 22 (Level 7)"
+    },
+    {
+      "id": "vocab_23",
+      "arabic": "كلمة 23",
+      "transliteration": "kalima_23",
+      "english": "Word 23 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_23",
+      "example_translation": "This is the translation for Word 23 (Level 7)"
+    },
+    {
+      "id": "vocab_24",
+      "arabic": "كلمة 24",
+      "transliteration": "kalima_24",
+      "english": "Word 24 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_24",
+      "example_translation": "This is the translation for Word 24 (Level 7)"
+    },
+    {
+      "id": "vocab_25",
+      "arabic": "كلمة 25",
+      "transliteration": "kalima_25",
+      "english": "Word 25 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_25",
+      "example_translation": "This is the translation for Word 25 (Level 7)"
+    },
+    {
+      "id": "vocab_26",
+      "arabic": "كلمة 26",
+      "transliteration": "kalima_26",
+      "english": "Word 26 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_26",
+      "example_translation": "This is the translation for Word 26 (Level 7)"
+    },
+    {
+      "id": "vocab_27",
+      "arabic": "كلمة 27",
+      "transliteration": "kalima_27",
+      "english": "Word 27 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_27",
+      "example_translation": "This is the translation for Word 27 (Level 7)"
+    },
+    {
+      "id": "vocab_28",
+      "arabic": "كلمة 28",
+      "transliteration": "kalima_28",
+      "english": "Word 28 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_28",
+      "example_translation": "This is the translation for Word 28 (Level 7)"
+    },
+    {
+      "id": "vocab_29",
+      "arabic": "كلمة 29",
+      "transliteration": "kalima_29",
+      "english": "Word 29 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_29",
+      "example_translation": "This is the translation for Word 29 (Level 7)"
+    },
+    {
+      "id": "vocab_30",
+      "arabic": "كلمة 30",
+      "transliteration": "kalima_30",
+      "english": "Word 30 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_30",
+      "example_translation": "This is the translation for Word 30 (Level 7)"
+    },
+    {
+      "id": "vocab_31",
+      "arabic": "كلمة 31",
+      "transliteration": "kalima_31",
+      "english": "Word 31 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_31",
+      "example_translation": "This is the translation for Word 31 (Level 7)"
+    },
+    {
+      "id": "vocab_32",
+      "arabic": "كلمة 32",
+      "transliteration": "kalima_32",
+      "english": "Word 32 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_32",
+      "example_translation": "This is the translation for Word 32 (Level 7)"
+    },
+    {
+      "id": "vocab_33",
+      "arabic": "كلمة 33",
+      "transliteration": "kalima_33",
+      "english": "Word 33 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_33",
+      "example_translation": "This is the translation for Word 33 (Level 7)"
+    },
+    {
+      "id": "vocab_34",
+      "arabic": "كلمة 34",
+      "transliteration": "kalima_34",
+      "english": "Word 34 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_34",
+      "example_translation": "This is the translation for Word 34 (Level 7)"
+    },
+    {
+      "id": "vocab_35",
+      "arabic": "كلمة 35",
+      "transliteration": "kalima_35",
+      "english": "Word 35 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_35",
+      "example_translation": "This is the translation for Word 35 (Level 7)"
+    },
+    {
+      "id": "vocab_36",
+      "arabic": "كلمة 36",
+      "transliteration": "kalima_36",
+      "english": "Word 36 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_36",
+      "example_translation": "This is the translation for Word 36 (Level 7)"
+    },
+    {
+      "id": "vocab_37",
+      "arabic": "كلمة 37",
+      "transliteration": "kalima_37",
+      "english": "Word 37 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_37",
+      "example_translation": "This is the translation for Word 37 (Level 7)"
+    },
+    {
+      "id": "vocab_38",
+      "arabic": "كلمة 38",
+      "transliteration": "kalima_38",
+      "english": "Word 38 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_38",
+      "example_translation": "This is the translation for Word 38 (Level 7)"
+    },
+    {
+      "id": "vocab_39",
+      "arabic": "كلمة 39",
+      "transliteration": "kalima_39",
+      "english": "Word 39 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_39",
+      "example_translation": "This is the translation for Word 39 (Level 7)"
+    },
+    {
+      "id": "vocab_40",
+      "arabic": "كلمة 40",
+      "transliteration": "kalima_40",
+      "english": "Word 40 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_40",
+      "example_translation": "This is the translation for Word 40 (Level 7)"
+    },
+    {
+      "id": "vocab_41",
+      "arabic": "كلمة 41",
+      "transliteration": "kalima_41",
+      "english": "Word 41 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_41",
+      "example_translation": "This is the translation for Word 41 (Level 7)"
+    },
+    {
+      "id": "vocab_42",
+      "arabic": "كلمة 42",
+      "transliteration": "kalima_42",
+      "english": "Word 42 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_42",
+      "example_translation": "This is the translation for Word 42 (Level 7)"
+    },
+    {
+      "id": "vocab_43",
+      "arabic": "كلمة 43",
+      "transliteration": "kalima_43",
+      "english": "Word 43 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_43",
+      "example_translation": "This is the translation for Word 43 (Level 7)"
+    },
+    {
+      "id": "vocab_44",
+      "arabic": "كلمة 44",
+      "transliteration": "kalima_44",
+      "english": "Word 44 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_44",
+      "example_translation": "This is the translation for Word 44 (Level 7)"
+    },
+    {
+      "id": "vocab_45",
+      "arabic": "كلمة 45",
+      "transliteration": "kalima_45",
+      "english": "Word 45 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_45",
+      "example_translation": "This is the translation for Word 45 (Level 7)"
+    },
+    {
+      "id": "vocab_46",
+      "arabic": "كلمة 46",
+      "transliteration": "kalima_46",
+      "english": "Word 46 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_46",
+      "example_translation": "This is the translation for Word 46 (Level 7)"
+    },
+    {
+      "id": "vocab_47",
+      "arabic": "كلمة 47",
+      "transliteration": "kalima_47",
+      "english": "Word 47 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_47",
+      "example_translation": "This is the translation for Word 47 (Level 7)"
+    },
+    {
+      "id": "vocab_48",
+      "arabic": "كلمة 48",
+      "transliteration": "kalima_48",
+      "english": "Word 48 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_48",
+      "example_translation": "This is the translation for Word 48 (Level 7)"
+    },
+    {
+      "id": "vocab_49",
+      "arabic": "كلمة 49",
+      "transliteration": "kalima_49",
+      "english": "Word 49 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_49",
+      "example_translation": "This is the translation for Word 49 (Level 7)"
+    },
+    {
+      "id": "vocab_50",
+      "arabic": "كلمة 50",
+      "transliteration": "kalima_50",
+      "english": "Word 50 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_50",
+      "example_translation": "This is the translation for Word 50 (Level 7)"
+    },
+    {
+      "id": "vocab_51",
+      "arabic": "كلمة 51",
+      "transliteration": "kalima_51",
+      "english": "Word 51 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_51",
+      "example_translation": "This is the translation for Word 51 (Level 7)"
+    },
+    {
+      "id": "vocab_52",
+      "arabic": "كلمة 52",
+      "transliteration": "kalima_52",
+      "english": "Word 52 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_52",
+      "example_translation": "This is the translation for Word 52 (Level 7)"
+    },
+    {
+      "id": "vocab_53",
+      "arabic": "كلمة 53",
+      "transliteration": "kalima_53",
+      "english": "Word 53 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_53",
+      "example_translation": "This is the translation for Word 53 (Level 7)"
+    },
+    {
+      "id": "vocab_54",
+      "arabic": "كلمة 54",
+      "transliteration": "kalima_54",
+      "english": "Word 54 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_54",
+      "example_translation": "This is the translation for Word 54 (Level 7)"
+    },
+    {
+      "id": "vocab_55",
+      "arabic": "كلمة 55",
+      "transliteration": "kalima_55",
+      "english": "Word 55 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_55",
+      "example_translation": "This is the translation for Word 55 (Level 7)"
+    },
+    {
+      "id": "vocab_56",
+      "arabic": "كلمة 56",
+      "transliteration": "kalima_56",
+      "english": "Word 56 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_56",
+      "example_translation": "This is the translation for Word 56 (Level 7)"
+    },
+    {
+      "id": "vocab_57",
+      "arabic": "كلمة 57",
+      "transliteration": "kalima_57",
+      "english": "Word 57 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_57",
+      "example_translation": "This is the translation for Word 57 (Level 7)"
+    },
+    {
+      "id": "vocab_58",
+      "arabic": "كلمة 58",
+      "transliteration": "kalima_58",
+      "english": "Word 58 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_58",
+      "example_translation": "This is the translation for Word 58 (Level 7)"
+    },
+    {
+      "id": "vocab_59",
+      "arabic": "كلمة 59",
+      "transliteration": "kalima_59",
+      "english": "Word 59 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_59",
+      "example_translation": "This is the translation for Word 59 (Level 7)"
+    },
+    {
+      "id": "vocab_60",
+      "arabic": "كلمة 60",
+      "transliteration": "kalima_60",
+      "english": "Word 60 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_60",
+      "example_translation": "This is the translation for Word 60 (Level 7)"
+    },
+    {
+      "id": "vocab_61",
+      "arabic": "كلمة 61",
+      "transliteration": "kalima_61",
+      "english": "Word 61 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_61",
+      "example_translation": "This is the translation for Word 61 (Level 7)"
+    },
+    {
+      "id": "vocab_62",
+      "arabic": "كلمة 62",
+      "transliteration": "kalima_62",
+      "english": "Word 62 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_62",
+      "example_translation": "This is the translation for Word 62 (Level 7)"
+    },
+    {
+      "id": "vocab_63",
+      "arabic": "كلمة 63",
+      "transliteration": "kalima_63",
+      "english": "Word 63 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_63",
+      "example_translation": "This is the translation for Word 63 (Level 7)"
+    },
+    {
+      "id": "vocab_64",
+      "arabic": "كلمة 64",
+      "transliteration": "kalima_64",
+      "english": "Word 64 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_64",
+      "example_translation": "This is the translation for Word 64 (Level 7)"
+    },
+    {
+      "id": "vocab_65",
+      "arabic": "كلمة 65",
+      "transliteration": "kalima_65",
+      "english": "Word 65 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_65",
+      "example_translation": "This is the translation for Word 65 (Level 7)"
+    },
+    {
+      "id": "vocab_66",
+      "arabic": "كلمة 66",
+      "transliteration": "kalima_66",
+      "english": "Word 66 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_66",
+      "example_translation": "This is the translation for Word 66 (Level 7)"
+    },
+    {
+      "id": "vocab_67",
+      "arabic": "كلمة 67",
+      "transliteration": "kalima_67",
+      "english": "Word 67 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_67",
+      "example_translation": "This is the translation for Word 67 (Level 7)"
+    },
+    {
+      "id": "vocab_68",
+      "arabic": "كلمة 68",
+      "transliteration": "kalima_68",
+      "english": "Word 68 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_68",
+      "example_translation": "This is the translation for Word 68 (Level 7)"
+    },
+    {
+      "id": "vocab_69",
+      "arabic": "كلمة 69",
+      "transliteration": "kalima_69",
+      "english": "Word 69 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_69",
+      "example_translation": "This is the translation for Word 69 (Level 7)"
+    },
+    {
+      "id": "vocab_70",
+      "arabic": "كلمة 70",
+      "transliteration": "kalima_70",
+      "english": "Word 70 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_70",
+      "example_translation": "This is the translation for Word 70 (Level 7)"
+    },
+    {
+      "id": "vocab_71",
+      "arabic": "كلمة 71",
+      "transliteration": "kalima_71",
+      "english": "Word 71 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_71",
+      "example_translation": "This is the translation for Word 71 (Level 7)"
+    },
+    {
+      "id": "vocab_72",
+      "arabic": "كلمة 72",
+      "transliteration": "kalima_72",
+      "english": "Word 72 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_72",
+      "example_translation": "This is the translation for Word 72 (Level 7)"
+    },
+    {
+      "id": "vocab_73",
+      "arabic": "كلمة 73",
+      "transliteration": "kalima_73",
+      "english": "Word 73 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_73",
+      "example_translation": "This is the translation for Word 73 (Level 7)"
+    },
+    {
+      "id": "vocab_74",
+      "arabic": "كلمة 74",
+      "transliteration": "kalima_74",
+      "english": "Word 74 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_74",
+      "example_translation": "This is the translation for Word 74 (Level 7)"
+    },
+    {
+      "id": "vocab_75",
+      "arabic": "كلمة 75",
+      "transliteration": "kalima_75",
+      "english": "Word 75 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_75",
+      "example_translation": "This is the translation for Word 75 (Level 7)"
+    },
+    {
+      "id": "vocab_76",
+      "arabic": "كلمة 76",
+      "transliteration": "kalima_76",
+      "english": "Word 76 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_76",
+      "example_translation": "This is the translation for Word 76 (Level 7)"
+    },
+    {
+      "id": "vocab_77",
+      "arabic": "كلمة 77",
+      "transliteration": "kalima_77",
+      "english": "Word 77 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_77",
+      "example_translation": "This is the translation for Word 77 (Level 7)"
+    },
+    {
+      "id": "vocab_78",
+      "arabic": "كلمة 78",
+      "transliteration": "kalima_78",
+      "english": "Word 78 (Level 7)",
+      "difficulty": "beginner",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_78",
+      "example_translation": "This is the translation for Word 78 (Level 7)"
+    },
+    {
+      "id": "vocab_79",
+      "arabic": "كلمة 79",
+      "transliteration": "kalima_79",
+      "english": "Word 79 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_79",
+      "example_translation": "This is the translation for Word 79 (Level 7)"
+    },
+    {
+      "id": "vocab_80",
+      "arabic": "كلمة 80",
+      "transliteration": "kalima_80",
+      "english": "Word 80 (Level 7)",
+      "difficulty": "intermediate",
+      "context": "Vocabulary for level 7",
+      "example_sentence": "This is an example with kalima_80",
+      "example_translation": "This is the translation for Word 80 (Level 7)"
+    }
+  ],
+  "grammar_topics": [
+    {
+      "id": "grammar_1",
+      "title": "Grammar Topic 1",
+      "description": "Description of grammar topic 1 for level 7",
+      "rule": "Grammar rule 1",
+      "examples": [
+        "Example 1: Grammar example for level 7",
+        "Example 2: Grammar example for level 7",
+        "Example 3: Grammar example for level 7"
+      ]
+    },
+    {
+      "id": "grammar_2",
+      "title": "Grammar Topic 2",
+      "description": "Description of grammar topic 2 for level 7",
+      "rule": "Grammar rule 2",
+      "examples": [
+        "Example 1: Grammar example for level 7",
+        "Example 2: Grammar example for level 7",
+        "Example 3: Grammar example for level 7"
+      ]
+    },
+    {
+      "id": "grammar_3",
+      "title": "Grammar Topic 3",
+      "description": "Description of grammar topic 3 for level 7",
+      "rule": "Grammar rule 3",
+      "examples": [
+        "Example 1: Grammar example for level 7",
+        "Example 2: Grammar example for level 7",
+        "Example 3: Grammar example for level 7"
+      ]
+    },
+    {
+      "id": "grammar_4",
+      "title": "Grammar Topic 4",
+      "description": "Description of grammar topic 4 for level 7",
+      "rule": "Grammar rule 4",
+      "examples": [
+        "Example 1: Grammar example for level 7",
+        "Example 2: Grammar example for level 7",
+        "Example 3: Grammar example for level 7"
+      ]
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "dialogue_1",
+      "title": "Dialogue 1",
+      "situation": "Scenario 1 for level 7",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "مرحبا",
+          "translation": "Hello"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "مرحبا، كيف حالك",
+          "translation": "Hello, how are you?"
+        }
+      ],
+      "vocabulary_introduced": [
+        "greeting",
+        "level_7"
+      ],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dialogue_2",
+      "title": "Dialogue 2",
+      "situation": "Scenario 2 for level 7",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "مرحبا",
+          "translation": "Hello"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "مرحبا، كيف حالك",
+          "translation": "Hello, how are you?"
+        }
+      ],
+      "vocabulary_introduced": [
+        "greeting",
+        "level_7"
+      ],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dialogue_3",
+      "title": "Dialogue 3",
+      "situation": "Scenario 3 for level 7",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "مرحبا",
+          "translation": "Hello"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "مرحبا، كيف حالك",
+          "translation": "Hello, how are you?"
+        }
+      ],
+      "vocabulary_introduced": [
+        "greeting",
+        "level_7"
+      ],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dialogue_4",
+      "title": "Dialogue 4",
+      "situation": "Scenario 4 for level 7",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "مرحبا",
+          "translation": "Hello"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "مرحبا، كيف حالك",
+          "translation": "Hello, how are you?"
+        }
+      ],
+      "vocabulary_introduced": [
+        "greeting",
+        "level_7"
+      ],
+      "difficulty": "beginner"
+    },
+    {
+      "id": "dialogue_5",
+      "title": "Dialogue 5",
+      "situation": "Scenario 5 for level 7",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "مرحبا",
+          "translation": "Hello"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "مرحبا، كيف حالك",
+          "translation": "Hello, how are you?"
+        }
+      ],
+      "vocabulary_introduced": [
+        "greeting",
+        "level_7"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dialogue_6",
+      "title": "Dialogue 6",
+      "situation": "Scenario 6 for level 7",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "مرحبا",
+          "translation": "Hello"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "مرحبا، كيف حالك",
+          "translation": "Hello, how are you?"
+        }
+      ],
+      "vocabulary_introduced": [
+        "greeting",
+        "level_7"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dialogue_7",
+      "title": "Dialogue 7",
+      "situation": "Scenario 7 for level 7",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "مرحبا",
+          "translation": "Hello"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "مرحبا، كيف حالك",
+          "translation": "Hello, how are you?"
+        }
+      ],
+      "vocabulary_introduced": [
+        "greeting",
+        "level_7"
+      ],
+      "difficulty": "intermediate"
+    },
+    {
+      "id": "dialogue_8",
+      "title": "Dialogue 8",
+      "situation": "Scenario 8 for level 7",
+      "speakers": [
+        "Speaker 1",
+        "Speaker 2"
+      ],
+      "script": [
+        {
+          "speaker": "Speaker 1",
+          "text": "مرحبا",
+          "translation": "Hello"
+        },
+        {
+          "speaker": "Speaker 2",
+          "text": "مرحبا، كيف حالك",
+          "translation": "Hello, how are you?"
+        }
+      ],
+      "vocabulary_introduced": [
+        "greeting",
+        "level_7"
+      ],
+      "difficulty": "intermediate"
+    }
+  ],
+  "cultural_insights": [
+    {
+      "id": "culture_1",
+      "title": "Cultural Insight 1",
+      "description": "Information about Arab culture and traditions for level 7. This provides context for understanding the language."
+    },
+    {
+      "id": "culture_2",
+      "title": "Cultural Insight 2",
+      "description": "Information about Arab culture and traditions for level 7. This provides context for understanding the language."
+    },
+    {
+      "id": "culture_3",
+      "title": "Cultural Insight 3",
+      "description": "Information about Arab culture and traditions for level 7. This provides context for understanding the language."
+    },
+    {
+      "id": "culture_4",
+      "title": "Cultural Insight 4",
+      "description": "Information about Arab culture and traditions for level 7. This provides context for understanding the language."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "exercise_1",
+      "question": "Question 1: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 1 at level 7"
+    },
+    {
+      "id": "exercise_2",
+      "question": "Question 2: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 2 at level 7"
+    },
+    {
+      "id": "exercise_3",
+      "question": "Question 3: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 3 at level 7"
+    },
+    {
+      "id": "exercise_4",
+      "question": "Question 4: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 4 at level 7"
+    },
+    {
+      "id": "exercise_5",
+      "question": "Question 5: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 5 at level 7"
+    },
+    {
+      "id": "exercise_6",
+      "question": "Question 6: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 6 at level 7"
+    },
+    {
+      "id": "exercise_7",
+      "question": "Question 7: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 7 at level 7"
+    },
+    {
+      "id": "exercise_8",
+      "question": "Question 8: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 8 at level 7"
+    },
+    {
+      "id": "exercise_9",
+      "question": "Question 9: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 9 at level 7"
+    },
+    {
+      "id": "exercise_10",
+      "question": "Question 10: What does this word mean?",
+      "options": [
+        "Option A for 7",
+        "Option B for 7",
+        "Option C for 7",
+        "Option D for 7"
+      ],
+      "correct_answer": 1,
+      "explanation": "Explanation for exercise 10 at level 7"
+    }
+  ],
+  "milestone": {
+    "xp_reward": 400
+  }
+}

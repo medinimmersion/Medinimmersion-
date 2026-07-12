@@ -1,0 +1,450 @@
+[
+  {
+    "id": "L001",
+    "arabicName": "الألف",
+    "transliteration": "Alif",
+    "pronunciation": "A long vowel sound, like 'ah' in 'father'",
+    "phase": "MEDINA",
+    "forms": {
+      "isolated": "ا",
+      "beginning": "ا",
+      "middle": "ـاـ",
+      "end": "ـا"
+    },
+    "anatomicalNotes": "Open vocal tract, produced from the pharynx",
+    "exampleWords": ["أمن", "أب", "أكل", "أسد", "أرض"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L002",
+    "arabicName": "الباء",
+    "transliteration": "Ba",
+    "pronunciation": "Like 'b' in 'bed', made with both lips",
+    "phase": "MEDINA",
+    "forms": {
+      "isolated": "ب",
+      "beginning": "بـ",
+      "middle": "ـبـ",
+      "end": "ـب"
+    },
+    "anatomicalNotes": "Bilabial stop, lips come together",
+    "exampleWords": ["باب", "بيت", "بحر", "برد", "بئر"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L003",
+    "arabicName": "التاء",
+    "transliteration": "Ta",
+    "pronunciation": "Like 't' in 'top', dental stop",
+    "phase": "MEDINA",
+    "forms": {
+      "isolated": "ت",
+      "beginning": "تـ",
+      "middle": "ـتـ",
+      "end": "ـت"
+    },
+    "anatomicalNotes": "Dental stop with two dots",
+    "exampleWords": ["تاج", "تام", "تار", "تخت", "تلب"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L004",
+    "arabicName": "الثاء",
+    "transliteration": "Tha",
+    "pronunciation": "Like 'th' in 'thing', dental fricative",
+    "phase": "MEDINA",
+    "forms": {
+      "isolated": "ث",
+      "beginning": "ثـ",
+      "middle": "ـثـ",
+      "end": "ـث"
+    },
+    "anatomicalNotes": "Dental fricative with three dots",
+    "exampleWords": ["ثم", "ثوب", "ثابت", "ثمر", "ثقل"],
+    "difficultyLevel": 2
+  },
+  {
+    "id": "L005",
+    "arabicName": "الجيم",
+    "transliteration": "Jim",
+    "pronunciation": "Like 'j' in 'jump', palatal affricative",
+    "phase": "MEDINA",
+    "forms": {
+      "isolated": "ج",
+      "beginning": "جـ",
+      "middle": "ـجـ",
+      "end": "ـج"
+    },
+    "anatomicalNotes": "Palatal affricative, tongue against hard palate",
+    "exampleWords": ["جمل", "جار", "جبل", "جند", "جود"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L006",
+    "arabicName": "الحاء",
+    "transliteration": "Ha",
+    "pronunciation": "Like 'h' in 'house', but deeper from throat",
+    "phase": "MEDINA",
+    "forms": {
+      "isolated": "ح",
+      "beginning": "حـ",
+      "middle": "ـحـ",
+      "end": "ـح"
+    },
+    "anatomicalNotes": "Pharyngeal fricative from deep in throat",
+    "exampleWords": ["حار", "حبل", "حد", "حلم", "حرب"],
+    "difficultyLevel": 3
+  },
+  {
+    "id": "L007",
+    "arabicName": "الخاء",
+    "transliteration": "Kha",
+    "pronunciation": "Like 'ch' in German 'ach', velar fricative",
+    "phase": "MEDINA",
+    "forms": {
+      "isolated": "خ",
+      "beginning": "خـ",
+      "middle": "ـخـ",
+      "end": "ـخ"
+    },
+    "anatomicalNotes": "Velar fricative, back of tongue against soft palate",
+    "exampleWords": ["خبز", "خيل", "خط", "خيط", "خبر"],
+    "difficultyLevel": 3
+  },
+  {
+    "id": "L008",
+    "arabicName": "الدال",
+    "transliteration": "Dal",
+    "pronunciation": "Like 'd' in 'door', dental stop",
+    "phase": "MEDINA",
+    "forms": {
+      "isolated": "د",
+      "beginning": "د",
+      "middle": "ـد",
+      "end": "ـد"
+    },
+    "anatomicalNotes": "Dental stop, tongue against upper teeth",
+    "exampleWords": ["دار", "درب", "دخل", "دين", "دفع"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L009",
+    "arabicName": "الذال",
+    "transliteration": "Dhal",
+    "pronunciation": "Like 'th' in 'this', dental fricative",
+    "phase": "MEDINA",
+    "forms": {
+      "isolated": "ذ",
+      "beginning": "ذ",
+      "middle": "ـذ",
+      "end": "ـذ"
+    },
+    "anatomicalNotes": "Dental fricative, softer than Tha",
+    "exampleWords": ["ذهب", "ذات", "ذكر", "ذنب", "ذق"],
+    "difficultyLevel": 2
+  },
+  {
+    "id": "L010",
+    "arabicName": "الراء",
+    "transliteration": "Ra",
+    "pronunciation": "Like 'r' in 'run', but rolled",
+    "phase": "MECCA",
+    "forms": {
+      "isolated": "ر",
+      "beginning": "ر",
+      "middle": "ـر",
+      "end": "ـر"
+    },
+    "anatomicalNotes": "Alveolar tap or trill",
+    "exampleWords": ["رجل", "رأس", "رمل", "رمح", "روح"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L011",
+    "arabicName": "الزاي",
+    "transliteration": "Za",
+    "pronunciation": "Like 'z' in 'zebra', alveolar fricative",
+    "phase": "MECCA",
+    "forms": {
+      "isolated": "ز",
+      "beginning": "ز",
+      "middle": "ـز",
+      "end": "ـز"
+    },
+    "anatomicalNotes": "Alveolar fricative, voiced",
+    "exampleWords": ["زيت", "زهر", "زعم", "زبل", "زمن"],
+    "difficultyLevel": 2
+  },
+  {
+    "id": "L012",
+    "arabicName": "السين",
+    "transliteration": "Sin",
+    "pronunciation": "Like 's' in 'sun', alveolar fricative",
+    "phase": "MECCA",
+    "forms": {
+      "isolated": "س",
+      "beginning": "سـ",
+      "middle": "ـسـ",
+      "end": "ـس"
+    },
+    "anatomicalNotes": "Alveolar fricative, unvoiced",
+    "exampleWords": ["سيف", "سمع", "سلام", "سماء", "سفر"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L013",
+    "arabicName": "الشين",
+    "transliteration": "Shin",
+    "pronunciation": "Like 'sh' in 'ship', palatoalveolar fricative",
+    "phase": "MECCA",
+    "forms": {
+      "isolated": "ش",
+      "beginning": "شـ",
+      "middle": "ـشـ",
+      "end": "ـش"
+    },
+    "anatomicalNotes": "Palatoalveolar fricative with three dots",
+    "exampleWords": ["شمس", "شرق", "شيء", "شوق", "شرب"],
+    "difficultyLevel": 2
+  },
+  {
+    "id": "L014",
+    "arabicName": "الصاد",
+    "transliteration": "Sad",
+    "pronunciation": "Like 's' but emphatic, pharyngealized",
+    "phase": "MECCA",
+    "forms": {
+      "isolated": "ص",
+      "beginning": "صـ",
+      "middle": "ـصـ",
+      "end": "ـص"
+    },
+    "anatomicalNotes": "Alveolar emphatic fricative",
+    "exampleWords": ["صبح", "صوت", "صيد", "صفة", "صحة"],
+    "difficultyLevel": 3
+  },
+  {
+    "id": "L015",
+    "arabicName": "الضاد",
+    "transliteration": "Dad",
+    "pronunciation": "Like 'd' but emphatic, pharyngealized",
+    "phase": "MECCA",
+    "forms": {
+      "isolated": "ض",
+      "beginning": "ضـ",
+      "middle": "ـضـ",
+      "end": "ـض"
+    },
+    "anatomicalNotes": "Alveolar emphatic stop, unique to Arabic",
+    "exampleWords": ["ضرب", "ضار", "ضعيف", "ضيق", "ضاع"],
+    "difficultyLevel": 4
+  },
+  {
+    "id": "L016",
+    "arabicName": "الطاء",
+    "transliteration": "Ta (emphatic)",
+    "pronunciation": "Like 't' but emphatic, pharyngealized",
+    "phase": "EGYPT",
+    "forms": {
+      "isolated": "ط",
+      "beginning": "طـ",
+      "middle": "ـطـ",
+      "end": "ـط"
+    },
+    "anatomicalNotes": "Alveolar emphatic stop",
+    "exampleWords": ["طريق", "طول", "طعام", "طائر", "طب"],
+    "difficultyLevel": 3
+  },
+  {
+    "id": "L017",
+    "arabicName": "الظاء",
+    "transliteration": "Zha",
+    "pronunciation": "Like 'z' but emphatic, pharyngealized",
+    "phase": "EGYPT",
+    "forms": {
+      "isolated": "ظ",
+      "beginning": "ظـ",
+      "middle": "ـظـ",
+      "end": "ـظ"
+    },
+    "anatomicalNotes": "Alveolar emphatic fricative",
+    "exampleWords": ["ظل", "ظم", "ظهر", "ظلم", "ظهور"],
+    "difficultyLevel": 4
+  },
+  {
+    "id": "L018",
+    "arabicName": "العين",
+    "transliteration": "Ain",
+    "pronunciation": "Pharyngeal stop, very deep in throat",
+    "phase": "EGYPT",
+    "forms": {
+      "isolated": "ع",
+      "beginning": "عـ",
+      "middle": "ـعـ",
+      "end": "ـع"
+    },
+    "anatomicalNotes": "Pharyngeal stop from pharynx",
+    "exampleWords": ["عظيم", "عين", "عسل", "علم", "عمل"],
+    "difficultyLevel": 4
+  },
+  {
+    "id": "L019",
+    "arabicName": "الغين",
+    "transliteration": "Ghain",
+    "pronunciation": "Like 'gh' in 'ugh', pharyngeal fricative",
+    "phase": "EGYPT",
+    "forms": {
+      "isolated": "غ",
+      "beginning": "غـ",
+      "middle": "ـغـ",
+      "end": "ـغ"
+    },
+    "anatomicalNotes": "Pharyngeal fricative, rasping sound",
+    "exampleWords": ["غرب", "غار", "غنى", "غد", "غيب"],
+    "difficultyLevel": 4
+  },
+  {
+    "id": "L020",
+    "arabicName": "الفاء",
+    "transliteration": "Fa",
+    "pronunciation": "Like 'f' in 'fun', labiodental fricative",
+    "phase": "EGYPT",
+    "forms": {
+      "isolated": "ف",
+      "beginning": "فـ",
+      "middle": "ـفـ",
+      "end": "ـف"
+    },
+    "anatomicalNotes": "Labiodental fricative, lower lip against upper teeth",
+    "exampleWords": ["فرح", "فيل", "فسد", "فتح", "فاز"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L021",
+    "arabicName": "القاف",
+    "transliteration": "Qaf",
+    "pronunciation": "Like 'q' in 'quit', velar stop",
+    "phase": "MOROCCO",
+    "forms": {
+      "isolated": "ق",
+      "beginning": "قـ",
+      "middle": "ـقـ",
+      "end": "ـق"
+    },
+    "anatomicalNotes": "Velar stop from back of throat",
+    "exampleWords": ["قمة", "قوس", "قال", "قام", "قتل"],
+    "difficultyLevel": 2
+  },
+  {
+    "id": "L022",
+    "arabicName": "الكاف",
+    "transliteration": "Kaf",
+    "pronunciation": "Like 'k' in 'king', velar stop",
+    "phase": "MOROCCO",
+    "forms": {
+      "isolated": "ك",
+      "beginning": "كـ",
+      "middle": "ـكـ",
+      "end": "ـك"
+    },
+    "anatomicalNotes": "Velar stop, softer than Qaf",
+    "exampleWords": ["كتاب", "كمثرى", "كبير", "كان", "كفر"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L023",
+    "arabicName": "اللام",
+    "transliteration": "Lam",
+    "pronunciation": "Like 'l' in 'light', alveolar lateral",
+    "phase": "MOROCCO",
+    "forms": {
+      "isolated": "ل",
+      "beginning": "لـ",
+      "middle": "ـلـ",
+      "end": "ـل"
+    },
+    "anatomicalNotes": "Alveolar lateral approximant",
+    "exampleWords": ["ليل", "لون", "لحم", "لم", "لسان"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L024",
+    "arabicName": "الميم",
+    "transliteration": "Mim",
+    "pronunciation": "Like 'm' in 'man', bilabial nasal",
+    "phase": "MOROCCO",
+    "forms": {
+      "isolated": "م",
+      "beginning": "مـ",
+      "middle": "ـمـ",
+      "end": "ـم"
+    },
+    "anatomicalNotes": "Bilabial nasal, lips together",
+    "exampleWords": ["ماء", "مسجد", "محمد", "ملك", "مسلم"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L025",
+    "arabicName": "النون",
+    "transliteration": "Nun",
+    "pronunciation": "Like 'n' in 'nose', alveolar nasal",
+    "phase": "DUBAI",
+    "forms": {
+      "isolated": "ن",
+      "beginning": "نـ",
+      "middle": "ـنـ",
+      "end": "ـن"
+    },
+    "anatomicalNotes": "Alveolar nasal approximant",
+    "exampleWords": ["نهر", "نجم", "نوع", "نور", "نفس"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L026",
+    "arabicName": "الهاء",
+    "transliteration": "Ha (soft)",
+    "pronunciation": "Like 'h' in 'hello', softer than Ha",
+    "phase": "DUBAI",
+    "forms": {
+      "isolated": "ه",
+      "beginning": "هـ",
+      "middle": "ـهـ",
+      "end": "ـة"
+    },
+    "anatomicalNotes": "Glottal fricative, soft breathing",
+    "exampleWords": ["هدية", "هنا", "هل", "هذا", "هو"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L027",
+    "arabicName": "الواو",
+    "transliteration": "Waw",
+    "pronunciation": "Like 'w' in 'water', labial approximant",
+    "phase": "DUBAI",
+    "forms": {
+      "isolated": "و",
+      "beginning": "و",
+      "middle": "ـو",
+      "end": "ـو"
+    },
+    "anatomicalNotes": "Labial approximant, lips rounded",
+    "exampleWords": ["وقت", "وادي", "وعد", "ورد", "وجد"],
+    "difficultyLevel": 1
+  },
+  {
+    "id": "L028",
+    "arabicName": "الياء",
+    "transliteration": "Ya",
+    "pronunciation": "Like 'y' in 'yes', palatal approximant",
+    "phase": "JERUSALEM",
+    "forms": {
+      "isolated": "ي",
+      "beginning": "يـ",
+      "middle": "ـيـ",
+      "end": "ـي"
+    },
+    "anatomicalNotes": "Palatal approximant, tongue toward hard palate",
+    "exampleWords": ["يد", "يوم", "يقول", "يسر", "ياسمين"],
+    "difficultyLevel": 1
+  }
+]
