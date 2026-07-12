@@ -207,7 +207,7 @@ footer{background:var(--green-deep);color:var(--white);}
     <div class="login-title">Espace Élève</div>
     <p class="login-sub">Connectez-vous pour accéder à votre espace membre.</p>
     <div class="login-err" id="loginErr"></div>
-    <div class="fg"><label>WhatsApp ou Email</label><input type="text" id="loginId" placeholder="+33 6 00 00 00 00 ou email@..."></div>
+    <div class="fg"><label>Email, WhatsApp, nom ou kounia</label><input type="text" id="loginId" placeholder="email@… / +33 6… / ton nom / ta kounia"></div>
     <div class="fg">
       <label>Mot de passe</label>
       <input type="password" id="loginPwd" placeholder="Votre mot de passe" onkeydown="if(event.key==='Enter')doLogin()">
@@ -390,7 +390,7 @@ async function doLogin(){
   const btn=document.querySelector('.btn-login');
   btn.textContent='Connexion…';btn.disabled=true;
   try{
-    const res=await fetch('/api/member/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(id.includes('@')?{email:id,password:pwd}:{whatsapp:id,password:pwd})});
+    const res=await fetch('/api/member/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({identifier:id,password:pwd})});
     const data=await res.json();
     if(!res.ok)throw new Error(data.error||'Identifiants incorrects.');
     localStorage.setItem('medin_token',data.token);

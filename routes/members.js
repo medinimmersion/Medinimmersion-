@@ -10,39 +10,45 @@ module.exports = function (pool, opts) {
   const { hashPassword, verifyPassword, generateToken, studentTokens, sendEmail, sendWhatsApp, requireStudentAuth, authLimiter } = opts;
   const router = require('express').Router();
 
-  // POST /api/member/login — email OR whatsapp + password
+  // POST /api/member/login — identifiant (email, WhatsApp, nom ou kounia) + mot de passe
   router.post('/api/member/login', authLimiter, async (req, res) => {
     try {
-      const { whatsapp, email, password } = req.body;
-      if (!whatsapp && !email) return res.status(400).json({ error: 'WhatsApp ou email requis' });
+      const { whatsapp, email, identifier, password } = req.body;
+      const ident = String(identifier || email || whatsapp || '').trim();
+      if (!ident) return res.status(400).json({ error: 'Email, WhatsApp, nom ou kounia requis' });
       if (!password) return res.status(400).json({ error: 'Mot de passe requis' });
 
-      let query, params;
-      if (whatsapp) {
-        const cleanWa = whatsapp.replace(/\/.*$/, '').replace(/[^\u0030-\u0039]/g, '').replace(/^0+/, '');
-        query = `SELECT id, nom, prenom, kounia, whatsapp, email, status, validation_status, password_hash
-                 FROM students WHERE REPLACE(REPLACE(whatsapp, '+', ''), ' ', '') = $1`;
-        params = [cleanWa];
-      } else {
-        query = `SELECT id, nom, prenom, kounia, whatsapp, email, status, validation_status, password_hash
-                 FROM students WHERE LOWER(email) = $1`;
-        params = [email.trim().toLowerCase()];
-      }
+      const low = ident.toLowerCase();
+      // Numéro nettoyé (piste WhatsApp) : chiffres seuls, avec et sans zéros initiaux
+      const digits = ident.replace(/\/.*$/, '').replace(/[^0-9]/g, '');
+      const digitsNoZero = digits.replace(/^0+/, '');
 
-      const result = await pool.query(query, params);
+      // On cherche sur tous les identifiants possibles ; le mot de passe départage
+      const result = await pool.query(
+        `SELECT id, nom, prenom, kounia, whatsapp, email, status, validation_status, password_hash
+         FROM students
+         WHERE LOWER(email) = $1
+            OR LOWER(COALESCE(kounia, '')) = $1
+            OR LOWER(nom) = $1
+            OR LOWER(prenom) = $1
+            OR LOWER(TRIM(prenom || ' ' || nom)) = $1
+            OR LOWER(TRIM(nom || ' ' || prenom)) = $1
+            OR ($2 <> '' AND REPLACE(REPLACE(whatsapp, '+', ''), ' ', '') IN ($2, $3))
+         LIMIT 10`,
+        [low, digits, digitsNoZero || digits]);
       if (result.rows.length === 0) return res.status(404).json({ error: 'Aucun compte trouvé avec ces informations' });
 
-      const student = result.rows[0];
-
-      if (!student.password_hash) {
+      const withPwd = result.rows.filter(s => s.password_hash);
+      if (!withPwd.length) {
         return res.status(401).json({ error: 'Votre compte n a pas de mot de passe. Utilisez "Mot de passe oublié" pour en créer un.', needs_reset: true });
       }
-      if (!verifyPassword(password, student.password_hash)) {
+      const student = withPwd.find(s => verifyPassword(password, s.password_hash));
+      if (!student) {
         return res.status(401).json({ error: 'Mot de passe incorrect' });
       }
 
       const vs = student.validation_status;
-      if (vs && vs !== 'validated') {
+      if (vs && vs !== 'validated' && vs !== 'valide') {
         const msgs = { pending: 'Votre inscription est en attente de validation.', unpaid: 'Votre inscription est en attente de paiement.' };
         return res.status(403).json({ error: msgs[vs] || 'Compte non activé.', validation_status: vs });
       }
