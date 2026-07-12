@@ -50,11 +50,12 @@ module.exports = function (pool, opts) {
         ? String(password)
         : crypto.randomBytes(8).toString('base64').replace(/[^a-zA-Z0-9]/g, 'x').substring(0, 10);
 
+      // whatsapp est NOT NULL en base : chaîne vide si non fourni
       const r = await pool.query(
         `INSERT INTO students (nom, prenom, kounia, whatsapp, email, gender, password_hash, validation_status, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'valide', 'active')
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'validated', 'active')
          RETURNING id, nom, prenom, kounia, whatsapp, email, gender`,
-        [nom.trim(), prenom.trim(), (kounia || '').trim() || null, (whatsapp || '').trim() || null,
+        [nom.trim(), prenom.trim(), (kounia || '').trim() || null, (whatsapp || '').trim(),
          email ? email.trim().toLowerCase() : null, gender || null, hashPassword(pwd)]);
 
       res.json({ success: true, student: r.rows[0], password: pwd, password_generated: !(password && String(password).length >= 4) });
