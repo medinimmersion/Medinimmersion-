@@ -12,12 +12,13 @@ function getGeminiKey() {
 }
 
 // Modèles de secours si la découverte automatique échoue. Surchargable via env.
+// Priorisés pour la vitesse avec les jetons éphémères (v1alpha).
 const FALLBACK_MODELS = process.env.GEMINI_LIVE_MODEL
   ? [process.env.GEMINI_LIVE_MODEL]
   : [
-      'models/gemini-3.1-flash-live-preview',
       'models/gemini-2.0-flash-exp',
       'models/gemini-2.0-flash-live-001',
+      'models/gemini-3.1-flash-live-preview',
       'models/gemini-live-2.5-flash-preview',
       'models/gemini-2.5-flash-preview-native-audio-dialog',
     ];
