@@ -15,6 +15,8 @@ module.exports = function (pool, opts) {
     try {
       const students = await pool.query(`
         SELECT s.id, s.nom, s.prenom, s.kounia, s.whatsapp, s.email, s.gender, s.status, s.validation_status, s.paiement_statut, s.created_at,
+          COALESCE(s.kalam_seconds_total, 180) AS kalam_total,
+          CASE WHEN s.kalam_quota_date = CURRENT_DATE THEN COALESCE(s.kalam_seconds_used, 0) ELSE 0 END AS kalam_used_today,
           (SELECT COUNT(*) FROM bookings b WHERE b.student_id = s.id) as booking_count,
           COALESCE(STRING_AGG(DISTINCT (t.prenom || ' ' || t.nom), ', '), '—') AS teacher_names
         FROM students s
