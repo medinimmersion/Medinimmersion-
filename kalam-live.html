@@ -307,9 +307,12 @@ async function start(){
     if(tr.ok){
       const td=await tr.json();
       if(td && td.ok && td.wsUrl && td.setup){ directSetup=td.setup; dbg('Connexion directe à Google…'); openWS(td.wsUrl); return; }
+      dbg('Réponse jeton invalide (ok='+(td?.ok)+', wsUrl='+(!!td?.wsUrl)+', setup='+(!!td?.setup)+'), proxy…');
+    }else{
+      const err=await tr.json().catch(()=>({}));
+      dbg('Jeton HTTP '+tr.status+' ('+((err?.error)||'?')+'), proxy…');
     }
-    dbg('Jeton direct indisponible, passage par le serveur…');
-  }catch(e){ dbg('Jeton direct indisponible, passage par le serveur…'); }
+  }catch(e){ dbg('Jeton indirect refusé ('+e.message+'), proxy…'); }
   connectProxy();
 }
 function connectProxy(){

@@ -220,7 +220,16 @@ async function createEphemeralToken(key, apiVersion) {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
   });
   const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error((d.error && d.error.message) || ('HTTP ' + r.status));
+  if (!r.ok) {
+    const msg = (d.error && d.error.message) || (d.message) || ('HTTP ' + r.status);
+    console.error('[kalam-live] Token: réponse API non-ok', { status: r.status, message: msg, body: d });
+    throw new Error(msg);
+  }
+  if (!d.name) {
+    console.error('[kalam-live] Token: pas de "name" dans la réponse', d);
+    throw new Error('Token response missing "name" field');
+  }
+  console.log('[kalam-live] Token créé avec succès: ' + d.name);
   return d.name; // ex: "auth_tokens/xxxxx"
 }
 
