@@ -32,3 +32,6 @@ provided as design reference and are not yet reflected in the current web applic
 - [025 – Audio & Ambiance](025-audio-ambiance.md)
 - [026 – Cinématiques](026-cinematiques.md)
 - [027 – Interface utilisateur](027-interface.md)
+- [028 – Personnages secondaires](028-pnj.md)
+- [029 – Marchés et boutiques](029-marches.md)
+- [030 – Salle des professeurs](030-salle-professeurs.md)
