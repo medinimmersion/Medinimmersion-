@@ -16,3 +16,6 @@ provided as design reference and are not yet reflected in the current web applic
 - [009 – Passeport MédinImmersion](009-passeport-medinimmersion.md)
 - [010 – Bureau personnel de l'élève](010-bureau-personnel-eleve.md)
 - [011 – Le Caire (Vue d'ensemble)](011-le-caire-vue-ensemble.md)
+- [012 – Chez Alif (Fondations)](012-chez-alif-fondations.md)
+- [013 – Première leçon : La lettre Alif](013-premiere-lecon-alif.md)
+- [014 – Mini-jeux du Niveau 1](014-mini-jeux-niveau1.md)
