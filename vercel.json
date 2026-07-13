@@ -1,0 +1,10 @@
+{
+  "public": true,
+  "functions": {},
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/rihla-app.html"
+    }
+  ]
+}
