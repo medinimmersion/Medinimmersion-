@@ -38,3 +38,7 @@ provided as design reference and are not yet reflected in the current web applic
 - [031 – Système de quêtes](031-systeme-quetes.md)
 - [032 – Carte du monde](032-systeme-carte.md)
 - [033 – Certificats & Diplômes](033-certificats.md)
+- [034 – Académie MédinImmersion (Partie 1)](034-academie-partie1.md)
+- [035 – Académie MédinImmersion (Partie 2)](035-academie-partie2.md)
+- [036 – Académie MédinImmersion (Partie 3)](036-academie-partie3.md)
+- [037 – Abou Adam (Dossier)](037-abou-adam-dossier.md)
