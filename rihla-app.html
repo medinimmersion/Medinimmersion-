@@ -726,17 +726,7 @@ function arrive(idx){
   document.querySelectorAll('.convo,.arrive').forEach(e=>e.remove());
   document.getElementById('signpost').style.display='none';
   const comp=document.getElementById('companion');if(comp)comp.classList.add('gone');
-  stage.insertAdjacentHTML('beforeend',`
-  <div class="convo">
-    <div class="convo-scene">${sceneBg(l)}</div>
-    <div class="convo-hud">${countryName(c)} · ${sign}</div>
-    <div class="cast" id="cast">
-      <div class="figure">${oustazFrontFigure()}</div>
-      <div class="figure flip">${shopkeeperSVG()}</div>
-    </div>
-    <div class="cast-bubble" id="cb1"><button class="spk" onclick="say('${GREET1_AR}')">🔊</button><span>${greetLine1()}</span></div>
-    <div class="cast-bubble who2" id="cb2"><button class="spk" onclick="say('${GREET2_AR}')">🔊</button><span>${greetLine2()}</span></div>
-  </div>`);
+  stage.innerHTML='<div class="convo"><div class="convo-scene">'+sceneBg(l)+'</div><div class="convo-hud">'+countryName(c)+' · '+sign+'</div><div class="cast" id="cast"><div class="figure">'+oustazFrontFigure()+'</div><div class="figure flip">'+shopkeeperSVG()+'</div></div><div class="cast-bubble" id="cb1"><button class="spk" onclick="say(\''+GREET1_AR+'\')">🔊</button><span>'+greetLine1()+'</span></div><div class="cast-bubble who2" id="cb2"><button class="spk" onclick="say(\''+GREET2_AR+'\')">🔊</button><span>'+greetLine2()+'</span></div></div>';
   say(GREET1_AR);
   const cb1=document.getElementById('cb1'),cb2=document.getElementById('cb2'),cast=document.getElementById('cast');
   const stillHere=()=>document.getElementById('cast')===cast && cast.isConnected;
@@ -749,14 +739,8 @@ function arrive(idx){
 function enterShop(idx,l,c,sign){
   const stage=document.getElementById('stage');
   document.querySelectorAll('.convo').forEach(e=>e.remove());
-  stage.insertAdjacentHTML('beforeend',`
-  <div class="convo">
-    <div class="convo-scene">${sceneBg(l)}</div>
-    <div class="convo-hud">${countryName(c)} · ${sign}</div>
-    <div class="oustaz-char"><img class="oustaz-photo" src="${oustazImg()}" alt="${oustazName()}"></div>
-    <div class="letter-tag"><span class="arabic">${l.f.isolated}</span><b>${l.t}</b></div>
-    <button class="convo-go" onclick="openLesson(${idx})">${tr('startLesson')}</button>
-  </div>`);
+  stage.innerHTML='<div class="convo"><div class="convo-scene">'+sceneBg(l)+'</div><div class="convo-hud">'+countryName(c)+' · '+sign+'</div><div class="oustaz-char"><img class="oustaz-photo" src="'+oustazImg()+'" alt="'+oustazName()+'"></div><div class="letter-tag"><span class="arabic">'+l.f.isolated+'</span><b>'+l.t+'</b></div></div>';
+  setTimeout(()=>openLesson(idx),1200);
 }
 function walkTo(target){
   if(walking)return;const cur=currentIdx();
