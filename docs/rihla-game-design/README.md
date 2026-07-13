@@ -35,3 +35,6 @@ provided as design reference and are not yet reflected in the current web applic
 - [028 – Personnages secondaires](028-pnj.md)
 - [029 – Marchés et boutiques](029-marches.md)
 - [030 – Salle des professeurs](030-salle-professeurs.md)
+- [031 – Système de quêtes](031-systeme-quetes.md)
+- [032 – Carte du monde](032-systeme-carte.md)
+- [033 – Certificats & Diplômes](033-certificats.md)
