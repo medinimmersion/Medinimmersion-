@@ -14,3 +14,5 @@ provided as design reference and are not yet reflected in the current web applic
 - [007 – Abdallah, Premier Enseignant](007-abdallah.md)
 - [008 – Abou Adam (Fondations)](008-abou-adam-fondations.md)
 - [009 – Passeport MédinImmersion](009-passeport-medinimmersion.md)
+- [010 – Bureau personnel de l'élève](010-bureau-personnel-eleve.md)
+- [011 – Le Caire (Vue d'ensemble)](011-le-caire-vue-ensemble.md)
