@@ -90,6 +90,7 @@
   .m-bar{height:6px;background:var(--border)}
   .m-bar>i{display:block;height:100%;background:var(--primary);transition:width .3s}
   .lesson-oustaz{text-align:center;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+  .lesson-oustaz img{display:none}
   .m-body{flex:1;overflow-y:auto;padding:20px 18px;display:flex;flex-direction:column;justify-content:safe center}
   .big-letter{font-size:6rem;font-weight:700;color:var(--primary);text-align:center;line-height:1.1}
   .m-h{font-size:1.1rem;font-weight:800;text-align:center;margin-top:6px}
@@ -652,24 +653,8 @@ function drawScene(){
   const scene=document.getElementById('scene');
   scene.setAttribute('viewBox',`0 0 ${W} ${H}`);
   scene.innerHTML=`<image x="0" y="0" width="${W}" height="${H}" href="${bgImage}"/>
-  ${ambientSVG(W,hz)}
   <line id="roadline" x1="${(W/2).toFixed(0)}" y1="${hz}" x2="${(W/2).toFixed(0)}" y2="${H}" stroke="#f2e7c6" stroke-width="6" stroke-dasharray="14 24" opacity="0.85"/>
   `;
-}
-// Vie ambiante de Médine : soleil qui respire, nuages qui dérivent, oiseaux qui volent
-function ambientSVG(W,hz){
-  const cloud=(y,dur,delay,sc,op)=>`<g opacity="${op}" transform="translate(-160,${y}) scale(${sc})">
-    <animateTransform attributeName="transform" type="translate" from="-160,${y}" to="${W+160},${y}" dur="${dur}s" begin="${delay}s" repeatCount="indefinite" additive="sum"/>
-    <ellipse cx="40" cy="20" rx="40" ry="18" fill="#ffffff"/><ellipse cx="75" cy="14" rx="30" ry="16" fill="#ffffff"/><ellipse cx="20" cy="14" rx="26" ry="14" fill="#f6fbff"/></g>`;
-  const bird=(y,dur,delay,sc)=>`<path d="M0 0 q7 -7 14 0 q7 -7 14 0" fill="none" stroke="#3a4a5a" stroke-width="2.2" transform="translate(-40,${y}) scale(${sc})">
-    <animateTransform attributeName="transform" type="translate" from="-40,${y}" to="${W+40},${(y-30)}" dur="${dur}s" begin="${delay}s" repeatCount="indefinite"/>
-    <animate attributeName="d" values="M0 0 q7 -7 14 0 q7 -7 14 0;M0 0 q7 -2 14 0 q7 -2 14 0;M0 0 q7 -7 14 0 q7 -7 14 0" dur="0.5s" repeatCount="indefinite"/></path>`;
-  const sunG=hz*0.28;
-  return `<circle cx="${W*0.82}" cy="${hz*0.22}" r="${hz*0.16}" fill="#fff6cf" opacity="0.0">
-      <animate attributeName="opacity" values="0.0;0.35;0.0" dur="4.5s" repeatCount="indefinite"/>
-      <animate attributeName="r" values="${sunG*0.85};${sunG*1.1};${sunG*0.85}" dur="4.5s" repeatCount="indefinite"/></circle>
-    ${cloud(hz*0.16,46,0,1,0.85)}${cloud(hz*0.34,64,8,0.7,0.7)}
-    ${bird(hz*0.30,15,1,1)}${bird(hz*0.24,19,5,0.8)}${bird(hz*0.40,17,10,0.9)}`;
 }
 function bollardRow(W,hz,H,side){
   let out='';
@@ -794,7 +779,13 @@ function showArrive(idx){
 function sayOustaz(){ say(document.getElementById('oustaz-line').textContent, state.lang) }
 
 // ===== LEÇON (5 étapes: intro, écoute, formes, écriture, quiz d'écoute) =====
-function openLesson(idx){document.querySelectorAll('.arrive,.convo').forEach(e=>e.remove());document.getElementById('walk-btn').classList.remove('on','pulse');lesson={idx,step:0};document.getElementById('lesson').classList.add('open');renderLesson()}
+function playLessonAmbience(){
+  const c=countryOf(lesson.idx);
+  if(c.includes('Dakar')||c.includes('Yémen')){ambientSound('sea');}
+  else if(c.includes('Mauritanie')){ambientSound('wind');}
+  else{ambientSound('birds');}
+}
+function openLesson(idx){document.querySelectorAll('.arrive,.convo').forEach(e=>e.remove());document.getElementById('walk-btn').classList.remove('on','pulse');lesson={idx,step:0};document.getElementById('lesson').classList.add('open');playLessonAmbience();renderLesson()}
 function closeLesson(){document.getElementById('lesson').classList.remove('open');speechSynthesis.cancel();stopRec();if(!document.getElementById('s-journey').classList.contains('hidden'))renderPath()}
 function lessonStep(d){const ns=lesson.step+d;if(ns<0)return;if(ns>5){finishLesson();return}stopRec();lesson.step=ns;renderLesson()}
 function oustazMsg(text,speakIt=true){
@@ -868,7 +859,7 @@ function answer(el,chosen,correct){
     document.querySelectorAll('.opt').forEach(b=>b.onclick=null);
     if(!state.mastered.includes(lesson.idx)){state.mastered.push(lesson.idx);state.xp+=50;save()}
     oustazMsg('Bravo! C\'est la bonne réponse!');
-    chime();toast(tr('correct'));
+    toast(tr('correct'));
     setTimeout(()=>showWordReveal(lesson.idx),1500);
   } else { el.classList.add('no'); oustazMsg('Pas correct. Écoute bien...'); toast(tr('wrong')); say(correct) }
 }
@@ -941,7 +932,7 @@ function validateWrite(){
   if(coverage>=0.55 && extra<=0.45){
     st.textContent=tr('writeGood')+' ('+Math.round(coverage*100)+'%)';st.style.color='var(--success)';
     oustazMsg('Bravo! Tu as bien écrit!');
-    chime();toast(tr('writeGood'));setTimeout(()=>lessonStep(1),1200);
+    toast(tr('writeGood'));setTimeout(()=>lessonStep(1),1200);
   } else {
     st.textContent=tr('writeBad')+' ('+Math.round(coverage*100)+'%)';st.style.color='#ef4444';
     oustazMsg('Presque! Essaie encore...',false);
@@ -988,8 +979,8 @@ function startPron(idx){
     stopRec();
     // La reconnaissance des lettres arabes seules n'est jamais fiable à 100% :
     // dès que l'élève a prononcé quelque chose, on l'encourage et on avance.
-    if(perfect){status.textContent=tr('pronGood');status.style.color='var(--success)';oustazMsg('ما شاء الله! Parfait!');chime();toast(tr('pronGood'));setTimeout(()=>lessonStep(1),1400)}
-    else if(spoke){status.textContent='أحسنت · Bien !';status.style.color='var(--success)';oustazMsg('Bravo! Continuons.');chime();setTimeout(()=>lessonStep(1),1400)}
+    if(perfect){status.textContent=tr('pronGood');status.style.color='var(--success)';oustazMsg('ما شاء الله! Parfait!');toast(tr('pronGood'));setTimeout(()=>lessonStep(1),1400)}
+    else if(spoke){status.textContent='أحسنت · Bien !';status.style.color='var(--success)';oustazMsg('Bravo! Continuons.');setTimeout(()=>lessonStep(1),1400)}
     else{status.textContent='Je n\'ai pas entendu';status.style.color='var(--gold)';oustazMsg('Réessaie, parle plus fort: '+l.t);setTimeout(()=>say(l.f.isolated),500)}
   };
   rec.onerror=(ev)=>{
@@ -1005,21 +996,46 @@ function startPron(idx){
 }
 
 // ===== AUDIO =====
-// Petit carillon de réussite (WebAudio, aucun fichier requis)
-let _actx=null;
-function chime(){
+let _aCtx=null;
+function initAudio(){if(!_aCtx)_aCtx=new (window.AudioContext||window.webkitAudioContext)();if(_aCtx.state==='suspended')_aCtx.resume();}
+function ambientSound(type){
   try{
-    _actx=_actx||new (window.AudioContext||window.webkitAudioContext)();
-    if(_actx.state==='suspended')_actx.resume();
-    const notes=[523.25,659.25,783.99];// do-mi-sol
-    notes.forEach((f,i)=>{
-      const o=_actx.createOscillator(),g=_actx.createGain();
-      o.type='sine';o.frequency.value=f;
-      const t=_actx.currentTime+i*0.10;
-      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.18,t+0.02);
-      g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
-      o.connect(g);g.connect(_actx.destination);o.start(t);o.stop(t+0.36);
-    });
+    initAudio();
+    if(type==='birds'){
+      const notes=[1200,1100,1400,1000,1300];
+      const now=_aCtx.currentTime;
+      notes.forEach((f,i)=>{
+        const o=_aCtx.createOscillator(),g=_aCtx.createGain();
+        o.type='sine';o.frequency.setValueAtTime(f,now);o.frequency.setValueAtTime(f*0.8,now+0.15);
+        const t=now+i*0.08;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.08,t+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+0.25);
+        o.connect(g);g.connect(_aCtx.destination);o.start(t);o.stop(t+0.26);
+      });
+    }else if(type==='wind'){
+      const n1=_aCtx.createBufferSource(),n2=_aCtx.createBufferSource(),n3=_aCtx.createBufferSource();
+      const buf=_aCtx.createBuffer(1,_aCtx.sampleRate*1.2,_aCtx.sampleRate);
+      const data=buf.getChannelData(0);
+      for(let i=0;i<data.length;i++)data[i]=(Math.random()-0.5)*0.3;
+      const g1=_aCtx.createGain(),g2=_aCtx.createGain(),g3=_aCtx.createGain();
+      [n1,n2,n3].forEach((s,i)=>{s.buffer=buf;s.playbackRate.value=0.8+i*0.1;});
+      g1.gain.setValueAtTime(0.05,_aCtx.currentTime);g1.gain.linearRampToValueAtTime(0.02,_aCtx.currentTime+1.2);
+      g2.gain.setValueAtTime(0.04,_aCtx.currentTime);g2.gain.linearRampToValueAtTime(0.02,_aCtx.currentTime+1.2);
+      g3.gain.setValueAtTime(0.03,_aCtx.currentTime);g3.gain.linearRampToValueAtTime(0.01,_aCtx.currentTime+1.2);
+      n1.connect(g1);n2.connect(g2);n3.connect(g3);g1.connect(_aCtx.destination);g2.connect(_aCtx.destination);g3.connect(_aCtx.destination);
+      n1.start(_aCtx.currentTime);n2.start(_aCtx.currentTime+0.05);n3.start(_aCtx.currentTime+0.1);
+      n1.stop(_aCtx.currentTime+1.2);n2.stop(_aCtx.currentTime+1.2);n3.stop(_aCtx.currentTime+1.2);
+    }else if(type==='sea'){
+      const now=_aCtx.currentTime;
+      for(let w=0;w<3;w++){
+        const wave=_aCtx.createBufferSource(),buf=_aCtx.createBuffer(1,_aCtx.sampleRate*2,_aCtx.sampleRate);
+        const d=buf.getChannelData(0);
+        for(let i=0;i<d.length;i++)d[i]=(Math.sin(i*0.01+w)*Math.random()-0.5)*0.15;
+        const g=_aCtx.createGain();
+        wave.buffer=buf;wave.playbackRate.value=0.6;
+        g.gain.setValueAtTime(0,now+w*0.4);g.gain.linearRampToValueAtTime(0.06,now+w*0.4+0.3);g.gain.exponentialRampToValueAtTime(0.001,now+w*0.4+2);
+        wave.connect(g);g.connect(_aCtx.destination);
+        wave.start(now+w*0.4);wave.stop(now+w*0.4+2);
+      }
+    }
   }catch(e){}
 }
 // ===== Sélection de voix (homme pour Oustaz, femme pour Oustaza) =====
