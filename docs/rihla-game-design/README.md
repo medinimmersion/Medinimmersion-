@@ -19,3 +19,6 @@ provided as design reference and are not yet reflected in the current web applic
 - [012 – Chez Alif (Fondations)](012-chez-alif-fondations.md)
 - [013 – Première leçon : La lettre Alif](013-premiere-lecon-alif.md)
 - [014 – Mini-jeux du Niveau 1](014-mini-jeux-niveau1.md)
+- [015 – Carte du Caire (Fondations)](015-carte-le-caire.md)
+- [016 – Dialogues d'Abdallah (Fondations)](016-dialogues-abdallah.md)
+- [017 – Système de devoirs et révisions](017-systeme-devoirs-revision.md)
