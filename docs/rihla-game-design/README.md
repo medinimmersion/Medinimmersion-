@@ -42,3 +42,6 @@ provided as design reference and are not yet reflected in the current web applic
 - [035 – Académie MédinImmersion (Partie 2)](035-academie-partie2.md)
 - [036 – Académie MédinImmersion (Partie 3)](036-academie-partie3.md)
 - [037 – Abou Adam (Dossier)](037-abou-adam-dossier.md)
+- [038 – Abdallah (Dossier)](038-abdallah-dossier.md)
+- [039 – Abdel Wadoud (Dossier)](039-abdel-wadoud-dossier.md)
+- [040 – Égypte : Le Caire (Partie 1)](040-egypte-le-caire-partie1.md)
