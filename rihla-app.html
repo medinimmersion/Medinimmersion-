@@ -59,7 +59,7 @@
   .oustaz-say{border:none;background:var(--primary);color:#fff;border-radius:10px;padding:6px 10px;font-size:.75rem;font-weight:700;margin-top:8px;cursor:pointer;font-family:inherit}
   .path{position:relative;padding:24px 0 40px}
   .path .sky{position:absolute;inset:0;background:linear-gradient(180deg,var(--sky2),var(--sky1) 60%,var(--sky2));opacity:.5;z-index:0}
-  .spine{position:absolute;left:50%;top:10px;bottom:10px;width:0;border-left:6px dashed var(--path);transform:translateX(-50%);z-index:1}
+  .spine{display:none}
   .city{position:relative;z-index:3;text-align:center;margin:10px 16px 6px}
   .city .banner{display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:#fff;border-radius:99px;padding:8px 18px;font-weight:800;font-size:.9rem;box-shadow:var(--shadow)}
   .city .ar{color:var(--text-sec);font-size:.8rem;margin-top:3px}
@@ -187,8 +187,7 @@
   .node.completed .stop{background:linear-gradient(180deg,#22c55e,#15a34a)}
   .node.current .stop{background:linear-gradient(180deg,#f4b942,#e08a1e)}
   .node .stop{border:5px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.18)}
-  .scenery{position:absolute;top:50%;transform:translateY(-50%);font-size:1.7rem;z-index:2;opacity:.9;filter:drop-shadow(0 2px 2px rgba(0,0,0,.12))}
-  .scenery.l{left:14px}.scenery.r{right:14px}
+  .scenery{display:none}
   .walker{top:-46px;font-size:2.3rem}
   /* ===== MONDE DORA ===== */
   .worldmap{position:relative;width:100%;overflow:hidden}
