@@ -25,3 +25,7 @@ provided as design reference and are not yet reflected in the current web applic
 - [018 – Système d'examens](018-systeme-examens.md)
 - [019 – IA Conversationnelle (Gemini / Kalam AI Live)](019-ia-gemini-kalamai.md)
 - [020 – Progression de l'élève](020-progression-eleve.md)
+- 021 – *(non fourni)*
+- [022 – Sauvegarde & Profils](022-sauvegarde-profils.md)
+- [023 – Bibliothèque MédinImmersion](023-bibliotheque.md)
+- [024 – Paramètres de l'élève](024-parametres.md)
