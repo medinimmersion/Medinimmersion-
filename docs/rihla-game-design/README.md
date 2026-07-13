@@ -22,3 +22,6 @@ provided as design reference and are not yet reflected in the current web applic
 - [015 – Carte du Caire (Fondations)](015-carte-le-caire.md)
 - [016 – Dialogues d'Abdallah (Fondations)](016-dialogues-abdallah.md)
 - [017 – Système de devoirs et révisions](017-systeme-devoirs-revision.md)
+- [018 – Système d'examens](018-systeme-examens.md)
+- [019 – IA Conversationnelle (Gemini / Kalam AI Live)](019-ia-gemini-kalamai.md)
+- [020 – Progression de l'élève](020-progression-eleve.md)
