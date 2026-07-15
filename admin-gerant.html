@@ -145,7 +145,25 @@ a{color:inherit;}
     </div>
   </div>
 
-  <div class="panel" id="p-remu">
+    <div class="panel" id="p-boutique">
+    <h2>Boutique PDF</h2>
+    <p class="sub">Gère les livres, les prix et les couvertures.</p>
+    <button class="btn btn-green" onclick="openAddBook()" style="margin-bottom:1rem;">➕ Ajouter un livre</button>
+    <div id="addBookForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <input class="search" id="bNiveau" placeholder="Niveau (1-11)" type="number" min="1" max="11">
+      <input class="search" id="bName" placeholder="Nom du livre">
+      <input class="search" id="bPrice" placeholder="Prix (€)" type="number" min="0">
+      <input class="search" id="bCoverUrl" placeholder="URL couverture (optionnel)">
+      <div class="acts">
+        <button class="btn btn-green" onclick="addBook()">Ajouter</button>
+        <button class="btn btn-soft" onclick="closeAddBook()">Annuler</button>
+      </div>
+      <div id="addBookMsg" style="font-size:0.8rem;margin-top:0.5rem;"></div>
+    </div>
+    <div id="listBoutique" class="loading">Chargement…</div>
+  </div>
+
+<div class="panel" id="p-remu">
     <h2>Rémunération des professeurs</h2>
     <p class="sub">Heures effectuées et montants par professeur.</p>
     <div id="listRemu" class="loading">Chargement…</div>
@@ -229,8 +247,6 @@ async function boot(){
     if(!r.ok) throw 0;
     $('login').style.display='none'; $('app').style.display='block';
     loadStats(); loadEleves(); loadValidation(); loadProfs(); loadPaiements(); loadRemu();
-  if(document.getElementById('p-boutique')) loadBoutique();
-
   }catch{ showLogin(); }
 }
 function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; }
@@ -253,8 +269,6 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
   t.classList.add('on'); $('p-'+t.dataset.p).classList.add('on');
   if(t.dataset.p==='planning') loadPlanning();
-  if(t.dataset.p==='boutique') loadBoutique();
-
   if(t.dataset.p==='groupes') loadGroupes();
   if(t.dataset.p==='livres') loadLivres();
 });
@@ -795,13 +809,14 @@ let cacheBoutique=[];
 function openAddBook(){ document.getElementById('addBookForm').style.display='block'; }
 function closeAddBook(){ document.getElementById('addBookForm').style.display='none'; }
 async function addBook(){
-  const msg=document.getElementById('addBookMsg'); msg.textContent=''; msg.style.color='var(--muted)';
+  const msg=document.getElementById('addBookMsg');
   const niveau=parseInt(document.getElementById('bNiveau').value);
   const name=document.getElementById('bName').value.trim();
   const price=parseInt(document.getElementById('bPrice').value);
   const coverUrl=document.getElementById('bCoverUrl').value.trim();
   
-  if(!niveau||!name||!price){ msg.textContent='Tous les champs sont requis (sauf URL couverture).'; msg.style.color='#B3261E'; return; }
+  msg.style.color='var(--muted)'; msg.textContent='';
+  if(!niveau||!name||!price){ msg.textContent='Tous les champs requis.'; msg.style.color='#B3261E'; return; }
   
   const book={niveau,name,price,img:coverUrl||'/images/livres/niveau-'+niveau+'.jpg'};
   cacheBoutique.push(book);
@@ -858,17 +873,12 @@ function renderBoutique(){
     </div>
   </div>`).join('');
 }
-function editBookCover(niveau){
-  document.getElementById('editCover-'+niveau).style.display='block';
-}
-function closeEditCover(niveau){
-  document.getElementById('editCover-'+niveau).style.display='none';
-}
+function editBookCover(niveau){ document.getElementById('editCover-'+niveau).style.display='block'; }
+function closeEditCover(niveau){ document.getElementById('editCover-'+niveau).style.display='none'; }
 async function saveCover(niveau){
   const file=document.getElementById('cover-'+niveau).files[0];
   const msg=document.getElementById('coverMsg-'+niveau);
   if(!file){ msg.textContent='Choisir une image.'; msg.style.color='#B3261E'; return; }
-  
   msg.textContent='Conversion...'; msg.style.color='var(--muted)';
   const reader=new FileReader();
   reader.onload=()=>{
