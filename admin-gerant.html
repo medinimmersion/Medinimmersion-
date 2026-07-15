@@ -20,16 +20,12 @@ a{color:inherit;}
 .logout{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.45rem 0.9rem;border-radius:50px;cursor:pointer;}
 .logout:hover{background:rgba(255,255,255,0.18);}
 .wrap{max-width:1100px;margin:0 auto;padding:1rem;}
-/* ── Hero (même design que les espaces élève/professeur) ── */
-.hero-card{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--green) 0%,var(--green-deep) 100%);border-radius:26px;padding:1.9rem 2rem;color:var(--white);margin-bottom:1.1rem;box-shadow:0 16px 44px rgba(15,61,38,0.25);}
-.hero-glow{position:absolute;top:-80px;right:-50px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,0.20),transparent 68%);pointer-events:none;}
-.hero-label{position:relative;color:var(--gold-light);font-size:0.72rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.7rem;}
-.hero-title{position:relative;font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,5vw,2.7rem);font-weight:700;line-height:1.05;margin-bottom:0.35rem;color:var(--white);}
-.hero-sub{position:relative;color:rgba(255,255,255,0.72);font-size:0.92rem;line-height:1.5;margin-bottom:1.3rem;}
-.hero-stats{position:relative;display:flex;gap:2rem;flex-wrap:wrap;}
-.hstat-val{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:700;color:var(--gold-light);line-height:1;}
-.hstat-lbl{color:rgba(255,255,255,0.6);font-size:0.78rem;margin-top:0.25rem;}
-@media(max-width:768px){.hero-card{padding:1.5rem 1.4rem;}.hero-stats{gap:1.3rem;}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.7rem;margin-bottom:1rem;}
+.stat{background:#fff;border:1px solid var(--beige);border-radius:14px;padding:1rem 0.75rem;text-align:center;}
+.stat .n{font-size:1.7rem;font-weight:700;color:var(--green-deep);line-height:1;}
+.stat .n.gold{color:var(--gold);}
+.stat .l{font-size:0.72rem;color:var(--muted);margin-top:0.35rem;}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr);}}
 .tabs{display:flex;gap:0.4rem;overflow-x:auto;padding-bottom:0.4rem;margin-bottom:1rem;-webkit-overflow-scrolling:touch;}
 .tab{flex:0 0 auto;background:#fff;border:1px solid var(--beige);color:var(--muted);font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.55rem 0.95rem;border-radius:50px;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
 .tab.on{background:var(--green);border-color:var(--green);color:#fff;}
@@ -93,13 +89,7 @@ a{color:inherit;}
 </div>
 
 <div class="wrap" id="app" style="display:none;">
-  <div class="hero-card">
-    <div class="hero-glow"></div>
-    <div class="hero-label">Médin'Immersion — Administration</div>
-    <div class="hero-title">Mon école</div>
-    <div class="hero-sub">Vue d'ensemble de l'activité de l'école.</div>
-    <div class="hero-stats" id="stats"></div>
-  </div>
+  <div class="stats" id="stats"></div>
 
   <div class="tabs">
     <button class="tab gold on" data-p="eleves">👥 Élèves</button>
@@ -109,31 +99,12 @@ a{color:inherit;}
     <button class="tab" data-p="groupes">👥 Groupes</button>
     <button class="tab" data-p="livres">📚 Livres</button>
     <button class="tab" data-p="paiements">💶 Paiements</button>
-    <button class="tab" data-p="kalam">⏱️ Kalam</button>
     <button class="tab" data-p="remu">💰 Rémunération</button>
   </div>
 
   <div class="panel on" id="p-eleves">
     <h2>Élèves</h2>
     <p class="sub">Consulte, accède à l'espace de chaque élève et suis ses cours.</p>
-    <button class="btn btn-green" onclick="document.getElementById('newStudentForm').style.display='block'" style="margin-bottom:1rem;">➕ Créer un élève</button>
-    <div id="newStudentForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-      <div style="display:flex;gap:0.5rem;">
-        <input class="search" id="nsPrenom" placeholder="Prénom *" style="flex:1;">
-        <input class="search" id="nsNom" placeholder="Nom *" style="flex:1;">
-      </div>
-      <input class="search" id="nsKounia" placeholder="Kounia (optionnel)">
-      <input class="search" id="nsEmail" type="email" placeholder="Email (email ou WhatsApp requis)">
-      <input class="search" id="nsWhatsapp" placeholder="WhatsApp (ex: +33612345678)">
-      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Genre</label>
-      <select class="search" id="nsGender"><option value="">— Genre —</option><option value="homme">Homme</option><option value="femme">Femme</option></select>
-      <input class="search" id="nsPwd" placeholder="Mot de passe (vide = généré automatiquement)">
-      <div class="acts">
-        <button class="btn btn-green" onclick="createStudent()">Créer l'élève</button>
-        <button class="btn btn-soft" onclick="document.getElementById('newStudentForm').style.display='none'">Annuler</button>
-      </div>
-      <div id="nsMsg" style="font-size:0.82rem;margin-top:0.5rem;"></div>
-    </div>
     <input class="search" id="searchEleve" placeholder="Rechercher un élève (nom, email…)">
     <div id="listEleves" class="loading">Chargement…</div>
   </div>
@@ -153,16 +124,12 @@ a{color:inherit;}
   <div class="panel" id="p-paiements">
     <h2>Paiements</h2>
     <p class="sub">Suis et valide séparément les paiements des cours et de Kalam.</p>
-    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
-      <button class="btn btn-green" id="paySubCours" onclick="switchPaySub('cours')">🎓 Cours</button>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+      <button class="btn btn-green" id="paySubCours" onclick="switchPaySub('cours')">📚 Cours</button>
       <button class="btn btn-soft" id="paySubKalam" onclick="switchPaySub('kalam')">🎙️ Kalam</button>
-      <button class="btn btn-soft" id="paySubLivres" onclick="switchPaySub('livres')">📚 Livres</button>
     </div>
     <div id="paySubCoursBox">
       <div id="listPaiements" class="loading">Chargement…</div>
-    </div>
-    <div id="paySubLivresBox" style="display:none;">
-      <div id="listBoutique" class="loading">Chargement…</div>
     </div>
     <div id="paySubKalamBox" style="display:none;">
       <button class="btn btn-gold" onclick="openAssignKalam()" style="margin-bottom:1rem;">➕ Attribuer un forfait Kalam</button>
@@ -175,27 +142,6 @@ a{color:inherit;}
       </div>
       <div id="listKalamPay" class="loading">Chargement…</div>
     </div>
-  </div>
-
-  <div class="panel" id="p-kalam">
-    <h2>Temps Kalam</h2>
-    <p class="sub">Sélectionne des élèves, règle leur temps de parole quotidien, ou désactive Kalam.</p>
-    <div style="background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
-        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;font-weight:700;cursor:pointer;">
-          <input type="checkbox" id="ktAll" style="width:18px;height:18px;accent-color:var(--green);"> Tout sélectionner
-        </label>
-        <span id="ktCount" style="font-size:0.8rem;color:var(--muted);">0 sélectionné</span>
-      </div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-top:0.7rem;">
-        <input class="search" id="ktMinutes" type="number" min="0" placeholder="Minutes / jour" style="max-width:150px;margin:0;">
-        <button class="btn btn-green" onclick="bulkKalam('minutes')">✓ Appliquer aux sélectionnés</button>
-        <button class="btn btn-gold" onclick="bulkKalam('unlimited')">∞ Illimité</button>
-        <button class="btn btn-bad" onclick="bulkKalam('disable')">🚫 Désactiver Kalam</button>
-      </div>
-    </div>
-    <input class="search" id="searchKalam" placeholder="Rechercher un élève (nom, email…)">
-    <div id="listKalamTimes" class="loading">Chargement…</div>
   </div>
 
   <div class="panel" id="p-remu">
@@ -282,6 +228,8 @@ async function boot(){
     if(!r.ok) throw 0;
     $('login').style.display='none'; $('app').style.display='block';
     loadStats(); loadEleves(); loadValidation(); loadProfs(); loadPaiements(); loadRemu();
+  if(document.getElementById('p-boutique')) loadBoutique();
+
   }catch{ showLogin(); }
 }
 function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; }
@@ -304,21 +252,22 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
   t.classList.add('on'); $('p-'+t.dataset.p).classList.add('on');
   if(t.dataset.p==='planning') loadPlanning();
+  if(t.dataset.p==='boutique') loadBoutique();
+
   if(t.dataset.p==='groupes') loadGroupes();
   if(t.dataset.p==='livres') loadLivres();
-  if(t.dataset.p==='kalam') loadKalamTimes();
 });
 
 async function loadStats(){
   try{
     const r=await fetch('/api/admin/stats',{headers:H()}); const d=await r.json();
     $('stats').innerHTML=`
-      <div><div class="hstat-val">${d.total_students||0}</div><div class="hstat-lbl">Élèves inscrits</div></div>
-      <div><div class="hstat-val">${d.total_bookings||0}</div><div class="hstat-lbl">Réservations</div></div>
-      <div><div class="hstat-val">${d.pending_bookings||0}</div><div class="hstat-lbl">En attente</div></div>
-      <div><div class="hstat-val">${d.paid_bookings||0}</div><div class="hstat-lbl">Payées</div></div>
-      <div><div class="hstat-val">${d.unpaid_bookings||0}</div><div class="hstat-lbl">Impayées</div></div>
-      <div><div class="hstat-val">${(d.paid_revenue||0)}€</div><div class="hstat-lbl">Revenus encaissés</div></div>`;
+      <div class="stat"><div class="n">${d.total_students||0}</div><div class="l">Élèves inscrits</div></div>
+      <div class="stat"><div class="n">${d.total_bookings||0}</div><div class="l">Réservations</div></div>
+      <div class="stat"><div class="n">${d.pending_bookings||0}</div><div class="l">En attente</div></div>
+      <div class="stat"><div class="n">${d.paid_bookings||0}</div><div class="l">Payées</div></div>
+      <div class="stat"><div class="n">${d.unpaid_bookings||0}</div><div class="l">Impayées</div></div>
+      <div class="stat"><div class="n gold">${(d.paid_revenue||0)}€</div><div class="l">Revenus encaissés</div></div>`;
   }catch{ $('stats').innerHTML=''; }
 }
 
@@ -337,10 +286,9 @@ function renderEleves(list){
       : (vs==='rejected'||vs==='refuse')?'<span class="badge b-bad">Refusé</span>'
       : '<span class="badge b-warn">En attente</span>';
     const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||'—');
-    const kb=kalamBadge({total:s.kalam_total!==undefined?s.kalam_total:180, used_today:s.kalam_used_today||0});
     return `<div class="row">
       <div class="r-top"><div><div class="name">${nom}</div>
-        <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>Prof : ${esc(s.teacher_names||'—')} · ${s.booking_count||0} résa.<br>Kalam : ${kb}</div></div>${vb}</div>
+        <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>Prof : ${esc(s.teacher_names||'—')} · ${s.booking_count||0} résa.</div></div>${vb}</div>
       <div class="acts">
         <button class="btn btn-info" onclick="viewStudent(${s.id})">👁 Voir espace</button>
         <button class="btn btn-gold" onclick="resetStudentPwd(${s.id},'${esc(nom)}')">🔑 Mot de passe</button>
@@ -352,32 +300,6 @@ $('searchEleve').oninput=e=>{
   const q=e.target.value.toLowerCase().trim();
   renderEleves(!q?cacheEleves:cacheEleves.filter(s=>[s.nom,s.prenom,s.kounia,s.email,s.whatsapp].some(v=>(v||'').toLowerCase().includes(q))));
 };
-async function createStudent(){
-  const msg=$('nsMsg'); msg.textContent=''; msg.style.color='var(--muted)';
-  const body={
-    prenom:$('nsPrenom').value.trim(), nom:$('nsNom').value.trim(),
-    kounia:$('nsKounia').value.trim(), email:$('nsEmail').value.trim(),
-    whatsapp:$('nsWhatsapp').value.trim(), gender:$('nsGender').value,
-    password:$('nsPwd').value
-  };
-  if(!body.prenom||!body.nom){ msg.textContent='Prénom et nom requis.'; msg.style.color='#B3261E'; return; }
-  if(!body.email&&!body.whatsapp){ msg.textContent='Email ou WhatsApp requis (pour que l\'élève puisse se connecter).'; msg.style.color='#B3261E'; return; }
-  try{
-    const r=await fetch('/api/admin/students',{method:'POST',headers:H(),body:JSON.stringify(body)});
-    const d=await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(d.error||'Erreur serveur');
-    toast('Élève créé ✓');
-    if(d.password_generated){
-      msg.style.color='var(--green)';
-      msg.innerHTML='✓ Élève créé. <b>Mot de passe généré : '+esc(d.password)+'</b> — note-le et transmets-le à l\'élève.';
-    }else{
-      msg.style.color='var(--green)'; msg.textContent='✓ Élève créé avec le mot de passe choisi.';
-      $('newStudentForm').style.display='none';
-    }
-    ['nsPrenom','nsNom','nsKounia','nsEmail','nsWhatsapp','nsPwd'].forEach(i=>$(i).value=''); $('nsGender').value='';
-    loadEleves();
-  }catch(e){ msg.textContent=e.message; msg.style.color='#B3261E'; }
-}
 async function viewStudent(id){
   try{
     const r=await fetch('/api/admin/impersonate/student/'+id,{method:'POST',headers:H()});
@@ -404,98 +326,6 @@ async function setKalamTime(id,nom){
     const r=await fetch('/api/admin/students/'+id+'/kalam-time',{method:'PUT',headers:H(),body:JSON.stringify(body)});
     if(!r.ok) throw 0;
     toast(body.unlimited?'Temps Kalam : illimité ✓':'Temps Kalam : '+body.minutes+' min/jour ✓');
-    loadEleves();
-    if(document.getElementById('p-kalam').classList.contains('on')) loadKalamTimes();
-  }catch{ toast('Échec — réessaie.'); }
-}
-
-/* ───────── TEMPS KALAM (vue générale) ───────── */
-let cacheKalamTimes=[];
-async function loadKalamTimes(){
-  try{
-    const r=await fetch('/api/admin/kalam/times',{headers:H()});
-    if(!r.ok) throw 0;
-    cacheKalamTimes=await r.json();
-    renderKalamTimes(cacheKalamTimes);
-  }catch{ $('listKalamTimes').innerHTML='<div class="empty">Impossible de charger les temps Kalam.</div>'; }
-}
-function kalamBadge(s){
-  if(s.total===-1) return '<span class="badge b-ok">∞ Illimité</span>';
-  if(s.total===0) return '<span class="badge b-bad">🚫 Désactivé</span>';
-  const min=Math.round(s.total/60);
-  const left=Math.max(0,s.total-(s.used_today||0));
-  const leftTxt=left<=0?' · épuisé aujourd\'hui':' · reste '+Math.floor(left/60)+' min aujourd\'hui';
-  return '<span class="badge '+(left<=0?'b-warn':'b-ok')+'">⏱️ '+min+' min/jour'+leftTxt+'</span>';
-}
-function renderKalamTimes(list){
-  if(!list.length){ $('listKalamTimes').innerHTML='<div class="empty">Aucun élève.</div>'; return; }
-  $('listKalamTimes').innerHTML=list.map(s=>{
-    const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||'—');
-    const disabled=s.total===0;
-    return `<div class="row">
-      <div class="r-top">
-        <div style="display:flex;align-items:center;gap:0.7rem;">
-          <input type="checkbox" class="kt-check" data-id="${s.id}" style="width:19px;height:19px;accent-color:var(--green);flex-shrink:0;" onchange="ktCount()">
-          <div><div class="name">${nom}</div><div class="meta">${esc(s.email||'—')}</div></div>
-        </div>
-        ${kalamBadge(s)}</div>
-      <div class="acts">
-        <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Modifier le temps</button>
-        ${disabled
-          ?`<button class="btn btn-ok" onclick="rowKalam(${s.id},'enable')">✅ Activer Kalam</button>`
-          :`<button class="btn btn-bad" onclick="rowKalam(${s.id},'disable')">🚫 Désactiver Kalam</button>`}
-      </div></div>`;
-  }).join('');
-  ktCount();
-}
-$('searchKalam').oninput=e=>{
-  const q=e.target.value.toLowerCase().trim();
-  renderKalamTimes(!q?cacheKalamTimes:cacheKalamTimes.filter(s=>[s.nom,s.prenom,s.kounia,s.email].some(v=>(v||'').toLowerCase().includes(q))));
-};
-$('ktAll').onchange=()=>{
-  document.querySelectorAll('.kt-check').forEach(c=>c.checked=$('ktAll').checked);
-  ktCount();
-};
-function ktCount(){
-  const n=document.querySelectorAll('.kt-check:checked').length;
-  $('ktCount').textContent=n+' sélectionné'+(n>1?'s':'');
-}
-function ktSelectedIds(){
-  return Array.from(document.querySelectorAll('.kt-check:checked')).map(c=>parseInt(c.dataset.id,10));
-}
-async function bulkKalam(mode){
-  const ids=ktSelectedIds();
-  if(!ids.length){ toast('Sélectionne au moins un élève.'); return; }
-  let body={student_ids:ids};
-  if(mode==='minutes'){
-    const m=parseInt($('ktMinutes').value,10);
-    if(isNaN(m)||m<0){ toast('Indique un nombre de minutes valide.'); return; }
-    body.minutes=m;
-  } else if(mode==='unlimited'){ body.unlimited=true; }
-  else if(mode==='disable'){
-    if(!confirm('Désactiver Kalam pour '+ids.length+' élève'+(ids.length>1?'s':'')+' ?')) return;
-    body.disable=true;
-  }
-  try{
-    const r=await fetch('/api/admin/kalam/times/bulk',{method:'POST',headers:H(),body:JSON.stringify(body)});
-    const d=await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(d.error||'Échec');
-    toast(mode==='disable'?'Kalam désactivé pour '+d.updated+' élève(s) ✓'
-      :mode==='unlimited'?'Temps illimité pour '+d.updated+' élève(s) ✓'
-      :body.minutes+' min/jour pour '+d.updated+' élève(s) ✓');
-    $('ktAll').checked=false;
-    loadKalamTimes();
-  }catch(e){ toast(e.message||'Échec — réessaie.'); }
-}
-async function rowKalam(id,mode){
-  const body={student_ids:[id]};
-  if(mode==='disable') body.disable=true;
-  else body.minutes=3; // réactivation : temps par défaut (3 min/jour)
-  try{
-    const r=await fetch('/api/admin/kalam/times/bulk',{method:'POST',headers:H(),body:JSON.stringify(body)});
-    if(!r.ok) throw 0;
-    toast(mode==='disable'?'Kalam désactivé ✓':'Kalam réactivé (3 min/jour) ✓');
-    loadKalamTimes();
   }catch{ toast('Échec — réessaie.'); }
 }
 
@@ -570,7 +400,7 @@ async function loadPaiements(){
     if(!arr.length){ $('listPaiements').innerHTML='<div class="empty">Aucune réservation.</div>'; return; }
     $('listPaiements').innerHTML=arr.map(b=>{
       const paid=(b.payment_status||'').toLowerCase()==='paid';
-      const nom=esc([b.student_prenom||b.prenom,b.student_nom||b.nom].filter(Boolean).join(' ')||b.student_name||'Élève');
+      const nom=esc([b.student_prenom,b.student_nom].filter(Boolean).join(' ')||b.student_name||'Élève');
       return `<div class="row"><div class="r-top">
         <div><div class="name">${nom}</div>
         <div class="meta">${esc(b.course_type||'Cours')} · ${b.hours||'?'}h · ${b.price_euros||b.price||0}€</div></div>
@@ -592,39 +422,12 @@ async function setPay(id,status){
 
 /* ───────── PAIEMENTS KALAM ───────── */
 function switchPaySub(which){
-  $('paySubCoursBox').style.display=which==='cours'?'block':'none';
-  $('paySubKalamBox').style.display=which==='kalam'?'block':'none';
-  $('paySubLivresBox').style.display=which==='livres'?'block':'none';
-  $('paySubCours').className='btn '+(which==='cours'?'btn-green':'btn-soft');
-  $('paySubKalam').className='btn '+(which==='kalam'?'btn-green':'btn-soft');
-  $('paySubLivres').className='btn '+(which==='livres'?'btn-green':'btn-soft');
-  if(which==='kalam') loadKalamPay();
-  if(which==='livres') loadBoutique();
-}
-async function loadBoutique(){
-  try{
-    const r=await fetch('/api/admin/boutique/orders',{headers:H()}); const list=await r.json();
-    if(!Array.isArray(list)||!list.length){ $('listBoutique').innerHTML='<div class="empty">Aucune commande de PDF.</div>'; return; }
-    $('listBoutique').innerHTML=list.map(o=>{
-      const paid=(o.payment_status||'')==='paid';
-      const nom=esc([o.prenom,o.nom].filter(Boolean).join(' ')||'—');
-      return `<div class="row"><div class="r-top">
-        <div><div class="name">${nom}</div>
-        <div class="meta">${esc(o.email||'')}${o.whatsapp?' · '+esc(o.whatsapp):''}<br>${esc(o.items||'')}<br><b>${Number(o.total).toFixed(2)}€</b> · ${new Date(o.created_at).toLocaleDateString('fr-FR')}</div></div>
-        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-warn">En attente</span>'}</div>
-        <div class="acts">${paid
-          ?`<button class="btn btn-soft" onclick="setBoutiquePay(${o.id},'unpaid')">Annuler le paiement</button>`
-          :`<button class="btn btn-ok" onclick="setBoutiquePay(${o.id},'paid')">✅ Paiement reçu (envoyer les PDF)</button>`}</div></div>`;
-    }).join('');
-  }catch{ $('listBoutique').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-async function setBoutiquePay(id,status){
-  try{
-    const r=await fetch('/api/admin/boutique/orders/'+id,{method:'PATCH',headers:H(),body:JSON.stringify({payment_status:status})});
-    if(!r.ok) throw 0;
-    toast(status==='paid'?'Paiement validé ✓ — pense à envoyer les PDF !':'Paiement annulé');
-    loadBoutique();
-  }catch{ toast('Échec — réessaie.'); }
+  const cours=which==='cours';
+  $('paySubCoursBox').style.display=cours?'block':'none';
+  $('paySubKalamBox').style.display=cours?'none':'block';
+  $('paySubCours').className='btn '+(cours?'btn-green':'btn-soft');
+  $('paySubKalam').className='btn '+(cours?'btn-soft':'btn-green');
+  if(!cours) loadKalamPay();
 }
 let cacheKalamPkgs=[];
 async function openAssignKalam(){
@@ -800,46 +603,21 @@ async function uploadBook(){
 }
 async function loadLivres(){
   try{
-    const [r,er]=await Promise.all([
-      fetch('/api/admin/library/books-with-categories',{headers:H()}).catch(()=>null),
-      fetch('/api/admin/kalam/extractions',{headers:H()}).catch(()=>null)
-    ]);
+    const r=await fetch('/api/admin/library/books-with-categories',{headers:H()}).catch(()=>null);
     let list = r&&r.ok ? await r.json() : [];
     if(!Array.isArray(list)) list=list.books||[];
-    const exts = er&&er.ok ? await er.json() : [];
-    const extMap={}; (Array.isArray(exts)?exts:[]).forEach(e=>extMap[e.book_id]=e);
     if(!list.length){ $('listLivres').innerHTML='<div class="empty">Aucun livre. Ajoute le premier !</div>'; return; }
-    $('listLivres').innerHTML=list.map(b=>{
-      const ex=extMap[b.id];
-      let kalamTxt='Kalam : contenu non extrait';
-      if(ex){
-        if(ex.status==='termine') kalamTxt='Kalam : ✅ '+(ex.pages_stockees||ex.pages_done)+' pages lues';
-        else if(ex.status==='erreur') kalamTxt='Kalam : ❌ erreur — '+esc(ex.error||'réessaie');
-        else kalamTxt='Kalam : ⏳ extraction en cours ('+(ex.pages_done||0)+'/'+(ex.total_pages||'?')+' pages)…';
-      }
-      return `<div class="row">
+    $('listLivres').innerHTML=list.map(b=>`<div class="row">
       <div class="r-top"><div><div class="name">${esc(b.name)}</div>
-      <div class="meta">Niveau min : ${b.niveau_min||1}${b.category_name?' · '+esc(b.category_name):''}<br>${kalamTxt}</div></div>
+      <div class="meta">Niveau min : ${b.niveau_min||1}${b.category_name?' · '+esc(b.category_name):''}</div></div>
       ${b.file_url?`<a class="btn btn-info" href="${b.file_url}" target="_blank">Ouvrir</a>`:''}</div>
       <div class="acts">
-        ${b.file_url?`<button class="btn btn-gold" onclick="extractBook(${b.id})">📖 Extraire pour Kalam</button>`:''}
         <button class="btn btn-gold" onclick="assignBookLevel(${b.slot_number||b.id},${b.niveau_min||1})">📤 Assigner au niveau ${b.niveau_min||1}</button>
         <button class="btn btn-green" onclick="assignBookStudent(${b.slot_number||b.id})">👤 Donner à un élève</button>
         <button class="btn btn-soft" onclick="unassignBookStudent(${b.slot_number||b.id})">🚫 Retirer à un élève</button>
         <button class="btn btn-bad" onclick="delBook(${b.id})">🗑</button>
-      </div></div>`;}).join('');
+      </div></div>`).join('');
   }catch{ $('listLivres').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-async function extractBook(id){
-  if(!confirm('Lancer la lecture de ce livre par Kalam ?\n\nGemini va lire le PDF page par page (quelques minutes). Kalam pourra ensuite réviser exactement le contenu de la page où se trouve chaque élève.')) return;
-  try{
-    const r=await fetch('/api/admin/books/'+id+'/extract',{method:'POST',headers:H()});
-    const d=await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(d.error||'Échec');
-    toast('Extraction lancée ⏳');
-    setTimeout(loadLivres,4000);
-    setTimeout(loadLivres,20000);
-  }catch(e){ toast(e.message); }
 }
 function pickStudent(promptTxt){
   const opts=(cacheEleves||[]).map((s,i)=>(i+1)+'. '+(s.prenom||'')+' '+(s.nom||'')).join('\n');
@@ -942,70 +720,11 @@ boot();
     catch (e) { box.innerHTML = '<div class="empty">' + e.message + '</div>'; return; }
     cmsLoaded = true;
     box.innerHTML = '';
-
-    // ── Outil : ajouter une photo dans une section de n'importe quelle page ──
-    const tool = document.createElement('div');
-    tool.className = 'cms-item';
-    tool.style.borderColor = 'var(--gold)';
-    tool.innerHTML = '<div class="cms-label">➕ Ajouter une photo dans une section</div>' +
-      '<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;">Choisis la page, le numéro du bloc (1 = premier bloc en partant du haut de la page), puis la photo. Elle apparaîtra centrée à la fin de ce bloc.</div>' +
-      '<select class="search" id="cmsAddPage">' +
-        '<option value="accueil">Accueil</option>' +
-        '<option value="nos-cours">Nos cours</option>' +
-        '<option value="tarifs">Tarifs</option>' +
-        '<option value="qui-sommes-nous">Qui sommes-nous</option>' +
-        '<option value="reglement">Règlement</option>' +
-        '<option value="inscription">Inscription</option>' +
-        '<option value="merci">Merci</option>' +
-      '</select>' +
-      '<select class="search" id="cmsAddSection">' +
-        '<option value="1">Bloc 1 (haut de page)</option><option value="2">Bloc 2</option><option value="3">Bloc 3</option><option value="4">Bloc 4</option><option value="5">Bloc 5</option><option value="6">Bloc 6</option>' +
-      '</select>' +
-      '<input type="file" accept="image/*" id="cmsAddFile" style="display:block;margin:0.3rem 0;font-size:0.82rem;">' +
-      '<div class="acts"><button class="btn btn-gold" id="cmsAddBtn">📤 Ajouter la photo</button><span class="cms-status" id="cmsAddSt"></span></div>';
-    box.appendChild(tool);
-    document.getElementById('cmsAddBtn').onclick = async () => {
-      const p = document.getElementById('cmsAddPage').value;
-      const n = document.getElementById('cmsAddSection').value;
-      const f = document.getElementById('cmsAddFile');
-      const st = document.getElementById('cmsAddSt');
-      const btn = document.getElementById('cmsAddBtn');
-      if (!f.files.length) { cmsStatus(st, 'Choisissez une image d\'abord', false); return; }
-      btn.disabled = true; cmsStatus(st, 'Compression…', true);
-      try {
-        const b64 = await cmsCompress(f.files[0]);
-        cmsStatus(st, 'Envoi…', true);
-        const pageNames = {'accueil':'Accueil','nos-cours':'Nos cours','tarifs':'Tarifs','qui-sommes-nous':'Qui sommes-nous','reglement':'Règlement','inscription':'Inscription','merci':'Merci'};
-        await cmsApi('/admin/image', { method: 'POST', body: JSON.stringify({
-          key: 'img_' + p + '_section' + n,
-          data: b64, mime: 'image/jpeg',
-          label: pageNames[p] + ' — Photo du bloc ' + n
-        })});
-        cmsStatus(st, '✓ Photo ajoutée', true);
-        cmsLoaded = false; cmsLoad();
-      } catch (e) { cmsStatus(st, e.message, false); btn.disabled = false; }
-    };
-
-
-    // Regrouper par page (partie du nom avant le tiret)
-    const groups = {};
-    items.forEach(it => {
-      const g = (it.label || it.key).split('—')[0].trim() || 'Autres';
-      (groups[g] = groups[g] || []).push(it);
-    });
-
-    Object.keys(groups).forEach(gname => {
-      const h = document.createElement('h3');
-      h.textContent = '📄 Page : ' + gname;
-      h.style.cssText = 'font-family:Cormorant Garamond,serif;color:var(--green-deep);font-size:1.15rem;margin:1rem 0 0.6rem;border-bottom:2px solid var(--gold-pale);padding-bottom:0.3rem;';
-      box.appendChild(h);
-
-      groups[gname].forEach(item => {
+    items.forEach(item => {
       const div = document.createElement('div');
       div.className = 'cms-item';
-      const shortLabel = ((item.label || item.key).split('—')[1] || item.label || item.key).trim();
       if (item.type === 'text') {
-        div.innerHTML = '<div class="cms-label">' + shortLabel + '</div>' +
+        div.innerHTML = '<div class="cms-label">' + (item.label || item.key) + '</div>' +
           '<textarea></textarea>' +
           '<div class="acts"><button class="btn btn-green">💾 Enregistrer</button><span class="cms-status"></span></div>';
         const ta = div.querySelector('textarea'), btn = div.querySelector('button'), st = div.querySelector('.cms-status');
@@ -1017,33 +736,27 @@ boot();
           btn.disabled = false;
         };
       } else {
-        div.innerHTML = '<div class="cms-label">🖼️ ' + shortLabel + '</div>' +
-          (item.has_image ? '<img class="cms-img-preview" src="/api/content/img/' + item.key + '?t=' + Date.now() + '">' : '<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Aucune image — cet emplacement est vide sur le site</div>') +
+        div.innerHTML = '<div class="cms-label">' + (item.label || item.key) + '</div>' +
+          (item.has_image ? '<img class="cms-img-preview" src="/api/content/img/' + item.key + '?t=' + Date.now() + '">' : '<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Aucune image pour le moment</div>') +
           '<input type="file" accept="image/*" style="display:block;margin:0.3rem 0;font-size:0.82rem;">' +
-          '<div class="acts"><button class="btn btn-green">📤 Envoyer</button>' +
-          (item.has_image ? '<button class="btn btn-bad">🗑 Supprimer</button>' : '') +
-          '<span class="cms-status"></span></div>';
-        const inp = div.querySelector('input'), btn = div.querySelector('.btn-green'), delBtn = div.querySelector('.btn-bad'), st = div.querySelector('.cms-status');
+          '<div class="acts"><button class="btn btn-green">📤 Envoyer l\'image</button><span class="cms-status"></span></div>';
+        const inp = div.querySelector('input'), btn = div.querySelector('button'), st = div.querySelector('.cms-status');
         btn.onclick = async () => {
-          if (!inp.files.length) { cmsStatus(st, 'Choisissez une image d\'abord', false); return; }
+          if (!inp.files.length) { cmsStatus(st, 'Choisissez une image', false); return; }
           btn.disabled = true; cmsStatus(st, 'Compression…', true);
           try {
             const b64 = await cmsCompress(inp.files[0]);
             cmsStatus(st, 'Envoi…', true);
             await cmsApi('/admin/image', { method: 'POST', body: JSON.stringify({ key: item.key, data: b64, mime: 'image/jpeg' }) });
             cmsStatus(st, '✓ Image en ligne', true);
-            cmsLoaded = false; cmsLoad();
-          } catch (e) { cmsStatus(st, e.message, false); btn.disabled = false; }
-        };
-        if (delBtn) delBtn.onclick = async () => {
-          if (!confirm('Supprimer cette image du site ?')) return;
-          delBtn.disabled = true;
-          try { await cmsApi('/admin/image/' + item.key, { method: 'DELETE' }); cmsLoaded = false; cmsLoad(); }
-          catch (e) { cmsStatus(st, e.message, false); delBtn.disabled = false; }
+            let prev = div.querySelector('.cms-img-preview');
+            if (!prev) { prev = document.createElement('img'); prev.className = 'cms-img-preview'; div.insertBefore(prev, inp); }
+            prev.src = '/api/content/img/' + item.key + '?t=' + Date.now();
+          } catch (e) { cmsStatus(st, e.message, false); }
+          btn.disabled = false;
         };
       }
       box.appendChild(div);
-      });
     });
   }
 
@@ -1059,7 +772,7 @@ boot();
     const panel = document.createElement('div');
     panel.className = 'panel';
     panel.id = 'p-contenu';
-    panel.innerHTML = '<h2>Contenu du site (v6)</h2>' +
+    panel.innerHTML = '<h2>Contenu du site (v4)</h2>' +
       '<p class="sub">Modifie les textes et images des pages publiques — visible immédiatement, sans redéploiement.</p>' +
       '<div id="listContenu" class="loading">Chargement…</div>';
     app.appendChild(panel);
@@ -1075,6 +788,107 @@ boot();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', cmsInstall);
   else cmsInstall();
 })();
+
+/* ───────── BOUTIQUE ───────── */
+let cacheBoutique=[];
+function openAddBook(){ document.getElementById('addBookForm').style.display='block'; }
+function closeAddBook(){ document.getElementById('addBookForm').style.display='none'; }
+async function addBook(){
+  const msg=document.getElementById('addBookMsg'); msg.textContent=''; msg.style.color='var(--muted)';
+  const niveau=parseInt(document.getElementById('bNiveau').value);
+  const name=document.getElementById('bName').value.trim();
+  const price=parseInt(document.getElementById('bPrice').value);
+  const coverUrl=document.getElementById('bCoverUrl').value.trim();
+  
+  if(!niveau||!name||!price){ msg.textContent='Tous les champs sont requis (sauf URL couverture).'; msg.style.color='#B3261E'; return; }
+  
+  const book={niveau,name,price,img:coverUrl||'/images/livres/niveau-'+niveau+'.jpg'};
+  cacheBoutique.push(book);
+  localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
+  
+  msg.style.color='var(--green)'; msg.textContent='✓ Livre ajouté';
+  document.getElementById('bNiveau').value='';
+  document.getElementById('bName').value='';
+  document.getElementById('bPrice').value='';
+  document.getElementById('bCoverUrl').value='';
+  closeAddBook();
+  loadBoutique();
+}
+async function loadBoutique(){
+  const stored=localStorage.getItem('boutique_books');
+  if(stored) cacheBoutique=JSON.parse(stored);
+  else cacheBoutique=[
+    {niveau:1,name:'Niveau 1 - Introduction',price:10,img:'/images/livres/niveau-1.jpg'},
+    {niveau:2,name:'Niveau 2',price:10,img:'/images/livres/niveau-2.jpg'},
+    {niveau:3,name:'Niveau 3',price:10,img:'/images/livres/niveau-3.jpg'},
+    {niveau:4,name:'Niveau 4',price:10,img:'/images/livres/niveau-4.jpg'},
+    {niveau:5,name:'Niveau 5',price:10,img:'/images/livres/niveau-5.jpg'},
+    {niveau:6,name:'Niveau 6',price:10,img:'/images/livres/niveau-6.jpg'},
+    {niveau:7,name:'Niveau 7',price:10,img:'/images/livres/niveau-7.jpg'},
+    {niveau:8,name:'Niveau 8',price:10,img:'/images/livres/niveau-8.jpg'},
+    {niveau:9,name:'Niveau 9',price:10,img:'/images/livres/niveau-9.jpg'},
+    {niveau:10,name:'Niveau 10',price:10,img:'/images/livres/niveau-10.jpg'},
+    {niveau:11,name:'Niveau 11 - نهاية',price:10,img:'/images/livres/niveau-11.jpg'}
+  ];
+  renderBoutique();
+}
+function renderBoutique(){
+  if(!cacheBoutique.length){ document.getElementById('listBoutique').innerHTML='<div class="empty">Aucun livre.</div>'; return; }
+  document.getElementById('listBoutique').innerHTML=cacheBoutique.map(b=>`<div class="row">
+    <div class="r-top">
+      <div style="flex:1;">
+        <div class="name">Niveau ${b.niveau} - ${b.name}</div>
+        <div class="meta">${b.price}€</div>
+        <img src="${b.img}" alt="${b.name}" style="max-width:120px;max-height:100px;border-radius:8px;margin-top:0.5rem;border:1px solid var(--beige);">
+      </div>
+      <span class="badge b-info">${b.price}€</span>
+    </div>
+    <div class="acts">
+      <button class="btn btn-gold" onclick="editBookCover(${b.niveau})">📸 Modifier couverture</button>
+      <button class="btn btn-bad" onclick="deleteBook(${b.niveau})">🗑 Supprimer</button>
+    </div>
+    <div id="editCover-${b.niveau}" style="display:none;margin-top:0.6rem;background:#fff;border:1px solid var(--beige);border-radius:8px;padding:0.8rem;">
+      <input type="file" accept="image/*" id="cover-${b.niveau}" style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+      <div class="acts">
+        <button class="btn btn-green" onclick="saveCover(${b.niveau})">💾 Enregistrer</button>
+        <button class="btn btn-soft" onclick="closeEditCover(${b.niveau})">Annuler</button>
+      </div>
+      <div id="coverMsg-${b.niveau}" style="font-size:0.75rem;margin-top:0.4rem;"></div>
+    </div>
+  </div>`).join('');
+}
+function editBookCover(niveau){
+  document.getElementById('editCover-'+niveau).style.display='block';
+}
+function closeEditCover(niveau){
+  document.getElementById('editCover-'+niveau).style.display='none';
+}
+async function saveCover(niveau){
+  const file=document.getElementById('cover-'+niveau).files[0];
+  const msg=document.getElementById('coverMsg-'+niveau);
+  if(!file){ msg.textContent='Choisir une image.'; msg.style.color='#B3261E'; return; }
+  
+  msg.textContent='Conversion...'; msg.style.color='var(--muted)';
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const base64=reader.result;
+    const book=cacheBoutique.find(b=>b.niveau===niveau);
+    if(book) book.img=base64;
+    localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
+    msg.textContent='✓ Couverture mise à jour'; msg.style.color='var(--green)';
+    closeEditCover(niveau);
+    loadBoutique();
+  };
+  reader.readAsDataURL(file);
+}
+function deleteBook(niveau){
+  if(!confirm('Supprimer ce livre ?')) return;
+  cacheBoutique=cacheBoutique.filter(b=>b.niveau!==niveau);
+  localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
+  toast('Livre supprimé');
+  loadBoutique();
+}
+
 </script>
 </body>
 </html>
