@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>RIHLA by MédinImmersion — Prototype visuel</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="stylesheet" href="css/main.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="viewport"></canvas>
+
+    <div id="fade-overlay" class="fade-overlay"></div>
+
+    <div id="hud" class="hud">
+      <div id="hud-objective" class="hud-objective"></div>
+      <div id="hud-prompt" class="hud-prompt"></div>
+      <button id="hud-passport-btn" class="hud-passport-btn" title="Passeport MédinImmersion (P)">📖 Passeport</button>
+    </div>
+
+    <div id="dialogue-box" class="dialogue-box hidden">
+      <div class="dialogue-speaker" id="dialogue-speaker"></div>
+      <div class="dialogue-arabic" id="dialogue-arabic"></div>
+      <div class="dialogue-text" id="dialogue-text"></div>
+      <div class="dialogue-input-wrap hidden" id="dialogue-input-wrap">
+        <input type="text" id="dialogue-input" class="dialogue-input" maxlength="40" autocomplete="off" />
+        <button id="dialogue-input-submit" class="dialogue-btn">Valider</button>
+      </div>
+      <div class="dialogue-continue" id="dialogue-continue">continuer ▸</div>
+    </div>
+
+    <div id="passport-ui" class="passport-ui hidden">
+      <div class="passport-book">
+        <button id="passport-close" class="passport-close">✕</button>
+        <div class="passport-header">
+          <div class="passport-avatar"></div>
+          <div>
+            <div class="passport-name" id="passport-name">Nouvel élève</div>
+            <div class="passport-level" id="passport-level">Niveau : Préparatoire</div>
+          </div>
+        </div>
+        <div class="passport-section">
+          <h3>Pays du voyage</h3>
+          <ul class="passport-countries" id="passport-countries"></ul>
+        </div>
+        <div class="passport-section">
+          <h3>Tampons obtenus</h3>
+          <div class="passport-stamps" id="passport-stamps"></div>
+        </div>
+        <div class="passport-section">
+          <h3>Certificats</h3>
+          <div class="passport-certificates" id="passport-certificates">
+            <span class="passport-empty">Aucun certificat pour le moment.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="start-screen" class="start-screen">
+      <div class="start-logo">MédinImmersion</div>
+      <div class="start-title">RIHLA</div>
+      <div class="start-subtitle">Un voyage pour apprendre l'arabe</div>
+      <button id="start-btn" class="start-btn">Commencer le voyage</button>
+      <div class="start-note">Prototype de direction artistique — non final</div>
+    </div>
+
+    <div id="loading-screen" class="loading-screen hidden">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
