@@ -36,11 +36,26 @@ export function wallSegment({ width = 4, height = 4, depth = 0.4, material = sto
 }
 
 export function column({ height = 4, radius = 0.22 } = {}) {
-  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius * 1.1, height, 12), stoneMaterial());
-  mesh.position.y = height / 2;
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  return mesh;
+  const group = new THREE.Group();
+  const mat = stoneMaterial();
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.9, radius, height * 0.82, 16), mat);
+  shaft.position.y = height * 0.1 + height * 0.41;
+  shaft.castShadow = true;
+  shaft.receiveShadow = true;
+  group.add(shaft);
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(radius * 1.35, radius * 1.45, height * 0.1, 16), mat);
+  base.position.y = height * 0.05;
+  base.castShadow = true;
+  group.add(base);
+  const capitalH = height * 0.08;
+  const capital = new THREE.Mesh(new THREE.CylinderGeometry(radius * 1.5, radius * 0.95, capitalH, 16), mat);
+  capital.position.y = height - capitalH / 2;
+  capital.castShadow = true;
+  group.add(capital);
+  const abacus = new THREE.Mesh(new THREE.BoxGeometry(radius * 3, height * 0.03, radius * 3), mat);
+  abacus.position.y = height;
+  group.add(abacus);
+  return group;
 }
 
 // A carved wood door mounted on a hinge pivot so it can swing open smoothly
@@ -72,18 +87,39 @@ export function woodenDoor({ width = 1.1, height = 2.4 } = {}) {
   return pivot;
 }
 
-export function archDoorway({ width = 1.6, height = 2.6, depth = 0.4 } = {}) {
+export function archDoorway({ width = 1.6, height = 2.6, depth = 0.4, horseshoe = true } = {}) {
   const group = new THREE.Group();
   const mat = stoneMaterial();
   const sideW = 0.35;
-  const left = new THREE.Mesh(new THREE.BoxGeometry(sideW, height, depth), mat);
-  left.position.set(-width / 2 - sideW / 2, height / 2, 0);
+  const pillarH = height * 0.7;
+  const left = new THREE.Mesh(new THREE.BoxGeometry(sideW, pillarH, depth), mat);
+  left.position.set(-width / 2 - sideW / 2, pillarH / 2, 0);
   const right = left.clone();
   right.position.x = width / 2 + sideW / 2;
-  const top = new THREE.Mesh(new THREE.BoxGeometry(width + sideW * 2, 0.4, depth), mat);
-  top.position.y = height + 0.2;
-  [left, right, top].forEach((m) => { m.castShadow = true; m.receiveShadow = true; });
-  group.add(left, right, top);
+  [left, right].forEach((m) => { m.castShadow = true; m.receiveShadow = true; });
+  group.add(left, right);
+
+  const archR = width / 2 + sideW;
+  const archSegments = 20;
+  const archMat = stoneMaterial();
+  for (let i = 0; i <= archSegments; i++) {
+    const angle = (i / archSegments) * Math.PI;
+    const x = Math.cos(angle) * archR;
+    const y = pillarH + Math.sin(angle) * archR * (horseshoe ? 0.55 : 0.5);
+    const blockW = (Math.PI * archR) / archSegments + 0.02;
+    const block = new THREE.Mesh(new THREE.BoxGeometry(blockW, 0.18, depth), archMat);
+    block.position.set(-x, y, 0);
+    block.rotation.z = angle - Math.PI / 2;
+    block.castShadow = true;
+    group.add(block);
+  }
+
+  const keystoneGeo = new THREE.BoxGeometry(0.22, 0.28, depth + 0.02);
+  const keystone = new THREE.Mesh(keystoneGeo, archMat);
+  keystone.position.y = pillarH + archR * (horseshoe ? 0.55 : 0.5);
+  keystone.castShadow = true;
+  group.add(keystone);
+
   return group;
 }
 

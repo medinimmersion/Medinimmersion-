@@ -48,21 +48,26 @@ export function addOutdoorLighting(root, { sunAzimuthDeg = 55, sunElevationDeg =
 }
 
 export function addIndoorLighting(root, { warmth = 0xffe0b0, intensity = 0.9 } = {}) {
-  const hemi = new THREE.HemisphereLight(PALETTE.skyWarm, PALETTE.woodDark, 0.5);
+  const hemi = new THREE.HemisphereLight(0xffecd2, PALETTE.woodDark, 0.55);
   root.add(hemi);
 
   const window1 = new THREE.DirectionalLight(warmth, intensity);
   window1.position.set(-6, 6, 3);
   window1.castShadow = true;
-  window1.shadow.mapSize.set(1024, 1024);
-  window1.shadow.camera.left = -10;
-  window1.shadow.camera.right = 10;
-  window1.shadow.camera.top = 10;
-  window1.shadow.camera.bottom = -10;
+  window1.shadow.mapSize.set(2048, 2048);
+  window1.shadow.camera.left = -12;
+  window1.shadow.camera.right = 12;
+  window1.shadow.camera.top = 12;
+  window1.shadow.camera.bottom = -12;
+  window1.shadow.bias = -0.001;
   root.add(window1);
   root.add(window1.target);
 
-  const fill = new THREE.AmbientLight(0xffe9c8, 0.35);
+  const window2 = new THREE.DirectionalLight(0xffd89e, intensity * 0.45);
+  window2.position.set(5, 5, -2);
+  root.add(window2);
+
+  const fill = new THREE.AmbientLight(0xfff0d4, 0.3);
   root.add(fill);
 
   return { hemi, window1 };

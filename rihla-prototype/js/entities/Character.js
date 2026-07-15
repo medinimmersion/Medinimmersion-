@@ -104,6 +104,18 @@ export class Character {
       capTop.position.y = height * 0.09;
       headGroup.add(capTop);
     }
+    // Beard — dense, natural, slightly irregular (Doc 062).
+    const beardMat = new THREE.MeshStandardMaterial({ color: 0x1c1712, roughness: 0.95 });
+    const beardGeo = new THREE.SphereGeometry(height * 0.058, 12, 8, 0, Math.PI * 2, Math.PI * 0.45, Math.PI * 0.45);
+    const beard = new THREE.Mesh(beardGeo, beardMat);
+    beard.position.set(0, -height * 0.03, height * 0.035);
+    beard.scale.set(1.1, 1.3, 0.7);
+    headGroup.add(beard);
+    const beardTip = new THREE.Mesh(new THREE.ConeGeometry(height * 0.028, height * 0.04, 8), beardMat);
+    beardTip.position.set(0, -height * 0.065, height * 0.04);
+    beardTip.rotation.x = 0.2;
+    headGroup.add(beardTip);
+
     this.root.add(headGroup);
     this.head = headGroup;
 
