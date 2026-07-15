@@ -1,26 +1,14 @@
 import * as THREE from 'three';
 
-// Faceless, same-outfit-throughout humanoid per Document 002/003: "l'oustaz
-// principal est toujours sans visage détaillé", "les vêtements restent
-// identiques tout au long du jeu, les proportions et la silhouette ne
-// changent pas". This is a deliberately simple placeholder rig — a real
-// skinned/rigged GLTF character can later be registered under the same
-// AssetRegistry key (see entities/characterFactory.js) without any calling
-// code changing, because everything outside this file only talks to the
-// Character API (playGreet/playTeach/update...), never to raw meshes.
-//
-// v2: the robe is a single lathed silhouette (flowing thobe, wide at the
-// hem) instead of a stacked-cylinder snowman, and headwear can be a
-// draped ghutra + agal (still faceless) instead of a flat cap, so the
-// placeholder already reads as "Hijaz-inspired" rather than "grey-box".
 export class Character {
   constructor({
     robeColor = 0xcbb489,
     accentColor = 0xc9a44c,
     skinColor = 0xd8b48c,
     height = 1.75,
-    headwear = null, // null | 'ghutra' | 'kufi'
+    headwear = null,
     headwearColor = 0xf3ecd8,
+    gender = 'male',
   } = {}) {
     this.height = height;
     this.root = new THREE.Group();
@@ -29,121 +17,260 @@ export class Character {
     this._gestureTimer = 0;
     this._gestureDuration = 0;
 
+    const s = height / 1.75;
+
     const robeMat = new THREE.MeshStandardMaterial({ color: robeColor, roughness: 0.82, metalness: 0.02 });
     const accentMat = new THREE.MeshStandardMaterial({ color: accentColor, roughness: 0.55, metalness: 0.2 });
     const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.92 });
 
-    // --- Robe: a lathed (rotated-profile) silhouette, flowing from a wide
-    // hem at the ankle up to the shoulders, in place of a plain cylinder.
-    const hemR = height * 0.145;
-    const shoulderR = height * 0.115;
-    const shoulderY = height * 0.62;
+    const shoulderY = 1.44 * s;
+    const waistY = 1.05 * s;
+    const hemY = 0.12 * s;
+    const headR = 0.10 * s;
+    const shoulderW = 0.17 * s;
+    // Cross-sections are elliptical (flattened front-to-back) so the robe
+    // reads as a worn garment, not a cylinder/tower.
+    const bodyFlatten = 0.62;
+
+    // --- Qamis / Abaya : silhouette légèrement en A, épaules étroites ---
     const profile = [
-      [hemR * 1.08, 0],
-      [hemR, height * 0.05],
-      [hemR * 0.94, height * 0.16],
-      [hemR * 0.86, height * 0.3],
-      [hemR * 0.78, height * 0.42],
-      [hemR * 0.74, height * 0.5],
-      [hemR * 0.82, height * 0.56],
-      [shoulderR, shoulderY],
+      [0.235 * s, hemY],
+      [0.215 * s, 0.35 * s],
+      [0.19 * s, 0.65 * s],
+      [0.165 * s, waistY],
+      [0.16 * s, 1.22 * s],
+      [0.165 * s, 1.36 * s],
+      [shoulderW, shoulderY - 0.02 * s],
+      [0.07 * s, shoulderY + 0.03 * s],
     ].map(([r, y]) => new THREE.Vector2(r, y));
-    const robeGeo = new THREE.LatheGeometry(profile, 24);
-    const robe = new THREE.Mesh(robeGeo, robeMat);
-    robe.castShadow = true;
-    robe.receiveShadow = true;
-    this.root.add(robe);
-    this.body = robe;
+
+    const qamis = new THREE.Mesh(new THREE.LatheGeometry(profile, 24), robeMat);
+    qamis.scale.z = bodyFlatten;
+    qamis.castShadow = true;
+    qamis.receiveShadow = true;
+    this.root.add(qamis);
+    this.body = qamis;
     this._shoulderY = shoulderY;
 
-    // Waist sash / accent trim — distinguishes characters without altering silhouette.
-    const trim = new THREE.Mesh(new THREE.TorusGeometry(hemR * 0.8, height * 0.014, 8, 24), accentMat);
-    trim.rotation.x = Math.PI / 2;
-    trim.position.y = height * 0.46;
-    this.root.add(trim);
+    if (gender === 'male') {
+      const collar = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.072 * s, 0.076 * s, 0.035 * s, 16, 1, true),
+        robeMat,
+      );
+      collar.scale.z = 0.85;
+      collar.position.y = shoulderY + 0.015 * s;
+      this.root.add(collar);
 
-    // --- Neck + head (faceless: a plain rounded head, no eyes/mouth ever).
-    const neck = new THREE.Mesh(new THREE.CylinderGeometry(height * 0.055, height * 0.065, height * 0.05, 12), skinMat);
-    neck.position.y = shoulderY + height * 0.02;
+      const seamColor = new THREE.Color(robeColor).multiplyScalar(0.82);
+      const seamMat = new THREE.MeshStandardMaterial({ color: seamColor, roughness: 0.7 });
+
+      const seam = new THREE.Mesh(new THREE.PlaneGeometry(0.007 * s, (shoulderY - hemY) * 0.82), seamMat);
+      seam.position.set(0, (shoulderY + hemY) / 2 - 0.03 * s, 0.128 * s);
+      seam.rotation.x = -0.04;
+      this.root.add(seam);
+
+      const pocket = new THREE.Mesh(new THREE.PlaneGeometry(0.05 * s, 0.055 * s), seamMat);
+      pocket.position.set(-0.06 * s, 1.26 * s, 0.108 * s);
+      this.root.add(pocket);
+    }
+
+    // --- Jambes (sous le qamis, visibles pendant la marche) ---
+    const legH = hemY * 0.9;
+    const legGeo = new THREE.CylinderGeometry(0.04 * s, 0.038 * s, legH, 8);
+    legGeo.translate(0, -legH / 2, 0);
+
+    this.legL = new THREE.Group();
+    this.legL.position.set(-0.075 * s, hemY, 0);
+    this.legL.add(new THREE.Mesh(legGeo, robeMat));
+    this.root.add(this.legL);
+
+    this.legR = new THREE.Group();
+    this.legR.position.set(0.075 * s, hemY, 0);
+    this.legR.add(new THREE.Mesh(legGeo.clone(), robeMat));
+    this.root.add(this.legR);
+
+    // --- Sandales ---
+    const sandalMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.9 });
+    const sandalGeo = new THREE.BoxGeometry(0.085 * s, 0.02 * s, 0.16 * s);
+    const strapMat = new THREE.MeshStandardMaterial({ color: 0x6b4226, roughness: 0.85 });
+    const strapGeo = new THREE.BoxGeometry(0.085 * s, 0.008 * s, 0.012 * s);
+
+    for (const leg of [this.legL, this.legR]) {
+      const sandal = new THREE.Mesh(sandalGeo, sandalMat);
+      sandal.position.set(0, -legH + 0.01 * s, 0.015 * s);
+      sandal.castShadow = true;
+      leg.add(sandal);
+      const strap = new THREE.Mesh(strapGeo, strapMat);
+      strap.position.set(0, 0.015 * s, 0.03 * s);
+      sandal.add(strap);
+    }
+
+    // --- Cou ---
+    const neckH = 0.045 * s;
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05 * s, 0.06 * s, neckH, 12),
+      skinMat,
+    );
+    neck.position.y = shoulderY + neckH / 2;
     this.root.add(neck);
 
+    // --- Tête (sans visage, ovale allongé) ---
     const headGroup = new THREE.Group();
-    headGroup.position.y = neck.position.y + height * 0.075;
-    const head = new THREE.Mesh(new THREE.SphereGeometry(height * 0.082, 20, 20), skinMat);
+    headGroup.position.y = shoulderY + neckH + headR * 0.85;
+
+    const head = new THREE.Mesh(new THREE.SphereGeometry(headR, 20, 20), skinMat);
+    head.scale.set(1, 1.1, 0.95);
     head.castShadow = true;
     headGroup.add(head);
 
+    // --- Coiffure ---
     if (headwear === 'ghutra') {
-      const clothMat = new THREE.MeshStandardMaterial({ color: headwearColor, roughness: 0.75 });
+      const clothMat = new THREE.MeshStandardMaterial({ color: headwearColor, roughness: 0.75, side: THREE.DoubleSide });
       const agalMat = new THREE.MeshStandardMaterial({ color: 0x1c1712, roughness: 0.5 });
-      // Domed cloth draped over the head.
+
+      const kufiMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.7 });
+      const kufiSide = new THREE.Mesh(
+        new THREE.CylinderGeometry(headR * 0.8, headR * 0.83, headR * 0.42, 16, 1, true),
+        kufiMat,
+      );
+      kufiSide.position.y = headR * 0.32;
+      headGroup.add(kufiSide);
+      const kufiTop = new THREE.Mesh(
+        new THREE.SphereGeometry(headR * 0.8, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+        kufiMat,
+      );
+      kufiTop.position.y = headR * 0.53;
+      headGroup.add(kufiTop);
+
       const dome = new THREE.Mesh(
-        new THREE.SphereGeometry(height * 0.095, 16, 12, 0, Math.PI * 2, 0, Math.PI / 1.8),
+        new THREE.SphereGeometry(headR * 1.05, 16, 12, 0, Math.PI * 2, 0, Math.PI / 1.7),
         clothMat,
       );
-      dome.position.y = height * 0.015;
+      dome.position.y = headR * 0.18;
       headGroup.add(dome);
-      // Side/back drape flaps, angled outward like a ghutra falling past the neck.
-      for (const side of [-1, 1]) {
-        const flap = new THREE.Mesh(new THREE.ConeGeometry(height * 0.075, height * 0.16, 4, 1, true), clothMat);
-        flap.scale.set(1, 1, 0.35);
-        flap.position.set(side * height * 0.06, -height * 0.05, -height * 0.02);
-        flap.rotation.z = side * 0.28;
-        flap.rotation.x = 0.15;
-        headGroup.add(flap);
+
+      for (const [r, y] of [[headR * 0.96, headR * 0.42], [headR * 1.0, headR * 0.37]]) {
+        const agal = new THREE.Mesh(new THREE.TorusGeometry(r, headR * 0.032, 8, 20), agalMat);
+        agal.rotation.x = Math.PI / 2 + 0.05;
+        agal.position.y = y;
+        headGroup.add(agal);
       }
-      const agal = new THREE.Mesh(new THREE.TorusGeometry(height * 0.086, height * 0.012, 8, 20), agalMat);
-      agal.rotation.x = Math.PI / 2 + 0.05;
-      agal.position.y = height * 0.03;
-      headGroup.add(agal);
+
+      // Drapé court : le tissu tombe juste sur les épaules, pas plus bas.
+      const drape = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.085 * s, 0.185 * s, 0.18 * s, 16, 1, true),
+        clothMat,
+      );
+      drape.scale.z = 0.72;
+      drape.position.y = shoulderY + 0.02 * s;
+      this.root.add(drape);
+
+      // Deux pans fins qui tombent sur la poitrine.
+      for (const xSign of [-1, 1]) {
+        const tail = new THREE.Mesh(new THREE.PlaneGeometry(0.06 * s, 0.20 * s), clothMat);
+        tail.position.set(xSign * 0.07 * s, shoulderY - 0.12 * s, 0.115 * s);
+        tail.rotation.x = -0.12;
+        tail.rotation.y = xSign * 0.1;
+        this.root.add(tail);
+      }
+
+      // Pointe arrière en V dans le dos (losange, pointe vers le bas).
+      const backDrape = new THREE.Mesh(new THREE.PlaneGeometry(0.19 * s, 0.19 * s), clothMat);
+      backDrape.position.set(0, shoulderY - 0.13 * s, -0.115 * s);
+      backDrape.rotation.z = Math.PI / 4;
+      backDrape.rotation.x = 0.14;
+      this.root.add(backDrape);
+
     } else if (headwear === 'kufi') {
-      const cap = new THREE.Mesh(new THREE.CylinderGeometry(height * 0.075, height * 0.08, height * 0.06, 16, 1, true), accentMat);
-      cap.position.y = height * 0.06;
-      headGroup.add(cap);
-      const capTop = new THREE.Mesh(new THREE.SphereGeometry(height * 0.075, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), accentMat);
-      capTop.position.y = height * 0.09;
+      const capSide = new THREE.Mesh(
+        new THREE.CylinderGeometry(headR * 0.76, headR * 0.8, headR * 0.48, 16, 1, true),
+        accentMat,
+      );
+      capSide.position.y = headR * 0.38;
+      headGroup.add(capSide);
+      const capTop = new THREE.Mesh(
+        new THREE.SphereGeometry(headR * 0.76, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+        accentMat,
+      );
+      capTop.position.y = headR * 0.62;
       headGroup.add(capTop);
+
+    } else if (gender === 'female') {
+      const khimarMat = new THREE.MeshStandardMaterial({ color: robeColor, roughness: 0.78, side: THREE.DoubleSide });
+      const covering = new THREE.Mesh(
+        new THREE.SphereGeometry(headR * 1.12, 16, 16, 0, Math.PI * 2, 0, Math.PI * 0.65),
+        khimarMat,
+      );
+      covering.position.y = headR * 0.1;
+      headGroup.add(covering);
+      const khimarDrape = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22 * s, 0.28 * s, 0.38 * s, 16, 1, true),
+        khimarMat,
+      );
+      khimarDrape.position.y = -0.15 * s;
+      headGroup.add(khimarDrape);
     }
-    // Beard — dense, natural, slightly irregular (Doc 062).
-    const beardMat = new THREE.MeshStandardMaterial({ color: 0x1c1712, roughness: 0.95 });
-    const beardGeo = new THREE.SphereGeometry(height * 0.058, 12, 8, 0, Math.PI * 2, Math.PI * 0.45, Math.PI * 0.45);
-    const beard = new THREE.Mesh(beardGeo, beardMat);
-    beard.position.set(0, -height * 0.03, height * 0.035);
-    beard.scale.set(1.1, 1.3, 0.7);
-    headGroup.add(beard);
-    const beardTip = new THREE.Mesh(new THREE.ConeGeometry(height * 0.028, height * 0.04, 8), beardMat);
-    beardTip.position.set(0, -height * 0.065, height * 0.04);
-    beardTip.rotation.x = 0.2;
-    headGroup.add(beardTip);
+
+    // --- Barbe (hommes uniquement) — placée DEVANT le visage, bien visible ---
+    if (gender === 'male') {
+      const beardMat = new THREE.MeshStandardMaterial({ color: 0x1c1712, roughness: 0.95 });
+      const beardMain = new THREE.Mesh(new THREE.SphereGeometry(headR * 0.62, 14, 12), beardMat);
+      beardMain.position.set(0, -headR * 0.72, headR * 0.62);
+      beardMain.scale.set(1.15, 1.35, 0.78);
+      beardMain.castShadow = true;
+      headGroup.add(beardMain);
+
+      const beardTip = new THREE.Mesh(new THREE.ConeGeometry(headR * 0.36, headR * 0.6, 10), beardMat);
+      beardTip.position.set(0, -headR * 1.5, headR * 0.62);
+      beardTip.rotation.x = Math.PI;
+      headGroup.add(beardTip);
+
+      const mustache = new THREE.Mesh(
+        new THREE.BoxGeometry(headR * 0.5, headR * 0.1, headR * 0.16),
+        beardMat,
+      );
+      mustache.position.set(0, -headR * 0.2, headR * 0.95);
+      headGroup.add(mustache);
+    }
 
     this.root.add(headGroup);
     this.head = headGroup;
 
-    // --- Arms.
-    const armGeo = new THREE.CylinderGeometry(height * 0.03, height * 0.026, height * 0.32, 10);
-    armGeo.translate(0, -height * 0.16, 0);
+    // --- Bras + mains : manches amples du qamis, écartées du corps ---
+    const sleeveLen = 0.42 * s;
+    const sleeveGeo = new THREE.CylinderGeometry(0.032 * s, 0.042 * s, sleeveLen, 10);
+    sleeveGeo.translate(0, -sleeveLen / 2, 0);
+    const handGeo = new THREE.BoxGeometry(0.04 * s, 0.06 * s, 0.024 * s);
 
     this.armL = new THREE.Group();
-    this.armL.position.set(-shoulderR * 1.35, shoulderY, 0);
-    const armLMesh = new THREE.Mesh(armGeo, robeMat);
-    armLMesh.castShadow = true;
-    this.armL.add(armLMesh);
+    this.armL.position.set(-shoulderW - 0.03 * s, shoulderY - 0.015 * s, 0);
+    const sleeveL = new THREE.Mesh(sleeveGeo, robeMat);
+    sleeveL.castShadow = true;
+    this.armL.add(sleeveL);
+    const handL = new THREE.Mesh(handGeo, skinMat);
+    handL.position.y = -sleeveLen - 0.025 * s;
+    handL.castShadow = true;
+    this.armL.add(handL);
     this.root.add(this.armL);
 
     this.armR = new THREE.Group();
-    this.armR.position.set(shoulderR * 1.35, shoulderY, 0);
-    const armRMesh = new THREE.Mesh(armGeo.clone(), robeMat);
-    armRMesh.castShadow = true;
-    this.armR.add(armRMesh);
+    this.armR.position.set(shoulderW + 0.03 * s, shoulderY - 0.015 * s, 0);
+    const sleeveR = new THREE.Mesh(sleeveGeo.clone(), robeMat);
+    sleeveR.castShadow = true;
+    this.armR.add(sleeveR);
+    const handR = new THREE.Mesh(handGeo.clone(), skinMat);
+    handR.position.y = -sleeveLen - 0.025 * s;
+    handR.castShadow = true;
+    this.armR.add(handR);
     this.root.add(this.armR);
 
     this._restArmRot = -0.06;
     this.armL.rotation.x = this._restArmRot;
     this.armR.rotation.x = this._restArmRot;
+    this.armL.rotation.z = 0.08;
+    this.armR.rotation.z = -0.08;
 
-    this.root.traverse((obj) => {
-      if (obj.isMesh) obj.receiveShadow = true;
-    });
+    this.root.traverse((o) => { if (o.isMesh) o.receiveShadow = true; });
   }
 
   get object3D() {
@@ -164,7 +291,6 @@ export class Character {
     this._animT = 0;
   }
 
-  // Plays a one-shot gesture (greet/teach) then returns to idle.
   playGreet() {
     this.setState('greet');
     this._gestureDuration = 2.2;
@@ -209,6 +335,8 @@ export class Character {
       const cycle = this._animT * 7.5;
       this.armL.rotation.x = this._restArmRot + Math.sin(cycle) * 0.5;
       this.armR.rotation.x = this._restArmRot - Math.sin(cycle) * 0.5;
+      this.legL.rotation.x = Math.sin(cycle) * 0.35;
+      this.legR.rotation.x = -Math.sin(cycle) * 0.35;
       this.root.position.y = Math.abs(Math.sin(cycle)) * 0.02;
       this.head.rotation.y = Math.sin(cycle * 0.5) * 0.04;
       this.body.rotation.y = Math.sin(cycle * 0.5) * 0.02;
@@ -217,6 +345,8 @@ export class Character {
       this.body.scale.y = 1 + breathe;
       this.armL.rotation.x = this._restArmRot;
       this.armR.rotation.x = this._restArmRot;
+      this.legL.rotation.x *= 0.9;
+      this.legR.rotation.x *= 0.9;
       this.root.position.y = 0;
       this.head.rotation.y *= 0.9;
       this.head.rotation.x *= 0.9;
