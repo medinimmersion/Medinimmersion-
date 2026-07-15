@@ -20,12 +20,6 @@ a{color:inherit;}
 .logout{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.45rem 0.9rem;border-radius:50px;cursor:pointer;}
 .logout:hover{background:rgba(255,255,255,0.18);}
 .wrap{max-width:1100px;margin:0 auto;padding:1rem;}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.7rem;margin-bottom:1rem;}
-.stat{background:#fff;border:1px solid var(--beige);border-radius:14px;padding:1rem 0.75rem;text-align:center;}
-.stat .n{font-size:1.7rem;font-weight:700;color:var(--green-deep);line-height:1;}
-.stat .n.gold{color:var(--gold);}
-.stat .l{font-size:0.72rem;color:var(--muted);margin-top:0.35rem;}
-@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr);}}
 .tabs{display:flex;gap:0.4rem;overflow-x:auto;padding-bottom:0.4rem;margin-bottom:1rem;-webkit-overflow-scrolling:touch;}
 .tab{flex:0 0 auto;background:#fff;border:1px solid var(--beige);color:var(--muted);font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.55rem 0.95rem;border-radius:50px;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
 .tab.on{background:var(--green);border-color:var(--green);color:#fff;}
@@ -35,47 +29,37 @@ a{color:inherit;}
 @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .panel h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.5rem;margin-bottom:0.2rem;}
 .panel .sub{color:var(--muted);font-size:0.85rem;margin-bottom:1rem;}
-.search{width:100%;padding:0.7rem 0.95rem;border:1.5px solid var(--beige);border-radius:11px;font-family:inherit;font-size:0.9rem;margin-bottom:0.9rem;background:var(--cream);}
-.search:focus{outline:2px solid var(--gold);border-color:var(--gold);}
 .row{border:1px solid var(--beige);border-radius:12px;padding:0.85rem;margin-bottom:0.7rem;background:var(--cream);}
 .row .r-top{display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;}
 .row .name{font-weight:700;font-size:0.98rem;color:var(--green-deep);}
 .row .meta{font-size:0.78rem;color:var(--muted);margin-top:0.2rem;line-height:1.5;}
 .badge{font-size:0.68rem;font-weight:700;padding:0.22rem 0.6rem;border-radius:50px;white-space:nowrap;}
 .b-ok{background:var(--okbg);color:var(--ok);}
-.b-warn{background:var(--warnbg);color:var(--warn);}
-.b-bad{background:var(--badbg);color:var(--bad);}
 .b-info{background:var(--infobg);color:var(--info);}
+.b-bad{background:var(--badbg);color:var(--bad);}
 .acts{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.7rem;}
 .btn{font-family:inherit;font-size:0.76rem;font-weight:600;padding:0.45rem 0.8rem;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;}
 .btn-green{background:var(--green);color:#fff;}.btn-green:hover{background:var(--green-deep);}
 .btn-gold{background:var(--gold);color:var(--green-deep);}.btn-gold:hover{background:var(--gold-light);}
 .btn-soft{background:#fff;border:1px solid var(--beige);color:var(--text);}
-.btn-info{background:var(--infobg);color:var(--info);}
-.btn-ok{background:var(--okbg);color:var(--ok);}
 .btn-bad{background:var(--badbg);color:var(--bad);}
 .empty{text-align:center;color:var(--muted);font-size:0.88rem;padding:2rem 1rem;}
 .loading{text-align:center;color:var(--muted);font-size:0.85rem;padding:1.5rem;}
-.perm{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid var(--beige);}
-.perm:last-child{border-bottom:none;}
-.perm .pl{font-size:0.85rem;}
-.toggle{width:44px;height:25px;border-radius:50px;background:#ccc;position:relative;cursor:pointer;border:none;transition:background 0.2s;flex:0 0 auto;}
-.toggle.on{background:var(--green);}
-.toggle::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left 0.2s;}
-.toggle.on::after{left:22px;}
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-weight:600;font-size:0.85rem;color:var(--green-deep);margin-bottom:0.4rem;}
+.form-group input,.form-group select{width:100%;padding:0.7rem;border:1.5px solid var(--beige);border-radius:8px;font-family:inherit;font-size:0.9rem;}
+.form-group input:focus,.form-group select:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:#fff;border-radius:16px;padding:1.5rem;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;}
+.modal-close{float:right;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--muted);}
 .toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--green-deep);color:#fff;padding:0.7rem 1.2rem;border-radius:50px;font-size:0.85rem;font-weight:600;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;}
 .toast.show{opacity:1;}
-.login{position:fixed;inset:0;background:var(--green-deep);display:flex;align-items:center;justify-content:center;padding:1.25rem;z-index:60;}
-.login .box{background:var(--cream);border-radius:22px;padding:2rem 1.6rem;width:100%;max-width:370px;text-align:center;}
-.login img{height:48px;margin-bottom:0.8rem;}
-.login .tag{display:inline-block;background:var(--gold-pale);color:var(--gold);font-size:0.7rem;font-weight:700;letter-spacing:0.08em;padding:0.3rem 0.9rem;border-radius:50px;margin-bottom:0.8rem;}
-.login h1{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.9rem;margin-bottom:0.3rem;}
-.login p{font-size:0.85rem;color:var(--muted);margin-bottom:1.1rem;}
-.login input{width:100%;padding:0.85rem 1rem;border:1.5px solid var(--beige);border-radius:12px;font-family:inherit;font-size:0.95rem;margin-bottom:0.7rem;background:#fff;}
-.login input:focus{outline:2px solid var(--gold);border-color:var(--gold);}
-.login button{width:100%;padding:0.9rem;border:none;border-radius:50px;background:var(--green);color:#fff;font-family:inherit;font-weight:700;font-size:0.95rem;cursor:pointer;}
-.login button:hover{background:var(--green-deep);}
-.login .err{display:none;background:var(--badbg);color:var(--bad);border-radius:10px;padding:0.6rem;font-size:0.82rem;margin-bottom:0.7rem;}
+.toast.error{background:var(--bad);}
+.cover-preview{width:100%;max-width:150px;height:auto;border-radius:8px;border:1px solid var(--beige);margin-top:0.5rem;}
+.file-input-label{display:block;background:var(--cream-2);border:2px dashed var(--beige);border-radius:8px;padding:1rem;text-align:center;cursor:pointer;transition:all 0.2s;}
+.file-input-label:hover{border-color:var(--gold);background:var(--gold-pale);}
+.file-input-label input{display:none;}
 </style>
 </head>
 <body>
@@ -88,840 +72,344 @@ a{color:inherit;}
   <button class="logout" id="logoutBtn">Déconnexion</button>
 </div>
 
-<div class="wrap" id="app" style="display:none;">
-  <div class="stats" id="stats"></div>
+<div class="wrap" id="app">
 
   <div class="tabs">
-    <button class="tab gold on" data-p="eleves">👥 Élèves</button>
-    <button class="tab" data-p="validation">✅ Validation</button>
-    <button class="tab" data-p="profs">👨‍🏫 Professeurs</button>
-    <button class="tab" data-p="planning">🗓️ Planning</button>
-    <button class="tab" data-p="groupes">👥 Groupes</button>
-    <button class="tab" data-p="livres">📚 Livres</button>
-    <button class="tab" data-p="paiements">💶 Paiements</button>
-    <button class="tab" data-p="boutique">📖 Boutique</button>
-    <button class="tab" data-p="remu">💰 Rémunération</button>
+    <button class="tab gold on" data-p="livres">📚 Livres & Couvertures</button>
+    <button class="tab" data-p="settings">⚙️ Paramètres</button>
   </div>
 
-  <div class="panel on" id="p-eleves">
-    <h2>Élèves</h2>
-    <p class="sub">Consulte, accède à l'espace de chaque élève et suis ses cours.</p>
-    <input class="search" id="searchEleve" placeholder="Rechercher un élève (nom, email…)">
-    <div id="listEleves" class="loading">Chargement…</div>
-  </div>
-
-  <div class="panel" id="p-validation">
-    <h2>Validation des inscriptions</h2>
-    <p class="sub">Valide ou refuse les nouvelles inscriptions en attente.</p>
-    <div id="listValidation" class="loading">Chargement…</div>
-  </div>
-
-  <div class="panel" id="p-profs">
-    <h2>Professeurs</h2>
-    <p class="sub">Gère les professeurs, leurs permissions et accède à leur espace.</p>
-    <div id="listProfs" class="loading">Chargement…</div>
-  </div>
-
-  <div class="panel" id="p-paiements">
-    <h2>Paiements</h2>
-    <p class="sub">Suis et valide séparément les paiements des cours et de Kalam.</p>
-    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
-      <button class="btn btn-green" id="paySubCours" onclick="switchPaySub('cours')">📚 Cours</button>
-      <button class="btn btn-soft" id="paySubKalam" onclick="switchPaySub('kalam')">🎙️ Kalam</button>
-    </div>
-    <div id="paySubCoursBox">
-      <div id="listPaiements" class="loading">Chargement…</div>
-    </div>
-    <div id="paySubKalamBox" style="display:none;">
-      <button class="btn btn-gold" onclick="openAssignKalam()" style="margin-bottom:1rem;">➕ Attribuer un forfait Kalam</button>
-      <div id="assignKalamForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-        <select class="search" id="akStudent"></select>
-        <select class="search" id="akPackage"></select>
-        <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Statut</label>
-        <select class="search" id="akStatus"><option value="unpaid">En attente de paiement</option><option value="paid">Déjà payé (donne accès direct)</option></select>
-        <div class="acts"><button class="btn btn-green" onclick="assignKalam()">Attribuer</button><button class="btn btn-soft" onclick="document.getElementById('assignKalamForm').style.display='none'">Annuler</button></div>
-      </div>
-      <div id="listKalamPay" class="loading">Chargement…</div>
-    </div>
-  </div>
-
-    <div class="panel" id="p-boutique">
-    <h2>Boutique PDF</h2>
-    <p class="sub">Gère les livres, les prix et les couvertures.</p>
-    <button class="btn btn-green" onclick="openAddBook()" style="margin-bottom:1rem;">➕ Ajouter un livre</button>
-    <div id="addBookForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-      <input class="search" id="bNiveau" placeholder="Niveau (1-11)" type="number" min="1" max="11">
-      <input class="search" id="bName" placeholder="Nom du livre">
-      <input class="search" id="bPrice" placeholder="Prix (€)" type="number" min="0">
-      <input class="search" id="bCoverUrl" placeholder="URL couverture (optionnel)">
-      <div class="acts">
-        <button class="btn btn-green" onclick="addBook()">Ajouter</button>
-        <button class="btn btn-soft" onclick="closeAddBook()">Annuler</button>
-      </div>
-      <div id="addBookMsg" style="font-size:0.8rem;margin-top:0.5rem;"></div>
-    </div>
+  <!-- Panel Livres -->
+  <div class="panel on" id="p-livres">
+    <h2>Livres & Couvertures</h2>
+    <p class="sub">Gère les couvertures de tes niveaux et modifie les détails des documents.</p>
+    
+    <button class="btn btn-green" onclick="openAddBookModal()" style="margin-bottom:1rem;">➕ Ajouter un livre</button>
+    
     <div id="listBoutique" class="loading">Chargement…</div>
   </div>
 
-<div class="panel" id="p-remu">
-    <h2>Rémunération des professeurs</h2>
-    <p class="sub">Heures effectuées et montants par professeur.</p>
-    <div id="listRemu" class="loading">Chargement…</div>
+  <!-- Panel Paramètres -->
+  <div class="panel" id="p-settings">
+    <h2>Paramètres</h2>
+    <p class="sub">Configure les dossiers et emplacements des documents.</p>
+    
+    <div class="form-group">
+      <label>Dossier racine des couvertures (GitHub)</label>
+      <input type="text" id="coverFolder" value="/images/livres/" placeholder="/images/livres/">
+      <small style="color:var(--muted);margin-top:0.3rem;display:block;">Chemin relatif au repo GitHub. Exemple: /images/livres/</small>
+    </div>
+    
+    <button class="btn btn-green" onclick="saveSettings()">💾 Enregistrer</button>
   </div>
 
-  <div class="panel" id="p-planning">
-    <h2>Planning</h2>
-    <p class="sub">Crée et consulte les cours programmés.</p>
-    <button class="btn btn-green" onclick="openNewCourse()" style="margin-bottom:1rem;">➕ Nouveau cours</button>
-    <div id="newCourseForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-      <input class="search" id="cTitle" placeholder="Titre du cours (optionnel)">
-      <select class="search" id="cTeacher"></select>
-      <select class="search" id="cType"><option value="arabe">Arabe</option><option value="coran">Coran</option><option value="double_immersion">Double immersion</option></select>
-      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Date du cours</label>
-      <input class="search" id="cDate" type="date">
-      <div style="display:flex;gap:0.5rem;">
-        <div style="flex:1;"><label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Début</label><input class="search" id="cStart" type="time"></div>
-        <div style="flex:1;"><label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Fin</label><input class="search" id="cEnd" type="time"></div>
-      </div>
-      <div class="acts"><button class="btn btn-green" onclick="createCourse()">Créer</button><button class="btn btn-soft" onclick="document.getElementById('newCourseForm').style.display='none'">Annuler</button></div>
-    </div>
-    <div id="listPlanning" class="loading">Chargement…</div>
-  </div>
+</div>
 
-  <div class="panel" id="p-groupes">
-    <h2>Groupes</h2>
-    <p class="sub">Crée des groupes et gère leurs élèves.</p>
-    <button class="btn btn-green" onclick="openNewGroup()" style="margin-bottom:1rem;">➕ Nouveau groupe</button>
-    <div id="newGroupForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-      <input class="search" id="gName" placeholder="Nom du groupe">
-      <input class="search" id="gDesc" placeholder="Description (optionnel)">
-      <div class="acts"><button class="btn btn-green" onclick="createGroup()">Créer</button><button class="btn btn-soft" onclick="document.getElementById('newGroupForm').style.display='none'">Annuler</button></div>
+<!-- Modal Ajouter Livre -->
+<div class="modal-overlay" id="addBookModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeAddBookModal()">✕</button>
+    <h2 style="color:var(--green-deep);margin-bottom:1rem;">Ajouter un livre</h2>
+    
+    <div class="form-group">
+      <label>Niveau</label>
+      <select id="addLevel">
+        <option value="">-- Choisir --</option>
+        <option value="1">Niveau 1</option>
+        <option value="2">Niveau 2</option>
+        <option value="3">Niveau 3</option>
+        <option value="4">Niveau 4</option>
+        <option value="5">Niveau 5</option>
+        <option value="6">Niveau 6</option>
+        <option value="7">Niveau 7</option>
+        <option value="8">Niveau 8</option>
+        <option value="9">Niveau 9</option>
+        <option value="10">Niveau 10</option>
+        <option value="11">Niveau 11</option>
+      </select>
     </div>
-    <div id="listGroupes" class="loading">Chargement…</div>
-  </div>
-
-  <div class="panel" id="p-livres">
-    <h2>Livres & PDF</h2>
-    <p class="sub">Ajoute des livres et assigne-les par niveau ou par élève.</p>
-    <button class="btn btn-green" onclick="document.getElementById('newBookForm').style.display='block'" style="margin-bottom:1rem;">➕ Ajouter un livre</button>
-    <div id="newBookForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-      <input class="search" id="bName" placeholder="Nom du livre">
-      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Niveau minimum</label>
-      <select class="search" id="bNiveau">${[1,2,3,4,5,6,7,8,9,10,11].map(n=>`<option value="${n}">Niveau ${n}</option>`).join('')}</select>
-      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Fichier PDF</label>
-      <input class="search" id="bFile" type="file" accept="application/pdf">
-      <div class="acts"><button class="btn btn-green" onclick="uploadBook()">Téléverser</button><button class="btn btn-soft" onclick="document.getElementById('newBookForm').style.display='none'">Annuler</button></div>
-      <div id="bUploadMsg" style="font-size:0.8rem;color:var(--muted);margin-top:0.5rem;"></div>
+    
+    <div class="form-group">
+      <label>Nom du document</label>
+      <input type="text" id="addName" placeholder="Ex: Niveau 1 - Introduction">
     </div>
-    <div id="listLivres" class="loading">Chargement…</div>
+    
+    <div class="form-group">
+      <label>Prix (€)</label>
+      <input type="number" id="addPrice" placeholder="10" min="0" step="0.01" value="10">
+    </div>
+    
+    <div class="form-group">
+      <label>Couverture</label>
+      <label class="file-input-label">
+        <span id="fileLabel">📤 Clique pour uploader une image</span>
+        <input type="file" id="addCover" accept="image/*" onchange="previewCover()">
+      </label>
+      <img id="coverPreview" class="cover-preview" style="display:none;">
+      <small id="coverInfo" style="color:var(--muted);margin-top:0.3rem;display:block;"></small>
+    </div>
+    
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn btn-green" onclick="saveNewBook()">✓ Ajouter</button>
+      <button class="btn btn-soft" onclick="closeAddBookModal()">Annuler</button>
+    </div>
+    <div id="addBookMsg" style="font-size:0.85rem;margin-top:0.7rem;"></div>
   </div>
 </div>
 
-<div class="login" id="login">
-  <div class="box">
-    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="">
-    <div class="tag">ADMINISTRATION</div>
-    <h1>Espace Gérant</h1>
-    <p>Accès réservé à l'administration de Médin'Immersion.</p>
-    <div class="err" id="loginErr"></div>
-    <input type="password" id="giPwd" placeholder="Mot de passe gérant" autocomplete="current-password">
-    <button id="giBtn">Accéder →</button>
+<!-- Modal Éditer Livre -->
+<div class="modal-overlay" id="editBookModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeEditModal()">✕</button>
+    <h2 style="color:var(--green-deep);margin-bottom:1rem;">Éditer le livre</h2>
+    
+    <div class="form-group">
+      <label>Nom du document</label>
+      <input type="text" id="editName" placeholder="Ex: Niveau 1 - Introduction">
+    </div>
+    
+    <div class="form-group">
+      <label>Prix (€)</label>
+      <input type="number" id="editPrice" placeholder="10" min="0" step="0.01">
+    </div>
+    
+    <div class="form-group">
+      <label>Couverture actuelle</label>
+      <img id="editCoverPreview" class="cover-preview" style="display:none;">
+      <small id="editCoverUrl" style="color:var(--muted);display:block;margin-top:0.5rem;word-break:break-all;"></small>
+    </div>
+    
+    <div class="form-group">
+      <label>Remplacer la couverture</label>
+      <label class="file-input-label">
+        <span>📤 Clique pour uploader une nouvelle image</span>
+        <input type="file" id="editCover" accept="image/*" onchange="previewEditCover()">
+      </label>
+    </div>
+    
+    <div style="display:flex;gap:0.5rem;">
+      <button class="btn btn-green" onclick="saveEditedBook()">✓ Enregistrer</button>
+      <button class="btn btn-soft" onclick="closeEditModal()">Annuler</button>
+    </div>
+    <div id="editBookMsg" style="font-size:0.85rem;margin-top:0.7rem;"></div>
   </div>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-const $ = id => document.getElementById(id);
-let GT = localStorage.getItem('gerant_token') || '';
-const H = () => ({'Content-Type':'application/json','x-gerant-token':GT,'x-admin-token':GT,'Authorization':'Bearer '+GT});
-let cacheEleves=[], cacheProfs=[];
+let cacheBoutique=[];
+let currentEditIndex=-1;
+let currentEditFile=null;
+let coverFolder='/images/livres/';
 
-function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
-function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-
-async function boot(){
-  if(!GT){ showLogin(); return; }
-  try{
-    const r=await fetch('/api/admin/stats',{headers:H()});
-    if(!r.ok) throw 0;
-    $('login').style.display='none'; $('app').style.display='block';
-    loadStats(); loadEleves(); loadValidation(); loadProfs(); loadPaiements(); loadRemu(); loadBoutique();
-  }catch{ showLogin(); }
-}
-function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; }
-$('giBtn').onclick=async()=>{
-  const pwd=$('giPwd').value; const err=$('loginErr'); err.style.display='none';
-  if(!pwd){err.textContent='Mot de passe requis.';err.style.display='block';return;}
-  try{
-    const r=await fetch('/api/admin/gerant/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
-    const d=await r.json();
-    if(!r.ok||!d.token) throw new Error(d.error||'Mot de passe incorrect');
-    GT=d.token; localStorage.setItem('gerant_token',GT);
-    boot();
-  }catch(e){err.textContent=e.message;err.style.display='block';}
-};
-$('giPwd').addEventListener('keydown',e=>{if(e.key==='Enter')$('giBtn').click();});
-$('logoutBtn').onclick=()=>{localStorage.removeItem('gerant_token');GT='';showLogin();};
-
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
-  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
-  t.classList.add('on'); $('p-'+t.dataset.p).classList.add('on');
-  if(t.dataset.p==='planning') loadPlanning();
-  if(t.dataset.p==='groupes') loadGroupes();
-  if(t.dataset.p==='livres') loadLivres();
+// Tabs
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const panel=t.dataset.p;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+    t.classList.add('on');
+    document.getElementById('p-'+panel).classList.add('on');
+  });
 });
 
-async function loadStats(){
-  try{
-    const r=await fetch('/api/admin/stats',{headers:H()}); const d=await r.json();
-    $('stats').innerHTML=`
-      <div class="stat"><div class="n">${d.total_students||0}</div><div class="l">Élèves inscrits</div></div>
-      <div class="stat"><div class="n">${d.total_bookings||0}</div><div class="l">Réservations</div></div>
-      <div class="stat"><div class="n">${d.pending_bookings||0}</div><div class="l">En attente</div></div>
-      <div class="stat"><div class="n">${d.paid_bookings||0}</div><div class="l">Payées</div></div>
-      <div class="stat"><div class="n">${d.unpaid_bookings||0}</div><div class="l">Impayées</div></div>
-      <div class="stat"><div class="n gold">${(d.paid_revenue||0)}€</div><div class="l">Revenus encaissés</div></div>`;
-  }catch{ $('stats').innerHTML=''; }
-}
-
-async function loadEleves(){
-  try{
-    const r=await fetch('/api/admin/students',{headers:H()}); const d=await r.json();
-    cacheEleves=d.students||[];
-    renderEleves(cacheEleves);
-  }catch{ $('listEleves').innerHTML='<div class="empty">Impossible de charger les élèves.</div>'; }
-}
-function renderEleves(list){
-  if(!list.length){ $('listEleves').innerHTML='<div class="empty">Aucun élève.</div>'; return; }
-  $('listEleves').innerHTML=list.map(s=>{
-    const vs=(s.validation_status||'').toLowerCase();
-    const vb = (vs==='valide'||vs==='validated')?'<span class="badge b-ok">Validé</span>'
-      : (vs==='rejected'||vs==='refuse')?'<span class="badge b-bad">Refusé</span>'
-      : '<span class="badge b-warn">En attente</span>';
-    const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||'—');
-    return `<div class="row">
-      <div class="r-top"><div><div class="name">${nom}</div>
-        <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>Prof : ${esc(s.teacher_names||'—')} · ${s.booking_count||0} résa.</div></div>${vb}</div>
-      <div class="acts">
-        <button class="btn btn-info" onclick="viewStudent(${s.id})">👁 Voir espace</button>
-        <button class="btn btn-gold" onclick="resetStudentPwd(${s.id},'${esc(nom)}')">🔑 Mot de passe</button>
-        <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Temps Kalam</button>
-      </div></div>`;
-  }).join('');
-}
-$('searchEleve').oninput=e=>{
-  const q=e.target.value.toLowerCase().trim();
-  renderEleves(!q?cacheEleves:cacheEleves.filter(s=>[s.nom,s.prenom,s.kounia,s.email,s.whatsapp].some(v=>(v||'').toLowerCase().includes(q))));
-};
-async function viewStudent(id){
-  try{
-    const r=await fetch('/api/admin/impersonate/student/'+id,{method:'POST',headers:H()});
-    const d=await r.json(); if(!r.ok||!d.token) throw 0;
-    window.open('/espace-eleve.html?xs='+d.token,'_blank');
-  }catch{ toast('Impossible d\'ouvrir l\'espace.'); }
-}
-async function resetStudentPwd(id,nom){
-  const np=prompt('Nouveau mot de passe pour '+nom+' :');
-  if(!np||np.length<4){ if(np!==null)toast('Mot de passe trop court.'); return; }
-  try{
-    const r=await fetch('/api/admin/students/'+id+'/password',{method:'PUT',headers:H(),body:JSON.stringify({password:np})});
-    if(!r.ok) throw 0; toast('Mot de passe mis à jour ✓');
-  }catch{ toast('Échec — réessaie.'); }
-}
-async function setKalamTime(id,nom){
-  const v=prompt('Temps Kalam pour '+nom+' :\n\n• Tape un nombre de MINUTES par jour (ex: 10)\n• Tape 0 pour bloquer\n• Tape "illimité" pour un accès sans limite');
-  if(v===null) return;
-  const val=v.trim().toLowerCase();
-  let body;
-  if(val==='illimité'||val==='illimite'||val==='unlimited'||val==='∞'){ body={unlimited:true}; }
-  else { const m=parseInt(val,10); if(isNaN(m)||m<0){ toast('Valeur invalide.'); return; } body={minutes:m}; }
-  try{
-    const r=await fetch('/api/admin/students/'+id+'/kalam-time',{method:'PUT',headers:H(),body:JSON.stringify(body)});
-    if(!r.ok) throw 0;
-    toast(body.unlimited?'Temps Kalam : illimité ✓':'Temps Kalam : '+body.minutes+' min/jour ✓');
-  }catch{ toast('Échec — réessaie.'); }
-}
-
-async function loadValidation(){
-  try{
-    const r=await fetch('/api/admin/validation',{headers:H()}); const list=await r.json();
-    if(!Array.isArray(list)||!list.length){ $('listValidation').innerHTML='<div class="empty">Aucune inscription en attente. 🎉</div>'; return; }
-    $('listValidation').innerHTML=list.map(s=>{
-      const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||'—');
-      return `<div class="row">
-        <div class="r-top"><div><div class="name">${nom}</div>
-          <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>${esc(s.course_type||'Cours')} · ${s.hours||'?'}h</div></div>
-          <span class="badge b-warn">En attente</span></div>
-        <div class="acts">
-          <button class="btn btn-ok" onclick="valid(${s.id},'valide')">✅ Valider</button>
-          <button class="btn btn-bad" onclick="valid(${s.id},'rejected')">✖ Refuser</button>
-        </div></div>`;
-    }).join('');
-  }catch{ $('listValidation').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-async function valid(id,status){
-  try{
-    const r=await fetch('/api/admin/validation/'+id,{method:'PUT',headers:H(),body:JSON.stringify({status})});
-    if(!r.ok) throw 0;
-    toast(status==='valide'?'Inscription validée ✓':'Inscription refusée');
-    loadValidation(); loadEleves(); loadStats();
-  }catch{ toast('Échec — réessaie.'); }
-}
-
-async function loadProfs(){
-  try{
-    const r=await fetch('/api/admin/teachers',{headers:H()}); cacheProfs=await r.json();
-    if(!Array.isArray(cacheProfs)||!cacheProfs.length){ $('listProfs').innerHTML='<div class="empty">Aucun professeur.</div>'; return; }
-    $('listProfs').innerHTML=cacheProfs.map(t=>{
-      const nom=esc([t.prenom,t.nom].filter(Boolean).join(' ')||t.username||'—');
-      const perm=(k,label)=>`<div class="perm"><span class="pl">${label}</span>
-        <button class="toggle ${t[k]?'on':''}" onclick="togglePerm(${t.id},'${k}',this)"></button></div>`;
-      return `<div class="row">
-        <div class="r-top"><div><div class="name">${nom}</div>
-          <div class="meta">${esc(t.email||'')} · ${t.student_count||0} élève(s) · ${t.total_hours||0}h</div></div></div>
-        <div style="margin-top:0.7rem;background:#fff;border:1px solid var(--beige);border-radius:10px;padding:0.3rem 0.8rem;">
-          ${perm('can_edit_planning','📅 Planifier les cours')}
-          ${perm('can_send_books','📖 Envoyer des livres')}
-          ${perm('can_edit_zoom','🎥 Modifier le lien Zoom')}
-          ${perm('can_edit_student_info','✏️ Modifier infos élèves')}
-        </div>
-        <div class="acts">
-          <button class="btn btn-info" onclick="viewTeacher(${t.id})">👁 Voir espace</button>
-        </div></div>`;
-    }).join('');
-  }catch{ $('listProfs').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-async function togglePerm(id,key,el){
-  const val=!el.classList.contains('on');
-  try{
-    const r=await fetch('/api/admin/teacher-permissions/'+id,{method:'PUT',headers:H(),body:JSON.stringify({permission:key,value:val})});
-    if(!r.ok) throw 0; el.classList.toggle('on',val); toast('Permission mise à jour ✓');
-  }catch{ toast('Échec — réessaie.'); }
-}
-async function viewTeacher(id){
-  try{
-    const r=await fetch('/api/admin/impersonate/teacher/'+id,{method:'POST',headers:H()});
-    const d=await r.json(); if(!r.ok||!d.token) throw 0;
-    window.open('/espace-professeur.html?xt='+d.token,'_blank');
-  }catch{ toast('Impossible d\'ouvrir l\'espace.'); }
-}
-
-async function loadPaiements(){
-  try{
-    const r=await fetch('/api/admin/payments',{headers:H()}); const list=await r.json();
-    const arr=Array.isArray(list)?list:(list.payments||list.bookings||[]);
-    if(!arr.length){ $('listPaiements').innerHTML='<div class="empty">Aucune réservation.</div>'; return; }
-    $('listPaiements').innerHTML=arr.map(b=>{
-      const paid=(b.payment_status||'').toLowerCase()==='paid';
-      const nom=esc([b.student_prenom,b.student_nom].filter(Boolean).join(' ')||b.student_name||'Élève');
-      return `<div class="row"><div class="r-top">
-        <div><div class="name">${nom}</div>
-        <div class="meta">${esc(b.course_type||'Cours')} · ${b.hours||'?'}h · ${b.price_euros||b.price||0}€</div></div>
-        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-bad">Impayé</span>'}</div>
-        <div class="acts">${paid
-          ?`<button class="btn btn-soft" onclick="setPay(${b.id},'unpaid')">Marquer impayé</button>`
-          :`<button class="btn btn-ok" onclick="setPay(${b.id},'paid')">💶 Marquer payé</button>`}</div></div>`;
-    }).join('');
-  }catch{ $('listPaiements').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-async function setPay(id,status){
-  try{
-    let r=await fetch('/api/admin/bookings/'+id+'/payment',{method:'PATCH',headers:H(),body:JSON.stringify({payment_status:status})});
-    if(!r.ok){ r=await fetch('/api/admin/payments/'+id,{method:'PUT',headers:H(),body:JSON.stringify({payment_status:status})}); }
-    if(!r.ok) throw 0;
-    toast('Paiement mis à jour ✓'); loadPaiements(); loadStats();
-  }catch{ toast('Échec — réessaie.'); }
-}
-
-/* ───────── PAIEMENTS KALAM ───────── */
-function switchPaySub(which){
-  const cours=which==='cours';
-  $('paySubCoursBox').style.display=cours?'block':'none';
-  $('paySubKalamBox').style.display=cours?'none':'block';
-  $('paySubCours').className='btn '+(cours?'btn-green':'btn-soft');
-  $('paySubKalam').className='btn '+(cours?'btn-soft':'btn-green');
-  if(!cours) loadKalamPay();
-}
-let cacheKalamPkgs=[];
-async function openAssignKalam(){
-  $('assignKalamForm').style.display='block';
-  const all=cacheEleves.length?cacheEleves:await fetch('/api/admin/students',{headers:H()}).then(r=>r.json()).then(d=>d.students||[]);
-  $('akStudent').innerHTML='<option value="">— Élève —</option>'+all.map(s=>`<option value="${s.id}">${esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia)}</option>`).join('');
-  if(!cacheKalamPkgs.length){ cacheKalamPkgs=await fetch('/api/kalam/packages',{headers:H()}).then(r=>r.json()).catch(()=>[]); }
-  $('akPackage').innerHTML='<option value="">— Forfait —</option>'+cacheKalamPkgs.map(p=>`<option value="${p.id}">${esc(p.name)} · ${p.minutes_per_day===-1?'illimité':p.minutes_per_day+' min/j'} · ${p.price_euros}€</option>`).join('');
-}
-async function assignKalam(){
-  const student_id=$('akStudent').value, package_id=$('akPackage').value, payment_status=$('akStatus').value;
-  if(!student_id||!package_id){ toast('Élève et forfait requis.'); return; }
-  try{
-    const r=await fetch('/api/admin/kalam/assign',{method:'POST',headers:H(),body:JSON.stringify({student_id,package_id,payment_status})});
-    if(!r.ok) throw 0;
-    toast(payment_status==='paid'?'Forfait attribué et activé ✓':'Forfait attribué (en attente de paiement)');
-    $('assignKalamForm').style.display='none'; loadKalamPay();
-  }catch{ toast('Échec — réessaie.'); }
-}
-async function loadKalamPay(){
-  try{
-    const r=await fetch('/api/admin/kalam/payments',{headers:H()}); const list=await r.json();
-    if(!Array.isArray(list)||!list.length){ $('listKalamPay').innerHTML='<div class="empty">Aucun paiement Kalam.</div>'; return; }
-    $('listKalamPay').innerHTML=list.map(p=>{
-      const paid=(p.payment_status||'')==='paid';
-      const nom=esc([p.prenom,p.nom].filter(Boolean).join(' ')||p.kounia||'Élève');
-      const mins=p.minutes_per_day===-1?'illimité':p.minutes_per_day+' min/jour';
-      return `<div class="row"><div class="r-top">
-        <div><div class="name">${nom}</div>
-        <div class="meta">${esc(p.package_name||'Forfait')} · ${mins} · ${p.price_euros}€</div></div>
-        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-bad">Impayé</span>'}</div>
-        <div class="acts">${paid
-          ?`<button class="btn btn-soft" onclick="setKalamPay(${p.id},'unpaid')">Annuler le paiement</button>`
-          :`<button class="btn btn-ok" onclick="setKalamPay(${p.id},'paid')">✅ Valider le paiement (active Kalam)</button>`}</div></div>`;
-    }).join('');
-  }catch{ $('listKalamPay').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-async function setKalamPay(id,status){
-  try{
-    const r=await fetch('/api/admin/kalam/payments/'+id,{method:'PATCH',headers:H(),body:JSON.stringify({payment_status:status})});
-    if(!r.ok) throw 0;
-    toast(status==='paid'?'Paiement validé — Kalam activé ✓':'Paiement annulé');
-    loadKalamPay();
-  }catch{ toast('Échec — réessaie.'); }
-}
-
-async function loadRemu(){
-  try{
-    const r=await fetch('/api/admin/remuneration',{headers:H()}); const list=await r.json();
-    const arr=Array.isArray(list)?list:(list.teachers||[]);
-    if(!arr.length){ $('listRemu').innerHTML='<div class="empty">Aucune donnée de rémunération.</div>'; return; }
-    $('listRemu').innerHTML=arr.map(t=>{
-      const nom=esc([t.prenom,t.nom].filter(Boolean).join(' ')||t.username||'Professeur');
-      const h=t.total_hours||t.hours||0, amt=t.amount||t.paid_amount||t.remuneration||0, rate=t.hourly_rate||t.rate;
-      return `<div class="row"><div class="r-top">
-        <div><div class="name">${nom}</div>
-        <div class="meta">${h}h effectuées${rate?` · ${rate}€/h`:''}</div></div>
-        <span class="badge b-info">${amt}€</span></div></div>`;
-    }).join('');
-  }catch{ $('listRemu').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-
-/* ───────── PLANNING (gérant) ───────── */
-let cacheTeachers=[];
-async function ensureTeachers(){
-  if(cacheTeachers.length) return cacheTeachers;
-  try{ const r=await fetch('/api/admin/teachers',{headers:H()}); cacheTeachers=await r.json(); }catch{ cacheTeachers=[]; }
-  return cacheTeachers;
-}
-async function openNewCourse(){
-  document.getElementById('newCourseForm').style.display='block';
-  const t=await ensureTeachers();
-  $('cTeacher').innerHTML='<option value="">— Professeur —</option>'+t.map(x=>`<option value="${x.id}">${esc([x.prenom,x.nom].filter(Boolean).join(' ')||x.username)}</option>`).join('');
-}
-async function createCourse(){
-  const body={ title:$('cTitle').value||null, teacher_id:$('cTeacher').value||null,
-    course_type:$('cType').value, start_date:$('cDate').value, end_date:$('cDate').value,
-    days_of_week:[], time_start:$('cStart').value, time_end:$('cEnd').value };
-  if(!body.start_date||!body.time_start||!body.time_end){ toast('Date et heures requises.'); return; }
-  try{
-    const r=await fetch('/api/admin/schedules',{method:'POST',headers:H(),body:JSON.stringify(body)});
-    if(!r.ok) throw 0;
-    const sc=await r.json();
-    await fetch('/api/admin/sessions',{method:'POST',headers:H(),body:JSON.stringify({schedule_id:sc.id,teacher_id:body.teacher_id,session_date:body.start_date,time_start:body.time_start,time_end:body.time_end,course_type:body.course_type})}).catch(()=>{});
-    toast('Cours créé ✓'); document.getElementById('newCourseForm').style.display='none'; loadPlanning();
-  }catch{ toast('Échec — réessaie.'); }
-}
-async function loadPlanning(){
-  try{
-    const r=await fetch('/api/admin/schedules',{headers:H()}).catch(()=>null);
-    let list = r&&r.ok ? await r.json() : [];
-    if(!Array.isArray(list)) list = list.schedules||[];
-    if(!list.length){ $('listPlanning').innerHTML='<div class="empty">Aucun cours programmé. Crée le premier !</div>'; return; }
-    $('listPlanning').innerHTML=list.map(s=>{
-      const d=s.start_date?new Date(s.start_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
-      const tn=[s.teacher_prenom,s.teacher_nom].filter(Boolean).join(' ')||s.teacher_name||'';
-      return `<div class="row"><div class="r-top"><div>
-        <div class="name">${esc(s.title||'Cours')}</div>
-        <div class="meta">${d} · ${(s.time_start||'').slice(0,5)}–${(s.time_end||'').slice(0,5)} · ${esc(s.course_type||'')}${tn?' · '+esc(tn):''}</div>
-        </div><span class="badge b-info">${esc(s.course_type||'')}</span></div></div>`;
-    }).join('');
-  }catch{ $('listPlanning').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-
-/* ───────── GROUPES (gérant) ───────── */
-function openNewGroup(){ document.getElementById('newGroupForm').style.display='block'; }
-async function createGroup(){
-  const name=$('gName').value.trim(); if(!name){ toast('Nom requis.'); return; }
-  try{
-    const r=await fetch('/api/admin/groups',{method:'POST',headers:H(),body:JSON.stringify({name,description:$('gDesc').value||null})});
-    if(!r.ok) throw 0; toast('Groupe créé ✓'); $('gName').value='';$('gDesc').value='';
-    document.getElementById('newGroupForm').style.display='none'; loadGroupes();
-  }catch{ toast('Échec — réessaie.'); }
-}
-async function loadGroupes(){
-  try{
-    const r=await fetch('/api/admin/groups',{headers:H()}); let list=await r.json();
-    if(!Array.isArray(list)) list=list.groups||[];
-    if(!list.length){ $('listGroupes').innerHTML='<div class="empty">Aucun groupe. Crée le premier !</div>'; return; }
-    $('listGroupes').innerHTML=list.map(g=>`<div class="row">
-      <div class="r-top"><div><div class="name">${esc(g.name)}</div>
-      <div class="meta">${g.member_count||g.student_count||0} élève(s)${g.description?' · '+esc(g.description):''}</div></div>
-      <button class="btn btn-bad" onclick="delGroup(${g.id})">🗑</button></div>
-      <div class="acts">
-        <button class="btn btn-gold" onclick="manageMembers(${g.id})">👥 Gérer les élèves</button>
-      </div>
-      <div id="gm-${g.id}" style="display:none;margin-top:0.6rem;"></div>
-    </div>`).join('');
-  }catch{ $('listGroupes').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-async function delGroup(id){
-  if(!confirm('Supprimer ce groupe ?'))return;
-  try{ const r=await fetch('/api/admin/groups/'+id,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Groupe supprimé'); loadGroupes(); }catch{ toast('Échec.'); }
-}
-async function manageMembers(gid){
-  const box=$('gm-'+gid);
-  if(box.style.display==='block'){ box.style.display='none'; return; }
-  box.style.display='block'; box.innerHTML='Chargement…';
-  try{
-    const mr=await fetch('/api/admin/groups/'+gid+'/students',{headers:H()}).then(r=>r.json()).catch(()=>[]);
-    const all=cacheEleves.length?cacheEleves:await fetch('/api/admin/students',{headers:H()}).then(r=>r.json()).then(d=>d.students||[]);
-    const members=Array.isArray(mr)?mr:(mr.students||[]);
-    const memberIds=members.map(m=>m.id||m.student_id);
-    box.innerHTML=`<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.4rem;">Membres : ${members.length}</div>`+
-      members.map(m=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;font-size:0.85rem;">
-        <span>${esc([m.prenom,m.nom].filter(Boolean).join(' ')||m.kounia||'Élève')}</span>
-        <button class="btn btn-bad" onclick="rmMember(${gid},${m.member_id||m.id})">retirer</button></div>`).join('')+
-      `<select class="search" id="addm-${gid}" style="margin-top:0.5rem;"><option value="">+ Ajouter un élève…</option>${
-        all.filter(s=>!memberIds.includes(s.id)).map(s=>`<option value="${s.id}">${esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia)}</option>`).join('')
-      }</select><button class="btn btn-green" onclick="addMember(${gid})" style="margin-top:0.4rem;">Ajouter</button>`;
-  }catch{ box.innerHTML='<div class="empty">Erreur.</div>'; }
-}
-async function addMember(gid){
-  const sid=$('addm-'+gid).value; if(!sid)return;
-  try{ const r=await fetch('/api/admin/groups/'+gid+'/members',{method:'POST',headers:H(),body:JSON.stringify({student_id:sid})}); if(!r.ok)throw 0; toast('Élève ajouté ✓'); $('gm-'+gid).style.display='none'; manageMembers(gid); loadGroupes(); }catch{ toast('Échec.'); }
-}
-async function rmMember(gid,mid){
-  try{ const r=await fetch('/api/admin/groups/'+gid+'/members/'+mid,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Retiré'); $('gm-'+gid).style.display='none'; manageMembers(gid); loadGroupes(); }catch{ toast('Échec.'); }
-}
-
-/* ───────── LIVRES (gérant) ───────── */
-async function uploadBook(){
-  const name=$('bName').value.trim(); const f=$('bFile').files[0];
-  if(!name||!f){ toast('Nom et fichier requis.'); return; }
-  $('bUploadMsg').textContent='Téléversement en cours…';
-  try{
-    const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});
-    const r=await fetch('/api/admin/library/books',{method:'POST',headers:H(),body:JSON.stringify({name,data,niveau_min:$('bNiveau').value})});
-    if(!r.ok) throw 0;
-    $('bUploadMsg').textContent=''; $('bName').value='';$('bFile').value='';
-    toast('Livre ajouté ✓'); document.getElementById('newBookForm').style.display='none'; loadLivres();
-  }catch{ $('bUploadMsg').textContent=''; toast('Échec du téléversement.'); }
-}
-async function loadLivres(){
-  try{
-    const r=await fetch('/api/admin/library/books-with-categories',{headers:H()}).catch(()=>null);
-    let list = r&&r.ok ? await r.json() : [];
-    if(!Array.isArray(list)) list=list.books||[];
-    if(!list.length){ $('listLivres').innerHTML='<div class="empty">Aucun livre. Ajoute le premier !</div>'; return; }
-    $('listLivres').innerHTML=list.map(b=>`<div class="row">
-      <div class="r-top"><div><div class="name">${esc(b.name)}</div>
-      <div class="meta">Niveau min : ${b.niveau_min||1}${b.category_name?' · '+esc(b.category_name):''}</div></div>
-      ${b.file_url?`<a class="btn btn-info" href="${b.file_url}" target="_blank">Ouvrir</a>`:''}</div>
-      <div class="acts">
-        <button class="btn btn-gold" onclick="assignBookLevel(${b.slot_number||b.id},${b.niveau_min||1})">📤 Assigner au niveau ${b.niveau_min||1}</button>
-        <button class="btn btn-green" onclick="assignBookStudent(${b.slot_number||b.id})">👤 Donner à un élève</button>
-        <button class="btn btn-soft" onclick="unassignBookStudent(${b.slot_number||b.id})">🚫 Retirer à un élève</button>
-        <button class="btn btn-bad" onclick="delBook(${b.id})">🗑</button>
-      </div></div>`).join('');
-  }catch{ $('listLivres').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
-}
-function pickStudent(promptTxt){
-  const opts=(cacheEleves||[]).map((s,i)=>(i+1)+'. '+(s.prenom||'')+' '+(s.nom||'')).join('\n');
-  const n=prompt(promptTxt+'\n\n'+opts+'\n\nTape le numéro :');
-  if(!n)return null;
-  const s=(cacheEleves||[])[parseInt(n)-1];
-  if(!s){ toast('Numéro invalide'); return null; }
-  return s;
-}
-async function assignBookStudent(bookId){
-  const s=pickStudent('Donner ce livre à quel élève ?');
-  if(!s)return;
-  try{
-    const r=await fetch('/api/admin/library/assign',{method:'POST',headers:H(),body:JSON.stringify({book_id:bookId,student_id:s.id})});
-    if(!r.ok)throw 0; toast('📚 Livre donné à '+(s.prenom||'l\'élève')+' ✓');
-  }catch{ toast('Échec.'); }
-}
-async function unassignBookStudent(bookId){
-  const s=pickStudent('Retirer ce livre à quel élève ?');
-  if(!s)return;
-  try{
-    const r=await fetch('/api/admin/library/assign',{method:'DELETE',headers:H(),body:JSON.stringify({book_id:bookId,student_id:s.id})});
-    const d=await r.json(); if(!r.ok)throw 0;
-    toast(d.removed?'🚫 Livre retiré à '+(s.prenom||'l\'élève'):'Cet élève n\'avait pas ce livre');
-  }catch{ toast('Échec.'); }
-}
-async function assignBookLevel(bookId,niveau){
-  if(!confirm('Assigner ce livre à tous les élèves de niveau '+niveau+' ?'))return;
-  try{
-    const r=await fetch('/api/admin/library/assign',{method:'POST',headers:H(),body:JSON.stringify({book_id:bookId,niveau_min:niveau})});
-    const d=await r.json(); if(!r.ok)throw 0; toast('Assigné à '+(d.assigned||0)+' élève(s) ✓');
-  }catch{ toast('Échec.'); }
-}
-async function delBook(id){
-  if(!confirm('Supprimer ce livre ?'))return;
-  try{ const r=await fetch('/api/admin/library/books/'+id,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Supprimé'); loadLivres(); }catch{ toast('Échec.'); }
-}
-
-boot();
-</script>
-<script>
-/* ═══ GESTION DU CONTENU DU SITE — v4 (intégré, sans clé) ═══ */
-(function () {
-  const S = document.createElement('style');
-  S.textContent = `
-  .cms-item{border:1px solid var(--beige);border-radius:12px;padding:0.9rem;margin-bottom:0.7rem;background:var(--cream);}
-  .cms-label{font-weight:700;font-size:0.88rem;color:var(--green-deep);margin-bottom:0.45rem;}
-  .cms-item textarea{width:100%;min-height:60px;padding:0.6rem 0.8rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;resize:vertical;box-sizing:border-box;background:#fff;}
-  .cms-item textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
-  .cms-img-preview{max-width:100%;max-height:180px;border-radius:10px;display:block;margin-bottom:0.6rem;border:1px solid var(--beige);}
-  .cms-status{font-size:0.76rem;margin-left:0.6rem;font-weight:700;}
-  .cms-status.ok{color:var(--ok);} .cms-status.err{color:var(--bad);}
-  `;
-  document.head.appendChild(S);
-
-  function cmsHeaders() {
-    const T = localStorage.getItem('gerant_token') || '';
-    return { 'Content-Type': 'application/json', 'x-gerant-token': T, 'x-admin-token': T, 'Authorization': 'Bearer ' + T, 'x-admin-key': T };
-  }
-
-  async function cmsApi(path, opts = {}) {
-    opts.headers = Object.assign(cmsHeaders(), opts.headers || {});
-    const r = await fetch('/api/content' + path, opts);
-    const j = await r.json().catch(() => ({}));
-    if (r.status === 401) throw new Error('Accès refusé — déconnectez-vous puis reconnectez-vous à l\'espace gérant.');
-    if (!r.ok) throw new Error(j.error || 'Erreur serveur');
-    return j;
-  }
-
-  function cmsStatus(el, msg, ok) {
-    el.textContent = msg;
-    el.className = 'cms-status ' + (ok ? 'ok' : 'err');
-    if (ok) setTimeout(() => (el.textContent = ''), 3000);
-  }
-
-  function cmsCompress(file) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        const max = 1400;
-        let w = img.width, h = img.height;
-        if (w > max) { h = Math.round(h * max / w); w = max; }
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
-      };
-      img.onerror = reject;
-      img.src = URL.createObjectURL(file);
-    });
-  }
-
-  let cmsLoaded = false;
-
-  async function cmsLoad() {
-    const box = document.getElementById('listContenu');
-    box.innerHTML = '<div class="loading">Chargement…</div>';
-    let items;
-    try { items = await cmsApi('/admin/list'); }
-    catch (e) { box.innerHTML = '<div class="empty">' + e.message + '</div>'; return; }
-    cmsLoaded = true;
-    box.innerHTML = '';
-    items.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'cms-item';
-      if (item.type === 'text') {
-        div.innerHTML = '<div class="cms-label">' + (item.label || item.key) + '</div>' +
-          '<textarea></textarea>' +
-          '<div class="acts"><button class="btn btn-green">💾 Enregistrer</button><span class="cms-status"></span></div>';
-        const ta = div.querySelector('textarea'), btn = div.querySelector('button'), st = div.querySelector('.cms-status');
-        ta.value = item.value || '';
-        btn.onclick = async () => {
-          btn.disabled = true;
-          try { await cmsApi('/admin/text', { method: 'POST', body: JSON.stringify({ key: item.key, value: ta.value }) }); cmsStatus(st, '✓ Enregistré', true); }
-          catch (e) { cmsStatus(st, e.message, false); }
-          btn.disabled = false;
-        };
-      } else {
-        div.innerHTML = '<div class="cms-label">' + (item.label || item.key) + '</div>' +
-          (item.has_image ? '<img class="cms-img-preview" src="/api/content/img/' + item.key + '?t=' + Date.now() + '">' : '<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Aucune image pour le moment</div>') +
-          '<input type="file" accept="image/*" style="display:block;margin:0.3rem 0;font-size:0.82rem;">' +
-          '<div class="acts"><button class="btn btn-green">📤 Envoyer l\'image</button><span class="cms-status"></span></div>';
-        const inp = div.querySelector('input'), btn = div.querySelector('button'), st = div.querySelector('.cms-status');
-        btn.onclick = async () => {
-          if (!inp.files.length) { cmsStatus(st, 'Choisissez une image', false); return; }
-          btn.disabled = true; cmsStatus(st, 'Compression…', true);
-          try {
-            const b64 = await cmsCompress(inp.files[0]);
-            cmsStatus(st, 'Envoi…', true);
-            await cmsApi('/admin/image', { method: 'POST', body: JSON.stringify({ key: item.key, data: b64, mime: 'image/jpeg' }) });
-            cmsStatus(st, '✓ Image en ligne', true);
-            let prev = div.querySelector('.cms-img-preview');
-            if (!prev) { prev = document.createElement('img'); prev.className = 'cms-img-preview'; div.insertBefore(prev, inp); }
-            prev.src = '/api/content/img/' + item.key + '?t=' + Date.now();
-          } catch (e) { cmsStatus(st, e.message, false); }
-          btn.disabled = false;
-        };
-      }
-      box.appendChild(div);
-    });
-  }
-
-  function cmsInstall() {
-    const tabs = document.querySelector('.tabs');
-    const app = document.getElementById('app');
-    if (!tabs || !app) return;
-    const tab = document.createElement('button');
-    tab.className = 'tab';
-    tab.dataset.p = 'contenu';
-    tab.textContent = '📝 Contenu';
-    tabs.insertBefore(tab, tabs.firstChild);
-    const panel = document.createElement('div');
-    panel.className = 'panel';
-    panel.id = 'p-contenu';
-    panel.innerHTML = '<h2>Contenu du site (v4)</h2>' +
-      '<p class="sub">Modifie les textes et images des pages publiques — visible immédiatement, sans redéploiement.</p>' +
-      '<div id="listContenu" class="loading">Chargement…</div>';
-    app.appendChild(panel);
-    tab.onclick = () => {
-      document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
-      document.querySelectorAll('.panel').forEach(x => x.classList.remove('on'));
-      tab.classList.add('on');
-      panel.classList.add('on');
-      if (!cmsLoaded) cmsLoad();
-    };
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', cmsInstall);
-  else cmsInstall();
-})();
-
-/* ───────── BOUTIQUE ───────── */
-let cacheBoutique=[];
-function openAddBook(){ document.getElementById('addBookForm').style.display='block'; }
-function closeAddBook(){ document.getElementById('addBookForm').style.display='none'; }
-async function addBook(){
-  const msg=document.getElementById('addBookMsg');
-  const niveau=parseInt(document.getElementById('bNiveau').value);
-  const name=document.getElementById('bName').value.trim();
-  const price=parseInt(document.getElementById('bPrice').value);
-  const coverUrl=document.getElementById('bCoverUrl').value.trim();
-  
-  msg.style.color='var(--muted)'; msg.textContent='';
-  if(!niveau||!name||!price){ msg.textContent='Tous les champs requis.'; msg.style.color='#B3261E'; return; }
-  
-  const book={niveau,name,price,img:coverUrl||'/images/livres/niveau-'+niveau+'.jpg'};
-  cacheBoutique.push(book);
-  localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
-  
-  msg.style.color='var(--green)'; msg.textContent='✓ Livre ajouté';
-  document.getElementById('bNiveau').value='';
-  document.getElementById('bName').value='';
-  document.getElementById('bPrice').value='';
-  document.getElementById('bCoverUrl').value='';
-  closeAddBook();
+// Init
+function init(){
   loadBoutique();
+  loadSettings();
 }
-async function loadBoutique(){
+
+// Settings
+function loadSettings(){
+  const saved=localStorage.getItem('gerant_settings');
+  if(saved){
+    const s=JSON.parse(saved);
+    coverFolder=s.coverFolder||'/images/livres/';
+  }
+  document.getElementById('coverFolder').value=coverFolder;
+}
+
+function saveSettings(){
+  coverFolder=document.getElementById('coverFolder').value||'/images/livres/';
+  localStorage.setItem('gerant_settings',JSON.stringify({coverFolder}));
+  toast('✓ Paramètres enregistrés');
+}
+
+// Books
+function loadBoutique(){
   const stored=localStorage.getItem('boutique_books');
-  if(stored) cacheBoutique=JSON.parse(stored);
-  else cacheBoutique=[
-    {niveau:1,name:'Niveau 1 - Introduction',price:10,img:'/images/livres/niveau-1.jpg'},
-    {niveau:2,name:'Niveau 2',price:10,img:'/images/livres/niveau-2.jpg'},
-    {niveau:3,name:'Niveau 3',price:10,img:'/images/livres/niveau-3.jpg'},
-    {niveau:4,name:'Niveau 4',price:10,img:'/images/livres/niveau-4.jpg'},
-    {niveau:5,name:'Niveau 5',price:10,img:'/images/livres/niveau-5.jpg'},
-    {niveau:6,name:'Niveau 6',price:10,img:'/images/livres/niveau-6.jpg'},
-    {niveau:7,name:'Niveau 7',price:10,img:'/images/livres/niveau-7.jpg'},
-    {niveau:8,name:'Niveau 8',price:10,img:'/images/livres/niveau-8.jpg'},
-    {niveau:9,name:'Niveau 9',price:10,img:'/images/livres/niveau-9.jpg'},
-    {niveau:10,name:'Niveau 10',price:10,img:'/images/livres/niveau-10.jpg'},
-    {niveau:11,name:'Niveau 11 - نهاية',price:10,img:'/images/livres/niveau-11.jpg'}
-  ];
+  if(stored){
+    cacheBoutique=JSON.parse(stored);
+  }else{
+    cacheBoutique=[
+      {niveau:1,name:'Niveau 1 - Introduction',price:10,img:'/images/livres/niveau-1.jpg'},
+      {niveau:2,name:'Niveau 2',price:10,img:'/images/livres/niveau-2.jpg'},
+      {niveau:3,name:'Niveau 3',price:10,img:'/images/livres/niveau-3.jpg'},
+      {niveau:4,name:'Niveau 4',price:10,img:'/images/livres/niveau-4.jpg'},
+      {niveau:5,name:'Niveau 5',price:10,img:'/images/livres/niveau-5.jpg'},
+      {niveau:6,name:'Niveau 6',price:10,img:'/images/livres/niveau-6.jpg'},
+      {niveau:7,name:'Niveau 7',price:10,img:'/images/livres/niveau-7.jpg'},
+      {niveau:8,name:'Niveau 8',price:10,img:'/images/livres/niveau-8.jpg'},
+      {niveau:9,name:'Niveau 9',price:10,img:'/images/livres/niveau-9.jpg'},
+      {niveau:10,name:'Niveau 10',price:10,img:'/images/livres/niveau-10.jpg'},
+      {niveau:11,name:'Niveau 11 - نهاية',price:10,img:'/images/livres/niveau-11.jpg'}
+    ];
+  }
   renderBoutique();
 }
+
 function renderBoutique(){
-  if(!cacheBoutique.length){ document.getElementById('listBoutique').innerHTML='<div class="empty">Aucun livre.</div>'; return; }
-  document.getElementById('listBoutique').innerHTML=cacheBoutique.map((b,idx)=>`<div class="row">
-    <div class="r-top">
-      <div style="flex:1;">
-        <div class="name">Niveau ${b.niveau} - ${b.name}</div>
-        <div class="meta">${b.price}€</div>
-        <img src="${b.img}" alt="${b.name}" style="max-width:120px;max-height:100px;border-radius:8px;margin-top:0.5rem;border:1px solid var(--beige);">
+  if(!cacheBoutique.length){
+    document.getElementById('listBoutique').innerHTML='<div class="empty">Aucun livre.</div>';
+    return;
+  }
+  document.getElementById('listBoutique').innerHTML=cacheBoutique.map((b,idx)=>`
+    <div class="row">
+      <div class="r-top">
+        <div style="flex:1;">
+          <div class="name">Niveau ${b.niveau} - ${b.name}</div>
+          <div class="meta">${b.price}€</div>
+          <img src="${b.img}" alt="${b.name}" class="cover-preview" style="margin-top:0.5rem;">
+        </div>
+        <span class="badge b-info">${b.price}€</span>
       </div>
-      <span class="badge b-info">${b.price}€</span>
-    </div>
-    <div class="acts">
-      <button class="btn btn-gold" onclick="editBookInfo(${idx})">✏️ Modifier nom/prix</button>
-      <button class="btn btn-gold" onclick="editBookCover(${idx})">📸 Couverture</button>
-      ${idx>0?'<button class="btn btn-soft" onclick="moveBook('+idx+',-1)">⬆️ Monter</button>':''}
-      ${idx<cacheBoutique.length-1?'<button class="btn btn-soft" onclick="moveBook('+idx+',1)">⬇️ Descendre</button>':''}
-      <button class="btn btn-bad" onclick="deleteBook(${idx})">🗑 Supprimer</button>
-    </div>
-    <div id="editInfo-${idx}" style="display:none;margin-top:0.6rem;background:#fff;border:1px solid var(--beige);border-radius:8px;padding:0.8rem;">
-      <input type="text" id="editName-${idx}" style="width:100%;padding:0.5rem;border:1px solid var(--beige);border-radius:6px;margin-bottom:0.5rem;font-family:inherit;font-size:0.9rem;" placeholder="Nom du livre">
-      <input type="number" id="editPrice-${idx}" style="width:100%;padding:0.5rem;border:1px solid var(--beige);border-radius:6px;margin-bottom:0.5rem;font-family:inherit;font-size:0.9rem;" placeholder="Prix (€)">
       <div class="acts">
-        <button class="btn btn-green" onclick="saveBookInfo(${idx})">💾 Enregistrer</button>
-        <button class="btn btn-soft" onclick="closeEditInfo(${idx})">Annuler</button>
+        <button class="btn btn-gold" onclick="openEditModal(${idx})">✏️ Éditer</button>
+        ${idx>0?'<button class="btn btn-soft" onclick="moveBook('+idx+',-1)">⬆️ Monter</button>':''}
+        ${idx<cacheBoutique.length-1?'<button class="btn btn-soft" onclick="moveBook('+idx+',1)">⬇️ Descendre</button>':''}
+        <button class="btn btn-bad" onclick="deleteBook(${idx})">🗑 Supprimer</button>
       </div>
-      <div id="infoMsg-${idx}" style="font-size:0.75rem;margin-top:0.4rem;"></div>
     </div>
-    <div id="editCover-${idx}" style="display:none;margin-top:0.6rem;background:#fff;border:1px solid var(--beige);border-radius:8px;padding:0.8rem;">
-      <input type="file" accept="image/*" id="cover-${idx}" style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
-      <div class="acts">
-        <button class="btn btn-green" onclick="saveCover(${idx})">💾 Enregistrer</button>
-        <button class="btn btn-soft" onclick="closeEditCover(${idx})">Annuler</button>
-      </div>
-      <div id="coverMsg-${idx}" style="font-size:0.75rem;margin-top:0.4rem;"></div>
-    </div>
-  </div>`).join('');
+  `).join('');
 }
-function editBookInfo(idx){ 
-  const b=cacheBoutique[idx];
-  document.getElementById('editName-'+idx).value=b.name;
-  document.getElementById('editPrice-'+idx).value=b.price;
-  document.getElementById('editInfo-'+idx).style.display='block'; 
+
+// Modal Add Book
+function openAddBookModal(){
+  document.getElementById('addBookModal').classList.add('show');
+  document.getElementById('addLevel').value='';
+  document.getElementById('addName').value='';
+  document.getElementById('addPrice').value='10';
+  document.getElementById('addCover').value='';
+  document.getElementById('coverPreview').style.display='none';
+  document.getElementById('addBookMsg').textContent='';
 }
-function closeEditInfo(idx){ document.getElementById('editInfo-'+idx).style.display='none'; }
-function saveBookInfo(idx){
-  const name=document.getElementById('editName-'+idx).value.trim();
-  const price=parseInt(document.getElementById('editPrice-'+idx).value);
-  const msg=document.getElementById('infoMsg-'+idx);
-  if(!name||!price){ msg.textContent='Nom et prix requis.'; msg.style.color='#B3261E'; return; }
-  cacheBoutique[idx].name=name;
-  cacheBoutique[idx].price=price;
-  localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
-  msg.textContent='✓ Modifié'; msg.style.color='var(--green)';
-  closeEditInfo(idx);
-  loadBoutique();
+
+function closeAddBookModal(){
+  document.getElementById('addBookModal').classList.remove('show');
 }
-function editBookCover(idx){ document.getElementById('editCover-'+idx).style.display='block'; }
-function closeEditCover(idx){ document.getElementById('editCover-'+idx).style.display='none'; }
-async function saveCover(idx){
-  const file=document.getElementById('cover-'+idx).files[0];
-  const msg=document.getElementById('coverMsg-'+idx);
-  if(!file){ msg.textContent='Choisir une image.'; msg.style.color='#B3261E'; return; }
-  msg.textContent='Conversion...'; msg.style.color='var(--muted)';
+
+function previewCover(){
+  const file=document.getElementById('addCover').files[0];
+  if(!file) return;
   const reader=new FileReader();
-  reader.onload=()=>{
-    const base64=reader.result;
-    cacheBoutique[idx].img=base64;
-    localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
-    msg.textContent='✓ Couverture mise à jour'; msg.style.color='var(--green)';
-    closeEditCover(idx);
-    loadBoutique();
+  reader.onload=(e)=>{
+    document.getElementById('coverPreview').src=e.target.result;
+    document.getElementById('coverPreview').style.display='block';
+    document.getElementById('coverInfo').textContent=`📁 ${file.name} (${(file.size/1024).toFixed(1)}KB)`;
   };
   reader.readAsDataURL(file);
 }
+
+async function saveNewBook(){
+  const level=document.getElementById('addLevel').value;
+  const name=document.getElementById('addName').value.trim();
+  const price=parseInt(document.getElementById('addPrice').value);
+  const file=document.getElementById('addCover').files[0];
+  const msg=document.getElementById('addBookMsg');
+
+  msg.textContent='Vérification...';
+  msg.style.color='var(--muted)';
+
+  if(!level||!name||!price){
+    msg.textContent='❌ Tous les champs sont requis';
+    msg.style.color='var(--bad)';
+    return;
+  }
+
+  let imgUrl=`${coverFolder}niveau-${level}.jpg`;
+
+  if(file){
+    msg.textContent='📤 Conversion de l\'image...';
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      imgUrl=e.target.result;
+      addBookToStore(level,name,price,imgUrl,msg);
+    };
+    reader.readAsDataURL(file);
+  }else{
+    addBookToStore(level,name,price,imgUrl,msg);
+  }
+}
+
+function addBookToStore(level,name,price,img,msg){
+  const book={niveau:parseInt(level),name,price:parseInt(price),img};
+  cacheBoutique.push(book);
+  cacheBoutique.sort((a,b)=>a.niveau-b.niveau);
+  localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
+  msg.textContent='✓ Livre ajouté avec succès';
+  msg.style.color='var(--ok)';
+  setTimeout(()=>{
+    closeAddBookModal();
+    loadBoutique();
+  },1000);
+}
+
+// Modal Edit Book
+function openEditModal(idx){
+  currentEditIndex=idx;
+  const b=cacheBoutique[idx];
+  document.getElementById('editName').value=b.name;
+  document.getElementById('editPrice').value=b.price;
+  document.getElementById('editCoverPreview').src=b.img;
+  document.getElementById('editCoverPreview').style.display='block';
+  document.getElementById('editCoverUrl').textContent=`📄 ${b.img.substring(0,80)}...`;
+  document.getElementById('editCover').value='';
+  document.getElementById('editBookMsg').textContent='';
+  document.getElementById('editBookModal').classList.add('show');
+}
+
+function closeEditModal(){
+  document.getElementById('editBookModal').classList.remove('show');
+  currentEditIndex=-1;
+  currentEditFile=null;
+}
+
+function previewEditCover(){
+  const file=document.getElementById('editCover').files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    currentEditFile=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveEditedBook(){
+  const name=document.getElementById('editName').value.trim();
+  const price=parseInt(document.getElementById('editPrice').value);
+  const msg=document.getElementById('editBookMsg');
+
+  if(!name||!price){
+    msg.textContent='❌ Tous les champs sont requis';
+    msg.style.color='var(--bad)';
+    return;
+  }
+
+  cacheBoutique[currentEditIndex].name=name;
+  cacheBoutique[currentEditIndex].price=price;
+  
+  if(currentEditFile){
+    cacheBoutique[currentEditIndex].img=currentEditFile;
+  }
+
+  localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
+  msg.textContent='✓ Livre modifié avec succès';
+  msg.style.color='var(--ok)';
+  setTimeout(()=>{
+    closeEditModal();
+    loadBoutique();
+  },1000);
+}
+
 function moveBook(idx,direction){
   const newIdx=idx+direction;
   if(newIdx<0||newIdx>=cacheBoutique.length) return;
@@ -931,14 +419,33 @@ function moveBook(idx,direction){
   localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
   loadBoutique();
 }
+
 function deleteBook(idx){
-  if(!confirm('Supprimer ce livre ?')) return;
+  if(!confirm(`Supprimer "${cacheBoutique[idx].name}" ?`)) return;
   cacheBoutique.splice(idx,1);
   localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
-  toast('Livre supprimé');
+  toast('✓ Livre supprimé');
   loadBoutique();
 }
 
+// Toast
+function toast(msg,isError=false){
+  const t=document.createElement('div');
+  t.className='toast '+(isError?'error':'');
+  t.textContent=msg;
+  document.body.appendChild(t);
+  t.classList.add('show');
+  setTimeout(()=>t.remove(),3000);
+}
+
+// Logout
+document.getElementById('logoutBtn').addEventListener('click',()=>{
+  localStorage.clear();
+  window.location.reload();
+});
+
+// Launch
+window.addEventListener('load',init);
 </script>
 </body>
 </html>
