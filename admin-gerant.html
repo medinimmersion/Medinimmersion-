@@ -241,17 +241,17 @@ function loadBoutique(){
     cacheBoutique=JSON.parse(stored);
   }else{
     cacheBoutique=[
-      {niveau:1,name:'Niveau 1 - Introduction',price:10,img:'/images/livres/niveau-1.jpg'},
-      {niveau:2,name:'Niveau 2',price:10,img:'/images/livres/niveau-2.jpg'},
-      {niveau:3,name:'Niveau 3',price:10,img:'/images/livres/niveau-3.jpg'},
-      {niveau:4,name:'Niveau 4',price:10,img:'/images/livres/niveau-4.jpg'},
-      {niveau:5,name:'Niveau 5',price:10,img:'/images/livres/niveau-5.jpg'},
-      {niveau:6,name:'Niveau 6',price:10,img:'/images/livres/niveau-6.jpg'},
-      {niveau:7,name:'Niveau 7',price:10,img:'/images/livres/niveau-7.jpg'},
-      {niveau:8,name:'Niveau 8',price:10,img:'/images/livres/niveau-8.jpg'},
-      {niveau:9,name:'Niveau 9',price:10,img:'/images/livres/niveau-9.jpg'},
-      {niveau:10,name:'Niveau 10',price:10,img:'/images/livres/niveau-10.jpg'},
-      {niveau:11,name:'Niveau 11 - نهاية',price:10,img:'/images/livres/niveau-11.jpg'}
+      {niveau:1,fr:'Niveau 1 - Introduction',price:10,img:'/images/livres/niveau-1.jpg'},
+      {niveau:2,fr:'Niveau 2',price:10,img:'/images/livres/niveau-2.jpg'},
+      {niveau:3,fr:'Niveau 3',price:10,img:'/images/livres/niveau-3.jpg'},
+      {niveau:4,fr:'Niveau 4',price:10,img:'/images/livres/niveau-4.jpg'},
+      {niveau:5,fr:'Niveau 5',price:10,img:'/images/livres/niveau-5.jpg'},
+      {niveau:6,fr:'Niveau 6',price:10,img:'/images/livres/niveau-6.jpg'},
+      {niveau:7,fr:'Niveau 7',price:10,img:'/images/livres/niveau-7.jpg'},
+      {niveau:8,fr:'Niveau 8',price:10,img:'/images/livres/niveau-8.jpg'},
+      {niveau:9,fr:'Niveau 9',price:10,img:'/images/livres/niveau-9.jpg'},
+      {niveau:10,fr:'Niveau 10',price:10,img:'/images/livres/niveau-10.jpg'},
+      {niveau:11,fr:'Niveau 11 - نهاية',price:10,img:'/images/livres/niveau-11.jpg'}
     ];
   }
   renderBoutique();
@@ -266,9 +266,9 @@ function renderBoutique(){
     <div class="row">
       <div class="r-top">
         <div style="flex:1;">
-          <div class="name">Niveau ${b.niveau} - ${b.name}</div>
+          <div class="name">Niveau ${b.niveau} - ${b.fr}</div>
           <div class="meta">${b.price}€</div>
-          <img src="${b.img}" alt="${b.name}" class="cover-preview" style="margin-top:0.5rem;">
+          <img src="${b.img}" alt="${b.fr}" class="cover-preview" style="margin-top:0.5rem;">
         </div>
         <span class="badge b-info">${b.price}€</span>
       </div>
@@ -341,7 +341,7 @@ async function saveNewBook(){
 }
 
 function addBookToStore(level,name,price,img,msg){
-  const book={niveau:parseInt(level),name,price:parseInt(price),img};
+  const book={niveau:parseInt(level),fr:name,price:parseInt(price),img};
   cacheBoutique.push(book);
   cacheBoutique.sort((a,b)=>a.niveau-b.niveau);
   localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
@@ -357,7 +357,7 @@ function addBookToStore(level,name,price,img,msg){
 function openEditModal(idx){
   currentEditIndex=idx;
   const b=cacheBoutique[idx];
-  document.getElementById('editName').value=b.name;
+  document.getElementById('editName').value=b.fr;
   document.getElementById('editPrice').value=b.price;
   document.getElementById('editCoverPreview').src=b.img;
   document.getElementById('editCoverPreview').style.display='block';

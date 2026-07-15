@@ -208,7 +208,7 @@ function deleteBook(niveau){
 }
 
 function renderAdminList(){
-  $('adminList').innerHTML=BOOKS.map(b=>'<div class="admin-book-item"><span><b>Niveau '+b.niveau+'</b> — '+b.fr+' ('+eur(b.price)+')</span><button class="btn-del" onclick="deleteBook('+b.niveau+')">Supprimer</button></div>').join('');
+  $('adminList').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;return '<div class="admin-book-item"><span><b>Niveau '+b.niveau+'</b> — '+title+' ('+eur(b.price)+')</span><button class="btn-del" onclick="deleteBook('+b.niveau+')">Supprimer</button></div>'}).join('');
 }
 
 function load(){
@@ -237,7 +237,7 @@ function load(){
 }
 
 function renderBooks(){
-  $('books').innerHTML=BOOKS.map(b=>'<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+b.img+'" alt="'+b.fr+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+b.fr+'</b><span class="b-price">'+eur(b.price)+'</span></div></div>').join('');
+  $('books').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;return '<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+b.img+'" alt="'+title+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+title+'</b><span class="b-price">'+eur(b.price)+'</span></div></div>'}).join('');
   document.querySelectorAll('.book').forEach(el=>el.onclick=()=>{const n=parseInt(el.dataset.n,10);packOn=false;if(sel.has(n)) sel.delete(n); else sel.add(n);refresh();});
 }
 
@@ -257,7 +257,7 @@ function refresh(){
     $('totalbar').style.display='flex';
     $('tTxt').textContent=all?'Pack complet — '+BOOKS.length+' PDF':(sel.size+' livre'+(sel.size>1?'s':''));
     $('tVal').textContent=eur(total);
-    $('summary').innerHTML=(all?'<b>Pack complet — les '+BOOKS.length+' PDF</b> (valeur '+eur(PACK.full_price)+')':BOOKS.filter(b=>sel.has(b.niveau)).map(b=>b.fr+' ('+eur(b.price)+')').join(' + '))+'<br>Total : <b>'+eur(total)+'</b>'+(all?' — au lieu de '+eur(PACK.full_price)+' ':'');
+    $('summary').innerHTML=(all?'<b>Pack complet — les '+BOOKS.length+' PDF</b> (valeur '+eur(PACK.full_price)+')':BOOKS.filter(b=>sel.has(b.niveau)).map(b=>(b.fr||b.name||'Niveau '+b.niveau)+' ('+eur(b.price)+')').join(' + '))+'<br>Total : <b>'+eur(total)+'</b>'+(all?' — au lieu de '+eur(PACK.full_price)+' ':'');
   }else{
     $('totalbar').style.display='none';
     $('summary').textContent=emptyText;
