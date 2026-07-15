@@ -214,22 +214,24 @@ export class Character {
     // --- Barbe (hommes uniquement) — placée DEVANT le visage, bien visible ---
     if (gender === 'male') {
       const beardMat = new THREE.MeshStandardMaterial({ color: 0x1c1712, roughness: 0.95 });
-      const beardMain = new THREE.Mesh(new THREE.SphereGeometry(headR * 0.62, 14, 12), beardMat);
-      beardMain.position.set(0, -headR * 0.72, headR * 0.62);
-      beardMain.scale.set(1.15, 1.35, 0.78);
+      // Barbe basse (menton/mâchoire) : l'ovale du visage reste visible,
+      // conformément au concept art (visage lisse couleur peau).
+      const beardMain = new THREE.Mesh(new THREE.SphereGeometry(headR * 0.6, 14, 12), beardMat);
+      beardMain.position.set(0, -headR * 0.9, headR * 0.52);
+      beardMain.scale.set(1.15, 1.3, 0.75);
       beardMain.castShadow = true;
       headGroup.add(beardMain);
 
-      const beardTip = new THREE.Mesh(new THREE.ConeGeometry(headR * 0.36, headR * 0.6, 10), beardMat);
-      beardTip.position.set(0, -headR * 1.5, headR * 0.62);
+      const beardTip = new THREE.Mesh(new THREE.ConeGeometry(headR * 0.34, headR * 0.6, 10), beardMat);
+      beardTip.position.set(0, -headR * 1.75, headR * 0.52);
       beardTip.rotation.x = Math.PI;
       headGroup.add(beardTip);
 
       const mustache = new THREE.Mesh(
-        new THREE.BoxGeometry(headR * 0.5, headR * 0.1, headR * 0.16),
+        new THREE.BoxGeometry(headR * 0.44, headR * 0.09, headR * 0.14),
         beardMat,
       );
-      mustache.position.set(0, -headR * 0.2, headR * 0.95);
+      mustache.position.set(0, -headR * 0.5, headR * 0.88);
       headGroup.add(mustache);
     }
 

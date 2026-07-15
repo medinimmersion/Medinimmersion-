@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Test Personnage</title>
+  <title>Design des personnages — RIHLA</title>
   <style>body { margin: 0; overflow: hidden; background: #888; }</style>
   <script type="importmap">
     {
@@ -20,8 +20,8 @@
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xd8d0c0);
 
-    const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 100);
-    camera.position.set(0, 1.1, 3.2);
+    const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.1, 100);
+    camera.position.set(0, 1.1, 4.6);
     camera.lookAt(0, 0.95, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -33,40 +33,43 @@
     const sun = new THREE.DirectionalLight(0xfff0dd, 1.6);
     sun.position.set(2, 4, 3);
     sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
     scene.add(sun);
 
     const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(20, 20),
+      new THREE.PlaneGeometry(30, 30),
       new THREE.MeshStandardMaterial({ color: 0xc8bca8 })
     );
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // Abdallah — qamis bleu foncé comme la référence, vu de FACE
-    const front = new Character({
-      robeColor: 0x2b3a5c, accentColor: 0xd8c6a1, skinColor: 0xce9f79,
-      headwear: 'ghutra', headwearColor: 0xf3ecd8,
-    });
-    front.setPosition(-0.55, 0, 0);
-    front.faceYaw(0);
-    scene.add(front.object3D);
+    // La distribution complète de RIHLA, de gauche à droite :
+    const lineup = [
+      // Joueur — qamis beige
+      { opts: { robeColor: 0xcbb489, accentColor: 0x8a7350, skinColor: 0xd8b48c, headwear: 'ghutra', headwearColor: 0xf3ecd8 }, x: -2.2, yaw: 0 },
+      // Abou Adam — vert profond, ghutra crème
+      { opts: { robeColor: 0x33513a, accentColor: 0xc9a44c, skinColor: 0xc89468, headwear: 'ghutra', headwearColor: 0xf3ecd8 }, x: -1.1, yaw: 0 },
+      // Abdallah — bleu nuit (référence concept art), vu de FACE
+      { opts: { robeColor: 0x2b3a5c, accentColor: 0xd8c6a1, skinColor: 0xce9f79, headwear: 'ghutra', headwearColor: 0xf3ecd8 }, x: 0, yaw: 0 },
+      // Abdallah vu de DOS (drapé en V)
+      { opts: { robeColor: 0x2b3a5c, accentColor: 0xd8c6a1, skinColor: 0xce9f79, headwear: 'ghutra', headwearColor: 0xf3ecd8 }, x: 1.1, yaw: Math.PI },
+      // Personnage féminin — abaya + khimar brun foncé (référence concept art)
+      { opts: { robeColor: 0x3d2b1f, accentColor: 0x3d2b1f, skinColor: 0xd8b48c, headwear: null, gender: 'female' }, x: 2.2, yaw: 0 },
+    ];
 
-    // Même personnage vu de DOS
-    const back = new Character({
-      robeColor: 0x2b3a5c, accentColor: 0xd8c6a1, skinColor: 0xce9f79,
-      headwear: 'ghutra', headwearColor: 0xf3ecd8,
-    });
-    back.setPosition(0.55, 0, 0);
-    back.faceYaw(Math.PI);
-    scene.add(back.object3D);
+    const chars = [];
+    for (const item of lineup) {
+      const c = new Character(item.opts);
+      c.setPosition(item.x, 0, 0);
+      c.faceYaw(item.yaw);
+      scene.add(c.object3D);
+      chars.push(c);
+    }
 
     renderer.render(scene, camera);
-    let t = 0;
     setInterval(() => {
-      t += 1 / 30;
-      front.update(1 / 30, { moving: false });
-      back.update(1 / 30, { moving: false });
+      for (const c of chars) c.update(1 / 30, { moving: false });
       renderer.render(scene, camera);
     }, 33);
   </script>
