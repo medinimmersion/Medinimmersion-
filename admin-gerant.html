@@ -246,7 +246,7 @@ async function boot(){
     const r=await fetch('/api/admin/stats',{headers:H()});
     if(!r.ok) throw 0;
     $('login').style.display='none'; $('app').style.display='block';
-    loadStats(); loadEleves(); loadValidation(); loadProfs(); loadPaiements(); loadRemu();
+    loadStats(); loadEleves(); loadValidation(); loadProfs(); loadPaiements(); loadRemu(); loadBoutique();
   }catch{ showLogin(); }
 }
 function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; }
