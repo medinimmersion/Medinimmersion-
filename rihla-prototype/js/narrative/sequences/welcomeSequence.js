@@ -10,7 +10,10 @@ export function playWelcomeSequence({ dialogue, passport, quests, ai }, abouAdam
   quests.startQuest({
     id: 'onboarding-welcome',
     title: "Accueil à l'Académie",
-    objectives: [{ id: 'meet-abou-adam', label: 'Rencontrer Abou Adam' }],
+    objectives: [
+      { id: 'meet-abou-adam', label: 'Rencontrer Abou Adam' },
+      { id: 'depart-cairo', label: 'Emprunte le couloir du fond pour partir au Caire' },
+    ],
   });
 
   dialogue.play(
@@ -37,7 +40,7 @@ export function playWelcomeSequence({ dialogue, passport, quests, ai }, abouAdam
       },
       {
         speaker: 'Abou Adam',
-        text: "Je vais te présenter l'académie et créer ton dossier dans mon bureau. Suis-moi lorsque tu seras prêt.",
+        text: "Ton dossier est prêt. Ta première destination sera l'Égypte : mon ami Abdallah t'attend au Caire. Emprunte le couloir derrière moi quand tu seras prêt à partir.",
       },
     ],
     {

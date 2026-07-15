@@ -16,6 +16,7 @@ import { HUD } from './ui/HUD.js';
 import { DialogueBoxUI } from './ui/DialogueBoxUI.js';
 import { PassportUI } from './ui/PassportUI.js';
 import './world/scenes/index.js'; // side-effect: registers every scene by id
+import './minigames/index.js'; // side-effect: registers every mini-game by id
 
 async function main() {
   const canvas = document.getElementById('viewport');

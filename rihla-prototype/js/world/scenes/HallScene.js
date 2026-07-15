@@ -197,6 +197,22 @@ export class HallScene extends SceneBase {
       onEnter: (ctx) => ctx.sceneManager.goTo('academy-exterior', 'fromHall'),
     });
 
+    // Le couloir du fond mène au départ pour l'Égypte (voyage vers Le Caire).
+    this.interactables.push({
+      id: 'depart-cairo',
+      position: new THREE.Vector3(0, 0, -halfD + 0.8),
+      radius: 1.5,
+      label: 'Partir pour Le Caire',
+      onInteract: (ctx) => {
+        if (!this._welcomePlayed) {
+          ctx.bus.emit(Events.HUD_SET_OBJECTIVE, { text: "Salue d'abord Abou Adam avant de partir en voyage." });
+          return;
+        }
+        ctx.quests.completeObjective('depart-cairo');
+        ctx.sceneManager.goTo('cairo-square', 'arrival');
+      },
+    });
+
     this.interactables.push({
       id: 'talk-abou-adam',
       position: new THREE.Vector3(5.0, 0, -4.0),

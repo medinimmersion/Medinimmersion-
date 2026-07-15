@@ -23,6 +23,16 @@ export class DialogueBoxUI {
     this.els.input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') this._submit();
     });
+
+    // Avancer aussi au clavier (Espace/Entrée), sauf pendant une saisie.
+    window.addEventListener('keydown', (e) => {
+      if (!this.dialogue.isActive) return;
+      if (document.activeElement === this.els.input) return;
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        this.dialogue.advance();
+      }
+    });
   }
 
   _submit() {
