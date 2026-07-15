@@ -118,16 +118,17 @@ export class Character {
     const s = height / 1.75;
     this._s = s;
 
-    // Proportions humaines réelles (homme ~7,5 têtes).
+    // Proportions humaines réelles (homme ~7,5 têtes), qamis droit
+    // conforme à l'image de référence : épaules naturelles, chute droite.
     const M = {
       shoulderY: 1.445 * s,
-      shoulderW: 0.175 * s,   // demi-largeur d'épaules
+      shoulderW: 0.195 * s,   // demi-largeur d'épaules
       waistY: 1.02 * s,
       hipY: 0.92 * s,
       hemY: 0.10 * s,        // ourlet du qamis à la cheville
       headR: 0.098 * s,
       neckH: 0.05 * s,
-      flatten: 0.62,          // section elliptique du corps
+      flatten: 0.6,           // section elliptique du corps
     };
     this._M = M;
 
@@ -153,26 +154,39 @@ export class Character {
 
   // --- Qamis : lathe ample avec épaules tombantes + plis réels ------------
   _buildQamis(robeMat, robeColor, gender, M, s) {
+    // Chute droite comme sur la référence : largeur quasi constante des
+    // épaules à l'ourlet, très léger cintrage à la taille.
     const profile = [
-      [0.225 * s, M.hemY],
-      [0.21 * s, 0.30 * s],
-      [0.19 * s, 0.60 * s],
-      [0.172 * s, M.hipY],
-      [0.163 * s, M.waistY],
-      [0.162 * s, 1.16 * s],
-      [0.168 * s, 1.30 * s],
-      [0.172 * s, 1.385 * s],
-      [M.shoulderW, M.shoulderY - 0.025 * s],  // épaule
-      [0.115 * s, M.shoulderY + 0.012 * s],    // trapèzes
-      [0.062 * s, M.shoulderY + 0.03 * s],     // base du cou
+      [0.195 * s, M.hemY],
+      [0.19 * s, 0.35 * s],
+      [0.183 * s, 0.70 * s],
+      [0.176 * s, M.hipY],
+      [0.172 * s, M.waistY],
+      [0.174 * s, 1.18 * s],
+      [0.181 * s, 1.30 * s],
+      [0.187 * s, 1.365 * s],
     ].map(([r, y]) => new THREE.Vector2(r, y));
 
-    const geo = new THREE.LatheGeometry(profile, 48);
+    // Épaule HUMAINE : arc convexe continu du sommet du deltoïde jusqu'à
+    // la base du cou — pente tombante naturelle, aucune cassure.
+    const shoulderTipR = 0.185 * s;
+    const shoulderTipY = M.shoulderY - 0.03 * s;
+    const neckBaseY = M.shoulderY + 0.035 * s;
+    const neckR = 0.058 * s;
+    for (let i = 0; i <= 10; i++) {
+      const t = i / 10;
+      const r = neckR + (shoulderTipR - neckR) * Math.pow(Math.cos(t * Math.PI / 2), 0.85);
+      const y = shoulderTipY + (neckBaseY - shoulderTipY) * Math.pow(Math.sin(t * Math.PI / 2), 1.7);
+      profile.push(new THREE.Vector2(r, y));
+    }
+
+    const geo = new THREE.LatheGeometry(profile, 64);
     addVerticalFolds(geo, { foldCount: 9, amplitude: 0.007 * s, topY: M.waistY, bottomY: M.hemY });
     const qamis = new THREE.Mesh(geo, robeMat);
     qamis.scale.z = M.flatten;
     this.root.add(qamis);
     this.body = qamis;
+
 
     if (gender === 'male') {
       // Col officier + patte de boutonnage + boutons + coutures.
@@ -291,130 +305,81 @@ export class Character {
     this.head = headGroup;
   }
 
-  // --- Ghutra : dôme ondulé + pans drapés + V arrière + agal 3D -----------
+  // --- Ghutra conforme à l'image de référence : kufi brodé qui dépasse en
+  // haut, agal noir épais, tissu qui encadre le visage en V et tombe en
+  // longs pans triangulaires devant les épaules, grand triangle pointu
+  // dans le dos jusqu'au milieu du dos. -------------------------------------
   _buildGhutra(clothMat, M, s) {
     const headGroup = this.head;
     const headR = M.headR;
 
-    // Kufi blanc visible sous la ghutra.
-    const kufiMat = new THREE.MeshStandardMaterial({ color: 0xf5f2ea, map: fabricTexture(), roughness: 0.8 });
+    // Kufi blanc brodé : dépasse AU-DESSUS de l'agal (sommet visible).
+    const kufiMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      map: fabricTexture(),
+      bumpMap: fabricTexture(),
+      bumpScale: 0.6,
+      roughness: 0.75,
+    });
     const kufi = new THREE.Mesh(
-      new THREE.SphereGeometry(headR * 0.88, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.42),
+      new THREE.SphereGeometry(headR * 1.04, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.34),
       kufiMat,
     );
-    kufi.position.y = headR * 0.34;
+    kufi.position.y = headR * 0.28;
     headGroup.add(kufi);
 
-    // Calotte de la ghutra : posée sur le crâne, le visage reste dégagé.
-    const capGeo = new THREE.SphereGeometry(headR * 1.12, 28, 12, 0, Math.PI * 2, 0, Math.PI * 0.42);
-    const cap = new THREE.Mesh(capGeo, clothMat);
-    cap.position.y = headR * 0.22;
-    headGroup.add(cap);
+    // Tissu de la ghutra sur le crâne : bande complète sous le kufi qui
+    // couvre le front — le visage (sans traits) commence sous le tissu.
+    const bandGeo = new THREE.SphereGeometry(headR * 1.1, 28, 10, 0, Math.PI * 2, Math.PI * 0.2, Math.PI * 0.34);
+    const band = new THREE.Mesh(bandGeo, clothMat);
+    band.position.y = headR * 0.16;
+    headGroup.add(band);
 
-    // Jupe de tissu : couvre uniquement les côtés et l'arrière de la tête,
-    // tombe vers les épaules avec un bord ondulé — le visage reste ouvert.
-    const skirtGeo = new THREE.SphereGeometry(headR * 1.16, 28, 14, 0, Math.PI * 1.44, Math.PI * 0.3, Math.PI * 0.52);
-    const sp = skirtGeo.attributes.position;
-    for (let i = 0; i < sp.count; i++) {
-      const y = sp.getY(i);
-      if (y < headR * 0.15) {
-        const x = sp.getX(i);
-        const z = sp.getZ(i);
-        const ang = Math.atan2(z, x);
-        const spread = 1 + (headR * 0.15 - y) / headR * 0.22;
-        const wave = 1 + Math.sin(ang * 6 + 0.4) * 0.05;
-        sp.setX(i, x * spread * wave);
-        sp.setZ(i, z * spread * wave);
-        sp.setY(i, y + Math.sin(ang * 4) * headR * 0.04);
-      }
-    }
-    skirtGeo.computeVertexNormals();
-    const skirt = new THREE.Mesh(skirtGeo, clothMat);
-    // La découpe (Math.PI*1.44) laisse une ouverture : on la tourne vers
-    // l'avant pour dégager le visage.
-    skirt.rotation.y = Math.PI / 2 + (Math.PI * 2 - Math.PI * 1.44) / 2;
-    skirt.position.y = headR * 0.2;
-    headGroup.add(skirt);
-
-    // Agal : véritable objet 3D indépendant — double anneau noir + cordons.
-    const agalGroup = new THREE.Group();
-    const agalMat = new THREE.MeshStandardMaterial({ color: 0x0d0a07, roughness: 0.5 });
-    for (const [ry, tilt] of [[headR * 0.62, 0.06], [headR * 0.48, -0.04]]) {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(headR * 1.02, headR * 0.07, 12, 36), agalMat);
+    // Agal : double anneau noir épais — objet 3D indépendant.
+    const agalMat = new THREE.MeshStandardMaterial({ color: 0x0c0906, roughness: 0.45 });
+    for (const [ry, tilt] of [[headR * 0.56, 0.05], [headR * 0.42, -0.035]]) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(headR * 1.06, headR * 0.085, 12, 40), agalMat);
       ring.rotation.x = Math.PI / 2 + tilt;
       ring.position.y = ry;
-      agalGroup.add(ring);
+      headGroup.add(ring);
     }
-    // Cordons qui pendent à l'arrière de l'agal, terminés par des pompons.
-    for (const xSign of [-1, 1]) {
-      const cord = new THREE.Mesh(new THREE.CylinderGeometry(headR * 0.02, headR * 0.02, headR * 0.9, 6), agalMat);
-      cord.position.set(xSign * headR * 0.22, headR * 0.05, -headR * 0.95);
-      cord.rotation.x = 0.28;
-      agalGroup.add(cord);
-      const tassel = new THREE.Mesh(new THREE.ConeGeometry(headR * 0.05, headR * 0.14, 8), agalMat);
-      tassel.position.set(xSign * headR * 0.22, -headR * 0.42, -headR * 1.08);
-      agalGroup.add(tassel);
-    }
-    headGroup.add(agalGroup);
 
-    // Retombée sur les épaules (cape courte, section elliptique).
-    const drape = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.082 * s, 0.19 * s, 0.19 * s, 28, 3, true),
-      clothMat,
+    // Voile de la ghutra : UNE seule pièce conique qui tombe de la tête
+    // jusqu'à la poitrine — ouverte devant le visage, pointes qui pendent
+    // plus bas devant les épaules et dans le dos (drapé de la référence).
+    const veilH = 0.42 * s;
+    const gap = Math.PI * 0.5; // ouverture faciale (90°), centrée devant
+    const veilGeo = new THREE.CylinderGeometry(
+      headR * 1.08, 0.2 * s, veilH, 36, 6, true,
+      gap / 2, Math.PI * 2 - gap,
     );
-    const drp = drape.geometry.attributes.position;
-    for (let i = 0; i < drp.count; i++) {
-      const y = drp.getY(i);
-      if (y < -0.05 * s) {
-        const x = drp.getX(i);
-        const z = drp.getZ(i);
-        const ang = Math.atan2(z, x);
-        const wave = 1 + Math.sin(ang * 6 + 1.1) * 0.05;
-        drp.setX(i, x * wave);
-        drp.setZ(i, z * wave);
-        drp.setY(i, y + Math.sin(ang * 4 + 0.4) * 0.012 * s);
-      }
+    const vp = veilGeo.attributes.position;
+    const vHalf = veilH / 2;
+    for (let i = 0; i < vp.count; i++) {
+      const x = vp.getX(i);
+      const y = vp.getY(i);
+      const z = vp.getZ(i);
+      const ang = Math.atan2(x, z); // 0 = devant (+z)
+      const t = (vHalf - y) / veilH; // 0 haut → 1 bas
+      // Les bords libres de l'ouverture (devant) et l'axe arrière pendent
+      // plus bas : pointes du tissu.
+      const edgeDist = Math.min(Math.abs(ang - gap / 2), Math.abs(ang + gap / 2));
+      const frontPoint = Math.max(0, 1 - edgeDist / 0.7) * 0.11 * s;
+      const backPoint = Math.max(0, 1 - Math.abs(Math.abs(ang) - Math.PI) / 0.9) * 0.13 * s;
+      vp.setY(i, y - (frontPoint + backPoint) * t);
+      // Ondulation légère du tissu.
+      const wave = 1 + Math.sin(ang * 6 + 0.5) * 0.03 * t;
+      vp.setX(i, x * wave);
+      vp.setZ(i, z * wave);
     }
-    drape.geometry.computeVertexNormals();
-    drape.scale.z = 0.74;
-    drape.position.y = M.shoulderY + 0.03 * s;
-    this.root.add(drape);
-
-    // Deux pans qui tombent sur la poitrine (strips incurvés, bord libre),
-    // décollés du torse pour ne jamais traverser le tissu du qamis.
-    for (const xSign of [-1, 1]) {
-      const panGeo = new THREE.PlaneGeometry(0.075 * s, 0.22 * s, 4, 9);
-      const pp = panGeo.attributes.position;
-      for (let i = 0; i < pp.count; i++) {
-        const y = pp.getY(i);
-        const x = pp.getX(i);
-        const t = (0.11 * s - y) / (0.22 * s); // 0 en haut, 1 en bas
-        // Le pan s'écarte du corps en tombant + ondulation du bord.
-        pp.setZ(i, t * 0.028 * s + Math.sin(x * 70 + y * 30) * 0.004 * s);
-      }
-      panGeo.computeVertexNormals();
-      const pan = new THREE.Mesh(panGeo, clothMat);
-      pan.position.set(xSign * 0.07 * s, M.shoulderY - 0.12 * s, 0.118 * s);
-      pan.rotation.y = xSign * 0.1;
-      pan.rotation.x = -0.08;
-      this.root.add(pan);
-    }
-
-    // Pointe arrière en V, bombée vers l'extérieur (jamais dans le dos).
-    const backGeo = new THREE.PlaneGeometry(0.17 * s, 0.17 * s, 6, 6);
-    const bp = backGeo.attributes.position;
-    for (let i = 0; i < bp.count; i++) {
-      const x = bp.getX(i);
-      const y = bp.getY(i);
-      bp.setZ(i, -((Math.abs(x) + Math.abs(y)) * 0.16) - Math.sin(x * 40) * 0.003 * s);
-    }
-    backGeo.computeVertexNormals();
-    const backDrape = new THREE.Mesh(backGeo, clothMat);
-    backDrape.position.set(0, M.shoulderY - 0.12 * s, -0.128 * s);
-    backDrape.rotation.z = Math.PI / 4;
-    backDrape.rotation.x = 0.14;
-    this.root.add(backDrape);
-    this._backDrape = backDrape;
+    veilGeo.computeVertexNormals();
+    const veil = new THREE.Mesh(veilGeo, clothMat);
+    // Section elliptique : étroit sur les côtés (les bras restent libres),
+    // profond devant/derrière pour les pointes.
+    veil.scale.set(0.85, 1, 1);
+    veil.position.y = -vHalf + headR * 0.45;
+    headGroup.add(veil);
+    this._backDrape = veil;
   }
 
   _buildKufi(accentMat, M, s) {
@@ -466,28 +431,34 @@ export class Character {
     this.root.add(cape);
   }
 
-  // --- Barbe discrète et naturelle (menton/mâchoire) ----------------------
+  // --- Barbe longue et fournie (conforme à l'image de référence) ----------
   _buildBeard(M, s) {
     const headR = M.headR;
     const beardMat = new THREE.MeshStandardMaterial({
-      color: 0x241a12,
+      color: 0x1e150e,
       roughness: 0.98,
       bumpMap: fabricTexture(),
-      bumpScale: 0.5,
+      bumpScale: 0.7,
     });
-    const beard = new THREE.Mesh(new THREE.SphereGeometry(headR * 0.58, 18, 14), beardMat);
-    beard.position.set(0, -headR * 0.88, headR * 0.42);
-    beard.scale.set(1.08, 1.15, 0.7);
+
+    // Masse principale : devant les joues et le menton, en RELIEF sur le
+    // visage (jamais enfoncée dedans).
+    const beard = new THREE.Mesh(new THREE.SphereGeometry(headR * 0.6, 20, 16), beardMat);
+    beard.position.set(0, -headR * 1.0, headR * 0.45);
+    beard.scale.set(0.95, 1.15, 0.8);
     this.head.add(beard);
 
-    const beardTip = new THREE.Mesh(new THREE.ConeGeometry(headR * 0.3, headR * 0.5, 12), beardMat);
-    beardTip.position.set(0, -headR * 1.55, headR * 0.44);
-    beardTip.rotation.x = Math.PI;
-    this.head.add(beardTip);
+    // Longueur : la barbe descend en s'arrondissant jusqu'au haut de la
+    // poitrine, légèrement plus étroite en bas.
+    const beardLow = new THREE.Mesh(new THREE.SphereGeometry(headR * 0.46, 18, 14), beardMat);
+    beardLow.position.set(0, -headR * 1.75, headR * 0.42);
+    beardLow.scale.set(0.8, 1.05, 0.65);
+    this.head.add(beardLow);
 
-    const mustache = new THREE.Mesh(new THREE.CylinderGeometry(headR * 0.045, headR * 0.045, headR * 0.4, 8), beardMat);
-    mustache.rotation.z = Math.PI / 2;
-    mustache.position.set(0, -headR * 0.48, headR * 0.85);
+    // Moustache au-dessus de la masse.
+    const mustache = new THREE.Mesh(new THREE.SphereGeometry(headR * 0.28, 12, 8), beardMat);
+    mustache.position.set(0, -headR * 0.62, headR * 0.82);
+    mustache.scale.set(1.15, 0.4, 0.5);
     this.head.add(mustache);
   }
 
@@ -496,9 +467,11 @@ export class Character {
     const upperLen = 0.27 * s;
     const foreLen = 0.24 * s;
 
-    const upperGeo = new THREE.CylinderGeometry(0.036 * s, 0.042 * s, upperLen, 14);
+    // Manches amples : larges à la racine (elles émergent de la pente de
+    // l'épaule) et s'élargissant doucement vers la manchette.
+    const upperGeo = new THREE.CylinderGeometry(0.052 * s, 0.046 * s, upperLen, 14);
     upperGeo.translate(0, -upperLen / 2, 0);
-    const foreGeo = new THREE.CylinderGeometry(0.042 * s, 0.048 * s, foreLen, 14);
+    const foreGeo = new THREE.CylinderGeometry(0.046 * s, 0.05 * s, foreLen, 14);
     foreGeo.translate(0, -foreLen / 2, 0);
 
     const buildHand = (xSign) => {
@@ -525,8 +498,8 @@ export class Character {
     };
 
     const buildArm = (xSign) => {
-      const arm = new THREE.Group(); // pivot épaule
-      arm.position.set(xSign * (M.shoulderW + 0.012 * s), M.shoulderY - 0.01 * s, 0);
+      const arm = new THREE.Group(); // pivot sous l'épaule, manche dans la pente
+      arm.position.set(xSign * 0.168 * s, M.shoulderY - 0.02 * s, 0);
 
       const upper = new THREE.Mesh(upperGeo.clone(), robeMat);
       arm.add(upper);
@@ -557,11 +530,13 @@ export class Character {
     this.armR = buildArm(1);
     this.root.add(this.armL, this.armR);
 
+    // Bras le long du corps, mains près des cuisses (référence).
     this._restArmRot = -0.04;
+    this._restArmZ = 0.055;
     this.armL.rotation.x = this._restArmRot;
     this.armR.rotation.x = this._restArmRot;
-    this.armL.rotation.z = 0.075;
-    this.armR.rotation.z = -0.075;
+    this.armL.rotation.z = this._restArmZ;
+    this.armR.rotation.z = -this._restArmZ;
   }
 
   // --- API publique (inchangée pour Player/NPC/scènes) --------------------
@@ -611,7 +586,7 @@ export class Character {
 
       // Main droite sur le cœur, coude plié, tête légèrement inclinée.
       this.armR.rotation.x = this._restArmRot - k * 0.75;
-      this.armR.rotation.z = -0.075 - k * 0.35;
+      this.armR.rotation.z = -this._restArmZ - k * 0.3;
       this.armR.userData.elbow.rotation.x = -0.14 - k * 1.45;
       this.head.rotation.x = k * 0.14;
       this.body.rotation.x = k * 0.045;
@@ -627,7 +602,7 @@ export class Character {
       this._gestureTimer += dt;
       const wave = Math.sin(this._gestureTimer * 3.0) * 0.3;
       this.armR.rotation.x = this._restArmRot - 0.9 + wave * 0.25;
-      this.armR.rotation.z = -0.075 - 0.3 - wave * 0.15;
+      this.armR.rotation.z = -this._restArmZ - 0.3 - wave * 0.15;
       this.armR.userData.elbow.rotation.x = -0.5 + wave * 0.2;
       this.head.rotation.y = Math.sin(this._gestureTimer * 1.1) * 0.12;
       if (this._gestureTimer >= this._gestureDuration) {
@@ -660,8 +635,8 @@ export class Character {
       this.body.scale.y = 1 + breathe;
       this.armL.rotation.x += (this._restArmRot - this.armL.rotation.x) * Math.min(1, 8 * dt);
       this.armR.rotation.x += (this._restArmRot - this.armR.rotation.x) * Math.min(1, 8 * dt);
-      this.armL.rotation.z += (0.075 - this.armL.rotation.z) * Math.min(1, 8 * dt);
-      this.armR.rotation.z += (-0.075 - this.armR.rotation.z) * Math.min(1, 8 * dt);
+      this.armL.rotation.z += (this._restArmZ - this.armL.rotation.z) * Math.min(1, 8 * dt);
+      this.armR.rotation.z += (-this._restArmZ - this.armR.rotation.z) * Math.min(1, 8 * dt);
       this.legL.rotation.x *= 0.88;
       this.legR.rotation.x *= 0.88;
       this.root.position.y = 0;
