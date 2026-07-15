@@ -850,7 +850,7 @@ async function loadBoutique(){
 }
 function renderBoutique(){
   if(!cacheBoutique.length){ document.getElementById('listBoutique').innerHTML='<div class="empty">Aucun livre.</div>'; return; }
-  document.getElementById('listBoutique').innerHTML=cacheBoutique.map(b=>`<div class="row">
+  document.getElementById('listBoutique').innerHTML=cacheBoutique.map((b,idx)=>`<div class="row">
     <div class="r-top">
       <div style="flex:1;">
         <div class="name">Niveau ${b.niveau} - ${b.name}</div>
@@ -860,41 +860,80 @@ function renderBoutique(){
       <span class="badge b-info">${b.price}€</span>
     </div>
     <div class="acts">
-      <button class="btn btn-gold" onclick="editBookCover(${b.niveau})">📸 Modifier couverture</button>
-      <button class="btn btn-bad" onclick="deleteBook(${b.niveau})">🗑 Supprimer</button>
+      <button class="btn btn-gold" onclick="editBookInfo(${idx})">✏️ Modifier nom/prix</button>
+      <button class="btn btn-gold" onclick="editBookCover(${idx})">📸 Couverture</button>
+      ${idx>0?'<button class="btn btn-soft" onclick="moveBook('+idx+',-1)">⬆️ Monter</button>':''}
+      ${idx<cacheBoutique.length-1?'<button class="btn btn-soft" onclick="moveBook('+idx+',1)">⬇️ Descendre</button>':''}
+      <button class="btn btn-bad" onclick="deleteBook(${idx})">🗑 Supprimer</button>
     </div>
-    <div id="editCover-${b.niveau}" style="display:none;margin-top:0.6rem;background:#fff;border:1px solid var(--beige);border-radius:8px;padding:0.8rem;">
-      <input type="file" accept="image/*" id="cover-${b.niveau}" style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+    <div id="editInfo-${idx}" style="display:none;margin-top:0.6rem;background:#fff;border:1px solid var(--beige);border-radius:8px;padding:0.8rem;">
+      <input type="text" id="editName-${idx}" style="width:100%;padding:0.5rem;border:1px solid var(--beige);border-radius:6px;margin-bottom:0.5rem;font-family:inherit;font-size:0.9rem;" placeholder="Nom du livre">
+      <input type="number" id="editPrice-${idx}" style="width:100%;padding:0.5rem;border:1px solid var(--beige);border-radius:6px;margin-bottom:0.5rem;font-family:inherit;font-size:0.9rem;" placeholder="Prix (€)">
       <div class="acts">
-        <button class="btn btn-green" onclick="saveCover(${b.niveau})">💾 Enregistrer</button>
-        <button class="btn btn-soft" onclick="closeEditCover(${b.niveau})">Annuler</button>
+        <button class="btn btn-green" onclick="saveBookInfo(${idx})">💾 Enregistrer</button>
+        <button class="btn btn-soft" onclick="closeEditInfo(${idx})">Annuler</button>
       </div>
-      <div id="coverMsg-${b.niveau}" style="font-size:0.75rem;margin-top:0.4rem;"></div>
+      <div id="infoMsg-${idx}" style="font-size:0.75rem;margin-top:0.4rem;"></div>
+    </div>
+    <div id="editCover-${idx}" style="display:none;margin-top:0.6rem;background:#fff;border:1px solid var(--beige);border-radius:8px;padding:0.8rem;">
+      <input type="file" accept="image/*" id="cover-${idx}" style="display:block;margin-bottom:0.5rem;font-size:0.8rem;">
+      <div class="acts">
+        <button class="btn btn-green" onclick="saveCover(${idx})">💾 Enregistrer</button>
+        <button class="btn btn-soft" onclick="closeEditCover(${idx})">Annuler</button>
+      </div>
+      <div id="coverMsg-${idx}" style="font-size:0.75rem;margin-top:0.4rem;"></div>
     </div>
   </div>`).join('');
 }
-function editBookCover(niveau){ document.getElementById('editCover-'+niveau).style.display='block'; }
-function closeEditCover(niveau){ document.getElementById('editCover-'+niveau).style.display='none'; }
-async function saveCover(niveau){
-  const file=document.getElementById('cover-'+niveau).files[0];
-  const msg=document.getElementById('coverMsg-'+niveau);
+function editBookInfo(idx){ 
+  const b=cacheBoutique[idx];
+  document.getElementById('editName-'+idx).value=b.name;
+  document.getElementById('editPrice-'+idx).value=b.price;
+  document.getElementById('editInfo-'+idx).style.display='block'; 
+}
+function closeEditInfo(idx){ document.getElementById('editInfo-'+idx).style.display='none'; }
+function saveBookInfo(idx){
+  const name=document.getElementById('editName-'+idx).value.trim();
+  const price=parseInt(document.getElementById('editPrice-'+idx).value);
+  const msg=document.getElementById('infoMsg-'+idx);
+  if(!name||!price){ msg.textContent='Nom et prix requis.'; msg.style.color='#B3261E'; return; }
+  cacheBoutique[idx].name=name;
+  cacheBoutique[idx].price=price;
+  localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
+  msg.textContent='✓ Modifié'; msg.style.color='var(--green)';
+  closeEditInfo(idx);
+  loadBoutique();
+}
+function editBookCover(idx){ document.getElementById('editCover-'+idx).style.display='block'; }
+function closeEditCover(idx){ document.getElementById('editCover-'+idx).style.display='none'; }
+async function saveCover(idx){
+  const file=document.getElementById('cover-'+idx).files[0];
+  const msg=document.getElementById('coverMsg-'+idx);
   if(!file){ msg.textContent='Choisir une image.'; msg.style.color='#B3261E'; return; }
   msg.textContent='Conversion...'; msg.style.color='var(--muted)';
   const reader=new FileReader();
   reader.onload=()=>{
     const base64=reader.result;
-    const book=cacheBoutique.find(b=>b.niveau===niveau);
-    if(book) book.img=base64;
+    cacheBoutique[idx].img=base64;
     localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
     msg.textContent='✓ Couverture mise à jour'; msg.style.color='var(--green)';
-    closeEditCover(niveau);
+    closeEditCover(idx);
     loadBoutique();
   };
   reader.readAsDataURL(file);
 }
-function deleteBook(niveau){
+function moveBook(idx,direction){
+  const newIdx=idx+direction;
+  if(newIdx<0||newIdx>=cacheBoutique.length) return;
+  const temp=cacheBoutique[idx];
+  cacheBoutique[idx]=cacheBoutique[newIdx];
+  cacheBoutique[newIdx]=temp;
+  localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
+  loadBoutique();
+}
+function deleteBook(idx){
   if(!confirm('Supprimer ce livre ?')) return;
-  cacheBoutique=cacheBoutique.filter(b=>b.niveau!==niveau);
+  cacheBoutique.splice(idx,1);
   localStorage.setItem('boutique_books',JSON.stringify(cacheBoutique));
   toast('Livre supprimé');
   loadBoutique();
