@@ -79,7 +79,7 @@ module.exports = function (pool, opts) {
   // Public : catalogue des livres
   router.get('/api/boutique/books', async (req, res) => {
     try {
-      const r = await pool.query('SELECT id, name, price_euros as price, cover_url, description FROM boutique_products WHERE is_active = true ORDER BY created_at');
+      const r = await pool.query('SELECT id, name, price_euros as price, cover_url, cover_data, description FROM boutique_products WHERE is_active = true ORDER BY created_at');
       const books = r.rowCount > 0 ? r.rows.map(b => ({
         ...b,
         cover_url: b.cover_url || (b.cover_data ? '/api/files/cover/' + b.id : null)
