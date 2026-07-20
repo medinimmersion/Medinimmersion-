@@ -186,7 +186,7 @@ async function load(){
 }
 
 function renderBooks(){
-  $('books').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;return '<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+b.img+'" alt="'+title+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+title+'</b><span class="b-price">'+eur(b.price)+'</span></div></div>'}).join('');
+  $('books').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;const img=b.img||('/images/livres/niveau-'+b.niveau+'.jpg');return '<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+img+'" alt="'+title+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+title+'</b><span class="b-price">'+eur(b.price)+'</span></div></div>'}).join('');
   document.querySelectorAll('.book').forEach(el=>el.onclick=()=>{const n=parseInt(el.dataset.n,10);packOn=false;if(sel.has(n)) sel.delete(n); else sel.add(n);refresh();});
 }
 
