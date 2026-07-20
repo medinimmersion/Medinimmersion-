@@ -1016,18 +1016,46 @@ async function rmMember(gid,mid){
 
 /* ───────── LIVRES (gérant) ───────── */
 async function uploadBook(){
-  const name=$('bName').value.trim(); const f=$('bFile').files[0];
+  const name=$('bName').value.trim(); 
+  const f=$('bFile').files[0];
   if(!name||!f){ toast('Nom et fichier requis.'); return; }
   const niveau=$('bNiveau').value;
   if(!niveau){ toast('Sélectionne un niveau.'); return; }
-  $('bUploadMsg').textContent='Téléversement en cours…';
+  
+  $('bUploadMsg').textContent='Compression du fichier…';
   try{
-    const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});
-    const r=await fetch('/api/admin/library/books',{method:'POST',headers:H(),body:JSON.stringify({name,data,niveau_min:niveau})});
-    if(!r.ok) throw 0;
-    $('bUploadMsg').textContent=''; $('bName').value='';$('bFile').value='';$('bNiveau').value='';
-    toast('Livre ajouté ✓'); document.getElementById('newBookForm').style.display='none'; loadLivres();
-  }catch{ $('bUploadMsg').textContent='Échec du téléversement. Réessaie.'; toast('Erreur.'); }
+    const data=await new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res(r.result.split(',')[1]);
+      r.onerror=rej;
+      r.readAsDataURL(f);
+    });
+    
+    $('bUploadMsg').textContent='Envoi en cours ('+Math.round(f.size/1024)+'KB)…';
+    
+    const r=await fetch('/api/admin/library/books',{
+      method:'POST',
+      headers:H(),
+      body:JSON.stringify({name,data,niveau_min:niveau})
+    });
+    
+    const responseText=await r.text();
+    if(!r.ok) {
+      const errMsg=responseText?JSON.parse(responseText).error||'Erreur '+r.status:'Erreur '+r.status;
+      throw new Error(errMsg);
+    }
+    
+    $('bUploadMsg').textContent=''; 
+    $('bName').value='';
+    $('bFile').value='';
+    $('bNiveau').value='';
+    toast('Livre ajouté ✓'); 
+    document.getElementById('newBookForm').style.display='none'; 
+    loadLivres();
+  }catch(e){ 
+    $('bUploadMsg').textContent='❌ '+e.message; 
+    toast('Erreur: '+e.message); 
+  }
 }
 
 async function renameBook(id){
