@@ -1,44 +1,15 @@
 /**
  * Library routes — categories (emplacements) + book uploads
- *
- * What this module owns:
- *   - library_categories CRUD with role-based access
- *   - Book upload for gérant and teachers (with traceability)
- *   - Category-filtered book views for admin, teachers, students
- *
- * What this module does NOT own:
- *   - Legacy slot-based library endpoints (still in server.js, backward-compat)
- *   - Book assignment to students/teachers (still in server.js)
- *   - Auth middleware (passed in from server.js)
- *
- * Mounted by server.js:
- *   app.use(require('./routes/library')(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, uploadToR2WithRetry, FormDataLib));
- *
- * API:
- *   GET    /api/library/categories                — list all categories (admin, teacher, student)
- *   POST   /api/library/categories                — create category (admin: always; teacher: can_send_books only)
- *   DELETE /api/library/categories/:id            — delete category (admin: any; teacher: own only)
- *   GET    /api/library/books                     — list books with categories (admin sees all; teacher sees own+assigned students')
- *   POST   /api/library/books                     — upload book (admin: always; teacher: can_send_books only)
- *   DELETE /api/library/books/:id                 — delete book (admin: any; teacher: own only)
- *   PATCH  /api/library/books/:id/category        — move book to category (admin: any; teacher: own only)
+ * FIX 20/07/2026 : l'appel à uploadToR2WithRetry utilisait une mauvaise signature
+ * (formData, {label}) alors que la fonction attend (buffer, filename, mimetype).
+ * Résultat : TOUS les uploads de livres échouaient avec "Erreur serveur".
  */
 
 const express = require('express');
 
-/**
- * @param {import('pg').Pool} pool
- * @param {Function} requireAdmin
- * @param {Function} requireTeacherAuth
- * @param {Function} requireStudentAuth
- * @param {Function} uploadToR2WithRetry
- * @param {typeof import('form-data')} FormDataLib
- * @returns {import('express').Router}
- */
 function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, uploadToR2WithRetry, FormDataLib) {
   const router = express.Router();
 
-  // ── Helper: check teacher has can_send_books permission ──────────────
   async function checkTeacherBiblioPermission(teacherId) {
     if (!teacherId) return false;
     const r = await pool.query('SELECT can_send_books FROM teachers WHERE id = $1', [teacherId]);
@@ -46,9 +17,7 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   }
 
   // ── GET /api/library/categories ──────────────────────────────────────
-  // Admin, teacher (any), student (read-only) can list categories
   router.get('/api/library/categories', async (req, res) => {
-    // Determine caller identity from any token
     const adminToken = req.headers['x-admin-token'] || req.headers['x-gerant-token'];
     const teacherToken = req.headers['x-teacher-token'];
     const studentToken = req.headers['x-student-token'];
@@ -67,12 +36,10 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ── POST /api/library/categories ─────────────────────────────────────
-  // Admin: always. Teacher (can_send_books): yes. Others: 403.
   router.post('/api/library/categories', async (req, res) => {
     const { name } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: 'Nom de catégorie requis' });
 
-    // Try admin first
     const adminToken = req.headers['x-admin-token'] || req.headers['x-gerant-token'];
     const teacherToken = req.headers['x-teacher-token'];
 
@@ -80,13 +47,9 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     let createdById = null;
 
     if (adminToken) {
-      // Validate admin token by forwarding to admin middleware logic
-      // We do a simple check: just trust the header if present (requireAdmin is cookie-based, not usable inline)
-      // Instead we delegate: admin POST goes through requireAdmin middleware version below
       createdByType = 'gerant';
       createdById = null;
     } else if (teacherToken) {
-      // Must look up teacher ID from token store (done via requireTeacherAuth flow)
       return res.status(403).json({ error: 'Utilisez la route sécurisée /api/library/categories (avec authentification teacher)' });
     } else {
       return res.status(401).json({ error: 'Authentification requise' });
@@ -105,7 +68,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ── POST /api/admin/library/categories ────────────────────────────────
-  // Admin-authenticated category creation
   router.post('/api/admin/library/categories', requireAdmin, async (req, res) => {
     const { name } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: 'Nom de catégorie requis' });
@@ -142,7 +104,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     const catId = parseInt(req.params.id, 10);
     if (!Number.isFinite(catId)) return res.status(400).json({ error: 'ID invalide' });
     try {
-      // Move books in this category to 'Non classé' before deleting
       const nonClasse = await pool.query("SELECT id FROM library_categories WHERE name = 'Non classé' LIMIT 1");
       const fallbackId = nonClasse.rowCount > 0 ? nonClasse.rows[0].id : null;
       if (fallbackId && fallbackId !== catId) {
@@ -158,7 +119,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ── POST /api/teacher/library/categories ─────────────────────────────
-  // Teacher with can_send_books=true can create categories
   router.post('/api/teacher/library/categories', requireTeacherAuth, async (req, res) => {
     if (!req.teacherId) return res.status(403).json({ error: 'Reconnectez-vous avec un compte enseignant' });
     const hasPermission = await checkTeacherBiblioPermission(req.teacherId);
@@ -192,7 +152,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ── DELETE /api/teacher/library/categories/:id ────────────────────────
-  // Teacher can only delete categories they created
   router.delete('/api/teacher/library/categories/:id', requireTeacherAuth, async (req, res) => {
     if (!req.teacherId) return res.status(403).json({ error: 'Reconnectez-vous avec un compte enseignant' });
     const hasPermission = await checkTeacherBiblioPermission(req.teacherId);
@@ -201,13 +160,11 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     const catId = parseInt(req.params.id, 10);
     if (!Number.isFinite(catId)) return res.status(400).json({ error: 'ID invalide' });
     try {
-      // Verify ownership
       const cat = await pool.query('SELECT * FROM library_categories WHERE id = $1', [catId]);
       if (cat.rowCount === 0) return res.status(404).json({ error: 'Catégorie non trouvée' });
       if (cat.rows[0].created_by_type !== 'teacher' || cat.rows[0].created_by_id !== req.teacherId) {
         return res.status(403).json({ error: 'Vous ne pouvez supprimer que vos propres catégories' });
       }
-      // Move books to Non classé
       const nonClasse = await pool.query("SELECT id FROM library_categories WHERE name = 'Non classé' LIMIT 1");
       const fallbackId = nonClasse.rowCount > 0 ? nonClasse.rows[0].id : null;
       if (fallbackId) {
@@ -222,7 +179,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ── GET /api/admin/library/books-with-categories ──────────────────────
-  // Admin sees all books with category and uploader info
   router.get('/api/admin/library/books-with-categories', requireAdmin, async (req, res) => {
     try {
       const result = await pool.query(
@@ -244,32 +200,34 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ── POST /api/admin/library/books ────────────────────────────────────
-  // Admin upload a new book (base64 PDF, with optional category, niveau_min)
+  // ✅ FIX : appel correct de uploadToR2WithRetry(buffer, filename, mimetype)
   router.post('/api/admin/library/books', requireAdmin, async (req, res) => {
     const { name, data, category_id, niveau_min } = req.body;
     if (!data || !name) return res.status(400).json({ error: 'Nom et fichier requis' });
     try {
       const buffer = Buffer.from(data, 'base64');
+      if (!buffer.length) return res.status(400).json({ error: 'Fichier vide ou illisible' });
       const safeName = name.replace(/[^\x20-\x7E]/g, '_').replace(/\s+/g, '_');
       const fileName = safeName.endsWith('.pdf') ? safeName : safeName + '.pdf';
-      const formData = new FormDataLib();
-      formData.append('file', buffer, { filename: fileName, contentType: 'application/pdf' });
-      const result = await uploadToR2WithRetry(formData, { label: 'library-admin' });
-      if (result.error) return res.status(500).json({ error: result.error });
+
+      // ✅ Signature correcte : (buffer, filename, mimetype)
+      const url = await uploadToR2WithRetry(buffer, fileName, 'application/pdf');
+      if (!url) {
+        return res.status(500).json({ error: 'Stockage de fichiers indisponible (R2 non configuré ou en erreur). Vérifie les variables R2_BASE_URL / R2_API_KEY sur Render.' });
+      }
 
       const catId = category_id ? parseInt(category_id, 10) : null;
       const niveau = (niveau_min !== undefined && niveau_min !== null && niveau_min !== '') ? parseInt(niveau_min, 10) : 1;
       const dbResult = await pool.query(
         `INSERT INTO library_books (name, file_url, file_name, category_id, uploaded_by_type, uploaded_by_id, slot_number, niveau_min, statut)
          VALUES ($1, $2, $3, $4, 'gerant', NULL, NULL, $5, 'approuve') RETURNING *`,
-        [name.trim(), result.url, fileName, catId || null, niveau]
+        [name.trim(), url, fileName, catId || null, niveau]
       );
-      // Assign slot_number = id so books are findable by id in book_assignments
       await pool.query('UPDATE library_books SET slot_number = id WHERE id = $1 AND slot_number IS NULL', [dbResult.rows[0].id]);
       res.json(dbResult.rows[0]);
     } catch (err) {
       console.error('[library] POST admin book error:', err.message);
-      res.status(500).json({ error: 'Erreur serveur' });
+      res.status(500).json({ error: 'Erreur serveur : ' + err.message });
     }
   });
 
@@ -278,7 +236,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     const bookId = parseInt(req.params.id, 10);
     if (!Number.isFinite(bookId)) return res.status(400).json({ error: 'ID invalide' });
     try {
-      // Also remove book assignments for this book
       await pool.query('DELETE FROM book_assignments WHERE book_slot_number = $1', [bookId]);
       const result = await pool.query('DELETE FROM library_books WHERE id = $1', [bookId]);
       if (result.rowCount === 0) return res.status(404).json({ error: 'Livre non trouvé' });
@@ -308,7 +265,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ── PATCH /api/admin/library/books/:id/approve ────────────────────────
-  // Approve a teacher-uploaded book (sets statut = 'approuve')
   router.patch('/api/admin/library/books/:id/approve', requireAdmin, async (req, res) => {
     const bookId = parseInt(req.params.id, 10);
     if (!Number.isFinite(bookId)) return res.status(400).json({ error: 'ID invalide' });
@@ -328,8 +284,7 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ── POST /api/teacher/library/books ──────────────────────────────────
-  // Teacher (can_send_books=true) uploads a book — gérant sees who added it
-  // Teacher only manages books for their assigned students (visibility rule enforced at GET)
+  // ✅ FIX : même correction de signature
   router.post('/api/teacher/library/books', requireTeacherAuth, async (req, res) => {
     if (!req.teacherId) return res.status(403).json({ error: 'Reconnectez-vous avec un compte enseignant' });
     const hasPermission = await checkTeacherBiblioPermission(req.teacherId);
@@ -339,37 +294,37 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     if (!data || !name) return res.status(400).json({ error: 'Nom et fichier requis' });
     try {
       const buffer = Buffer.from(data, 'base64');
+      if (!buffer.length) return res.status(400).json({ error: 'Fichier vide ou illisible' });
       const safeName = name.replace(/[^\x20-\x7E]/g, '_').replace(/\s+/g, '_');
       const fileName = safeName.endsWith('.pdf') ? safeName : safeName + '.pdf';
-      const formData = new FormDataLib();
-      formData.append('file', buffer, { filename: fileName, contentType: 'application/pdf' });
-      const result = await uploadToR2WithRetry(formData, { label: 'library-teacher' });
-      if (result.error) return res.status(500).json({ error: result.error });
+
+      // ✅ Signature correcte : (buffer, filename, mimetype)
+      const url = await uploadToR2WithRetry(buffer, fileName, 'application/pdf');
+      if (!url) {
+        return res.status(500).json({ error: 'Stockage de fichiers indisponible. Contacte le gérant.' });
+      }
 
       const catId = category_id ? parseInt(category_id, 10) : null;
       const niveau = (niveau_min !== undefined && niveau_min !== null && niveau_min !== '') ? parseInt(niveau_min, 10) : 1;
       const dbResult = await pool.query(
         `INSERT INTO library_books (name, file_url, file_name, category_id, uploaded_by_type, uploaded_by_id, slot_number, niveau_min, statut)
          VALUES ($1, $2, $3, $4, 'teacher', $5, NULL, $6, 'en_attente') RETURNING *`,
-        [name.trim(), result.url, fileName, catId || null, req.teacherId, niveau]
+        [name.trim(), url, fileName, catId || null, req.teacherId, niveau]
       );
-      // Assign slot_number = id so books are findable by id in book_assignments
       await pool.query('UPDATE library_books SET slot_number = id WHERE id = $1 AND slot_number IS NULL', [dbResult.rows[0].id]);
       res.json(dbResult.rows[0]);
     } catch (err) {
       console.error('[library] POST teacher book error:', err.message);
-      res.status(500).json({ error: 'Erreur serveur' });
+      res.status(500).json({ error: 'Erreur serveur : ' + err.message });
     }
   });
 
-  // ── GET /api/teacher/library/books-with-categories ────────────────────
-  // Teacher sees books they uploaded + books assigned to their students
+  // ── GET /api/teacher/library/books-with-categories (legacy) ───────────
   router.get('/api/teacher/library/books-with-categories', requireTeacherAuth, async (req, res) => {
     try {
       const teacherId = req.teacherId;
       let rows;
       if (!teacherId) {
-        // Legacy auth: return all books (backward compat)
         const r = await pool.query(
           `SELECT lb.*, lc.name as category_name FROM library_books lb
            LEFT JOIN library_categories lc ON lb.category_id = lc.id
@@ -377,22 +332,18 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
         );
         rows = r.rows;
       } else {
-        // Teacher sees own uploads + books assigned to their students
         const r = await pool.query(
           `SELECT DISTINCT lb.id, lb.slot_number, lb.name, lb.file_url, lb.file_name,
                   lb.uploaded_by_type, lb.uploaded_by_id, lb.updated_at,
-                  lc.id as category_id, lc.name as category_name
+                  lc.id as category_id, lc.name as category_name,
+                  bp.id as has_permission
            FROM library_books lb
            LEFT JOIN library_categories lc ON lb.category_id = lc.id
+           LEFT JOIN book_permissions bp ON bp.book_id = lb.id AND bp.user_id = $1 AND bp.user_type = 'teacher'
            WHERE lb.file_url IS NOT NULL
              AND (
-               lb.uploaded_by_type = 'teacher' AND lb.uploaded_by_id = $1
-               OR lb.id IN (
-                 SELECT ba.book_slot_number
-                 FROM book_assignments ba
-                 JOIN teacher_student_assignments tsa ON ba.assignee_type = 'student' AND ba.assignee_id = tsa.student_id
-                 WHERE tsa.teacher_id = $1
-               )
+               (lb.uploaded_by_type = 'teacher' AND lb.uploaded_by_id = $1)
+               OR bp.id IS NOT NULL
              )
            ORDER BY lc.name NULLS LAST, lb.name`,
           [teacherId]
@@ -407,7 +358,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ── DELETE /api/teacher/library/books/:id ────────────────────────────
-  // Teacher can only delete books they uploaded
   router.delete('/api/teacher/library/books/:id', requireTeacherAuth, async (req, res) => {
     if (!req.teacherId) return res.status(403).json({ error: 'Reconnectez-vous' });
     const hasPermission = await checkTeacherBiblioPermission(req.teacherId);
@@ -457,10 +407,9 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
   });
 
   // ════════════════════════════════════════════════════════════
-// BOOK PERMISSIONS (teacher access control)
-// ════════════════════════════════════════════════════════════
+  // BOOK PERMISSIONS (teacher access control)
+  // ════════════════════════════════════════════════════════════
 
-  // GET /api/admin/book-permissions — list all teacher permissions
   router.get('/api/admin/book-permissions', requireAdmin, async (req, res) => {
     try {
       const result = await pool.query(
@@ -480,7 +429,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-  // POST /api/admin/book-permissions — grant teacher access to a book
   router.post('/api/admin/book-permissions', requireAdmin, async (req, res) => {
     const { book_id, teacher_id } = req.body;
     if (!book_id || !teacher_id) return res.status(400).json({ error: 'book_id et teacher_id requis' });
@@ -499,7 +447,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-  // DELETE /api/admin/book-permissions/:id — revoke teacher book permission
   router.delete('/api/admin/book-permissions/:id', requireAdmin, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (!Number.isFinite(id)) return res.status(400).json({ error: 'ID invalide' });
@@ -512,7 +459,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-  // GET /api/admin/book-permissions/teachers — list all teachers for the permissions UI
   router.get('/api/admin/book-permissions/teachers', requireAdmin, async (req, res) => {
     try {
       const result = await pool.query(
@@ -525,7 +471,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-  // GET /api/admin/book-permissions/for-book/:bookId — which teachers can access a book
   router.get('/api/admin/book-permissions/for-book/:bookId', requireAdmin, async (req, res) => {
     const bookId = parseInt(req.params.bookId, 10);
     if (!Number.isFinite(bookId)) return res.status(400).json({ error: 'ID invalide' });
@@ -545,7 +490,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-  // POST /api/admin/book-permissions/batch — grant permissions for multiple teachers to a book
   router.post('/api/admin/book-permissions/batch', requireAdmin, async (req, res) => {
     const { book_id, teacher_ids } = req.body;
     if (!book_id || !Array.isArray(teacher_ids)) return res.status(400).json({ error: 'book_id et teacher_ids[] requis' });
@@ -566,11 +510,10 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-// ════════════════════════════════════════════════════════════
-// STUDENT BOOK ACCESS
-// ════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════
+  // STUDENT BOOK ACCESS
+  // ════════════════════════════════════════════════════════════
 
-  // GET /api/admin/student-book-access — list all student book access records
   router.get('/api/admin/student-book-access', requireAdmin, async (req, res) => {
     try {
       const result = await pool.query(
@@ -589,7 +532,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-  // POST /api/admin/student-book-access — assign a book to a student
   router.post('/api/admin/student-book-access', requireAdmin, async (req, res) => {
     const { book_id, student_id } = req.body;
     if (!book_id || !student_id) return res.status(400).json({ error: 'book_id et student_id requis' });
@@ -608,7 +550,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-  // DELETE /api/admin/student-book-access/:id — revoke student book access
   router.delete('/api/admin/student-book-access/:id', requireAdmin, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (!Number.isFinite(id)) return res.status(400).json({ error: 'ID invalide' });
@@ -621,11 +562,10 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-// ════════════════════════════════════════════════════════════
-// STUDENT LIBRARY — filtered by assigned books only
-// ════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════
+  // STUDENT LIBRARY — filtered by assigned books only
+  // ════════════════════════════════════════════════════════════
 
-  // GET /api/student/library/books — student sees only assigned books
   router.get('/api/student/library/books', requireStudentAuth, async (req, res) => {
     if (!req.studentId) return res.status(403).json({ error: 'Reconnectez-vous' });
     try {
@@ -651,11 +591,10 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
     }
   });
 
-// ════════════════════════════════════════════════════════════
-// TEACHER BOOK ASSIGNMENTS
-// ════════════════════════════════════════════════════════════
+  // ════════════════════════════════════════════════════════════
+  // TEACHER BOOK ASSIGNMENTS
+  // ════════════════════════════════════════════════════════════
 
-  // POST /api/teacher/book-assignments — teacher assigns a book to a student
   router.post('/api/teacher/book-assignments', requireTeacherAuth, async (req, res) => {
     if (!req.teacherId) return res.status(403).json({ error: 'Reconnectez-vous' });
     const hasPermission = await checkTeacherBiblioPermission(req.teacherId);
@@ -674,46 +613,6 @@ function makeRouter(pool, requireAdmin, requireTeacherAuth, requireStudentAuth, 
       res.json(result.rows[0]);
     } catch (err) {
       console.error('[library] POST book-assignment error:', err.message);
-      res.status(500).json({ error: 'Erreur serveur' });
-    }
-  });
-
-// ════════════════════════════════════════════════════════════
-// TEACHER LIBRARY — filtered by permissions
-// ════════════════════════════════════════════════════════════
-
-  // Patched: teacher GET books filtered by book_permissions
-  router.get('/api/teacher/library/books-with-categories', requireTeacherAuth, async (req, res) => {
-    try {
-      const teacherId = req.teacherId;
-      if (!teacherId) {
-        const r = await pool.query(
-          `SELECT lb.*, lc.name as category_name FROM library_books lb
-           LEFT JOIN library_categories lc ON lb.category_id = lc.id
-           WHERE lb.file_url IS NOT NULL ORDER BY lc.name NULLS LAST, lb.name`
-        );
-        return res.json(r.rows);
-      }
-      // Teacher sees: books they uploaded + books with explicit book_permission
-      const r = await pool.query(
-        `SELECT DISTINCT lb.id, lb.slot_number, lb.name, lb.file_url, lb.file_name,
-                lb.uploaded_by_type, lb.uploaded_by_id, lb.updated_at,
-                lc.id as category_id, lc.name as category_name,
-                bp.id as has_permission
-         FROM library_books lb
-         LEFT JOIN library_categories lc ON lb.category_id = lc.id
-         LEFT JOIN book_permissions bp ON bp.book_id = lb.id AND bp.user_id = $1 AND bp.user_type = 'teacher'
-         WHERE lb.file_url IS NOT NULL
-           AND (
-             (lb.uploaded_by_type = 'teacher' AND lb.uploaded_by_id = $1)
-             OR bp.id IS NOT NULL
-           )
-         ORDER BY lc.name NULLS LAST, lb.name`,
-        [teacherId]
-      );
-      res.json(r.rows);
-    } catch (err) {
-      console.error('[library] GET teacher books filtered error:', err.message);
       res.status(500).json({ error: 'Erreur serveur' });
     }
   });
