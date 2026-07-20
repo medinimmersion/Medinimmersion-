@@ -1,5 +1,6 @@
 /**
  * routes/boutique.js — Boutique de vente des PDF du programme (livres de Médine).
+ * FIX 20/07/2026 : couvertures stockées EN BASE au lieu de R2
  * UPDATED: Endpoints CRUD pour gérer les produits dynamiquement
  */
 'use strict';
@@ -38,7 +39,7 @@ module.exports = function (pool, opts) {
     () => console.log('[boutique] orders table prête'),
     (e) => console.error('[boutique] orders table:', e.message));
 
-  // Table boutique_products (NOUVEAU)
+  // Table boutique_products (NOUVEAU) — stockage des couvertures EN BASE
   pool.query(`
     CREATE TABLE IF NOT EXISTS boutique_products (
       id SERIAL PRIMARY KEY,
@@ -50,16 +51,39 @@ module.exports = function (pool, opts) {
       is_active BOOLEAN DEFAULT true,
       created_at TIMESTAMPTZ DEFAULT now(),
       updated_at TIMESTAMPTZ DEFAULT now()
-    )`).then(
+    );
+    ALTER TABLE boutique_products ADD COLUMN IF NOT EXISTS cover_data TEXT;
+  `).then(
     () => console.log('[boutique] products table prête'),
     (e) => console.error('[boutique] products table:', e.message));
+
+  // ── GET /api/files/cover/:id ────────────────────────────────────────
+  // Sert une couverture stockée en base de données
+  router.get('/api/files/cover/:id', async (req, res) => {
+    const coverId = parseInt(req.params.id, 10);
+    if (!Number.isFinite(coverId)) return res.status(400).send('ID invalide');
+    try {
+      const r = await pool.query('SELECT cover_data FROM boutique_products WHERE id = $1', [coverId]);
+      if (r.rowCount === 0 || !r.rows[0].cover_data) return res.status(404).send('Couverture non trouvée');
+      const buffer = Buffer.from(r.rows[0].cover_data, 'base64');
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.send(buffer);
+    } catch (err) {
+      console.error('[boutique] GET cover error:', err.message);
+      res.status(500).send('Erreur serveur');
+    }
+  });
 
   // ── GET /api/boutique/books ─────────────────────────────────────────
   // Public : catalogue des livres
   router.get('/api/boutique/books', async (req, res) => {
     try {
-      const r = await pool.query('SELECT id, name, price_euros as price, cover_url, cover_base64, description FROM boutique_products WHERE is_active = true ORDER BY created_at');
-      const books = r.rowCount > 0 ? r.rows : DEFAULT_BOOKS;
+      const r = await pool.query('SELECT id, name, price_euros as price, cover_url, description FROM boutique_products WHERE is_active = true ORDER BY created_at');
+      const books = r.rowCount > 0 ? r.rows.map(b => ({
+        ...b,
+        cover_url: b.cover_url || (b.cover_data ? '/api/files/cover/' + b.id : null)
+      })) : DEFAULT_BOOKS;
       res.json({ books, pack: { price: PACK_PRICE, full_price: FULL_PRICE } });
     } catch (err) {
       console.error('[boutique] GET books error:', err.message);
@@ -75,14 +99,14 @@ module.exports = function (pool, opts) {
       if (!name || !price) return res.status(400).json({ error: 'Nom et prix requis.' });
       
       const r = await pool.query(
-        `INSERT INTO boutique_products (name, price_euros, cover_base64, description)
+        `INSERT INTO boutique_products (name, price_euros, cover_data, description)
          VALUES ($1, $2, $3, $4) RETURNING *`,
         [name.trim(), parseFloat(price), cover || null, description?.trim() || null]
       );
       res.json(r.rows[0]);
     } catch (err) {
       console.error('[boutique/products] POST error:', err.message);
-      res.status(500).json({ error: 'Erreur serveur' });
+      res.status(500).json({ error: 'Erreur serveur: ' + err.message });
     }
   });
 
@@ -90,7 +114,7 @@ module.exports = function (pool, opts) {
   // Gérant : lister tous les produits
   router.get('/api/admin/boutique/products', opts.requireAdmin, async (req, res) => {
     try {
-      const r = await pool.query('SELECT * FROM boutique_products ORDER BY created_at DESC');
+      const r = await pool.query('SELECT id, name, price_euros, description, is_active, created_at FROM boutique_products ORDER BY created_at DESC');
       res.json(r.rows);
     } catch (err) {
       console.error('[boutique/products] GET error:', err.message);
@@ -98,9 +122,9 @@ module.exports = function (pool, opts) {
     }
   });
 
-  // ── PUT /api/admin/boutique/products/:id ─────────────────────────────
+  // ── PATCH /api/admin/boutique/products/:id ───────────────────────────
   // Gérant : modifier un produit
-  router.put('/api/admin/boutique/products/:id', opts.requireAdmin, async (req, res) => {
+  router.patch('/api/admin/boutique/products/:id', opts.requireAdmin, async (req, res) => {
     try {
       const { name, price, cover, description } = req.body || {};
       const id = parseInt(req.params.id, 10);
@@ -110,7 +134,7 @@ module.exports = function (pool, opts) {
         `UPDATE boutique_products 
          SET name = COALESCE($1, name),
              price_euros = COALESCE($2, price_euros),
-             cover_base64 = COALESCE($3, cover_base64),
+             cover_data = COALESCE($3, cover_data),
              description = COALESCE($4, description),
              updated_at = NOW()
          WHERE id = $5 RETURNING *`,
@@ -119,7 +143,7 @@ module.exports = function (pool, opts) {
       if (r.rowCount === 0) return res.status(404).json({ error: 'Produit non trouvé' });
       res.json(r.rows[0]);
     } catch (err) {
-      console.error('[boutique/products] PUT error:', err.message);
+      console.error('[boutique/products] PATCH error:', err.message);
       res.status(500).json({ error: 'Erreur serveur' });
     }
   });
