@@ -1178,12 +1178,40 @@ async function extractBook(id){
   }catch(e){ toast(e.message); }
 }
 function pickStudent(promptTxt){
-  const opts=(cacheEleves||[]).map((s,i)=>(i+1)+'. '+(s.prenom||'')+' '+(s.nom||'')).join('\n');
-  const n=prompt(promptTxt+'\n\n'+opts+'\n\nTape le numéro :');
-  if(!n)return null;
-  const s=(cacheEleves||[])[parseInt(n)-1];
-  if(!s){ toast('Numéro invalide'); return null; }
-  return s;
+  let search='';
+  while(true){
+    const filtered=(cacheEleves||[]).filter(s=>{
+      const fullName=((s.prenom||'')+' '+(s.nom||'')).toLowerCase();
+      return fullName.includes(search.toLowerCase());
+    });
+    
+    if(!filtered.length){
+      search=prompt(promptTxt+'\n\n❌ Aucun élève trouvé.\n\nRecherche par nom (ex: "Alice", "Durand"):\n\n'+search);
+      if(!search) return null;
+      continue;
+    }
+    
+    const list=filtered.map((s,i)=>(i+1)+'. '+(s.prenom||'')+' '+(s.nom||'')+' (ID:'+s.id+')').join('\n');
+    const n=prompt(promptTxt+'\n\nRecherche: "'+search+'"\n\n'+list+'\n\nTape le numéro:');
+    if(!n)return null;
+    
+    const selected=filtered[parseInt(n)-1];
+    if(!selected){ toast('Numéro invalide'); return null; }
+    return selected;
+  }
+}
+
+async function pickBook(promptTxt){
+  let search='';
+  while(true){
+    const allBooks=[]; // Récupère depuis loadLivres() cache
+    // Pour l'instant on utilise un prompt simple. À améliorer avec async.
+    const n=prompt(promptTxt+'\n\nTape le nom du livre (ex: "Quran", "Hadith"):');
+    if(!n)return null;
+    search=n.trim();
+    if(!search){ toast('Nom invalide'); return null; }
+    return search; // Retourne le nom du livre à chercher
+  }
 }
 async function assignBookStudent(bookId){
   const s=pickStudent('Donner ce livre à quel élève ?');
