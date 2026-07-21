@@ -20,27 +20,65 @@ a{color:inherit;}
 .logout{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.45rem 0.9rem;border-radius:50px;cursor:pointer;}
 .logout:hover{background:rgba(255,255,255,0.18);}
 .wrap{max-width:1100px;margin:0 auto;padding:1rem;}
+.hero-card{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--green) 0%,var(--green-deep) 100%);border-radius:26px;padding:1.9rem 2rem;color:var(--white);margin-bottom:1.1rem;box-shadow:0 16px 44px rgba(15,61,38,0.25);}
+.hero-glow{position:absolute;top:-80px;right:-50px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,0.20),transparent 68%);pointer-events:none;}
+.hero-label{position:relative;color:var(--gold-light);font-size:0.72rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.7rem;}
+.hero-title{position:relative;font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,5vw,2.7rem);font-weight:700;line-height:1.05;margin-bottom:0.35rem;color:var(--white);}
+.hero-sub{position:relative;color:rgba(255,255,255,0.72);font-size:0.92rem;line-height:1.5;margin-bottom:1.3rem;}
+.hero-stats{position:relative;display:flex;gap:2rem;flex-wrap:wrap;}
+.hstat-val{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:700;color:var(--gold-light);line-height:1;}
+.hstat-lbl{color:rgba(255,255,255,0.6);font-size:0.78rem;margin-top:0.25rem;}
+@media(max-width:768px){.hero-card{padding:1.5rem 1.4rem;}.hero-stats{gap:1.3rem;}}
 .tabs{display:flex;gap:0.4rem;overflow-x:auto;padding-bottom:0.4rem;margin-bottom:1rem;-webkit-overflow-scrolling:touch;}
 .tab{flex:0 0 auto;background:#fff;border:1px solid var(--beige);color:var(--muted);font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.55rem 0.95rem;border-radius:50px;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
 .tab.on{background:var(--green);border-color:var(--green);color:#fff;}
+.tab.gold.on{background:var(--gold);border-color:var(--gold);color:var(--green-deep);}
 .panel{display:none;background:#fff;border:1px solid var(--beige);border-radius:16px;padding:1.1rem;}
-.panel.on{display:block;}
-.panel h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.5rem;margin-bottom:0.5rem;}
+.panel.on{display:block;animation:fade 0.2s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.panel h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.5rem;margin-bottom:0.2rem;}
+.panel .sub{color:var(--muted);font-size:0.85rem;margin-bottom:1rem;}
+.search{width:100%;padding:0.7rem 0.95rem;border:1.5px solid var(--beige);border-radius:11px;font-family:inherit;font-size:0.9rem;margin-bottom:0.9rem;background:var(--cream);}
+.search:focus{outline:2px solid var(--gold);border-color:var(--gold);}
 .row{border:1px solid var(--beige);border-radius:12px;padding:0.85rem;margin-bottom:0.7rem;background:var(--cream);}
 .row .r-top{display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;}
 .row .name{font-weight:700;font-size:0.98rem;color:var(--green-deep);}
 .row .meta{font-size:0.78rem;color:var(--muted);margin-top:0.2rem;line-height:1.5;}
+.badge{font-size:0.68rem;font-weight:700;padding:0.22rem 0.6rem;border-radius:50px;white-space:nowrap;}
+.b-ok{background:var(--okbg);color:var(--ok);}
+.b-warn{background:var(--warnbg);color:var(--warn);}
+.b-bad{background:var(--badbg);color:var(--bad);}
+.b-info{background:var(--infobg);color:var(--info);}
 .acts{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.7rem;}
 .btn{font-family:inherit;font-size:0.76rem;font-weight:600;padding:0.45rem 0.8rem;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;}
-.btn-gold{background:var(--gold);color:var(--green-deep);}
+.btn-green{background:var(--green);color:#fff;}.btn-green:hover{background:var(--green-deep);}
+.btn-gold{background:var(--gold);color:var(--green-deep);}.btn-gold:hover{background:var(--gold-light);}
+.btn-soft{background:#fff;border:1px solid var(--beige);color:var(--text);}
+.btn-info{background:var(--infobg);color:var(--info);}
+.btn-ok{background:var(--okbg);color:var(--ok);}
+.btn-bad{background:var(--badbg);color:var(--bad);}
 .empty{text-align:center;color:var(--muted);font-size:0.88rem;padding:2rem 1rem;}
 .loading{text-align:center;color:var(--muted);font-size:0.85rem;padding:1.5rem;}
+.perm{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid var(--beige);}
+.perm:last-child{border-bottom:none;}
+.perm .pl{font-size:0.85rem;}
+.toggle{width:44px;height:25px;border-radius:50px;background:#ccc;position:relative;cursor:pointer;border:none;transition:background 0.2s;flex:0 0 auto;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left 0.2s;}
+.toggle.on::after{left:22px;}
+.toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--green-deep);color:#fff;padding:0.7rem 1.2rem;border-radius:50px;font-size:0.85rem;font-weight:600;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
 .login{position:fixed;inset:0;background:var(--green-deep);display:flex;align-items:center;justify-content:center;padding:1.25rem;z-index:60;}
 .login .box{background:var(--cream);border-radius:22px;padding:2rem 1.6rem;width:100%;max-width:370px;text-align:center;}
 .login img{height:48px;margin-bottom:0.8rem;}
+.login .tag{display:inline-block;background:var(--gold-pale);color:var(--gold);font-size:0.7rem;font-weight:700;letter-spacing:0.08em;padding:0.3rem 0.9rem;border-radius:50px;margin-bottom:0.8rem;}
 .login h1{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.9rem;margin-bottom:0.3rem;}
+.login p{font-size:0.85rem;color:var(--muted);margin-bottom:1.1rem;}
 .login input{width:100%;padding:0.85rem 1rem;border:1.5px solid var(--beige);border-radius:12px;font-family:inherit;font-size:0.95rem;margin-bottom:0.7rem;background:#fff;}
+.login input:focus{outline:2px solid var(--gold);border-color:var(--gold);}
 .login button{width:100%;padding:0.9rem;border:none;border-radius:50px;background:var(--green);color:#fff;font-family:inherit;font-weight:700;font-size:0.95rem;cursor:pointer;}
+.login button:hover{background:var(--green-deep);}
+.login .err{display:none;background:var(--badbg);color:var(--bad);border-radius:10px;padding:0.6rem;font-size:0.82rem;margin-bottom:0.7rem;}
 </style>
 </head>
 <body>
@@ -54,60 +92,108 @@ a{color:inherit;}
 </div>
 
 <div class="wrap" id="app" style="display:none;">
-  <div class="tabs">
-    <button class="tab gold on" data-p="boutique">🛍️ Boutique</button>
+  <div class="hero-card">
+    <div class="hero-glow"></div>
+    <div class="hero-label">Médin'Immersion — Administration</div>
+    <div class="hero-title">Mon école</div>
+    <div class="hero-sub">Vue d'ensemble de l'activité de l'école.</div>
+    <div class="hero-stats" id="stats"></div>
   </div>
 
-  <div class="panel on" id="p-boutique">
+  <div class="tabs">
+    <button class="tab gold on" data-p="eleves">👥 Élèves</button>
+    <button class="tab" data-p="validation">✅ Validation</button>
+    <button class="tab" data-p="profs">👨‍🏫 Professeurs</button>
+    <button class="tab" data-p="planning">🗓️ Planning</button>
+    <button class="tab" data-p="groupes">👥 Groupes</button>
+    <button class="tab" data-p="livres">📚 Livres</button>
+    <button class="tab" data-p="boutique">🛍️ Boutique</button>
+    <button class="tab" data-p="paiements">💶 Paiements</button>
+    <button class="tab" data-p="kalam">⏱️ Kalam</button>
+    <button class="tab" data-p="remu">💰 Rémunération</button>
+  </div>
+
+  <div class="panel on" id="p-eleves">...</div>
+  <div class="panel" id="p-validation">...</div>
+  <div class="panel" id="p-profs">...</div>
+  <div class="panel" id="p-boutique">
     <h2>🛍️ Boutique</h2>
-    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem;">Gère les couvertures des 11 niveaux.</p>
+    <p class="sub">Gère les couvertures des 11 niveaux.</p>
     <div id="listBoutique" class="loading">Chargement…</div>
   </div>
+  <div class="panel" id="p-paiements">...</div>
+  <div class="panel" id="p-kalam">...</div>
+  <div class="panel" id="p-remu">...</div>
+  <div class="panel" id="p-planning">...</div>
+  <div class="panel" id="p-groupes">...</div>
+  <div class="panel" id="p-livres">...</div>
 </div>
 
 <div class="login" id="login">
   <div class="box">
     <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="">
+    <div class="tag">ADMINISTRATION</div>
     <h1>Espace Gérant</h1>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.1rem;">Accès réservé à l'administration de Médin'Immersion.</p>
-    <input type="password" id="giPwd" placeholder="Mot de passe gérant">
+    <p>Accès réservé à l'administration de Médin'Immersion.</p>
+    <div class="err" id="loginErr"></div>
+    <input type="password" id="giPwd" placeholder="Mot de passe gérant" autocomplete="current-password">
     <button id="giBtn">Accéder →</button>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 const $ = id => document.getElementById(id);
 let GT = localStorage.getItem('gerant_token') || '';
+const H = () => ({'Content-Type':'application/json','x-gerant-token':GT,'x-admin-token':GT,'Authorization':'Bearer '+GT});
+
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 
 async function boot(){
   if(!GT){ showLogin(); return; }
   $('login').style.display='none'; $('app').style.display='block';
-  loadBoutique();
 }
-
 function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; }
 
 $('giBtn').onclick=async()=>{
   const pwd=$('giPwd').value; 
-  if(!pwd) return;
+  const err=$('loginErr'); 
+  err.style.display='none';
+  
+  if(!pwd){
+    err.textContent='Mot de passe requis.';
+    err.style.display='block';
+    return;
+  }
   
   $('giBtn').disabled=true;
-  $('giBtn').textContent='Connexion...';
+  $('giBtn').textContent='Connexion en cours...';
   
   try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),10000);
+    
     const r=await fetch('/api/admin/gerant/login',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({password:pwd})
+      body:JSON.stringify({password:pwd}),
+      signal:controller.signal
     });
     
+    clearTimeout(timeout);
     const d=await r.json().catch(()=>({}));
-    if(!r.ok||!d.token) throw new Error(d.error||'Erreur');
+    
+    if(!r.ok||!d.token){
+      throw new Error(d.error||'Mot de passe incorrect');
+    }
     
     GT=d.token; 
     localStorage.setItem('gerant_token',GT);
     boot();
   }catch(e){
+    err.textContent='❌ '+e.message;
+    err.style.display='block';
     $('giBtn').disabled=false;
     $('giBtn').textContent='Accéder →';
   }
@@ -156,7 +242,7 @@ async function loadBoutique(){
     
     $('listBoutique').innerHTML = html;
   }catch(e){
-    $('listBoutique').innerHTML = '<div class="empty">Erreur : ' + e.message + '</div>';
+    $('listBoutique').innerHTML = '<div class="empty">Erreur</div>';
   }
 }
 
