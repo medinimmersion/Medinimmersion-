@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Espace Gérant — Médin'Immersion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
+<style>
+:root{--green-deep:#0F3D26;--green:#1B5E3A;--green-soft:#226C44;--gold:#B8953A;--gold-light:#D4A843;--gold-pale:#F0E0A8;--cream:#FDFAF3;--cream-2:#F5EFDD;--beige:#E7DCBE;--text:#1A1A1A;--muted:#5A5247;--white:#fff;--ok:#1E8E54;--okbg:#E6F4EC;--warn:#C08A18;--warnbg:#FBF1D8;--bad:#C0392B;--badbg:#FBE9E7;--info:#2563A8;--infobg:#E7F0FB;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);}
+.ar{font-family:'Amiri',serif;}
+a{color:inherit;}
+.top{background:var(--green-deep);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1rem;position:sticky;top:0;z-index:30;}
+.top .brand{display:flex;align-items:center;gap:0.55rem;}
+.top .brand img{height:30px;background:#fff;border-radius:7px;padding:3px 6px;}
+.top .brand b{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;}
+.top .brand b span{color:var(--gold-light);}
+.logout{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.45rem 0.9rem;border-radius:50px;cursor:pointer;}
+.logout:hover{background:rgba(255,255,255,0.18);}
+.wrap{max-width:1100px;margin:0 auto;padding:1rem;}
+.hero-card{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--green) 0%,var(--green-deep) 100%);border-radius:26px;padding:1.9rem 2rem;color:var(--white);margin-bottom:1.1rem;box-shadow:0 16px 44px rgba(15,61,38,0.25);}
+.hero-glow{position:absolute;top:-80px;right:-50px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,0.20),transparent 68%);pointer-events:none;}
+.hero-label{position:relative;color:var(--gold-light);font-size:0.72rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.7rem;}
+.hero-title{position:relative;font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,5vw,2.7rem);font-weight:700;line-height:1.05;margin-bottom:0.35rem;color:var(--white);}
+.hero-sub{position:relative;color:rgba(255,255,255,0.72);font-size:0.92rem;line-height:1.5;margin-bottom:1.3rem;}
+.hero-stats{position:relative;display:flex;gap:2rem;flex-wrap:wrap;}
+.hstat-val{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:700;color:var(--gold-light);line-height:1;}
+.hstat-lbl{color:rgba(255,255,255,0.6);font-size:0.78rem;margin-top:0.25rem;}
+@media(max-width:768px){.hero-card{padding:1.5rem 1.4rem;}.hero-stats{gap:1.3rem;}}
+.tabs{display:flex;gap:0.4rem;overflow-x:auto;padding-bottom:0.4rem;margin-bottom:1rem;-webkit-overflow-scrolling:touch;}
+.tab{flex:0 0 auto;background:#fff;border:1px solid var(--beige);color:var(--muted);font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.55rem 0.95rem;border-radius:50px;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.tab.on{background:var(--green);border-color:var(--green);color:#fff;}
+.tab.gold.on{background:var(--gold);border-color:var(--gold);color:var(--green-deep);}
+.panel{display:none;background:#fff;border:1px solid var(--beige);border-radius:16px;padding:1.1rem;}
+.panel.on{display:block;animation:fade 0.2s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.panel h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.5rem;margin-bottom:0.2rem;}
+.panel .sub{color:var(--muted);font-size:0.85rem;margin-bottom:1rem;}
+.search{width:100%;padding:0.7rem 0.95rem;border:1.5px solid var(--beige);border-radius:11px;font-family:inherit;font-size:0.9rem;margin-bottom:0.9rem;background:var(--cream);}
+.search:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+.row{border:1px solid var(--beige);border-radius:12px;padding:0.85rem;margin-bottom:0.7rem;background:var(--cream);}
+.row .r-top{display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;}
+.row .name{font-weight:700;font-size:0.98rem;color:var(--green-deep);}
+.row .meta{font-size:0.78rem;color:var(--muted);margin-top:0.2rem;line-height:1.5;}
+.badge{font-size:0.68rem;font-weight:700;padding:0.22rem 0.6rem;border-radius:50px;white-space:nowrap;}
+.b-ok{background:var(--okbg);color:var(--ok);}
+.b-warn{background:var(--warnbg);color:var(--warn);}
+.b-bad{background:var(--badbg);color:var(--bad);}
+.b-info{background:var(--infobg);color:var(--info);}
+.acts{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.7rem;}
+.btn{font-family:inherit;font-size:0.76rem;font-weight:600;padding:0.45rem 0.8rem;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;}
+.btn-green{background:var(--green);color:#fff;}.btn-green:hover{background:var(--green-deep);}
+.btn-gold{background:var(--gold);color:var(--green-deep);}.btn-gold:hover{background:var(--gold-light);}
+.btn-soft{background:#fff;border:1px solid var(--beige);color:var(--text);}
+.btn-info{background:var(--infobg);color:var(--info);}
+.btn-ok{background:var(--okbg);color:var(--ok);}
+.btn-bad{background:var(--badbg);color:var(--bad);}
+.empty{text-align:center;color:var(--muted);font-size:0.88rem;padding:2rem 1rem;}
+.loading{text-align:center;color:var(--muted);font-size:0.85rem;padding:1.5rem;}
+.perm{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid var(--beige);}
+.perm:last-child{border-bottom:none;}
+.perm .pl{font-size:0.85rem;}
+.toggle{width:44px;height:25px;border-radius:50px;background:#ccc;position:relative;cursor:pointer;border:none;transition:background 0.2s;flex:0 0 auto;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left 0.2s;}
+.toggle.on::after{left:22px;}
+.toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--green-deep);color:#fff;padding:0.7rem 1.2rem;border-radius:50px;font-size:0.85rem;font-weight:600;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+.login{position:fixed;inset:0;background:var(--green-deep);display:flex;align-items:center;justify-content:center;padding:1.25rem;z-index:60;}
+.login .box{background:var(--cream);border-radius:22px;padding:2rem 1.6rem;width:100%;max-width:370px;text-align:center;}
+.login img{height:48px;margin-bottom:0.8rem;}
+.login .tag{display:inline-block;background:var(--gold-pale);color:var(--gold);font-size:0.7rem;font-weight:700;letter-spacing:0.08em;padding:0.3rem 0.9rem;border-radius:50px;margin-bottom:0.8rem;}
+.login h1{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.9rem;margin-bottom:0.3rem;}
+.login p{font-size:0.85rem;color:var(--muted);margin-bottom:1.1rem;}
+.login input{width:100%;padding:0.85rem 1rem;border:1.5px solid var(--beige);border-radius:12px;font-family:inherit;font-size:0.95rem;margin-bottom:0.7rem;background:#fff;}
+.login input:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+.login button{width:100%;padding:0.9rem;border:none;border-radius:50px;background:var(--green);color:#fff;font-family:inherit;font-weight:700;font-size:0.95rem;cursor:pointer;}
+.login button:hover{background:var(--green-deep);}
+.login .err{display:none;background:var(--badbg);color:var(--bad);border-radius:10px;padding:0.6rem;font-size:0.82rem;margin-bottom:0.7rem;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">
+    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="">
+    <b>Espace <span>Gérant</span></b>
+  </div>
+  <button class="logout" id="logoutBtn">Déconnexion</button>
+</div>
+
+<div class="wrap" id="app" style="display:none;">
+  <div class="hero-card">
+    <div class="hero-glow"></div>
+    <div class="hero-label">Médin'Immersion — Administration</div>
+    <div class="hero-title">Mon école</div>
+    <div class="hero-sub">Vue d'ensemble de l'activité de l'école.</div>
+    <div class="hero-stats" id="stats"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab gold on" data-p="eleves">👥 Élèves</button>
+    <button class="tab" data-p="validation">✅ Validation</button>
+    <button class="tab" data-p="profs">👨‍🏫 Professeurs</button>
+    <button class="tab" data-p="planning">🗓️ Planning</button>
+    <button class="tab" data-p="groupes">👥 Groupes</button>
+    <button class="tab" data-p="livres">📚 Livres</button>
+    <button class="tab" data-p="boutique">🛍️ Boutique</button>
+    <button class="tab" data-p="paiements">💶 Paiements</button>
+    <button class="tab" data-p="kalam">⏱️ Kalam</button>
+    <button class="tab" data-p="remu">💰 Rémunération</button>
+  </div>
+
+  <div class="panel on" id="p-eleves">
+    <h2>Élèves</h2>
+    <p class="sub">Consulte, accède à l'espace de chaque élève et suis ses cours.</p>
+    <button class="btn btn-green" onclick="document.getElementById('newStudentForm').style.display='block'" style="margin-bottom:1rem;">➕ Créer un élève</button>
+    <div id="newStudentForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <div style="display:flex;gap:0.5rem;">
+        <input class="search" id="nsPrenom" placeholder="Prénom *" style="flex:1;">
+        <input class="search" id="nsNom" placeholder="Nom *" style="flex:1;">
+      </div>
+      <input class="search" id="nsKounia" placeholder="Kounia (optionnel)">
+      <input class="search" id="nsEmail" type="email" placeholder="Email (email ou WhatsApp requis)">
+      <input class="search" id="nsWhatsapp" placeholder="WhatsApp (ex: +33612345678)">
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Genre</label>
+      <select class="search" id="nsGender"><option value="">— Genre —</option><option value="homme">Homme</option><option value="femme">Femme</option></select>
+      <input class="search" id="nsPwd" placeholder="Mot de passe (vide = généré automatiquement)">
+      <div class="acts">
+        <button class="btn btn-green" onclick="createStudent()">Créer l'élève</button>
+        <button class="btn btn-soft" onclick="document.getElementById('newStudentForm').style.display='none'">Annuler</button>
+      </div>
+      <div id="nsMsg" style="font-size:0.82rem;margin-top:0.5rem;"></div>
+    </div>
+    <input class="search" id="searchEleve" placeholder="Rechercher un élève (nom, email…)">
+    <div id="listEleves" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-validation">
+    <h2>Validation des inscriptions</h2>
+    <p class="sub">Valide ou refuse les nouvelles inscriptions en attente.</p>
+    <div id="listValidation" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-profs">
+    <h2>Professeurs</h2>
+    <p class="sub">Gère les professeurs, leurs permissions et accède à leur espace.</p>
+    <div id="listProfs" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-boutique">
+    <h2>Boutique</h2>
+    <p class="sub">Gère les couvertures de tes niveaux et modifie les détails des documents.</p>
+    <button class="btn btn-green" onclick="openAddBookModal()" style="margin-bottom:1rem;">➕ Ajouter un livre</button>
+    <div id="listBoutique" class="loading">Chargement…</div>
+  </div>
+
+  <!-- Modal Ajouter un livre -->
+  <div id="addBookModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:50;align-items:center;justify-content:center;padding:1rem;">
+    <div style="background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:450px;max-height:90vh;overflow-y:auto;">
+      <h3 style="color:var(--green-deep);margin-bottom:1rem;font-family:'Cormorant Garamond',serif;font-size:1.4rem;">Ajouter un livre</h3>
+      <input class="search" id="abName" placeholder="Nom du livre (ex: Niveau 1 - Introduction)">
+      <input class="search" id="abPrice" type="number" step="0.01" placeholder="Prix (€)">
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Couverture (image)</label>
+      <input class="search" id="abCover" type="file" accept="image/*" style="padding:0.4rem;">
+      <img id="abCoverPreview" style="max-width:100%;max-height:120px;border-radius:8px;margin:0.5rem 0;display:none;">
+      <textarea class="search" id="abDesc" placeholder="Description du livre" style="min-height:80px;"></textarea>
+      <div class="acts">
+        <button class="btn btn-green" onclick="saveNewBook()">Ajouter</button>
+        <button class="btn btn-soft" onclick="closeAddBookModal()">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Éditer un livre -->
+  <div id="editBookModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:50;align-items:center;justify-content:center;padding:1rem;">
+    <div style="background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:450px;max-height:90vh;overflow-y:auto;">
+      <h3 style="color:var(--green-deep);margin-bottom:1rem;font-family:'Cormorant Garamond',serif;font-size:1.4rem;">Éditer le livre</h3>
+      <input class="search" id="ebName" placeholder="Nom du livre">
+      <input class="search" id="ebPrice" type="number" step="0.01" placeholder="Prix (€)">
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Couverture (image)</label>
+      <input class="search" id="ebCover" type="file" accept="image/*" style="padding:0.4rem;">
+      <img id="ebCoverPreview" style="max-width:100%;max-height:120px;border-radius:8px;margin:0.5rem 0;">
+      <textarea class="search" id="ebDesc" placeholder="Description" style="min-height:80px;"></textarea>
+      <div class="acts">
+        <button class="btn btn-green" onclick="saveEditBook()">Enregistrer</button>
+        <button class="btn btn-soft" onclick="closeEditBookModal()">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-paiements">
+    <h2>Paiements</h2>
+    <p class="sub">Suis et valide séparément les paiements des cours et de Kalam.</p>
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <button class="btn btn-green" id="paySubCours" onclick="switchPaySub('cours')">🎓 Cours</button>
+      <button class="btn btn-soft" id="paySubKalam" onclick="switchPaySub('kalam')">🎙️ Kalam</button>
+    </div>
+    <div id="paySubCoursBox">
+      <div id="listPaiements" class="loading">Chargement…</div>
+    </div>
+    <div id="paySubKalamBox" style="display:none;">
+      <button class="btn btn-gold" onclick="openAssignKalam()" style="margin-bottom:1rem;">➕ Attribuer un forfait Kalam</button>
+      <div id="assignKalamForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+        <select class="search" id="akStudent"></select>
+        <select class="search" id="akPackage"></select>
+        <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Statut</label>
+        <select class="search" id="akStatus"><option value="unpaid">En attente de paiement</option><option value="paid">Déjà payé (donne accès direct)</option></select>
+        <div class="acts"><button class="btn btn-green" onclick="assignKalam()">Attribuer</button><button class="btn btn-soft" onclick="document.getElementById('assignKalamForm').style.display='none'">Annuler</button></div>
+      </div>
+      <div id="listKalamPay" class="loading">Chargement…</div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-kalam">
+    <h2>Temps Kalam</h2>
+    <p class="sub">Sélectionne des élèves, règle leur temps de parole quotidien, ou désactive Kalam.</p>
+    <div style="background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;font-weight:700;cursor:pointer;">
+          <input type="checkbox" id="ktAll" style="width:18px;height:18px;accent-color:var(--green);"> Tout sélectionner
+        </label>
+        <span id="ktCount" style="font-size:0.8rem;color:var(--muted);">0 sélectionné</span>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-top:0.7rem;">
+        <input class="search" id="ktMinutes" type="number" min="0" placeholder="Minutes / jour" style="max-width:150px;margin:0;">
+        <button class="btn btn-green" onclick="bulkKalam('minutes')">✓ Appliquer aux sélectionnés</button>
+        <button class="btn btn-gold" onclick="bulkKalam('unlimited')">∞ Illimité</button>
+        <button class="btn btn-bad" onclick="bulkKalam('disable')">🚫 Désactiver Kalam</button>
+      </div>
+    </div>
+    <input class="search" id="searchKalam" placeholder="Rechercher un élève (nom, email…)">
+    <div id="listKalamTimes" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-remu">
+    <h2>Rémunération des professeurs</h2>
+    <p class="sub">Heures effectuées et montants par professeur.</p>
+    <div id="listRemu" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-planning">
+    <h2>Planning</h2>
+    <p class="sub">Crée et consulte les cours programmés.</p>
+    <button class="btn btn-green" onclick="openNewCourse()" style="margin-bottom:1rem;">➕ Nouveau cours</button>
+    <div id="newCourseForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <input class="search" id="cTitle" placeholder="Titre du cours (optionnel)">
+      <select class="search" id="cTeacher"></select>
+      <select class="search" id="cType"><option value="arabe">Arabe</option><option value="coran">Coran</option><option value="double_immersion">Double immersion</option></select>
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Date du cours</label>
+      <input class="search" id="cDate" type="date">
+      <div style="display:flex;gap:0.5rem;">
+        <div style="flex:1;"><label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Début</label><input class="search" id="cStart" type="time"></div>
+        <div style="flex:1;"><label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Fin</label><input class="search" id="cEnd" type="time"></div>
+      </div>
+      <div class="acts"><button class="btn btn-green" onclick="createCourse()">Créer</button><button class="btn btn-soft" onclick="document.getElementById('newCourseForm').style.display='none'">Annuler</button></div>
+    </div>
+    <div id="listPlanning" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-groupes">
+    <h2>Groupes</h2>
+    <p class="sub">Crée des groupes et gère leurs élèves.</p>
+    <button class="btn btn-green" onclick="openNewGroup()" style="margin-bottom:1rem;">➕ Nouveau groupe</button>
+    <div id="newGroupForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <input class="search" id="gName" placeholder="Nom du groupe">
+      <input class="search" id="gDesc" placeholder="Description (optionnel)">
+      <div class="acts"><button class="btn btn-green" onclick="createGroup()">Créer</button><button class="btn btn-soft" onclick="document.getElementById('newGroupForm').style.display='none'">Annuler</button></div>
+    </div>
+    <div id="listGroupes" class="loading">Chargement…</div>
+  </div>
+
+  <div class="panel" id="p-livres">
+    <h2>Livres & PDF</h2>
+    <p class="sub">Ajoute des livres et assigne-les par niveau ou par élève.</p>
+    <button class="btn btn-green" onclick="document.getElementById('newBookForm').style.display='block'" style="margin-bottom:1rem;">➕ Ajouter un livre</button>
+    <div id="newBookForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <input class="search" id="bName" placeholder="Nom du livre">
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Niveau minimum</label>
+      <select class="search" id="bNiveau">
+        <option value="">— Sélectionne un niveau —</option>
+        <option value="1">Niveau 1</option>
+        <option value="2">Niveau 2</option>
+        <option value="3">Niveau 3</option>
+        <option value="4">Niveau 4</option>
+        <option value="5">Niveau 5</option>
+        <option value="6">Niveau 6</option>
+        <option value="7">Niveau 7</option>
+        <option value="8">Niveau 8</option>
+        <option value="9">Niveau 9</option>
+        <option value="10">Niveau 10</option>
+        <option value="11">Niveau 11</option>
+      </select>
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Fichier PDF</label>
+      <input class="search" id="bFile" type="file" accept="application/pdf">
+      <div class="acts"><button class="btn btn-green" onclick="uploadBook()">Téléverser</button><button class="btn btn-soft" onclick="document.getElementById('newBookForm').style.display='none'">Annuler</button></div>
+      <div id="bUploadMsg" style="font-size:0.8rem;color:var(--muted);margin-top:0.5rem;"></div>
+    </div>
+    <div id="listLivres" class="loading">Chargement…</div>
+  </div>
+</div>
+
+<div class="login" id="login">
+  <div class="box">
+    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="">
+    <div class="tag">ADMINISTRATION</div>
+    <h1>Espace Gérant</h1>
+    <p>Accès réservé à l'administration de Médin'Immersion.</p>
+    <div class="err" id="loginErr"></div>
+    <input type="password" id="giPwd" placeholder="Mot de passe gérant" autocomplete="current-password">
+    <button id="giBtn">Accéder →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let GT = localStorage.getItem('gerant_token') || '';
+const H = () => ({'Content-Type':'application/json','x-gerant-token':GT,'x-admin-token':GT,'Authorization':'Bearer '+GT});
+let cacheEleves=[], cacheProfs=[];
+
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+async function boot(){
+  if(!GT){ showLogin(); return; }
+  try{
+    const r=await fetch('/api/admin/stats',{headers:H()});
+    if(!r.ok) throw 0;
+    $('login').style.display='none'; $('app').style.display='block';
+    loadStats(); loadEleves(); loadValidation(); loadProfs(); loadPaiements(); loadRemu();
+  }catch{ showLogin(); }
+}
+function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; }
+$('giBtn').onclick=async()=>{
+  const pwd=$('giPwd').value; const err=$('loginErr'); err.style.display='none';
+  if(!pwd){err.textContent='Mot de passe requis.';err.style.display='block';return;}
+  try{
+    const r=await fetch('/api/admin/gerant/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+    const d=await r.json();
+    if(!r.ok||!d.token) throw new Error(d.error||'Mot de passe incorrect');
+    GT=d.token; localStorage.setItem('gerant_token',GT);
+    boot();
+  }catch(e){err.textContent=e.message;err.style.display='block';}
+};
+$('giPwd').addEventListener('keydown',e=>{if(e.key==='Enter')$('giBtn').click();});
+$('logoutBtn').onclick=()=>{localStorage.removeItem('gerant_token');GT='';showLogin();};
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on'); $('p-'+t.dataset.p).classList.add('on');
+  if(t.dataset.p==='planning') loadPlanning();
+  if(t.dataset.p==='groupes') loadGroupes();
+  if(t.dataset.p==='livres') loadLivres();
+  if(t.dataset.p==='boutique') loadBoutique();
+  if(t.dataset.p==='kalam') loadKalamTimes();
+});
+
+async function loadStats(){
+  try{
+    const r=await fetch('/api/admin/stats',{headers:H()}); const d=await r.json();
+    $('stats').innerHTML=`
+      <div><div class="hstat-val">${d.total_students||0}</div><div class="hstat-lbl">Élèves inscrits</div></div>
+      <div><div class="hstat-val">${d.total_bookings||0}</div><div class="hstat-lbl">Réservations</div></div>
+      <div><div class="hstat-val">${d.pending_bookings||0}</div><div class="hstat-lbl">En attente</div></div>
+      <div><div class="hstat-val">${d.paid_bookings||0}</div><div class="hstat-lbl">Payées</div></div>
+      <div><div class="hstat-val">${d.unpaid_bookings||0}</div><div class="hstat-lbl">Impayées</div></div>
+      <div><div class="hstat-val">${(d.paid_revenue||0)}€</div><div class="hstat-lbl">Revenus encaissés</div></div>`;
+  }catch{ $('stats').innerHTML=''; }
+}
+
+async function loadEleves(){
+  try{
+    const r=await fetch('/api/admin/students',{headers:H()}); const d=await r.json();
+    cacheEleves=d.students||[];
+    renderEleves(cacheEleves);
+  }catch{ $('listEleves').innerHTML='<div class="empty">Impossible de charger les élèves.</div>'; }
+}
+function renderEleves(list){
+  if(!list.length){ $('listEleves').innerHTML='<div class="empty">Aucun élève.</div>'; return; }
+  $('listEleves').innerHTML=list.map(s=>{
+    const vs=(s.validation_status||'').toLowerCase();
+    const vb = (vs==='valide'||vs==='validated')?'<span class="badge b-ok">Validé</span>'
+      : (vs==='rejected'||vs==='refuse')?'<span class="badge b-bad">Refusé</span>'
+      : '<span class="badge b-warn">En attente</span>';
+    const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||'—');
+    const kb=kalamBadge({total:s.kalam_total!==undefined?s.kalam_total:180, used_today:s.kalam_used_today||0});
+    return `<div class="row">
+      <div class="r-top"><div><div class="name">${nom}</div>
+        <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>Prof : ${esc(s.teacher_names||'—')} · ${s.booking_count||0} résa.<br>Kalam : ${kb}</div></div>${vb}</div>
+      <div class="acts">
+        <button class="btn btn-info" onclick="viewStudent(${s.id})">👁 Voir espace</button>
+        <button class="btn btn-gold" onclick="resetStudentPwd(${s.id},'${esc(nom)}')">🔑 Mot de passe</button>
+        <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Temps Kalam</button>
+      </div></div>`;
+  }).join('');
+}
+$('searchEleve').oninput=e=>{
+  const q=e.target.value.toLowerCase().trim();
+  renderEleves(!q?cacheEleves:cacheEleves.filter(s=>[s.nom,s.prenom,s.kounia,s.email,s.whatsapp].some(v=>(v||'').toLowerCase().includes(q))));
+};
+async function createStudent(){
+  const msg=$('nsMsg'); msg.textContent=''; msg.style.color='var(--muted)';
+  const body={
+    prenom:$('nsPrenom').value.trim(), nom:$('nsNom').value.trim(),
+    kounia:$('nsKounia').value.trim(), email:$('nsEmail').value.trim(),
+    whatsapp:$('nsWhatsapp').value.trim(), gender:$('nsGender').value,
+    password:$('nsPwd').value
+  };
+  if(!body.prenom||!body.nom){ msg.textContent='Prénom et nom requis.'; msg.style.color='#B3261E'; return; }
+  if(!body.email&&!body.whatsapp){ msg.textContent='Email ou WhatsApp requis (pour que l\'élève puisse se connecter).'; msg.style.color='#B3261E'; return; }
+  try{
+    const r=await fetch('/api/admin/students',{method:'POST',headers:H(),body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Erreur serveur');
+    toast('Élève créé ✓');
+    if(d.password_generated){
+      msg.style.color='var(--green)';
+      msg.innerHTML='✓ Élève créé. <b>Mot de passe généré : '+esc(d.password)+'</b> — note-le et transmets-le à l\'élève.';
+    }else{
+      msg.style.color='var(--green)'; msg.textContent='✓ Élève créé avec le mot de passe choisi.';
+      $('newStudentForm').style.display='none';
+    }
+    ['nsPrenom','nsNom','nsKounia','nsEmail','nsWhatsapp','nsPwd'].forEach(i=>$(i).value=''); $('nsGender').value='';
+    loadEleves();
+  }catch(e){ msg.textContent=e.message; msg.style.color='#B3261E'; }
+}
+async function viewStudent(id){
+  try{
+    const r=await fetch('/api/admin/impersonate/student/'+id,{method:'POST',headers:H()});
+    const d=await r.json(); if(!r.ok||!d.token) throw 0;
+    window.open('/espace-eleve.html?xs='+d.token,'_blank');
+  }catch{ toast('Impossible d\'ouvrir l\'espace.'); }
+}
+async function resetStudentPwd(id,nom){
+  const np=prompt('Nouveau mot de passe pour '+nom+' :');
+  if(!np||np.length<4){ if(np!==null)toast('Mot de passe trop court.'); return; }
+  try{
+    const r=await fetch('/api/admin/students/'+id+'/password',{method:'PUT',headers:H(),body:JSON.stringify({password:np})});
+    if(!r.ok) throw 0; toast('Mot de passe mis à jour ✓');
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function setKalamTime(id,nom){
+  const v=prompt('Temps Kalam pour '+nom+' :\n\n• Tape un nombre de MINUTES par jour (ex: 10)\n• Tape 0 pour bloquer\n• Tape "illimité" pour un accès sans limite');
+  if(v===null) return;
+  const val=v.trim().toLowerCase();
+  let body;
+  if(val==='illimité'||val==='illimite'||val==='unlimited'||val==='∞'){ body={unlimited:true}; }
+  else { const m=parseInt(val,10); if(isNaN(m)||m<0){ toast('Valeur invalide.'); return; } body={minutes:m}; }
+  try{
+    const r=await fetch('/api/admin/students/'+id+'/kalam-time',{method:'PUT',headers:H(),body:JSON.stringify(body)});
+    if(!r.ok) throw 0;
+    toast(body.unlimited?'Temps Kalam : illimité ✓':'Temps Kalam : '+body.minutes+' min/jour ✓');
+    loadEleves();
+    if(document.getElementById('p-kalam').classList.contains('on')) loadKalamTimes();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
+/* ───────── TEMPS KALAM (vue générale) ───────── */
+let cacheKalamTimes=[];
+async function loadKalamTimes(){
+  try{
+    const r=await fetch('/api/admin/kalam/times',{headers:H()});
+    if(!r.ok) throw 0;
+    cacheKalamTimes=await r.json();
+    renderKalamTimes(cacheKalamTimes);
+  }catch{ $('listKalamTimes').innerHTML='<div class="empty">Impossible de charger les temps Kalam.</div>'; }
+}
+function kalamBadge(s){
+  if(s.total===-1) return '<span class="badge b-ok">∞ Illimité</span>';
+  if(s.total===0) return '<span class="badge b-bad">🚫 Désactivé</span>';
+  const min=Math.round(s.total/60);
+  const left=Math.max(0,s.total-(s.used_today||0));
+  const leftTxt=left<=0?' · épuisé aujourd\'hui':' · reste '+Math.floor(left/60)+' min aujourd\'hui';
+  return '<span class="badge '+(left<=0?'b-warn':'b-ok')+'">⏱️ '+min+' min/jour'+leftTxt+'</span>';
+}
+function renderKalamTimes(list){
+  if(!list.length){ $('listKalamTimes').innerHTML='<div class="empty">Aucun élève.</div>'; return; }
+  $('listKalamTimes').innerHTML=list.map(s=>{
+    const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||'—');
+    const disabled=s.total===0;
+    return `<div class="row">
+      <div class="r-top">
+        <div style="display:flex;align-items:center;gap:0.7rem;">
+          <input type="checkbox" class="kt-check" data-id="${s.id}" style="width:19px;height:19px;accent-color:var(--green);flex-shrink:0;" onchange="ktCount()">
+          <div><div class="name">${nom}</div><div class="meta">${esc(s.email||'—')}</div></div>
+        </div>
+        ${kalamBadge(s)}</div>
+      <div class="acts">
+        <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Modifier le temps</button>
+        ${disabled
+          ?`<button class="btn btn-ok" onclick="rowKalam(${s.id},'enable')">✅ Activer Kalam</button>`
+          :`<button class="btn btn-bad" onclick="rowKalam(${s.id},'disable')">🚫 Désactiver Kalam</button>`}
+      </div></div>`;
+  }).join('');
+  ktCount();
+}
+$('searchKalam').oninput=e=>{
+  const q=e.target.value.toLowerCase().trim();
+  renderKalamTimes(!q?cacheKalamTimes:cacheKalamTimes.filter(s=>[s.nom,s.prenom,s.kounia,s.email].some(v=>(v||'').toLowerCase().includes(q))));
+};
+$('ktAll').onchange=()=>{
+  document.querySelectorAll('.kt-check').forEach(c=>c.checked=$('ktAll').checked);
+  ktCount();
+};
+function ktCount(){
+  const n=document.querySelectorAll('.kt-check:checked').length;
+  $('ktCount').textContent=n+' sélectionné'+(n>1?'s':'');
+}
+function ktSelectedIds(){
+  return Array.from(document.querySelectorAll('.kt-check:checked')).map(c=>parseInt(c.dataset.id,10));
+}
+async function bulkKalam(mode){
+  const ids=ktSelectedIds();
+  if(!ids.length){ toast('Sélectionne au moins un élève.'); return; }
+  let body={student_ids:ids};
+  if(mode==='minutes'){
+    const m=parseInt($('ktMinutes').value,10);
+    if(isNaN(m)||m<0){ toast('Indique un nombre de minutes valide.'); return; }
+    body.minutes=m;
+  } else if(mode==='unlimited'){ body.unlimited=true; }
+  else if(mode==='disable'){
+    if(!confirm('Désactiver Kalam pour '+ids.length+' élève'+(ids.length>1?'s':'')+' ?')) return;
+    body.disable=true;
+  }
+  try{
+    const r=await fetch('/api/admin/kalam/times/bulk',{method:'POST',headers:H(),body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Échec');
+    toast(mode==='disable'?'Kalam désactivé pour '+d.updated+' élève(s) ✓'
+      :mode==='unlimited'?'Temps illimité pour '+d.updated+' élève(s) ✓'
+      :body.minutes+' min/jour pour '+d.updated+' élève(s) ✓');
+    $('ktAll').checked=false;
+    loadKalamTimes();
+  }catch(e){ toast(e.message||'Échec — réessaie.'); }
+}
+async function rowKalam(id,mode){
+  const body={student_ids:[id]};
+  if(mode==='disable') body.disable=true;
+  else body.minutes=3;
+  try{
+    const r=await fetch('/api/admin/kalam/times/bulk',{method:'POST',headers:H(),body:JSON.stringify(body)});
+    if(!r.ok) throw 0;
+    toast(mode==='disable'?'Kalam désactivé ✓':'Kalam réactivé (3 min/jour) ✓');
+    loadKalamTimes();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
+async function loadValidation(){
+  try{
+    const r=await fetch('/api/admin/validation',{headers:H()}); const list=await r.json();
+    if(!Array.isArray(list)||!list.length){ $('listValidation').innerHTML='<div class="empty">Aucune inscription en attente. 🎉</div>'; return; }
+    $('listValidation').innerHTML=list.map(s=>{
+      const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||'—');
+      return `<div class="row">
+        <div class="r-top"><div><div class="name">${nom}</div>
+          <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>${esc(s.course_type||'Cours')} · ${s.hours||'?'}h</div></div>
+          <span class="badge b-warn">En attente</span></div>
+        <div class="acts">
+          <button class="btn btn-ok" onclick="valid(${s.id},'valide')">✅ Valider</button>
+          <button class="btn btn-bad" onclick="valid(${s.id},'rejected')">✖ Refuser</button>
+        </div></div>`;
+    }).join('');
+  }catch{ $('listValidation').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function valid(id,status){
+  try{
+    const r=await fetch('/api/admin/validation/'+id,{method:'PUT',headers:H(),body:JSON.stringify({status})});
+    if(!r.ok) throw 0;
+    toast(status==='valide'?'Inscription validée ✓':'Inscription refusée');
+    loadValidation(); loadEleves(); loadStats();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
+async function loadProfs(){
+  try{
+    const r=await fetch('/api/admin/teachers',{headers:H()}); cacheProfs=await r.json();
+    if(!Array.isArray(cacheProfs)||!cacheProfs.length){ $('listProfs').innerHTML='<div class="empty">Aucun professeur.</div>'; return; }
+    $('listProfs').innerHTML=cacheProfs.map(t=>{
+      const nom=esc([t.prenom,t.nom].filter(Boolean).join(' ')||t.username||'—');
+      const perm=(k,label)=>`<div class="perm"><span class="pl">${label}</span>
+        <button class="toggle ${t[k]?'on':''}" onclick="togglePerm(${t.id},'${k}',this)"></button></div>`;
+      return `<div class="row">
+        <div class="r-top"><div><div class="name">${nom}</div>
+          <div class="meta">${esc(t.email||'')} · ${t.student_count||0} élève(s) · ${t.total_hours||0}h</div></div></div>
+        <div style="margin-top:0.7rem;background:#fff;border:1px solid var(--beige);border-radius:10px;padding:0.3rem 0.8rem;">
+          ${perm('can_edit_planning','📅 Planifier les cours')}
+          ${perm('can_send_books','📖 Envoyer des livres')}
+          ${perm('can_edit_zoom','🎥 Modifier le lien Zoom')}
+          ${perm('can_edit_student_info','✏️ Modifier infos élèves')}
+        </div>
+        <div class="acts">
+          <button class="btn btn-info" onclick="viewTeacher(${t.id})">👁 Voir espace</button>
+        </div></div>`;
+    }).join('');
+  }catch{ $('listProfs').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function togglePerm(id,key,el){
+  const val=!el.classList.contains('on');
+  try{
+    const r=await fetch('/api/admin/teacher-permissions/'+id,{method:'PUT',headers:H(),body:JSON.stringify({permission:key,value:val})});
+    if(!r.ok) throw 0; el.classList.toggle('on',val); toast('Permission mise à jour ✓');
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function viewTeacher(id){
+  try{
+    const r=await fetch('/api/admin/impersonate/teacher/'+id,{method:'POST',headers:H()});
+    const d=await r.json(); if(!r.ok||!d.token) throw 0;
+    window.open('/espace-professeur.html?xt='+d.token,'_blank');
+  }catch{ toast('Impossible d\'ouvrir l\'espace.'); }
+}
+
+async function loadPaiements(){
+  try{
+    const r=await fetch('/api/admin/payments',{headers:H()}); const list=await r.json();
+    const arr=Array.isArray(list)?list:(list.payments||list.bookings||[]);
+    if(!arr.length){ $('listPaiements').innerHTML='<div class="empty">Aucune réservation.</div>'; return; }
+    $('listPaiements').innerHTML=arr.map(b=>{
+      const paid=(b.payment_status||'').toLowerCase()==='paid';
+      const nom=esc([b.student_prenom||b.prenom,b.student_nom||b.nom].filter(Boolean).join(' ')||b.student_name||'Élève');
+      return `<div class="row"><div class="r-top">
+        <div><div class="name">${nom}</div>
+        <div class="meta">${esc(b.course_type||'Cours')} · ${b.hours||'?'}h · ${b.price_euros||b.price||0}€</div></div>
+        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-bad">Impayé</span>'}</div>
+        <div class="acts">${paid
+          ?`<button class="btn btn-soft" onclick="setPay(${b.id},'unpaid')">Marquer impayé</button>`
+          :`<button class="btn btn-ok" onclick="setPay(${b.id},'paid')">💶 Marquer payé</button>`}</div></div>`;
+    }).join('');
+  }catch{ $('listPaiements').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function setPay(id,status){
+  try{
+    let r=await fetch('/api/admin/bookings/'+id+'/payment',{method:'PATCH',headers:H(),body:JSON.stringify({payment_status:status})});
+    if(!r.ok){ r=await fetch('/api/admin/payments/'+id,{method:'PUT',headers:H(),body:JSON.stringify({payment_status:status})}); }
+    if(!r.ok) throw 0;
+    toast('Paiement mis à jour ✓'); loadPaiements(); loadStats();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
+/* ───────── PAIEMENTS KALAM ───────── */
+function switchPaySub(which){
+  $('paySubCoursBox').style.display=which==='cours'?'block':'none';
+  $('paySubKalamBox').style.display=which==='kalam'?'block':'none';
+  $('paySubCours').className='btn '+(which==='cours'?'btn-green':'btn-soft');
+  $('paySubKalam').className='btn '+(which==='kalam'?'btn-green':'btn-soft');
+  if(which==='kalam') loadKalamPay();
+}
+async function loadBoutique(){
+  try{
+    const r=await fetch('/api/admin/boutique/orders',{headers:H()}); const list=await r.json();
+    if(!Array.isArray(list)||!list.length){ $('listBoutique').innerHTML='<div class="empty">Aucune commande de PDF.</div>'; return; }
+    $('listBoutique').innerHTML=list.map(o=>{
+      const paid=(o.payment_status||'')==='paid';
+      const nom=esc([o.prenom,o.nom].filter(Boolean).join(' ')||'—');
+      return `<div class="row"><div class="r-top">
+        <div><div class="name">${nom}</div>
+        <div class="meta">${esc(o.email||'')}${o.whatsapp?' · '+esc(o.whatsapp):''}<br>${esc(o.items||'')}<br><b>${Number(o.total).toFixed(2)}€</b> · ${new Date(o.created_at).toLocaleDateString('fr-FR')}</div></div>
+        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-warn">En attente</span>'}</div>
+        <div class="acts">${paid
+          ?`<button class="btn btn-soft" onclick="setBoutiquePay(${o.id},'unpaid')">Annuler le paiement</button>`
+          :`<button class="btn btn-ok" onclick="setBoutiquePay(${o.id},'paid')">✅ Paiement reçu (envoyer les PDF)</button>`}</div></div>`;
+    }).join('');
+  }catch{ $('listBoutique').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function setBoutiquePay(id,status){
+  try{
+    const r=await fetch('/api/admin/boutique/orders/'+id,{method:'PATCH',headers:H(),body:JSON.stringify({payment_status:status})});
+    if(!r.ok) throw 0;
+    toast(status==='paid'?'Paiement validé ✓ — pense à envoyer les PDF !':'Paiement annulé');
+    loadBoutique();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// MODALES DE GESTION DE LIVRES BOUTIQUE — FIXES POUR LA BOUTIQUE
+// ═════════════════════════════════════════════════════════════════════
+function openAddBookModal(){
+  document.getElementById('abName').value='';
+  document.getElementById('abPrice').value='';
+  document.getElementById('abCover').value='';
+  document.getElementById('abDesc').value='';
+  document.getElementById('addBookModal').style.display='flex';
+}
+function closeAddBookModal(){
+  document.getElementById('addBookModal').style.display='none';
+}
+async function saveNewBook(){
+  const name=document.getElementById('abName').value.trim();
+  const price=parseFloat(document.getElementById('abPrice').value);
+  const fileInput=document.getElementById('abCover');
+  const desc=document.getElementById('abDesc').value.trim();
+  if(!name||!price){ toast('Nom et prix requis.'); return; }
+  
+  let coverData=null;
+  if(fileInput.files.length>0){
+    try{
+      toast('Compression de l\'image...');
+      const img=new Image();
+      const file=fileInput.files[0];
+      img.onload=async()=>{
+        const c=document.createElement('canvas');
+        const max=800;
+        let w=img.width,h=img.height;
+        if(w>max){h=Math.round(h*max/w);w=max;}
+        c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        coverData=c.toDataURL('image/jpeg',0.8).split(',')[1];
+        uploadBook();
+      };
+      img.src=URL.createObjectURL(file);
+    }catch(e){
+      toast('Erreur compression image');
+      return;
+    }
+    async function uploadBook(){
+      try{
+        const r=await fetch('/api/admin/boutique/products',{method:'POST',headers:H(),body:JSON.stringify({name,price,cover:coverData,description:desc})});
+        if(!r.ok) throw new Error('Erreur API');
+        toast('Livre ajouté ✓');
+        closeAddBookModal();
+        loadBoutique();
+      }catch(e){ toast(e.message||'Échec.'); }
+    }
+  }else{
+    toast('Sélectionne une image');
+  }
+}
+document.getElementById('abCover').addEventListener('change',()=>{
+  const f=document.getElementById('abCover').files[0];
+  if(!f){ document.getElementById('abCoverPreview').style.display='none'; return; }
+  const r=new FileReader();
+  r.onload=e=>{ document.getElementById('abCoverPreview').src=e.target.result; document.getElementById('abCoverPreview').style.display='block'; };
+  r.readAsDataURL(f);
+});
+function openEditBookModal(id){
+  const b=document.querySelector('[data-bid="'+id+'"]');
+  if(!b) return;
+  document.getElementById('ebName').value=b.dataset.name||'';
+  document.getElementById('ebPrice').value=b.dataset.price||'';
+  document.getElementById('ebCover').value=b.dataset.cover||'';
+  document.getElementById('ebDesc').value=b.dataset.desc||'';
+  document.getElementById('editBookModal').dataset.id=id;
+  document.getElementById('editBookModal').style.display='flex';
+}
+function closeEditBookModal(){
+  document.getElementById('editBookModal').style.display='none';
+}
+async function saveEditBook(){
+  const id=document.getElementById('editBookModal').dataset.id;
+  const name=document.getElementById('ebName').value.trim();
+  const price=parseFloat(document.getElementById('ebPrice').value);
+  const fileInput=document.getElementById('ebCover');
+  const desc=document.getElementById('ebDesc').value.trim();
+  if(!name||!price){ toast('Nom et prix requis.'); return; }
+  
+  let coverData=null;
+  if(fileInput.files.length>0){
+    try{
+      toast('Compression image...');
+      const img=new Image();
+      const file=fileInput.files[0];
+      img.onload=async()=>{
+        const c=document.createElement('canvas');
+        const max=800;
+        let w=img.width,h=img.height;
+        if(w>max){h=Math.round(h*max/w);w=max;}
+        c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        coverData=c.toDataURL('image/jpeg',0.8).split(',')[1];
+        updateBook();
+      };
+      img.src=URL.createObjectURL(file);
+    }catch(e){
+      toast('Erreur compression image');
+      return;
+    }
+    async function updateBook(){
+      try{
+        const r=await fetch('/api/admin/boutique/products/'+id,{method:'PUT',headers:H(),body:JSON.stringify({name,price,cover:coverData,description:desc})});
+        if(!r.ok) throw new Error('Erreur API');
+        toast('Livre modifié ✓');
+        closeEditBookModal();
+        loadBoutique();
+      }catch(e){ toast(e.message||'Échec.'); }
+    }
+  }else{
+    try{
+      const r=await fetch('/api/admin/boutique/products/'+id,{method:'PUT',headers:H(),body:JSON.stringify({name,price,description:desc})});
+      if(!r.ok) throw new Error('Erreur API');
+      toast('Livre modifié ✓');
+      closeEditBookModal();
+      loadBoutique();
+    }catch(e){ toast(e.message||'Échec.'); }
+  }
+}
+document.getElementById('ebCover').addEventListener('change',()=>{
+  const f=document.getElementById('ebCover').files[0];
+  if(!f){ return; }
+  const r=new FileReader();
+  r.onload=e=>{ document.getElementById('ebCoverPreview').src=e.target.result; };
+  r.readAsDataURL(f);
+});
+
+let cacheKalamPkgs=[];
+async function openAssignKalam(){
+  $('assignKalamForm').style.display='block';
+  const all=cacheEleves.length?cacheEleves:await fetch('/api/admin/students',{headers:H()}).then(r=>r.json()).then(d=>d.students||[]);
+  $('akStudent').innerHTML='<option value="">— Élève —</option>'+all.map(s=>`<option value="${s.id}">${esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia)}</option>`).join('');
+  if(!cacheKalamPkgs.length){ cacheKalamPkgs=await fetch('/api/kalam/packages',{headers:H()}).then(r=>r.json()).catch(()=>[]); }
+  $('akPackage').innerHTML='<option value="">— Forfait —</option>'+cacheKalamPkgs.map(p=>`<option value="${p.id}">${esc(p.name)} · ${p.minutes_per_day===-1?'illimité':p.minutes_per_day+' min/j'} · ${p.price_euros}€</option>`).join('');
+}
+async function assignKalam(){
+  const student_id=$('akStudent').value, package_id=$('akPackage').value, payment_status=$('akStatus').value;
+  if(!student_id||!package_id){ toast('Élève et forfait requis.'); return; }
+  try{
+    const r=await fetch('/api/admin/kalam/assign',{method:'POST',headers:H(),body:JSON.stringify({student_id,package_id,payment_status})});
+    if(!r.ok) throw 0;
+    toast(payment_status==='paid'?'Forfait attribué et activé ✓':'Forfait attribué (en attente de paiement)');
+    $('assignKalamForm').style.display='none'; loadKalamPay();
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function loadKalamPay(){
+  try{
+    const r=await fetch('/api/admin/kalam/payments',{headers:H()}); const list=await r.json();
+    if(!Array.isArray(list)||!list.length){ $('listKalamPay').innerHTML='<div class="empty">Aucun paiement Kalam.</div>'; return; }
+    $('listKalamPay').innerHTML=list.map(p=>{
+      const paid=(p.payment_status||'')==='paid';
+      const nom=esc([p.prenom,p.nom].filter(Boolean).join(' ')||p.kounia||'Élève');
+      const mins=p.minutes_per_day===-1?'illimité':p.minutes_per_day+' min/jour';
+      return `<div class="row"><div class="r-top">
+        <div><div class="name">${nom}</div>
+        <div class="meta">${esc(p.package_name||'Forfait')} · ${mins} · ${p.price_euros}€</div></div>
+        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-bad">Impayé</span>'}</div>
+        <div class="acts">${paid
+          ?`<button class="btn btn-soft" onclick="setKalamPay(${p.id},'unpaid')">Annuler le paiement</button>`
+          :`<button class="btn btn-ok" onclick="setKalamPay(${p.id},'paid')">✅ Valider le paiement (active Kalam)</button>`}</div></div>`;
+    }).join('');
+  }catch{ $('listKalamPay').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function setKalamPay(id,status){
+  try{
+    const r=await fetch('/api/admin/kalam/payments/'+id,{method:'PATCH',headers:H(),body:JSON.stringify({payment_status:status})});
+    if(!r.ok) throw 0;
+    toast(status==='paid'?'Paiement validé — Kalam activé ✓':'Paiement annulé');
+    loadKalamPay();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
+async function loadRemu(){
+  try{
+    const r=await fetch('/api/admin/remuneration',{headers:H()}); const list=await r.json();
+    const arr=Array.isArray(list)?list:(list.teachers||[]);
+    if(!arr.length){ $('listRemu').innerHTML='<div class="empty">Aucune donnée de rémunération.</div>'; return; }
+    $('listRemu').innerHTML=arr.map(t=>{
+      const nom=esc([t.prenom,t.nom].filter(Boolean).join(' ')||t.username||'Professeur');
+      const h=t.total_hours||t.hours||0, amt=t.amount||t.paid_amount||t.remuneration||0, rate=t.hourly_rate||t.rate;
+      return `<div class="row"><div class="r-top">
+        <div><div class="name">${nom}</div>
+        <div class="meta">${h}h effectuées${rate?` · ${rate}€/h`:''}</div></div>
+        <span class="badge b-info">${amt}€</span></div></div>`;
+    }).join('');
+  }catch{ $('listRemu').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+
+/* ───────── PLANNING (gérant) ───────── */
+let cacheTeachers=[];
+async function ensureTeachers(){
+  if(cacheTeachers.length) return cacheTeachers;
+  try{ const r=await fetch('/api/admin/teachers',{headers:H()}); cacheTeachers=await r.json(); }catch{ cacheTeachers=[]; }
+  return cacheTeachers;
+}
+async function openNewCourse(){
+  document.getElementById('newCourseForm').style.display='block';
+  const t=await ensureTeachers();
+  $('cTeacher').innerHTML='<option value="">— Professeur —</option>'+t.map(x=>`<option value="${x.id}">${esc([x.prenom,x.nom].filter(Boolean).join(' ')||x.username)}</option>`).join('');
+}
+async function createCourse(){
+  const body={ title:$('cTitle').value||null, teacher_id:$('cTeacher').value||null,
+    course_type:$('cType').value, start_date:$('cDate').value, end_date:$('cDate').value,
+    days_of_week:[], time_start:$('cStart').value, time_end:$('cEnd').value };
+  if(!body.start_date||!body.time_start||!body.time_end){ toast('Date et heures requises.'); return; }
+  try{
+    const r=await fetch('/api/admin/schedules',{method:'POST',headers:H(),body:JSON.stringify(body)});
+    if(!r.ok) throw 0;
+    const sc=await r.json();
+    await fetch('/api/admin/sessions',{method:'POST',headers:H(),body:JSON.stringify({schedule_id:sc.id,teacher_id:body.teacher_id,session_date:body.start_date,time_start:body.time_start,time_end:body.time_end,course_type:body.course_type})}).catch(()=>{});
+    toast('Cours créé ✓'); document.getElementById('newCourseForm').style.display='none'; loadPlanning();
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function loadPlanning(){
+  try{
+    const r=await fetch('/api/admin/schedules',{headers:H()}).catch(()=>null);
+    let list = r&&r.ok ? await r.json() : [];
+    if(!Array.isArray(list)) list = list.schedules||[];
+    if(!list.length){ $('listPlanning').innerHTML='<div class="empty">Aucun cours programmé. Crée le premier !</div>'; return; }
+    $('listPlanning').innerHTML=list.map(s=>{
+      const d=s.start_date?new Date(s.start_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
+      const tn=[s.teacher_prenom,s.teacher_nom].filter(Boolean).join(' ')||s.teacher_name||'';
+      return `<div class="row"><div class="r-top"><div>
+        <div class="name">${esc(s.title||'Cours')}</div>
+        <div class="meta">${d} · ${(s.time_start||'').slice(0,5)}–${(s.time_end||'').slice(0,5)} · ${esc(s.course_type||'')}${tn?' · '+esc(tn):''}</div>
+        </div><span class="badge b-info">${esc(s.course_type||'')}</span></div></div>`;
+    }).join('');
+  }catch{ $('listPlanning').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+
+/* ───────── GROUPES (gérant) ───────── */
+function openNewGroup(){ document.getElementById('newGroupForm').style.display='block'; }
+async function createGroup(){
+  const name=$('gName').value.trim(); if(!name){ toast('Nom requis.'); return; }
+  try{
+    const r=await fetch('/api/admin/groups',{method:'POST',headers:H(),body:JSON.stringify({name,description:$('gDesc').value||null})});
+    if(!r.ok) throw 0; toast('Groupe créé ✓'); $('gName').value='';$('gDesc').value='';
+    document.getElementById('newGroupForm').style.display='none'; loadGroupes();
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function loadGroupes(){
+  try{
+    const r=await fetch('/api/admin/groups',{headers:H()}); let list=await r.json();
+    if(!Array.isArray(list)) list=list.groups||[];
+    if(!list.length){ $('listGroupes').innerHTML='<div class="empty">Aucun groupe. Crée le premier !</div>'; return; }
+    $('listGroupes').innerHTML=list.map(g=>`<div class="row">
+      <div class="r-top"><div><div class="name">${esc(g.name)}</div>
+      <div class="meta">${g.member_count||g.student_count||0} élève(s)${g.description?' · '+esc(g.description):''}</div></div>
+      <button class="btn btn-bad" onclick="delGroup(${g.id})">🗑</button></div>
+      <div class="acts">
+        <button class="btn btn-gold" onclick="manageMembers(${g.id})">👥 Gérer les élèves</button>
+      </div>
+      <div id="gm-${g.id}" style="display:none;margin-top:0.6rem;"></div>
+    </div>`).join('');
+  }catch{ $('listGroupes').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function delGroup(id){
+  if(!confirm('Supprimer ce groupe ?'))return;
+  try{ const r=await fetch('/api/admin/groups/'+id,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Groupe supprimé'); loadGroupes(); }catch{ toast('Échec.'); }
+}
+async function manageMembers(gid){
+  const box=$('gm-'+gid);
+  if(box.style.display==='block'){ box.style.display='none'; return; }
+  box.style.display='block'; box.innerHTML='Chargement…';
+  try{
+    const mr=await fetch('/api/admin/groups/'+gid+'/students',{headers:H()}).then(r=>r.json()).catch(()=>[]);
+    const all=cacheEleves.length?cacheEleves:await fetch('/api/admin/students',{headers:H()}).then(r=>r.json()).then(d=>d.students||[]);
+    const members=Array.isArray(mr)?mr:(mr.students||[]);
+    const memberIds=members.map(m=>m.id||m.student_id);
+    box.innerHTML=`<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.4rem;">Membres : ${members.length}</div>`+
+      members.map(m=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;font-size:0.85rem;">
+        <span>${esc([m.prenom,m.nom].filter(Boolean).join(' ')||m.kounia||'Élève')}</span>
+        <button class="btn btn-bad" onclick="rmMember(${gid},${m.member_id||m.id})">retirer</button></div>`).join('')+
+      `<select class="search" id="addm-${gid}" style="margin-top:0.5rem;"><option value="">+ Ajouter un élève…</option>${
+        all.filter(s=>!memberIds.includes(s.id)).map(s=>`<option value="${s.id}">${esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia)}</option>`).join('')
+      }</select><button class="btn btn-green" onclick="addMember(${gid})" style="margin-top:0.4rem;">Ajouter</button>`;
+  }catch{ box.innerHTML='<div class="empty">Erreur.</div>'; }
+}
+async function addMember(gid){
+  const sid=$('addm-'+gid).value; if(!sid)return;
+  try{ const r=await fetch('/api/admin/groups/'+gid+'/members',{method:'POST',headers:H(),body:JSON.stringify({student_id:sid})}); if(!r.ok)throw 0; toast('Élève ajouté ✓'); $('gm-'+gid).style.display='none'; manageMembers(gid); loadGroupes(); }catch{ toast('Échec.'); }
+}
+async function rmMember(gid,mid){
+  try{ const r=await fetch('/api/admin/groups/'+gid+'/members/'+mid,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Retiré'); $('gm-'+gid).style.display='none'; manageMembers(gid); loadGroupes(); }catch{ toast('Échec.'); }
+}
+
+/* ───────── LIVRES (gérant) ───────── */
+async function uploadBook(){
+  const name=$('bName').value.trim(); const f=$('bFile').files[0];
+  if(!name||!f){ toast('Nom et fichier requis.'); return; }
+  const niveau=$('bNiveau').value;
+  if(!niveau){ toast('Sélectionne un niveau.'); return; }
+  $('bUploadMsg').textContent='Téléversement en cours…';
+  try{
+    const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});
+    const r=await fetch('/api/admin/library/books',{method:'POST',headers:H(),body:JSON.stringify({name,data,niveau_min:niveau})});
+    if(!r.ok) throw 0;
+    $('bUploadMsg').textContent=''; $('bName').value='';$('bFile').value='';$('bNiveau').value='';
+    toast('Livre ajouté ✓'); document.getElementById('newBookForm').style.display='none'; loadLivres();
+  }catch{ $('bUploadMsg').textContent='Échec du téléversement. Réessaie.'; toast('Erreur.'); }
+}
+async function loadLivres(){
+  try{
+    const [r,er]=await Promise.all([
+      fetch('/api/admin/library/books-with-categories',{headers:H()}).catch(()=>null),
+      fetch('/api/admin/kalam/extractions',{headers:H()}).catch(()=>null)
+    ]);
+    let list = r&&r.ok ? await r.json() : [];
+    if(!Array.isArray(list)) list=list.books||[];
+    const exts = er&&er.ok ? await er.json() : [];
+    const extMap={}; (Array.isArray(exts)?exts:[]).forEach(e=>extMap[e.book_id]=e);
+    if(!list.length){ $('listLivres').innerHTML='<div class="empty">Aucun livre. Ajoute le premier !</div>'; return; }
+    $('listLivres').innerHTML=list.map(b=>{
+      const ex=extMap[b.id];
+      let kalamTxt='Kalam : contenu non extrait';
+      if(ex){
+        if(ex.status==='termine') kalamTxt='Kalam : ✅ '+(ex.pages_stockees||ex.pages_done)+' pages lues';
+        else if(ex.status==='erreur') kalamTxt='Kalam : ❌ erreur — '+esc(ex.error||'réessaie');
+        else kalamTxt='Kalam : ⏳ extraction en cours ('+(ex.pages_done||0)+'/'+(ex.total_pages||'?')+' pages)…';
+      }
+      return `<div class="row">
+      <div class="r-top"><div><div class="name">${esc(b.name)}</div>
+      <div class="meta">Niveau min : ${b.niveau_min||1}${b.category_name?' · '+esc(b.category_name):''}<br>${kalamTxt}</div></div>
+      ${b.file_url?`<a class="btn btn-info" href="${b.file_url}" target="_blank">Ouvrir</a>`:''}</div>
+      <div class="acts">
+        ${b.file_url?`<button class="btn btn-gold" onclick="extractBook(${b.id})">📖 Extraire pour Kalam</button>`:''}
+        <button class="btn btn-gold" onclick="assignBookLevel(${b.slot_number||b.id},${b.niveau_min||1})">📤 Assigner au niveau ${b.niveau_min||1}</button>
+        <button class="btn btn-green" onclick="assignBookStudent(${b.slot_number||b.id})">👤 Donner à un élève</button>
+        <button class="btn btn-soft" onclick="unassignBookStudent(${b.slot_number||b.id})">🚫 Retirer à un élève</button>
+        <button class="btn btn-bad" onclick="delBook(${b.id})">🗑</button>
+      </div></div>`;}).join('');
+  }catch{ $('listLivres').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+}
+async function extractBook(id){
+  if(!confirm('Lancer la lecture de ce livre par Kalam ?\n\nGemini va lire le PDF page par page (quelques minutes). Kalam pourra ensuite réviser exactement le contenu de la page où se trouve chaque élève.')) return;
+  try{
+    const r=await fetch('/api/admin/books/'+id+'/extract',{method:'POST',headers:H()});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Échec');
+    toast('Extraction lancée ⏳');
+    setTimeout(loadLivres,4000);
+    setTimeout(loadLivres,20000);
+  }catch(e){ toast(e.message); }
+}
+function pickStudent(promptTxt){
+  const opts=(cacheEleves||[]).map((s,i)=>(i+1)+'. '+(s.prenom||'')+' '+(s.nom||'')).join('\n');
+  const n=prompt(promptTxt+'\n\n'+opts+'\n\nTape le numéro :');
+  if(!n)return null;
+  const s=(cacheEleves||[])[parseInt(n)-1];
+  if(!s){ toast('Numéro invalide'); return null; }
+  return s;
+}
+async function assignBookStudent(bookId){
+  const s=pickStudent('Donner ce livre à quel élève ?');
+  if(!s)return;
+  try{
+    const r=await fetch('/api/admin/library/assign',{method:'POST',headers:H(),body:JSON.stringify({book_id:bookId,student_id:s.id})});
+    if(!r.ok)throw 0; toast('📚 Livre donné à '+(s.prenom||'l\'élève')+' ✓');
+  }catch{ toast('Échec.'); }
+}
+async function unassignBookStudent(bookId){
+  const s=pickStudent('Retirer ce livre à quel élève ?');
+  if(!s)return;
+  try{
+    const r=await fetch('/api/admin/library/assign',{method:'DELETE',headers:H(),body:JSON.stringify({book_id:bookId,student_id:s.id})});
+    const d=await r.json(); if(!r.ok)throw 0;
+    toast(d.removed?'🚫 Livre retiré à '+(s.prenom||'l\'élève'):'Cet élève n\'avait pas ce livre');
+  }catch{ toast('Échec.'); }
+}
+async function assignBookLevel(bookId,niveau){
+  if(!confirm('Assigner ce livre à tous les élèves de niveau '+niveau+' ?'))return;
+  try{
+    const r=await fetch('/api/admin/library/assign',{method:'POST',headers:H(),body:JSON.stringify({book_id:bookId,niveau_min:niveau})});
+    const d=await r.json(); if(!r.ok)throw 0; toast('Assigné à '+(d.assigned||0)+' élève(s) ✓');
+  }catch{ toast('Échec.'); }
+}
+async function delBook(id){
+  if(!confirm('Supprimer ce livre ?'))return;
+  try{ const r=await fetch('/api/admin/library/books/'+id,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Supprimé'); loadLivres(); }catch{ toast('Échec.'); }
+}
+
+boot();
+</script>
+<script>
+/* ═══ GESTION DU CONTENU DU SITE — v4 (intégré, sans clé) ═══ */
+(function () {
+  const S = document.createElement('style');
+  S.textContent = `
+  .cms-item{border:1px solid var(--beige);border-radius:12px;padding:0.9rem;margin-bottom:0.7rem;background:var(--cream);}
+  .cms-label{font-weight:700;font-size:0.88rem;color:var(--green-deep);margin-bottom:0.45rem;}
+  .cms-item textarea{width:100%;min-height:60px;padding:0.6rem 0.8rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;resize:vertical;box-sizing:border-box;background:#fff;}
+  .cms-item textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+  .cms-img-preview{max-width:100%;max-height:180px;border-radius:10px;display:block;margin-bottom:0.6rem;border:1px solid var(--beige);}
+  .cms-status{font-size:0.76rem;margin-left:0.6rem;font-weight:700;}
+  .cms-status.ok{color:var(--ok);} .cms-status.err{color:var(--bad);}
+  `;
+  document.head.appendChild(S);
+
+  function cmsHeaders() {
+    const T = localStorage.getItem('gerant_token') || '';
+    return { 'Content-Type': 'application/json', 'x-gerant-token': T, 'x-admin-token': T, 'Authorization': 'Bearer ' + T, 'x-admin-key': T };
+  }
+
+  async function cmsApi(path, opts = {}) {
+    opts.headers = Object.assign(cmsHeaders(), opts.headers || {});
+    const r = await fetch('/api/content' + path, opts);
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401) throw new Error('Accès refusé — déconnectez-vous puis reconnectez-vous à l\'espace gérant.');
+    if (!r.ok) throw new Error(j.error || 'Erreur serveur');
+    return j;
+  }
+
+  function cmsStatus(el, msg, ok) {
+    el.textContent = msg;
+    el.className = 'cms-status ' + (ok ? 'ok' : 'err');
+    if (ok) setTimeout(() => (el.textContent = ''), 3000);
+  }
+
+  function cmsCompress(file) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const max = 1400;
+        let w = img.width, h = img.height;
+        if (w > max) { h = Math.round(h * max / w); w = max; }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  let cmsLoaded = false;
+
+  async function cmsLoad() {
+    const box = document.getElementById('listContenu');
+    box.innerHTML = '<div class="loading">Chargement…</div>';
+    let items;
+    try { items = await cmsApi('/admin/list'); }
+    catch (e) { box.innerHTML = '<div class="empty">' + e.message + '</div>'; return; }
+    cmsLoaded = true;
+    box.innerHTML = '';
+
+    // ── Outil : ajouter une photo dans une section de n'importe quelle page ──
+    const tool = document.createElement('div');
+    tool.className = 'cms-item';
+    tool.style.borderColor = 'var(--gold)';
+    tool.innerHTML = '<div class="cms-label">➕ Ajouter une photo dans une section</div>' +
+      '<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;">Choisis la page, le numéro du bloc (1 = premier bloc en partant du haut de la page), puis la photo. Elle apparaîtra centrée à la fin de ce bloc.</div>' +
+      '<select class="search" id="cmsAddPage">' +
+        '<option value="accueil">Accueil</option>' +
+        '<option value="nos-cours">Nos cours</option>' +
+        '<option value="tarifs">Tarifs</option>' +
+        '<option value="qui-sommes-nous">Qui sommes-nous</option>' +
+        '<option value="reglement">Règlement</option>' +
+        '<option value="inscription">Inscription</option>' +
+        '<option value="boutique">Boutique</option>' +
+        '<option value="blog">Blog</option>' +
+        '<option value="merci">Merci</option>' +
+      '</select>' +
+      '<select class="search" id="cmsAddSection">' +
+        '<option value="1">Bloc 1 (haut de page)</option><option value="2">Bloc 2</option><option value="3">Bloc 3</option><option value="4">Bloc 4</option><option value="5">Bloc 5</option><option value="6">Bloc 6</option>' +
+      '</select>' +
+      '<input type="file" accept="image/*" id="cmsAddFile" style="display:block;margin:0.3rem 0;font-size:0.82rem;">' +
+      '<div class="acts"><button class="btn btn-gold" id="cmsAddBtn">📤 Ajouter la photo</button><span class="cms-status" id="cmsAddSt"></span></div>';
+    box.appendChild(tool);
+    document.getElementById('cmsAddBtn').onclick = async () => {
+      const p = document.getElementById('cmsAddPage').value;
+      const n = document.getElementById('cmsAddSection').value;
+      const f = document.getElementById('cmsAddFile');
+      const st = document.getElementById('cmsAddSt');
+      const btn = document.getElementById('cmsAddBtn');
+      if (!f.files.length) { cmsStatus(st, 'Choisissez une image d\'abord', false); return; }
+      btn.disabled = true; cmsStatus(st, 'Compression…', true);
+      try {
+        const b64 = await cmsCompress(f.files[0]);
+        cmsStatus(st, 'Envoi…', true);
+        const pageNames = {'accueil':'Accueil','nos-cours':'Nos cours','tarifs':'Tarifs','qui-sommes-nous':'Qui sommes-nous','reglement':'Règlement','inscription':'Inscription','boutique':'Boutique','blog':'Blog','merci':'Merci'};
+        await cmsApi('/admin/image', { method: 'POST', body: JSON.stringify({
+          key: 'img_' + p + '_section' + n,
+          data: b64, mime: 'image/jpeg',
+          label: pageNames[p] + ' — Photo du bloc ' + n
+        })});
+        cmsStatus(st, '✓ Photo ajoutée', true);
+        cmsLoaded = false; cmsLoad();
+      } catch (e) { cmsStatus(st, e.message, false); btn.disabled = false; }
+    };
+
+
+    // Regrouper par page (partie du nom avant le tiret)
+    const groups = {};
+    items.forEach(it => {
+      const g = (it.label || it.key).split('—')[0].trim() || 'Autres';
+      (groups[g] = groups[g] || []).push(it);
+    });
+
+    Object.keys(groups).forEach(gname => {
+      const h = document.createElement('h3');
+      h.textContent = '📄 Page : ' + gname;
+      h.style.cssText = 'font-family:Cormorant Garamond,serif;color:var(--green-deep);font-size:1.15rem;margin:1rem 0 0.6rem;border-bottom:2px solid var(--gold-pale);padding-bottom:0.3rem;';
+      box.appendChild(h);
+
+      groups[gname].forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'cms-item';
+      const shortLabel = ((item.label || item.key).split('—')[1] || item.label || item.key).trim();
+      if (item.type === 'text') {
+        div.innerHTML = '<div class="cms-label">' + shortLabel + '</div>' +
+          '<textarea></textarea>' +
+          '<div class="acts"><button class="btn btn-green">💾 Enregistrer</button><span class="cms-status"></span></div>';
+        const ta = div.querySelector('textarea'), btn = div.querySelector('button'), st = div.querySelector('.cms-status');
+        ta.value = item.value || '';
+        btn.onclick = async () => {
+          btn.disabled = true;
+          try { await cmsApi('/admin/text', { method: 'POST', body: JSON.stringify({ key: item.key, value: ta.value }) }); cmsStatus(st, '✓ Enregistré', true); }
+          catch (e) { cmsStatus(st, e.message, false); }
+          btn.disabled = false;
+        };
+      } else {
+        div.innerHTML = '<div class="cms-label">🖼️ ' + shortLabel + '</div>' +
+          (item.has_image ? '<img class="cms-img-preview" src="/api/content/img/' + item.key + '?t=' + Date.now() + '">' : '<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Aucune image — cet emplacement est vide sur le site</div>') +
+          '<input type="file" accept="image/*" style="display:block;margin:0.3rem 0;font-size:0.82rem;">' +
+          '<div class="acts"><button class="btn btn-green">📤 Envoyer</button>' +
+          (item.has_image ? '<button class="btn btn-bad">🗑 Supprimer</button>' : '') +
+          '<span class="cms-status"></span></div>';
+        const inp = div.querySelector('input'), btn = div.querySelector('.btn-green'), delBtn = div.querySelector('.btn-bad'), st = div.querySelector('.cms-status');
+        btn.onclick = async () => {
+          if (!inp.files.length) { cmsStatus(st, 'Choisissez une image d\'abord', false); return; }
+          btn.disabled = true; cmsStatus(st, 'Compression…', true);
+          try {
+            const b64 = await cmsCompress(inp.files[0]);
+            cmsStatus(st, 'Envoi…', true);
+            await cmsApi('/admin/image', { method: 'POST', body: JSON.stringify({ key: item.key, data: b64, mime: 'image/jpeg' }) });
+            cmsStatus(st, '✓ Image en ligne', true);
+            cmsLoaded = false; cmsLoad();
+          } catch (e) { cmsStatus(st, e.message, false); btn.disabled = false; }
+        };
+        if (delBtn) delBtn.onclick = async () => {
+          if (!confirm('Supprimer cette image du site ?')) return;
+          delBtn.disabled = true;
+          try { await cmsApi('/admin/image/' + item.key, { method: 'DELETE' }); cmsLoaded = false; cmsLoad(); }
+          catch (e) { cmsStatus(st, e.message, false); delBtn.disabled = false; }
+        };
+      }
+      box.appendChild(div);
+      });
+    });
+  }
+
+  function cmsInstall() {
+    const tabs = document.querySelector('.tabs');
+    const app = document.getElementById('app');
+    if (!tabs || !app) return;
+    const tab = document.createElement('button');
+    tab.className = 'tab';
+    tab.dataset.p = 'contenu';
+    tab.textContent = '📝 Contenu';
+    tabs.insertBefore(tab, tabs.firstChild);
+    const panel = document.createElement('div');
+    panel.className = 'panel';
+    panel.id = 'p-contenu';
+    panel.innerHTML = '<h2>Contenu du site (v6)</h2>' +
+      '<p class="sub">Modifie les textes et images des pages publiques — visible immédiatement, sans redéploiement.</p>' +
+      '<div id="listContenu" class="loading">Chargement…</div>';
+    app.appendChild(panel);
+    tab.onclick = () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+      document.querySelectorAll('.panel').forEach(x => x.classList.remove('on'));
+      tab.classList.add('on');
+      panel.classList.add('on');
+      if (!cmsLoaded) cmsLoad();
+    };
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', cmsInstall);
+  else cmsInstall();
+})();
+</script>
+</body>
+</html>
