@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Espace Gérant — Médin'Immersion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
+<style>
+:root{--green-deep:#0F3D26;--green:#1B5E3A;--green-soft:#226C44;--gold:#B8953A;--gold-light:#D4A843;--gold-pale:#F0E0A8;--cream:#FDFAF3;--cream-2:#F5EFDD;--beige:#E7DCBE;--text:#1A1A1A;--muted:#5A5247;--white:#fff;--ok:#1E8E54;--okbg:#E6F4EC;--warn:#C08A18;--warnbg:#FBF1D8;--bad:#C0392B;--badbg:#FBE9E7;--info:#2563A8;--infobg:#E7F0FB;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);}
+.ar{font-family:'Amiri',serif;}
+a{color:inherit;}
+.top{background:var(--green-deep);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1rem;position:sticky;top:0;z-index:30;}
+.top .brand{display:flex;align-items:center;gap:0.55rem;}
+.top .brand img{height:30px;background:#fff;border-radius:7px;padding:3px 6px;}
+.top .brand b{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;}
+.top .brand b span{color:var(--gold-light);}
+.logout{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.45rem 0.9rem;border-radius:50px;cursor:pointer;}
+.logout:hover{background:rgba(255,255,255,0.18);}
+.wrap{max-width:1100px;margin:0 auto;padding:1rem;}
+.hero-card{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--green) 0%,var(--green-deep) 100%);border-radius:26px;padding:1.9rem 2rem;color:var(--white);margin-bottom:1.1rem;box-shadow:0 16px 44px rgba(15,61,38,0.25);}
+.hero-glow{position:absolute;top:-80px;right:-50px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,0.20),transparent 68%);pointer-events:none;}
+.hero-label{position:relative;color:var(--gold-light);font-size:0.72rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:0.7rem;}
+.hero-title{position:relative;font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,5vw,2.7rem);font-weight:700;line-height:1.05;margin-bottom:0.35rem;color:var(--white);}
+.hero-sub{position:relative;color:rgba(255,255,255,0.72);font-size:0.92rem;line-height:1.5;margin-bottom:1.3rem;}
+.hero-stats{position:relative;display:flex;gap:2rem;flex-wrap:wrap;}
+.hstat-val{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:700;color:var(--gold-light);line-height:1;}
+.hstat-lbl{color:rgba(255,255,255,0.6);font-size:0.78rem;margin-top:0.25rem;}
+@media(max-width:768px){.hero-card{padding:1.5rem 1.4rem;}.hero-stats{gap:1.3rem;}}
+.tabs{display:flex;gap:0.4rem;overflow-x:auto;padding-bottom:0.4rem;margin-bottom:1rem;-webkit-overflow-scrolling:touch;}
+.tab{flex:0 0 auto;background:#fff;border:1px solid var(--beige);color:var(--muted);font-family:inherit;font-size:0.8rem;font-weight:600;padding:0.55rem 0.95rem;border-radius:50px;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.tab.on{background:var(--green);border-color:var(--green);color:#fff;}
+.tab.gold.on{background:var(--gold);border-color:var(--gold);color:var(--green-deep);}
+.panel{display:none;background:#fff;border:1px solid var(--beige);border-radius:16px;padding:1.1rem;}
+.panel.on{display:block;animation:fade 0.2s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.panel h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.5rem;margin-bottom:0.2rem;}
+.panel .sub{color:var(--muted);font-size:0.85rem;margin-bottom:1rem;}
+.search{width:100%;padding:0.7rem 0.95rem;border:1.5px solid var(--beige);border-radius:11px;font-family:inherit;font-size:0.9rem;margin-bottom:0.9rem;background:var(--cream);}
+.search:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+.row{border:1px solid var(--beige);border-radius:12px;padding:0.85rem;margin-bottom:0.7rem;background:var(--cream);}
+.row .r-top{display:flex;justify-content:space-between;align-items:flex-start;gap:0.6rem;}
+.row .name{font-weight:700;font-size:0.98rem;color:var(--green-deep);}
+.row .meta{font-size:0.78rem;color:var(--muted);margin-top:0.2rem;line-height:1.5;}
+.badge{font-size:0.68rem;font-weight:700;padding:0.22rem 0.6rem;border-radius:50px;white-space:nowrap;}
+.b-ok{background:var(--okbg);color:var(--ok);}
+.b-warn{background:var(--warnbg);color:var(--warn);}
+.b-bad{background:var(--badbg);color:var(--bad);}
+.b-info{background:var(--infobg);color:var(--info);}
+.acts{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.7rem;}
+.btn{font-family:inherit;font-size:0.76rem;font-weight:600;padding:0.45rem 0.8rem;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;}
+.btn-green{background:var(--green);color:#fff;}.btn-green:hover{background:var(--green-deep);}
+.btn-gold{background:var(--gold);color:var(--green-deep);}.btn-gold:hover{background:var(--gold-light);}
+.btn-soft{background:#fff;border:1px solid var(--beige);color:var(--text);}
+.btn-info{background:var(--infobg);color:var(--info);}
+.btn-ok{background:var(--okbg);color:var(--ok);}
+.btn-bad{background:var(--badbg);color:var(--bad);}
+.empty{text-align:center;color:var(--muted);font-size:0.88rem;padding:2rem 1rem;}
+.loading{text-align:center;color:var(--muted);font-size:0.85rem;padding:1.5rem;}
+.perm{display:flex;align-items:center;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid var(--beige);}
+.perm:last-child{border-bottom:none;}
+.perm .pl{font-size:0.85rem;}
+.toggle{width:44px;height:25px;border-radius:50px;background:#ccc;position:relative;cursor:pointer;border:none;transition:background 0.2s;flex:0 0 auto;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left 0.2s;}
+.toggle.on::after{left:22px;}
+.toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--green-deep);color:#fff;padding:0.7rem 1.2rem;border-radius:50px;font-size:0.85rem;font-weight:600;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+.login{position:fixed;inset:0;background:var(--green-deep);display:flex;align-items:center;justify-content:center;padding:1.25rem;z-index:60;}
+.login .box{background:var(--cream);border-radius:22px;padding:2rem 1.6rem;width:100%;max-width:370px;text-align:center;}
+.login img{height:48px;margin-bottom:0.8rem;}
+.login .tag{display:inline-block;background:var(--gold-pale);color:var(--gold);font-size:0.7rem;font-weight:700;letter-spacing:0.08em;padding:0.3rem 0.9rem;border-radius:50px;margin-bottom:0.8rem;}
+.login h1{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.9rem;margin-bottom:0.3rem;}
+.login p{font-size:0.85rem;color:var(--muted);margin-bottom:1.1rem;}
+.login input{width:100%;padding:0.85rem 1rem;border:1.5px solid var(--beige);border-radius:12px;font-family:inherit;font-size:0.95rem;margin-bottom:0.7rem;background:#fff;}
+.login input:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+.login button{width:100%;padding:0.9rem;border:none;border-radius:50px;background:var(--green);color:#fff;font-family:inherit;font-weight:700;font-size:0.95rem;cursor:pointer;}
+.login button:hover{background:var(--green-deep);}
+.login .err{display:none;background:var(--badbg);color:var(--bad);border-radius:10px;padding:0.6rem;font-size:0.82rem;margin-bottom:0.7rem;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">
+    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="">
+    <b>Espace <span>Gérant</span></b>
+  </div>
+  <button class="logout" id="logoutBtn">Déconnexion</button>
+</div>
+
+<div class="wrap" id="app" style="display:none;">
+  <div class="hero-card">
+    <div class="hero-glow"></div>
+    <div class="hero-label">Médin'Immersion — Administration</div>
+    <div class="hero-title">Mon école</div>
+    <div class="hero-sub">Vue d'ensemble de l'activité de l'école.</div>
+    <div class="hero-stats" id="stats"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab gold on" data-p="eleves">👥 Élèves</button>
+    <button class="tab" data-p="validation">✅ Validation</button>
+    <button class="tab" data-p="profs">👨‍🏫 Professeurs</button>
+    <button class="tab" data-p="planning">🗓️ Planning</button>
+    <button class="tab" data-p="groupes">👥 Groupes</button>
+    <button class="tab" data-p="livres">📚 Livres</button>
+    <button class="tab" data-p="boutique">🛍️ Boutique</button>
+    <button class="tab" data-p="paiements">💶 Paiements</button>
+    <button class="tab" data-p="kalam">⏱️ Kalam</button>
+    <button class="tab" data-p="remu">💰 Rémunération</button>
+  </div>
+
+  <div class="panel on" id="p-eleves">
+    <h2>👥 Élèves</h2>
+    <p class="sub">Liste de tous les élèves inscrits.</p>
+    <div class="empty">Aucun élève actuellement</div>
+  </div>
+  
+  <div class="panel" id="p-validation">
+    <h2>✅ Validation</h2>
+    <p class="sub">Inscriptions en attente de validation.</p>
+    <div class="empty">Aucune inscription en attente</div>
+  </div>
+  
+  <div class="panel" id="p-profs">
+    <h2>👨‍🏫 Professeurs</h2>
+    <p class="sub">Gestion des enseignants.</p>
+    <div class="empty">Aucun professeur</div>
+  </div>
+  <div class="panel" id="p-boutique">
+    <h2>🛍️ Boutique</h2>
+    <p class="sub">Gère les couvertures des 11 niveaux.</p>
+    <div id="listBoutique" class="loading">Chargement…</div>
+  </div>
+  
+  <div class="panel" id="p-paiements">
+    <h2>💶 Paiements</h2>
+    <p class="sub">Suivi des transactions.</p>
+    <div class="empty">Aucun paiement enregistré</div>
+  </div>
+  
+  <div class="panel" id="p-kalam">
+    <h2>⏱️ Kalam</h2>
+    <p class="sub">Gestion du chatbot IA vocal.</p>
+    <div class="empty">Aucune session active</div>
+  </div>
+  
+  <div class="panel" id="p-remu">
+    <h2>💰 Rémunération</h2>
+    <p class="sub">Rémunération des professeurs.</p>
+    <div class="empty">Aucune donnée</div>
+  </div>
+  
+  <div class="panel" id="p-planning">
+    <h2>🗓️ Planning</h2>
+    <p class="sub">Calendrier des cours.</p>
+    <div class="empty">Aucun cours planifié</div>
+  </div>
+  
+  <div class="panel" id="p-groupes">
+    <h2>👥 Groupes</h2>
+    <p class="sub">Gestion des groupes d'élèves.</p>
+    <div class="empty">Aucun groupe créé</div>
+  </div>
+  
+  <div class="panel" id="p-livres">
+    <h2>📚 Livres</h2>
+    <p class="sub">Gestion des PDFs pédagogiques.</p>
+    <div class="empty">Aucun livre chargé</div>
+  </div>
+</div>
+
+<div class="login" id="login">
+  <div class="box">
+    <img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="">
+    <div class="tag">ADMINISTRATION</div>
+    <h1>Espace Gérant</h1>
+    <p>Accès réservé à l'administration de Médin'Immersion.</p>
+    <div class="err" id="loginErr"></div>
+    <input type="password" id="giPwd" placeholder="Mot de passe gérant" autocomplete="current-password">
+    <button id="giBtn">Accéder →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let GT = localStorage.getItem('gerant_token') || '';
+const H = () => ({'Content-Type':'application/json','x-gerant-token':GT,'x-admin-token':GT,'Authorization':'Bearer '+GT});
+
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+async function boot(){
+  if(!GT){ showLogin(); return; }
+  $('login').style.display='none'; $('app').style.display='block';
+}
+function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; }
+
+$('giBtn').onclick=async()=>{
+  const pwd=$('giPwd').value; 
+  const err=$('loginErr'); 
+  err.style.display='none';
+  
+  if(!pwd){
+    err.textContent='Mot de passe requis.';
+    err.style.display='block';
+    return;
+  }
+  
+  $('giBtn').disabled=true;
+  $('giBtn').textContent='Connexion en cours...';
+  
+  try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),10000);
+    
+    const r=await fetch('/api/admin/gerant/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({password:pwd}),
+      signal:controller.signal
+    });
+    
+    clearTimeout(timeout);
+    const d=await r.json().catch(()=>({}));
+    
+    if(!r.ok||!d.token){
+      throw new Error(d.error||'Mot de passe incorrect');
+    }
+    
+    GT=d.token; 
+    localStorage.setItem('gerant_token',GT);
+    boot();
+  }catch(e){
+    err.textContent='❌ '+e.message;
+    err.style.display='block';
+    $('giBtn').disabled=false;
+    $('giBtn').textContent='Accéder →';
+  }
+};
+
+$('giPwd').addEventListener('keydown',e=>{if(e.key==='Enter')$('giBtn').click();});
+$('logoutBtn').onclick=()=>{localStorage.removeItem('gerant_token');GT='';showLogin();};
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on'); $('p-'+t.dataset.p).classList.add('on');
+  if(t.dataset.p==='boutique') loadBoutique();
+});
+
+async function loadBoutique(){
+  try{
+    const niveaux = [
+      {num: 1, nom: "Niveau 1", prix: "10,00€"},
+      {num: 2, nom: "Niveau 2", prix: "12,00€"},
+      {num: 3, nom: "Niveau 3", prix: "14,00€"},
+      {num: 4, nom: "Niveau 4", prix: "14,00€"},
+      {num: 5, nom: "Niveau 5", prix: "14,00€"},
+      {num: 6, nom: "Niveau 6", prix: "13,00€"},
+      {num: 7, nom: "Niveau 7", prix: "13,00€"},
+      {num: 8, nom: "Niveau 8", prix: "13,00€"},
+      {num: 9, nom: "Niveau 9", prix: "13,00€"},
+      {num: 10, nom: "Niveau 10", prix: "13,00€"},
+      {num: 11, nom: "Niveau 11 - نهاية", prix: "17,00€"}
+    ];
+    
+    const html = niveaux.map(n => `
+      <div class="row">
+        <div class="r-top">
+          <div>
+            <div class="name">${n.nom}</div>
+            <div class="meta">${n.prix}</div>
+          </div>
+          <img src="/images/livres/niveau-${n.num}.jpg" alt="${n.nom}" style="width:60px;height:90px;object-fit:cover;border-radius:6px;border:1px solid var(--beige);">
+        </div>
+        <div class="acts">
+          <a href="https://github.com/medinimmersion/Medinimmersion-/edit/main/images/livres/niveau-${n.num}.jpg" target="_blank" class="btn btn-gold">✏️ GitHub</a>
+        </div>
+      </div>
+    `).join('');
+    
+    $('listBoutique').innerHTML = html;
+  }catch(e){
+    $('listBoutique').innerHTML = '<div class="empty">Erreur</div>';
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
