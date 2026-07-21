@@ -112,7 +112,7 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
   <div class="totalbar" style="display:none;" id="totalbar">
     <div class="t-txt">Votre sélection — <span id="tTxt">–</span></div>
     <div class="t-val" id="tVal">0€</div>
-    <button>Commander →</button>
+    <button onclick="doOrder()">Commander →</button>
   </div>
 </section>
 
@@ -194,7 +194,11 @@ $('packCard').onclick=()=>{ packOn=!packOn; if(packOn) sel=new Set(BOOKS.map(b=>
 
 function currentTotal(){
   if(packOn||sel.size===BOOKS.length) return PACK.price||70;
-  return BOOKS.filter(b=>sel.has(b.niveau)).reduce((s,b)=>s+b.price,0);
+  let total = 0;
+  BOOKS.forEach(b=>{
+    if(sel.has(b.niveau)) total += (parseFloat(b.price) || 0);
+  });
+  return total;
 }
 
 function refresh(){
