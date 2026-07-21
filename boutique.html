@@ -78,10 +78,10 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
   <div class="nav-inner">
     <a href="/" class="nav-logo"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
     <ul class="nav-links"><li><a href="/">Accueil</a></li><li><a href="/qui-sommes-nous">Qui sommes-nous</a></li><li><a href="/nos-cours">Nos cours</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/reglement">Règlement</a></li><li><a href="/espace-eleve">Espace membre</a></li><li><a href="/boutique" class="nav-cta">Boutique →</a></li></ul>
-    <a href="/panier" style="text-decoration:none;color:var(--green);font-size:1.3rem;font-weight:700;position:relative;">🛒<span id="navCartCount" style="position:absolute;top:-6px;right:-8px;background:var(--gold);color:var(--green-deep);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;">0</span></a>
+    <a href="/panier.html" style="text-decoration:none;color:var(--green);font-size:1.3rem;font-weight:700;position:relative;">🛒<span id="navCartCount" style="position:absolute;top:-6px;right:-8px;background:var(--gold);color:var(--green-deep);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;">0</span></a>
     <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
   </div>
-  <div class="mobile-menu" id="mobileMenu"><a href="/">Accueil</a><a href="/qui-sommes-nous">Qui sommes-nous</a><a href="/nos-cours">Nos cours</a><a href="/tarifs">Tarifs</a><a href="/reglement">Règlement</a><a href="/espace-eleve">Espace membre</a><a href="/boutique">🛒 Boutique</a><a href="/panier" style="color:var(--green);font-weight:700;">🛒 Panier</a></div>
+  <div class="mobile-menu" id="mobileMenu"><a href="/">Accueil</a><a href="/qui-sommes-nous">Qui sommes-nous</a><a href="/nos-cours">Nos cours</a><a href="/tarifs">Tarifs</a><a href="/reglement">Règlement</a><a href="/espace-eleve">Espace membre</a><a href="/boutique">🛒 Boutique</a><a href="/panier.html" style="color:var(--green);font-weight:700;">🛒 Panier</a></div>
 </nav>
 
 <div class="hero">
@@ -144,42 +144,21 @@ let BOOKS=[],PACK={},sel=new Set(),packOn=false;
 const $=x=>document.getElementById(x);
 const eur=v=>(v||0).toFixed(2).replace('.',',')+'€';
 
-async function load(){
-  try{
-    const r=await fetch('/api/boutique/books');
-    const d=await r.json()||{};
-    if(d.books && Array.isArray(d.books)) BOOKS=d.books; else {
-      BOOKS=[
-        {niveau:1,fr:'Niveau 1',price:10,img:'/images/livres/niveau-1.jpg'},
-        {niveau:2,fr:'Niveau 2',price:12,img:'/images/livres/niveau-2.jpg'},
-        {niveau:3,fr:'Niveau 3',price:14,img:'/images/livres/niveau-3.jpg'},
-        {niveau:4,fr:'Niveau 4',price:14,img:'/images/livres/niveau-4.jpg'},
-        {niveau:5,fr:'Niveau 5',price:14,img:'/images/livres/niveau-5.jpg'},
-        {niveau:6,fr:'Niveau 6',price:13,img:'/images/livres/niveau-6.jpg'},
-        {niveau:7,fr:'Niveau 7',price:13,img:'/images/livres/niveau-7.jpg'},
-        {niveau:8,fr:'Niveau 8',price:13,img:'/images/livres/niveau-8.jpg'},
-        {niveau:9,fr:'Niveau 9',price:13,img:'/images/livres/niveau-9.jpg'},
-        {niveau:10,fr:'Niveau 10',price:13,img:'/images/livres/niveau-10.jpg'},
-        {niveau:11,fr:'Niveau 11 - نهاية',price:17,img:'/images/livres/niveau-11.jpg'}
-      ];
-    }
-    PACK=d.pack||{price:70,full_price:146};
-  }catch(e){ console.error(e); }
-  if(!BOOKS.length){
-    BOOKS=[
-      {niveau:1,fr:'Niveau 1',price:10,img:'/images/livres/niveau-1.jpg'},
-      {niveau:2,fr:'Niveau 2',price:12,img:'/images/livres/niveau-2.jpg'},
-      {niveau:3,fr:'Niveau 3',price:14,img:'/images/livres/niveau-3.jpg'},
-      {niveau:4,fr:'Niveau 4',price:14,img:'/images/livres/niveau-4.jpg'},
-      {niveau:5,fr:'Niveau 5',price:14,img:'/images/livres/niveau-5.jpg'},
-      {niveau:6,fr:'Niveau 6',price:13,img:'/images/livres/niveau-6.jpg'},
-      {niveau:7,fr:'Niveau 7',price:13,img:'/images/livres/niveau-7.jpg'},
-      {niveau:8,fr:'Niveau 8',price:13,img:'/images/livres/niveau-8.jpg'},
-      {niveau:9,fr:'Niveau 9',price:13,img:'/images/livres/niveau-9.jpg'},
-      {niveau:10,fr:'Niveau 10',price:13,img:'/images/livres/niveau-10.jpg'},
-      {niveau:11,fr:'Niveau 11 - نهاية',price:17,img:'/images/livres/niveau-11.jpg'}
-    ];
-  }
+function load(){
+  BOOKS=[
+    {niveau:1,fr:'Niveau 1',price:10,img:'/images/livres/niveau-1.jpg'},
+    {niveau:2,fr:'Niveau 2',price:12,img:'/images/livres/niveau-2.jpg'},
+    {niveau:3,fr:'Niveau 3',price:14,img:'/images/livres/niveau-3.jpg'},
+    {niveau:4,fr:'Niveau 4',price:14,img:'/images/livres/niveau-4.jpg'},
+    {niveau:5,fr:'Niveau 5',price:14,img:'/images/livres/niveau-5.jpg'},
+    {niveau:6,fr:'Niveau 6',price:13,img:'/images/livres/niveau-6.jpg'},
+    {niveau:7,fr:'Niveau 7',price:13,img:'/images/livres/niveau-7.jpg'},
+    {niveau:8,fr:'Niveau 8',price:13,img:'/images/livres/niveau-8.jpg'},
+    {niveau:9,fr:'Niveau 9',price:13,img:'/images/livres/niveau-9.jpg'},
+    {niveau:10,fr:'Niveau 10',price:13,img:'/images/livres/niveau-10.jpg'},
+    {niveau:11,fr:'Niveau 11 - نهاية',price:17,img:'/images/livres/niveau-11.jpg'}
+  ];
+  PACK={price:70,full_price:146};
   $('packOld').textContent=eur(PACK.full_price||146);
   $('packNew').textContent=eur(PACK.price||70);
   $('packEco').textContent='Economise '+eur((PACK.full_price||146)-(PACK.price||70));
@@ -190,7 +169,7 @@ async function load(){
 
 function renderBooks(){
   $('books').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;const img=b.img||('/images/livres/niveau-'+b.niveau+'.jpg');return '<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+img+'" alt="'+title+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+title+'</b><span class="b-price">'+eur(b.price)+'</span></div></div>'}).join('');
-  document.querySelectorAll('.book').forEach(el=>el.onclick=()=>{const n=parseInt(el.dataset.n,10);const book=BOOKS.find(b=>b.niveau===n);if(!book) return;const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');const idx=cart.findIndex(x=>x.niveau===n);if(idx>=0) cart.splice(idx,1); else cart.push({niveau:n,name:book.fr||'Niveau '+n,price:book.price*100,img:book.img||('/images/livres/niveau-'+n+'.jpg')});localStorage.setItem('cart_items',JSON.stringify(cart));updateCartCount();refresh();});
+  document.querySelectorAll('.book').forEach(el=>el.onclick=()=>{const n=parseInt(el.dataset.n,10);const book=BOOKS.find(b=>b.niveau===n);if(!book) return;const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');const idx=cart.findIndex(x=>x.niveau===n);if(idx>=0) cart.splice(idx,1); else cart.push({niveau:n,name:book.fr||'Niveau '+n,price:parseFloat(book.price)||0,img:book.img||('/images/livres/niveau-'+n+'.jpg')});localStorage.setItem('cart_items',JSON.stringify(cart));updateCartCount();refresh();});
 }
 
 $('packCard').onclick=()=>{ packOn=!packOn; if(packOn) sel=new Set(BOOKS.map(b=>b.niveau)); else sel.clear(); refresh(); };
@@ -198,17 +177,15 @@ $('packCard').onclick=()=>{ packOn=!packOn; if(packOn) sel=new Set(BOOKS.map(b=>
 function refresh(){
   const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');
   const cartNiveaux=new Set(cart.map(x=>x.niveau));
-  const all=false;
-  $('packCard').classList.toggle('on',all);
   document.querySelectorAll('.book').forEach(el=>el.classList.toggle('on',cartNiveaux.has(parseInt(el.dataset.n,10))));
   let total=0;
-  cart.forEach(item=>{total+=item.price;});
+  cart.forEach(item=>{total+=parseFloat(item.price)||0;});
   if(cart.length){
     $('totalbar').style.display='flex';
     $('tTxt').textContent=cart.length+' livre'+(cart.length>1?'s':'');
-    $('tVal').textContent = eur(Math.round(total/100)*100);
-    $('totalbar').querySelector('button').textContent='Commander '+eur(Math.round(total/100)*100)+' →';
-    $('summary').innerHTML=cart.map(b=>b.name+' ('+eur(b.price)+')').join(' + ')+'<br>Total : <b>'+eur(Math.round(total/100)*100)+'</b>';
+    $('tVal').textContent=eur(total);
+    $('totalbar').querySelector('button').textContent='Commander '+eur(total)+' →';
+    $('summary').innerHTML=cart.map(b=>b.name+' ('+eur(b.price)+')').join(' + ')+'<br>Total : <b>'+eur(total)+'</b>';
   }else{
     $('totalbar').style.display='none';
     $('summary').textContent=emptyText;
@@ -224,7 +201,7 @@ function updateCartCount(){
 function doOrder(){
   const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');
   if(!cart.length){ alert('Choisis au moins un livre'); return; }
-  window.location.href='/panier';
+  window.location.href='/panier.html';
 };
 
 document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('mobileMenu').classList.toggle('open'));

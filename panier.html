@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Panier — Médin'Immersion</title>
+<meta name="description" content="Votre panier d'achat Médin'Immersion">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
+<style>
+:root{--green-deep:#0F3D26;--green:#1B5E3A;--gold:#B8953A;--gold-light:#D4A843;--gold-pale:#F0E0A8;--cream:#FDFAF3;--beige:#E9E1CC;--ink:#1E241F;--muted:#6B7267;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);}
+a{color:inherit;}
+nav{position:sticky;top:0;z-index:20;background:rgba(253,250,243,0.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--beige);}
+.nav-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1.25rem;}
+.nav-inner .nav-logo img{height:54px;display:block;}
+.nav-links{display:flex;align-items:center;gap:1.75rem;font-size:0.88rem;font-weight:600;list-style:none;}
+.nav-links a{text-decoration:none;color:var(--ink);}
+.nav-links a:hover{color:var(--green-deep);}
+.nav-cta{background:var(--green);color:#fff;padding:0.5rem 1.1rem;border-radius:50px!important;}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
+.hamburger span{width:24px;height:2px;background:var(--ink);border-radius:2px;display:block;transition:0.3s;}
+.mobile-menu{display:none;flex-direction:column;gap:0;background:var(--cream);border-top:1px solid var(--beige);padding:0.5rem 2rem 1rem;}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{text-decoration:none;color:var(--ink);font-weight:500;font-size:1rem;padding:0.75rem 0;border-bottom:1px solid var(--beige);}
+.mobile-menu a:last-child{border-bottom:none;}
+.cart-icon{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;font-size:1.3rem;font-weight:700;}
+.cart-badge{position:absolute;top:-6px;right:-8px;background:var(--gold);color:var(--green-deep);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;}
+.hero{background:linear-gradient(135deg,var(--green-deep) 0%,var(--green) 100%);color:#fff;text-align:center;padding:2.4rem 1.25rem 1.8rem;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.15;margin-bottom:0.5rem;}
+.content{max-width:900px;margin:0 auto;padding:2.4rem 1.25rem;}
+.empty-cart{text-align:center;padding:3rem 1.25rem;}
+.empty-cart h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.6rem;margin-bottom:1rem;}
+.empty-cart p{color:var(--muted);margin-bottom:1.5rem;font-size:0.98rem;}
+.empty-cart a{display:inline-block;background:var(--green);color:#fff;padding:0.75rem 1.8rem;border-radius:50px;text-decoration:none;font-weight:600;}
+.cart-items{margin-bottom:2rem;}
+.cart-item{background:#fff;border:1px solid var(--beige);border-radius:12px;padding:1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;}
+.item-cover{width:80px;height:110px;border-radius:8px;overflow:hidden;background:var(--beige);}
+.item-cover img{width:100%;height:100%;object-fit:cover;}
+.item-info{flex:1;}
+.item-info h3{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.1rem;margin-bottom:0.3rem;}
+.item-info p{color:var(--muted);font-size:0.85rem;}
+.item-price{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--gold);margin-right:1rem;}
+.item-remove{background:#FDECEC;border:none;color:#B3261E;width:32px;height:32px;border-radius:50%;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;}
+.item-remove:hover{background:#F5C6C2;}
+.summary{background:var(--cream);border:2px solid var(--beige);border-radius:12px;padding:1.4rem;margin-bottom:2rem;}
+.summary-row{display:flex;justify-content:space-between;margin-bottom:0.8rem;font-size:0.95rem;}
+.summary-row.total{border-top:2px solid var(--beige);padding-top:0.8rem;font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--green-deep);}
+.form-section{background:#fff;border:1px solid var(--beige);border-radius:12px;padding:1.6rem;margin-bottom:2rem;}
+.form-section h3{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.2rem;margin-bottom:1rem;}
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-size:0.85rem;font-weight:600;color:var(--ink);margin-bottom:0.4rem;}
+.form-group input{width:100%;padding:0.75rem 1rem;border:1.5px solid var(--beige);border-radius:8px;font-family:inherit;font-size:0.95rem;background:var(--cream);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-row.full{grid-column:1/-1;}
+.btn-pay{width:100%;padding:1.2rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));border:none;color:var(--green-deep);font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;border-radius:50px;cursor:pointer;box-shadow:0 8px 24px rgba(212,168,67,0.3);}
+.btn-pay:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(212,168,67,0.4);}
+.btn-pay:active{transform:translateY(0);}
+.btn-continue{display:block;text-align:center;color:var(--green);text-decoration:none;font-weight:600;margin-top:1.5rem;}
+.err{display:none;background:#FDECEC;color:#B3261E;border:1px solid #F5C6C2;border-radius:8px;padding:0.8rem 1rem;font-size:0.85rem;margin-bottom:1rem;}
+.promo-note{background:var(--gold-pale);border-left:4px solid var(--gold);padding:0.8rem;border-radius:4px;margin-bottom:1.5rem;font-size:0.85rem;color:var(--ink);}
+@media(max-width:768px){.nav-links{display:none;}.hamburger{display:flex;}.cart-item{flex-direction:column;text-align:center;}.item-price{margin-right:0;margin-bottom:0.5rem;}.form-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
+    <ul class="nav-links"><li><a href="/">Accueil</a></li><li><a href="/qui-sommes-nous">Qui sommes-nous</a></li><li><a href="/nos-cours">Nos cours</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/reglement">Règlement</a></li><li><a href="/espace-eleve">Espace membre</a></li><li><a href="/boutique" class="nav-cta">Boutique →</a></li></ul>
+    <a href="/panier.html" class="cart-icon" style="color:var(--green);">🛒<span class="cart-badge" id="cartCount">0</span></a>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu"><a href="/">Accueil</a><a href="/qui-sommes-nous">Qui sommes-nous</a><a href="/nos-cours">Nos cours</a><a href="/tarifs">Tarifs</a><a href="/reglement">Règlement</a><a href="/espace-eleve">Espace membre</a><a href="/boutique">🛒 Boutique</a><a href="/panier.html" style="color:var(--green);font-weight:700;">🛒 Panier</a></div>
+</nav>
+
+<div class="hero">
+  <h1>🛒 Votre Panier</h1>
+</div>
+
+<div class="content">
+  <div id="emptyCart" class="empty-cart" style="display:none;">
+    <h2>Votre panier est vide</h2>
+    <p>Découvrez nos livres et commencez votre apprentissage dès aujourd'hui</p>
+    <a href="/boutique">Continuer vos achats →</a>
+  </div>
+
+  <div id="cartContent" style="display:none;">
+    <div class="cart-items" id="cartItems"></div>
+
+    <div class="summary">
+      <div class="summary-row"><span>Sous-total</span><span id="subtotal">0,00 €</span></div>
+      <div class="summary-row total"><span>Total</span><span id="total">0,00 €</span></div>
+    </div>
+
+    <form id="checkoutForm">
+      <div class="err" id="formError"></div>
+
+      <div class="form-section">
+        <h3>📋 Vos informations</h3>
+        <div class="form-row">
+          <div class="form-group"><label>Prénom *</label><input type="text" id="fname" required></div>
+          <div class="form-group"><label>Nom *</label><input type="text" id="lname" required></div>
+        </div>
+        <div class="form-group"><label>Email *</label><input type="email" id="email" required></div>
+        <div class="form-group"><label>WhatsApp (optionnel)</label><input type="tel" id="whatsapp" placeholder="+213..."></div>
+      </div>
+
+      <div class="promo-note">
+        💡 <strong>Info importante :</strong> Si vous vous inscrivez à un programme de cours en parallèle, le pack passe à 70€ au lieu de 146€.
+      </div>
+
+      <button type="submit" class="btn-pay">💳 Procéder au paiement</button>
+    </form>
+
+    <a href="/boutique" class="btn-continue">← Continuer mes achats</a>
+  </div>
+</div>
+
+<script>
+const PAYPAL_LINK='https://paypal.me/medinimmersion';
+
+function eur(n){return(parseFloat(n)||0).toFixed(2).replace('.',',')+'€';}
+
+function loadCart(){
+  const items=JSON.parse(localStorage.getItem('cart_items')||'[]');
+  const empty=document.getElementById('emptyCart');
+  const content=document.getElementById('cartContent');
+  const itemsDiv=document.getElementById('cartItems');
+  const cartCount=document.getElementById('cartCount');
+
+  cartCount.textContent=items.length;
+
+  if(!items.length){
+    empty.style.display='block';
+    content.style.display='none';
+    return;
+  }
+
+  empty.style.display='none';
+  content.style.display='block';
+  itemsDiv.innerHTML='';
+
+  let total=0;
+  items.forEach((item,idx)=>{
+    total+=item.price;
+    const html=`
+      <div class="cart-item">
+        <div class="item-cover"><img src="${item.img}" alt="${item.name}"></div>
+        <div class="item-info">
+          <h3>${item.name}</h3>
+          <p>Niveau ${item.niveau}</p>
+        </div>
+        <div class="item-price">${eur(item.price)}</div>
+        <button type="button" class="item-remove" onclick="removeItem(${idx})">×</button>
+      </div>
+    `;
+    itemsDiv.innerHTML+=html;
+  });
+
+  document.getElementById('subtotal').textContent=eur(total);
+  document.getElementById('total').textContent=eur(total);
+  document.getElementById('checkoutForm').dataset.total=total;
+}
+
+function removeItem(idx){
+  const items=JSON.parse(localStorage.getItem('cart_items')||'[]');
+  items.splice(idx,1);
+  localStorage.setItem('cart_items',JSON.stringify(items));
+  loadCart();
+}
+
+document.getElementById('checkoutForm').addEventListener('submit',(e)=>{
+  e.preventDefault();
+  try{
+    const fname=document.getElementById('fname').value.trim();
+    const lname=document.getElementById('lname').value.trim();
+    const email=document.getElementById('email').value.trim();
+    const whatsapp=document.getElementById('whatsapp').value.trim();
+    const err=document.getElementById('formError');
+
+    if(!fname || !lname || !email){
+      err.textContent='Veuillez remplir tous les champs obligatoires';
+      err.style.display='block';
+      return;
+    }
+
+    const items=JSON.parse(localStorage.getItem('cart_items')||'[]');
+    if(!items.length){
+      err.textContent='Votre panier est vide';
+      err.style.display='block';
+      return;
+    }
+
+    const total=parseFloat(document.getElementById('checkoutForm').dataset.total)||0;
+    if(total<=0){
+      err.textContent='Le total doit être supérieur à 0€';
+      err.style.display='block';
+      return;
+    }
+    
+    localStorage.removeItem('cart_items');
+    window.location.href=PAYPAL_LINK+'/'+total;
+  }catch(ex){
+    document.getElementById('formError').textContent='Erreur: '+ex.message;
+    document.getElementById('formError').style.display='block';
+  }
+});
+
+document.getElementById('hamburger').addEventListener('click',()=>{
+  document.getElementById('mobileMenu').classList.toggle('open');
+});
+
+loadCart();
+</script>
+</body>
+</html>
