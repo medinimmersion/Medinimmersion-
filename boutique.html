@@ -71,7 +71,7 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
 .modal.open{display:flex;}
 .modal-content{background:#fff;border-radius:16px;padding:2.5rem 1.8rem;max-width:550px;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 10px 50px rgba(0,0,0,0.3);}
 .modal-content h3{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.3rem;margin-bottom:1.5rem;text-align:center;}
-.modal-content p{color:var(--ink);font-size:0.95rem;line-height:1.7;margin-bottom:1rem;text-align:justify;}
+.modal-content p{color:var(--ink);font-size:0.95rem;line-height:1.7;margin-bottom:1rem;text-align:justify;white-space:pre-wrap;}
 .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--muted);}
 .modal-close:hover{color:var(--ink);}
 @media(max-width:768px){.nav-links{display:none;}.hamburger{display:flex;}}
@@ -141,11 +141,6 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
 </div>
 
 <script>
-const emptyText='Sélectionne au moins un livre pour commencer.';
-let BOOKS=[],PACK={};
-const $=x=>document.getElementById(x);
-const eur=v=>(v||0).toFixed(2).replace('.',',')+'€';
-
 const FALLBACK_BOOKS=[
   {niveau:1,fr:'Niveau 1',price:10,description:'Un ouvrage de 82 pages pour apprendre à lire l\'arabe avec une prononciation soignée. Grâce aux schémas illustrant les points d\'articulation, l\'élève repère facilement d\'où sort chaque lettre. Les exercices variés l\'accompagnent vers une lecture fluide et une écriture correcte, avec l\'aide d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-1.jpg'},
   {niveau:2,fr:'Niveau 2',price:12,description:'Un ouvrage de 124 pages pour préparer l\'élève à comprendre les textes grâce à un large vocabulaire : la famille, les chiffres, les couleurs, les jours de la semaine, les mois hégiriens et grégoriens, les saisons, le corps humain, les vêtements, la maison, l\'école, la route et la mosquée. De nombreux exercices l\'aident à assimiler ces mots et à les employer dans ses conversations, avec l\'aide d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-2.jpg'},
@@ -159,6 +154,23 @@ const FALLBACK_BOOKS=[
   {niveau:10,fr:'Niveau 10',price:13,description:'Un ouvrage pour vivre avec Hussein la naissance de son enfant et la fin de son histoire. Découvrez le champ lexical de la naissance, l\'importance de la femme pieuse et de la bonne compagnie dans l\'étude de la science. Vous y trouverez également un poème sur la perte de l\'Andalousie et l\'épreuve de la perte de la vue. De nombreuses règles de grammaire et de morphologie vous permettront de continuer votre évolution grâce à Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-10.jpg'},
   {niveau:11,fr:'Niveau 11 - نهاية',price:17,description:'Un ouvrage de 176 pages contenant tous les textes des 10 niveaux accompagnés de leurs tableaux de vocabulaire. Ce livre d\'expression vous permettra d\'enrichir votre vocabulaire et d\'améliorer votre capacité à employer de belles compositions de phrases pour raconter l\'histoire de celui qui aspire à la science, grâce à Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-11.jpg'}
 ];
+
+const emptyText='Sélectionne au moins un livre pour commencer.';
+let BOOKS=[],PACK={};
+const $=x=>document.getElementById(x);
+const eur=v=>(v||0).toFixed(2).replace('.',',')+'€';
+
+function openDesc(n){
+  n=parseInt(n,10);
+  const book=FALLBACK_BOOKS.find(b=>parseInt(b.niveau,10)===n);
+  if(!book) { console.error('Livre non trouvé pour niveau',n); return; }
+  $('descTitle').textContent=book.fr||'Niveau '+n;
+  $('descText').textContent=book.description||'';
+  $('descModal').classList.add('open');
+}
+function closeDesc(){
+  $('descModal').classList.remove('open');
+}
 
 async function load(){
   try{
@@ -177,22 +189,8 @@ async function load(){
   refresh();
 }
 
-function openDesc(n){
-  n=parseInt(n,10);
-  let book=BOOKS.find(b=>parseInt(b.niveau,10)===n);
-  if(!book) book=FALLBACK_BOOKS.find(b=>parseInt(b.niveau,10)===n);
-  if(!book) { console.log('Livre non trouvé:',n); return; }
-  $('descTitle').textContent=book.fr||'Niveau '+n;
-  const desc=book.description||'Description non disponible';
-  $('descText').innerHTML='<p style="white-space:pre-wrap;">'+desc+'</p>';
-  $('descModal').classList.add('open');
-  console.log('Description ouverte:',book.fr,desc.substring(0,50)+'...');
-}
-function closeDesc(){
-  $('descModal').classList.remove('open');
-}
 function renderBooks(){
-  $('books').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;const img=b.img||('/images/livres/niveau-'+b.niveau+'.jpg');return '<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+img+'" alt="'+title+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+title+'</b><span class="b-price">'+eur(b.price)+'</span></div><div class="b-description-label"><button type="button" style="background:none;border:none;color:var(--green-deep);font-weight:600;cursor:pointer;width:100%;padding:0;font-size:0.8rem;" onclick="openDesc('+b.niveau+');event.stopPropagation();">📖 Description</button></div></div>'}).join('');
+  $('books').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;const img=b.img||('/images/livres/niveau-'+b.niveau+'.jpg');return '<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+img+'" alt="'+title+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+title+'</b><span class="b-price">'+eur(b.price)+'</span></div><div class="b-description-label"><button type="button" style="background:none;border:none;color:var(--green-deep);font-weight:600;cursor:pointer;width:100%;padding:0.6rem 0;font-size:0.8rem;" onclick="openDesc('+b.niveau+');event.stopPropagation();">📖 Description</button></div></div>'}).join('');
   document.querySelectorAll('.book').forEach(el=>el.onclick=()=>{const n=parseInt(el.dataset.n,10);const book=BOOKS.find(b=>b.niveau===n);if(!book) return;const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');const idx=cart.findIndex(x=>x.niveau===n);if(idx>=0) cart.splice(idx,1); else cart.push({niveau:n,name:book.fr||'Niveau '+n,price:parseFloat(book.price)||0,description:book.description||'',img:book.img||('/images/livres/niveau-'+n+'.jpg')});localStorage.setItem('cart_items',JSON.stringify(cart));updateCartCount();refresh();});
 }
 
