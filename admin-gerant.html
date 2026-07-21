@@ -650,21 +650,69 @@ function switchPaySub(which){
   if(which==='kalam') loadKalamPay();
 }
 async function loadBoutique(){
+  $('listBoutique').innerHTML='<div class="loading">Chargement…</div>';
+  let html='';
+
+  // ── 1) Les livres (produits) modifiables ─────────────────────────────
   try{
-    const r=await fetch('/api/admin/boutique/orders',{headers:H()}); const list=await r.json();
-    if(!Array.isArray(list)||!list.length){ $('listBoutique').innerHTML='<div class="empty">Aucune commande de PDF.</div>'; return; }
-    $('listBoutique').innerHTML=list.map(o=>{
-      const paid=(o.payment_status||'')==='paid';
-      const nom=esc([o.prenom,o.nom].filter(Boolean).join(' ')||'—');
-      return `<div class="row"><div class="r-top">
-        <div><div class="name">${nom}</div>
-        <div class="meta">${esc(o.email||'')}${o.whatsapp?' · '+esc(o.whatsapp):''}<br>${esc(o.items||'')}<br><b>${Number(o.total).toFixed(2)}€</b> · ${new Date(o.created_at).toLocaleDateString('fr-FR')}</div></div>
-        ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-warn">En attente</span>'}</div>
-        <div class="acts">${paid
-          ?`<button class="btn btn-soft" onclick="setBoutiquePay(${o.id},'unpaid')">Annuler le paiement</button>`
-          :`<button class="btn btn-ok" onclick="setBoutiquePay(${o.id},'paid')">✅ Paiement reçu (envoyer les PDF)</button>`}</div></div>`;
-    }).join('');
-  }catch{ $('listBoutique').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
+    const r=await fetch('/api/admin/boutique/products',{headers:H()});
+    const prods=await r.json();
+    html+='<h3 style="color:var(--green-deep);font-family:\'Cormorant Garamond\',serif;font-size:1.2rem;margin:0.5rem 0 0.7rem;">📚 Mes livres ('+(Array.isArray(prods)?prods.length:0)+')</h3>';
+    if(Array.isArray(prods)&&prods.length){
+      html+=prods.map(p=>{
+        const cover=p.cover_url||('/images/livres/niveau-'+(p.sort_order||1)+'.jpg');
+        return `<div class="row" data-bid="${p.id}" data-name="${esc(p.name)}" data-price="${p.price}" data-desc="${esc(p.description||'')}">
+          <div class="r-top">
+            <div style="display:flex;gap:0.7rem;align-items:flex-start;">
+              <img src="${cover}" alt="" style="width:52px;height:74px;object-fit:cover;border-radius:6px;border:1px solid var(--beige);" onerror="this.style.display='none'">
+              <div><div class="name">${esc(p.name)}</div>
+              <div class="meta"><b>${Number(p.price).toFixed(2)}€</b>${p.description?'<br>'+esc(p.description):''}</div></div>
+            </div>
+          </div>
+          <div class="acts">
+            <button class="btn btn-gold" onclick="openEditBookModal(${p.id})">✏️ Modifier</button>
+            <button class="btn btn-soft" onclick="deleteBook(${p.id},'${esc(p.name).replace(/'/g,'')}')">🗑 Supprimer</button>
+          </div>
+        </div>`;
+      }).join('');
+    }else{
+      html+='<div class="empty">Aucun livre. Clique sur « Ajouter un livre » ci-dessus.</div>';
+    }
+  }catch{ html+='<div class="empty">Erreur de chargement des livres.</div>'; }
+
+  // ── 2) Les commandes reçues ──────────────────────────────────────────
+  try{
+    const r=await fetch('/api/admin/boutique/orders',{headers:H()});
+    const list=await r.json();
+    html+='<h3 style="color:var(--green-deep);font-family:\'Cormorant Garamond\',serif;font-size:1.2rem;margin:1.5rem 0 0.7rem;border-top:1px solid var(--beige);padding-top:1rem;">🧾 Commandes reçues</h3>';
+    if(Array.isArray(list)&&list.length){
+      html+=list.map(o=>{
+        const paid=(o.payment_status||'')==='paid';
+        const nom=esc([o.prenom,o.nom].filter(Boolean).join(' ')||'—');
+        return `<div class="row"><div class="r-top">
+          <div><div class="name">${nom}</div>
+          <div class="meta">${esc(o.email||'')}${o.whatsapp?' · '+esc(o.whatsapp):''}<br>${esc(o.items||'')}<br><b>${Number(o.total).toFixed(2)}€</b> · ${new Date(o.created_at).toLocaleDateString('fr-FR')}</div></div>
+          ${paid?'<span class="badge b-ok">Payé</span>':'<span class="badge b-warn">En attente</span>'}</div>
+          <div class="acts">${paid
+            ?`<button class="btn btn-soft" onclick="setBoutiquePay(${o.id},'unpaid')">Annuler le paiement</button>`
+            :`<button class="btn btn-ok" onclick="setBoutiquePay(${o.id},'paid')">✅ Paiement reçu (envoyer les PDF)</button>`}</div></div>`;
+      }).join('');
+    }else{
+      html+='<div class="empty">Aucune commande de PDF.</div>';
+    }
+  }catch{ html+='<div class="empty">Erreur de chargement des commandes.</div>'; }
+
+  $('listBoutique').innerHTML=html;
+}
+
+async function deleteBook(id,name){
+  if(!confirm('Supprimer le livre « '+name+' » ?\n\nIl disparaîtra de la boutique publique.')) return;
+  try{
+    const r=await fetch('/api/admin/boutique/products/'+id,{method:'DELETE',headers:H()});
+    if(!r.ok) throw 0;
+    toast('Livre supprimé ✓');
+    loadBoutique();
+  }catch{ toast('Échec de la suppression.'); }
 }
 async function setBoutiquePay(id,status){
   try{

@@ -144,21 +144,29 @@ let BOOKS=[],PACK={},sel=new Set(),packOn=false;
 const $=x=>document.getElementById(x);
 const eur=v=>(v||0).toFixed(2).replace('.',',')+'€';
 
-function load(){
-  BOOKS=[
-    {niveau:1,fr:'Niveau 1',price:10,img:'/images/livres/niveau-1.jpg'},
-    {niveau:2,fr:'Niveau 2',price:12,img:'/images/livres/niveau-2.jpg'},
-    {niveau:3,fr:'Niveau 3',price:14,img:'/images/livres/niveau-3.jpg'},
-    {niveau:4,fr:'Niveau 4',price:14,img:'/images/livres/niveau-4.jpg'},
-    {niveau:5,fr:'Niveau 5',price:14,img:'/images/livres/niveau-5.jpg'},
-    {niveau:6,fr:'Niveau 6',price:13,img:'/images/livres/niveau-6.jpg'},
-    {niveau:7,fr:'Niveau 7',price:13,img:'/images/livres/niveau-7.jpg'},
-    {niveau:8,fr:'Niveau 8',price:13,img:'/images/livres/niveau-8.jpg'},
-    {niveau:9,fr:'Niveau 9',price:13,img:'/images/livres/niveau-9.jpg'},
-    {niveau:10,fr:'Niveau 10',price:13,img:'/images/livres/niveau-10.jpg'},
-    {niveau:11,fr:'Niveau 11 - نهاية',price:17,img:'/images/livres/niveau-11.jpg'}
-  ];
-  PACK={price:70,full_price:146};
+const FALLBACK_BOOKS=[
+  {niveau:1,fr:'Niveau 1',price:10,img:'/images/livres/niveau-1.jpg'},
+  {niveau:2,fr:'Niveau 2',price:12,img:'/images/livres/niveau-2.jpg'},
+  {niveau:3,fr:'Niveau 3',price:14,img:'/images/livres/niveau-3.jpg'},
+  {niveau:4,fr:'Niveau 4',price:14,img:'/images/livres/niveau-4.jpg'},
+  {niveau:5,fr:'Niveau 5',price:14,img:'/images/livres/niveau-5.jpg'},
+  {niveau:6,fr:'Niveau 6',price:13,img:'/images/livres/niveau-6.jpg'},
+  {niveau:7,fr:'Niveau 7',price:13,img:'/images/livres/niveau-7.jpg'},
+  {niveau:8,fr:'Niveau 8',price:13,img:'/images/livres/niveau-8.jpg'},
+  {niveau:9,fr:'Niveau 9',price:13,img:'/images/livres/niveau-9.jpg'},
+  {niveau:10,fr:'Niveau 10',price:13,img:'/images/livres/niveau-10.jpg'},
+  {niveau:11,fr:'Niveau 11 - نهاية',price:17,img:'/images/livres/niveau-11.jpg'}
+];
+
+async function load(){
+  try{
+    const r=await fetch('/api/boutique/books');
+    if(r.ok){
+      const d=await r.json().catch(()=>({}));
+      BOOKS=(d.books&&d.books.length)?d.books:FALLBACK_BOOKS;
+      PACK=d.pack||{price:70,full_price:146};
+    }else{ BOOKS=FALLBACK_BOOKS; PACK={price:70,full_price:146}; }
+  }catch{ BOOKS=FALLBACK_BOOKS; PACK={price:70,full_price:146}; }
   $('packOld').textContent=eur(PACK.full_price||146);
   $('packNew').textContent=eur(PACK.price||70);
   $('packEco').textContent='Economise '+eur((PACK.full_price||146)-(PACK.price||70));
