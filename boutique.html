@@ -78,9 +78,10 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
   <div class="nav-inner">
     <a href="/" class="nav-logo"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
     <ul class="nav-links"><li><a href="/">Accueil</a></li><li><a href="/qui-sommes-nous">Qui sommes-nous</a></li><li><a href="/nos-cours">Nos cours</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/reglement">Règlement</a></li><li><a href="/espace-eleve">Espace membre</a></li><li><a href="/boutique" class="nav-cta">Boutique →</a></li></ul>
+    <a href="/boutique" style="text-decoration:none;color:var(--green);font-size:1.3rem;font-weight:700;">🛒</a>
     <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
   </div>
-  <div class="mobile-menu" id="mobileMenu"><a href="/">Accueil</a><a href="/qui-sommes-nous">Qui sommes-nous</a><a href="/nos-cours">Nos cours</a><a href="/tarifs">Tarifs</a><a href="/reglement">Règlement</a><a href="/espace-eleve">Espace membre</a><a href="/boutique" style="color:var(--green);font-weight:700;">Boutique →</a></div>
+  <div class="mobile-menu" id="mobileMenu"><a href="/">Accueil</a><a href="/qui-sommes-nous">Qui sommes-nous</a><a href="/nos-cours">Nos cours</a><a href="/tarifs">Tarifs</a><a href="/reglement">Règlement</a><a href="/espace-eleve">Espace membre</a><a href="/boutique" style="color:var(--green);font-weight:700;">🛒 Boutique</a></div>
 </nav>
 
 <div class="hero">
@@ -209,6 +210,7 @@ function refresh(){
   if(sel.size){
     $('totalbar').style.display='flex';
     $('tTxt').textContent=all?'Pack complet — '+BOOKS.length+' PDF':(sel.size+' livre'+(sel.size>1?'s':''));
+    $('tVal').textContent = eur(total);
     $('totalbar').querySelector('button').textContent='Commander '+eur(total)+' →';
     $('summary').innerHTML=(all?'<b>Pack complet — les '+BOOKS.length+' PDF</b> (valeur '+eur(PACK.full_price||146)+')':BOOKS.filter(b=>sel.has(b.niveau)).map(b=>(b.fr||b.name||'Niveau '+b.niveau)+' ('+eur(b.price)+')').join(' + '))+'<br>Total : <b>'+eur(total)+'</b>'+(all?' — au lieu de '+eur(PACK.full_price||146)+' ':'');
   }else{
@@ -223,16 +225,13 @@ async function doOrder(){
   const body={prenom:$('fPrenom').value.trim(), nom:$('fNom').value.trim(),email:$('fEmail').value.trim(), whatsapp:$('fWhatsapp').value.trim(),niveaux:[...sel], pack:packOn||sel.size===BOOKS.length};
   if(!body.prenom||!body.nom){ err.textContent='Prenom et nom requis.'; err.style.display='block'; return; }
   if(!body.email&&!body.whatsapp){ err.textContent='Email ou WhatsApp requis (pour recevoir tes PDF).'; err.style.display='block'; return; }
-  $('goBtn').disabled=true; $('goBtn').textContent='Enregistrement...';
+  $('goBtn').disabled=true; $('goBtn').textContent='Redirection vers PayPal...';
   try{
     const r=await fetch('/api/boutique/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||'Erreur serveur');
-    document.querySelector('.form-card').style.display='none';
-    $('confirm').style.display='block';
-    $('cMsg').innerHTML=d.items+'<br><b>Total : '+String(d.total).replace('.',',')+' €</b><br><br>Valide ta commande via PayPal :';
-    $('cPay').href=d.paypal;
-    $('confirm').scrollIntoView({behavior:'smooth'});
+    if(!d.paypal) throw new Error('Lien PayPal manquant');
+    window.location.href=d.paypal;
   }catch(e){
     err.textContent=e.message; err.style.display='block';
     $('goBtn').disabled=false; $('goBtn').textContent='Valider ma commande →';
