@@ -45,16 +45,19 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
 .pack .new{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:700;color:var(--gold-light);line-height:1;}
 .pack .eco{display:inline-block;background:rgba(212,168,67,0.18);border:1px solid rgba(212,168,67,0.45);color:var(--gold-pale);font-size:0.75rem;font-weight:700;border-radius:50px;padding:0.25rem 0.8rem;margin-top:0.4rem;}
 .books{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-top:1.8rem;}
-.book{background:#fff;border:2px solid var(--beige);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.18s;}
+.book{background:#fff;border:2px solid var(--beige);border-radius:16px;overflow:hidden;cursor:pointer;transition:all 0.18s;position:relative;display:flex;flex-direction:column;}
 .book:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,0.08);}
 .book.on{border-color:var(--gold);box-shadow:0 10px 26px rgba(184,149,58,0.22);}
 .cover{position:relative;aspect-ratio:717/1000;background:#F2EDE3;}
 .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 .cover .c-check{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--beige);display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:transparent;transition:all 0.15s;box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:2;}
 .book.on .c-check{background:var(--gold);border-color:var(--gold);color:var(--green-deep);}
-.b-info{padding:0.75rem 0.9rem;display:flex;align-items:center;justify-content:space-between;gap:0.4rem;}
+.b-info{padding:0.75rem 0.9rem;display:flex;align-items:center;justify-content:space-between;gap:0.4rem;flex:1;}
 .b-info b{font-size:0.85rem;color:var(--green-deep);}
 .b-price{font-weight:800;color:var(--gold);font-size:0.95rem;white-space:nowrap;}
+.b-description-label{padding:0.6rem 0.9rem;background:var(--cream);border-top:1px solid var(--beige);color:var(--green-deep);font-size:0.8rem;font-weight:600;text-align:center;position:relative;overflow:hidden;}
+.b-description-label::after{content:attr(data-desc);position:absolute;top:100%;left:0;right:0;background:linear-gradient(135deg,var(--green-deep),var(--green));color:#fff;padding:0.8rem;font-size:0.75rem;line-height:1.4;white-space:normal;transition:all 0.3s;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.2);}
+.book:hover .b-description-label::after{top:0;}
 .totalbar{position:sticky;bottom:0.8rem;z-index:15;max-width:560px;margin:1.6rem auto 0;background:var(--green-deep);color:#fff;border-radius:50px;padding:0.8rem 1.4rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;box-shadow:0 12px 34px rgba(0,0,0,0.3);}
 .totalbar .t-txt{font-size:0.85rem;color:rgba(255,255,255,0.8);}
 .totalbar .t-val{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--gold-light);}
@@ -64,13 +67,8 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
 .frow{display:flex;gap:0.7rem;}
 .frow>*{flex:1;}
 .form-card button{width:100%;padding:1rem;border:none;border-radius:50px;background:var(--green);color:#fff;font-family:inherit;font-weight:800;font-size:1rem;cursor:pointer;margin-top:0.4rem;}
-.err{display:none;background:#FDECEC;color:#B3261E;border:1px solid #F5C6C2;border-radius:10px;padding:0.6rem 0.9rem;font-size:0.85rem;margin-bottom:0.7rem;}
 .summary{background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:0.8rem 1rem;font-size:0.85rem;color:var(--muted);margin-bottom:0.8rem;line-height:1.6;}
 .summary b{color:var(--green-deep);}
-.confirm{display:none;background:#fff;border:2px solid var(--gold);border-radius:20px;padding:2rem 1.5rem;max-width:520px;margin:0 auto;text-align:center;}
-.confirm .ar-line{font-family:'Amiri',serif;color:var(--gold);font-size:1.4rem;margin-bottom:0.5rem;}
-.confirm h3{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.6rem;margin-bottom:0.7rem;}
-.confirm p{color:var(--muted);font-size:0.92rem;line-height:1.7;margin-bottom:1rem;}
 @media(max-width:768px){.nav-links{display:none;}.hamburger{display:flex;}}
 </style></head><body>
 
@@ -91,8 +89,8 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
 </div>
 
 <section>
-  <h2>Les 11 livres de Médin'Immersion</h2>
-  <p class="sub">Téléchargez les PDF de chaque niveau ou le pack complet</p>
+  <h2>Les principaux livres des 11 niveaux</h2>
+  <p class="sub">Munissez-vous de chaque niveau ou le pack complet</p>
 
   <div class="pack" id="packCard">
     <div class="glow"></div>
@@ -119,43 +117,34 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
 
 <section>
   <div class="form-card">
-    <div class="err" id="err"></div>
     <div id="summary" style="margin-bottom:1.5rem;"></div>
     <div class="frow">
       <div><label>Prénom <span style="color:var(--gold);">*</span></label><input type="text" id="fPrenom" placeholder="Mohamed"></div>
       <div><label>Nom <span style="color:var(--gold);">*</span></label><input type="text" id="fNom" placeholder="Dupont"></div>
     </div>
     <div><label>Email <span style="color:var(--gold);">*</span></label><input type="email" id="fEmail" placeholder="vous@email.com"></div>
-    <div><label>WhatsApp</label><input type="tel" id="fWhatsapp" placeholder="+33 6 00 00 00 00"></div>
     <button id="goBtn" onclick="doOrder()" style="background:var(--green);">Aller au panier →</button>
-  </div>
-
-  <div class="confirm" id="confirm">
-    <div class="ar-line">الْحَمْدُ لِلَّهِ</div>
-    <h3>Merci !</h3>
-    <p id="cMsg">–</p>
-    <a id="cPay" href="#" target="_blank" style="display:inline-block;background:#003087;color:#fff;padding:0.8rem 1.6rem;border-radius:50px;text-decoration:none;font-weight:600;margin-top:1rem;">Payer via PayPal</a>
   </div>
 </section>
 
 <script>
 const emptyText='Sélectionne au moins un livre pour commencer.';
-let BOOKS=[],PACK={},sel=new Set(),packOn=false;
+let BOOKS=[],PACK={};
 const $=x=>document.getElementById(x);
 const eur=v=>(v||0).toFixed(2).replace('.',',')+'€';
 
 const FALLBACK_BOOKS=[
-  {niveau:1,fr:'Niveau 1',price:10,img:'/images/livres/niveau-1.jpg'},
-  {niveau:2,fr:'Niveau 2',price:12,img:'/images/livres/niveau-2.jpg'},
-  {niveau:3,fr:'Niveau 3',price:14,img:'/images/livres/niveau-3.jpg'},
-  {niveau:4,fr:'Niveau 4',price:14,img:'/images/livres/niveau-4.jpg'},
-  {niveau:5,fr:'Niveau 5',price:14,img:'/images/livres/niveau-5.jpg'},
-  {niveau:6,fr:'Niveau 6',price:13,img:'/images/livres/niveau-6.jpg'},
-  {niveau:7,fr:'Niveau 7',price:13,img:'/images/livres/niveau-7.jpg'},
-  {niveau:8,fr:'Niveau 8',price:13,img:'/images/livres/niveau-8.jpg'},
-  {niveau:9,fr:'Niveau 9',price:13,img:'/images/livres/niveau-9.jpg'},
-  {niveau:10,fr:'Niveau 10',price:13,img:'/images/livres/niveau-10.jpg'},
-  {niveau:11,fr:'Niveau 11 - نهاية',price:17,img:'/images/livres/niveau-11.jpg'}
+  {niveau:1,fr:'Niveau 1',price:10,description:'Un ouvrage de 82 pages pour apprendre à lire l\'arabe avec une prononciation soignée. Grâce aux schémas illustrant les points d\'articulation, l\'élève repère facilement d\'où sort chaque lettre. Les exercices variés l\'accompagnent vers une lecture fluide et une écriture correcte, avec l\'aide d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-1.jpg'},
+  {niveau:2,fr:'Niveau 2',price:12,description:'Un ouvrage de 124 pages pour préparer l\'élève à comprendre les textes grâce à un large vocabulaire : la famille, les chiffres, les couleurs, les jours de la semaine, les mois hégiriens et grégoriens, les saisons, le corps humain, les vêtements, la maison, l\'école, la route et la mosquée. De nombreux exercices l\'aident à assimiler ces mots et à les employer dans ses conversations, avec l\'aide d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-2.jpg'},
+  {niveau:3,fr:'Niveau 3',price:14,description:'Un ouvrage de 144 pages pour développer vos compétences en grammaire et compréhension textuelle. Suivez le voyage de Hussein de la France à l\'Égypte, en passant par les conseils de son père, son arrivée au Caire et sa colocation estudiantine. Vous apprendrez les bases de la construction d\'une phrase, les types de mots, les pronoms démonstratifs et les différents temps. De nombreux exercices après chaque leçon consolident vos bases, avec l\'aide d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-3.jpg'},
+  {niveau:4,fr:'Niveau 4',price:14,description:'Un ouvrage de 147 pages pour enrichir votre vocabulaire en poursuivant les études de Hussein au sein d\'un institut en Égypte. Découvrez les champs lexicaux de la cuisine, du restaurant, des transports, de la médecine et bien d\'autres. Des textes sur la langue arabe, la connaissance de notre prophète صلى الله عليه وسلم et le noble Quran vous aideront à progresser, avec l\'aide d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-4.jpg'},
+  {niveau:5,fr:'Niveau 5',price:14,description:'Un ouvrage de 162 pages pour découvrir de nouveaux textes à travers les aventures de Hussein. Vous étudierez la connaissance de votre Seigneur, la biographie d\'Abû Bakr رضي الله عنه, l\'histoire des 70 mille personnes qui entreront au paradis sans jugement, et les champs lexicaux de l\'hôpital et de la pharmacie. Une introduction à la science de la rhétorique et de la poésie accompagnera votre progression, avec l\'aide d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-5.jpg'},
+  {niveau:6,fr:'Niveau 6',price:13,description:'Un ouvrage de 122 pages enrichi de nombreuses aventures. Vous y découvrirez les champs lexicaux des événements tragiques, les premiers secours, la cérémonie de mariage et l\'hôtel. Des textes sur la vie de l\'imam al-Bukhary et le comportement de l\'étudiant en science enrichiront votre vocabulaire. De nombreuses règles de grammaire, de morphologie et de poésie vous permettront de continuer votre évolution par la grâce d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-6.jpg'},
+  {niveau:7,fr:'Niveau 7',price:13,description:'Un ouvrage de 131 pages suivant la nouvelle vie de Hussein après son mariage et son installation. Découvrez le champ lexical des équipements électroménagers et la demande de visa à l\'étranger. Des textes sur la biographie d\'Omar رضي الله عنه, le jour du 3Id et le sens de la parole du Tawhid enrichiront votre connaissance. De nombreuses règles de grammaire et de poésie vous permettront de continuer votre évolution par la grâce d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-7.jpg'},
+  {niveau:8,fr:'Niveau 8',price:13,description:'Un ouvrage de 125 pages qui vous permettra de découvrir un vocabulaire enrichi intégré à des textes autour du comportement de Hussein avec son épouse et du rôle important de la femme dans la communauté. Le sentier vers Allah, la biographie de Cheikh Ibn Taymiyyah رحمه الله, et les champs lexicaux de la météo et du sport seront abordés. De nombreuses règles de grammaire et de poésie vous permettront de continuer votre évolution par la grâce d\'Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-8.jpg'},
+  {niveau:9,fr:'Niveau 9',price:13,description:'Un ouvrage de 106 pages où vous vivrez avec Hussein son dernier niveau au sein de l\'institut. Découvrez des textes sur la biographie d\'Othman et Ali عنهما الله رضي, ainsi que celle des compagnons en général عنهم الله رضي, la vie de ce bas monde et son caractère éphémère, et l\'importance de l\'éducation des enfants. De nombreuses règles de grammaire et de morphologie vous permettront de continuer votre évolution grâce à Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-9.jpg'},
+  {niveau:10,fr:'Niveau 10',price:13,description:'Un ouvrage pour vivre avec Hussein la naissance de son enfant et la fin de son histoire. Découvrez le champ lexical de la naissance, l\'importance de la femme pieuse et de la bonne compagnie dans l\'étude de la science. Vous y trouverez également un poème sur la perte de l\'Andalousie et l\'épreuve de la perte de la vue. De nombreuses règles de grammaire et de morphologie vous permettront de continuer votre évolution grâce à Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-10.jpg'},
+  {niveau:11,fr:'Niveau 11 - نهاية',price:17,description:'Un ouvrage de 176 pages contenant tous les textes des 10 niveaux accompagnés de leurs tableaux de vocabulaire. Ce livre d\'expression vous permettra d\'enrichir votre vocabulaire et d\'améliorer votre capacité à employer de belles compositions de phrases pour raconter l\'histoire de celui qui aspire à la science, grâce à Allah. En vous procurant ce livre, vous vous engagez à ne pas le diffuser.',img:'/images/livres/niveau-11.jpg'}
 ];
 
 async function load(){
@@ -176,11 +165,9 @@ async function load(){
 }
 
 function renderBooks(){
-  $('books').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;const img=b.img||('/images/livres/niveau-'+b.niveau+'.jpg');return '<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+img+'" alt="'+title+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+title+'</b><span class="b-price">'+eur(b.price)+'</span></div></div>'}).join('');
-  document.querySelectorAll('.book').forEach(el=>el.onclick=()=>{const n=parseInt(el.dataset.n,10);const book=BOOKS.find(b=>b.niveau===n);if(!book) return;const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');const idx=cart.findIndex(x=>x.niveau===n);if(idx>=0) cart.splice(idx,1); else cart.push({niveau:n,name:book.fr||'Niveau '+n,price:parseFloat(book.price)||0,img:book.img||('/images/livres/niveau-'+n+'.jpg')});localStorage.setItem('cart_items',JSON.stringify(cart));updateCartCount();refresh();});
+  $('books').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;const img=b.img||('/images/livres/niveau-'+b.niveau+'.jpg');const desc=(b.description||'Livre du niveau '+b.niveau).replace(/"/g,'&quot;');return '<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+img+'" alt="'+title+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+title+'</b><span class="b-price">'+eur(b.price)+'</span></div><div class="b-description-label" data-desc="'+desc+'">📖 Description</div></div>'}).join('');
+  document.querySelectorAll('.book').forEach(el=>el.onclick=()=>{const n=parseInt(el.dataset.n,10);const book=BOOKS.find(b=>b.niveau===n);if(!book) return;const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');const idx=cart.findIndex(x=>x.niveau===n);if(idx>=0) cart.splice(idx,1); else cart.push({niveau:n,name:book.fr||'Niveau '+n,price:parseFloat(book.price)||0,description:book.description||'',img:book.img||('/images/livres/niveau-'+n+'.jpg')});localStorage.setItem('cart_items',JSON.stringify(cart));updateCartCount();refresh();});
 }
-
-$('packCard').onclick=()=>{ packOn=!packOn; if(packOn) sel=new Set(BOOKS.map(b=>b.niveau)); else sel.clear(); refresh(); };
 
 function refresh(){
   const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');
