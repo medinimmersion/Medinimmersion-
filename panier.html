@@ -186,14 +186,15 @@ function loadCart(){
   let total=0;
   items.forEach((item,idx)=>{
     total+=item.price;
-    const desc=item.description?'<div class="item-description">'+item.description+'</div>':'';
+    const desc=item.description||'';
+    const descHtml=desc?'<div class="item-description" style="white-space:pre-wrap;">'+desc+'</div>':'';
     const html=`
       <div class="cart-item">
         <div class="item-cover"><img src="${item.img}" alt="${item.name}"></div>
         <div class="item-info">
           <h3>${item.name}</h3>
           <p>Niveau ${item.niveau}</p>
-          ${desc}
+          ${descHtml}
           <div class="item-controls">
             <button type="button" class="qty-btn" onclick="changeQty(${idx},-1)">−</button>
             <span style="margin:0 0.5rem;font-weight:600;" id="qty${idx}">1</span>

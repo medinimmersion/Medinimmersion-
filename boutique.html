@@ -178,11 +178,15 @@ async function load(){
 }
 
 function openDesc(n){
-  const book=BOOKS.find(b=>b.niveau===n);
-  if(!book) return;
+  n=parseInt(n,10);
+  let book=BOOKS.find(b=>parseInt(b.niveau,10)===n);
+  if(!book) book=FALLBACK_BOOKS.find(b=>parseInt(b.niveau,10)===n);
+  if(!book) { console.log('Livre non trouvé:',n); return; }
   $('descTitle').textContent=book.fr||'Niveau '+n;
-  $('descText').textContent=book.description||'';
+  const desc=book.description||'Description non disponible';
+  $('descText').innerHTML='<p style="white-space:pre-wrap;">'+desc+'</p>';
   $('descModal').classList.add('open');
+  console.log('Description ouverte:',book.fr,desc.substring(0,50)+'...');
 }
 function closeDesc(){
   $('descModal').classList.remove('open');
