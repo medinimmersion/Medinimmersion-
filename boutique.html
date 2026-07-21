@@ -78,10 +78,10 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
   <div class="nav-inner">
     <a href="/" class="nav-logo"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
     <ul class="nav-links"><li><a href="/">Accueil</a></li><li><a href="/qui-sommes-nous">Qui sommes-nous</a></li><li><a href="/nos-cours">Nos cours</a></li><li><a href="/tarifs">Tarifs</a></li><li><a href="/reglement">Règlement</a></li><li><a href="/espace-eleve">Espace membre</a></li><li><a href="/boutique" class="nav-cta">Boutique →</a></li></ul>
-    <a href="/boutique" style="text-decoration:none;color:var(--green);font-size:1.3rem;font-weight:700;">🛒</a>
+    <a href="/panier" style="text-decoration:none;color:var(--green);font-size:1.3rem;font-weight:700;position:relative;">🛒<span id="navCartCount" style="position:absolute;top:-6px;right:-8px;background:var(--gold);color:var(--green-deep);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;">0</span></a>
     <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
   </div>
-  <div class="mobile-menu" id="mobileMenu"><a href="/">Accueil</a><a href="/qui-sommes-nous">Qui sommes-nous</a><a href="/nos-cours">Nos cours</a><a href="/tarifs">Tarifs</a><a href="/reglement">Règlement</a><a href="/espace-eleve">Espace membre</a><a href="/boutique" style="color:var(--green);font-weight:700;">🛒 Boutique</a></div>
+  <div class="mobile-menu" id="mobileMenu"><a href="/">Accueil</a><a href="/qui-sommes-nous">Qui sommes-nous</a><a href="/nos-cours">Nos cours</a><a href="/tarifs">Tarifs</a><a href="/reglement">Règlement</a><a href="/espace-eleve">Espace membre</a><a href="/boutique">🛒 Boutique</a><a href="/panier" style="color:var(--green);font-weight:700;">🛒 Panier</a></div>
 </nav>
 
 <div class="hero">
@@ -127,7 +127,7 @@ h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:clam
     </div>
     <div><label>Email <span style="color:var(--gold);">*</span></label><input type="email" id="fEmail" placeholder="vous@email.com"></div>
     <div><label>WhatsApp</label><input type="tel" id="fWhatsapp" placeholder="+33 6 00 00 00 00"></div>
-    <button id="goBtn" onclick="doOrder()">Valider ma commande →</button>
+    <button id="goBtn" onclick="doOrder()" style="background:var(--green);">Aller au panier →</button>
   </div>
 
   <div class="confirm" id="confirm">
@@ -184,58 +184,47 @@ async function load(){
   $('packNew').textContent=eur(PACK.price||70);
   $('packEco').textContent='Economise '+eur((PACK.full_price||146)-(PACK.price||70));
   renderBooks();
+  updateCartCount();
+  refresh();
 }
 
 function renderBooks(){
   $('books').innerHTML=BOOKS.map(b=>{const title=b.fr||b.name||'Niveau '+b.niveau;const img=b.img||('/images/livres/niveau-'+b.niveau+'.jpg');return '<div class="book" data-n="'+b.niveau+'"><div class="cover"><img src="'+img+'" alt="'+title+'" loading="lazy"><div class="c-check">✓</div></div><div class="b-info"><b>'+title+'</b><span class="b-price">'+eur(b.price)+'</span></div></div>'}).join('');
-  document.querySelectorAll('.book').forEach(el=>el.onclick=()=>{const n=parseInt(el.dataset.n,10);packOn=false;if(sel.has(n)) sel.delete(n); else sel.add(n);refresh();});
+  document.querySelectorAll('.book').forEach(el=>el.onclick=()=>{const n=parseInt(el.dataset.n,10);const book=BOOKS.find(b=>b.niveau===n);if(!book) return;const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');const idx=cart.findIndex(x=>x.niveau===n);if(idx>=0) cart.splice(idx,1); else cart.push({niveau:n,name:book.fr||'Niveau '+n,price:book.price*100,img:book.img||('/images/livres/niveau-'+n+'.jpg')});localStorage.setItem('cart_items',JSON.stringify(cart));updateCartCount();refresh();});
 }
 
 $('packCard').onclick=()=>{ packOn=!packOn; if(packOn) sel=new Set(BOOKS.map(b=>b.niveau)); else sel.clear(); refresh(); };
 
-function currentTotal(){
-  if(packOn||sel.size===BOOKS.length) return PACK.price||70;
-  let total = 0;
-  BOOKS.forEach(b=>{
-    if(sel.has(b.niveau)) total += (parseFloat(b.price) || 0);
-  });
-  return total;
-}
-
 function refresh(){
-  const all=packOn||sel.size===BOOKS.length;
+  const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');
+  const cartNiveaux=new Set(cart.map(x=>x.niveau));
+  const all=false;
   $('packCard').classList.toggle('on',all);
-  document.querySelectorAll('.book').forEach(el=>el.classList.toggle('on',sel.has(parseInt(el.dataset.n,10))));
-  const total=currentTotal();
-  if(sel.size){
+  document.querySelectorAll('.book').forEach(el=>el.classList.toggle('on',cartNiveaux.has(parseInt(el.dataset.n,10))));
+  let total=0;
+  cart.forEach(item=>{total+=item.price;});
+  if(cart.length){
     $('totalbar').style.display='flex';
-    $('tTxt').textContent=all?'Pack complet — '+BOOKS.length+' PDF':(sel.size+' livre'+(sel.size>1?'s':''));
-    $('tVal').textContent = eur(total);
-    $('totalbar').querySelector('button').textContent='Commander '+eur(total)+' →';
-    $('summary').innerHTML=(all?'<b>Pack complet — les '+BOOKS.length+' PDF</b> (valeur '+eur(PACK.full_price||146)+')':BOOKS.filter(b=>sel.has(b.niveau)).map(b=>(b.fr||b.name||'Niveau '+b.niveau)+' ('+eur(b.price)+')').join(' + '))+'<br>Total : <b>'+eur(total)+'</b>'+(all?' — au lieu de '+eur(PACK.full_price||146)+' ':'');
+    $('tTxt').textContent=cart.length+' livre'+(cart.length>1?'s':'');
+    $('tVal').textContent = eur(Math.round(total/100)*100);
+    $('totalbar').querySelector('button').textContent='Commander '+eur(Math.round(total/100)*100)+' →';
+    $('summary').innerHTML=cart.map(b=>b.name+' ('+eur(b.price)+')').join(' + ')+'<br>Total : <b>'+eur(Math.round(total/100)*100)+'</b>';
   }else{
     $('totalbar').style.display='none';
     $('summary').textContent=emptyText;
   }
 }
 
-async function doOrder(){
-  const err=$('err'); err.style.display='none';
-  if(!sel.size){ err.textContent='Choisis au moins un livre (ou le pack complet).'; err.style.display='block'; return; }
-  const body={prenom:$('fPrenom').value.trim(), nom:$('fNom').value.trim(),email:$('fEmail').value.trim(), whatsapp:$('fWhatsapp').value.trim(),niveaux:[...sel], pack:packOn||sel.size===BOOKS.length};
-  if(!body.prenom||!body.nom){ err.textContent='Prenom et nom requis.'; err.style.display='block'; return; }
-  if(!body.email&&!body.whatsapp){ err.textContent='Email ou WhatsApp requis (pour recevoir tes PDF).'; err.style.display='block'; return; }
-  $('goBtn').disabled=true; $('goBtn').textContent='Redirection vers PayPal...';
-  try{
-    const r=await fetch('/api/boutique/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const d=await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(d.error||'Erreur serveur');
-    if(!d.paypal) throw new Error('Lien PayPal manquant');
-    window.location.href=d.paypal;
-  }catch(e){
-    err.textContent=e.message; err.style.display='block';
-    $('goBtn').disabled=false; $('goBtn').textContent='Valider ma commande →';
-  }
+function updateCartCount(){
+  const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');
+  const count=document.getElementById('navCartCount');
+  if(count) count.textContent=cart.length;
+}
+
+function doOrder(){
+  const cart=JSON.parse(localStorage.getItem('cart_items')||'[]');
+  if(!cart.length){ alert('Choisis au moins un livre'); return; }
+  window.location.href='/panier';
 };
 
 document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('mobileMenu').classList.toggle('open'));
