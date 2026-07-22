@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Allow: /kalam-ai
+
+Disallow: /admin-gerant
+Disallow: /espace-eleve
+Disallow: /espace-professeur
+Disallow: /reset-password
+Disallow: /kalam$
+Disallow: /kalam.html
+Disallow: /kalam-live
+Disallow: /kalam-test
+Disallow: /test-kalam
+Disallow: /api/
+
+Sitemap: https://medinimmersion.com/sitemap.xml
