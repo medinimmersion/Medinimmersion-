@@ -253,6 +253,7 @@ const routeFiles = [
   'notifications',
   'presences',
   'visits',
+  'tracking',
   'zoom',
   'cms',
   'email',

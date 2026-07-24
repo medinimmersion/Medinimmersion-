@@ -6,6 +6,7 @@
 'use strict';
 
 const { WebSocketServer, WebSocket } = require('ws');
+const tracking = require('./db/tracking');
 
 function getGeminiKey() {
   return process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
@@ -105,10 +106,13 @@ module.exports = function attachKalamLive(server, pool, opts) {
 
     // Contexte élève réel (niveau/page/notes) si un token valide est fourni
     let studentContext = '';
+    let trackedStudentId = null;   // élève identifié → chrono Kalam
+    let timeSessionId = null;      // session de temps en cours
     try {
       const token = params.get('token');
       const entry = token && opts && opts.studentTokens && opts.studentTokens.get(token);
       const studentId = entry && Date.now() <= entry.expires ? entry.id : null;
+      trackedStudentId = studentId;
       if (studentId && pool) {
         const pr = await pool.query('SELECT niveau, current_page, notes FROM student_progression WHERE student_id = $1', [studentId]);
         if (pr.rows.length) {
@@ -120,6 +124,21 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
         }
       }
     } catch (e) { console.error('[kalam-live] contexte élève:', e.message); }
+
+    // ── Chrono Kalam : démarre dès que l'élève est identifié ──
+    if (trackedStudentId && pool) {
+      try {
+        timeSessionId = await tracking.startSession(pool, trackedStudentId, 'kalam');
+      } catch (e) { console.error('[kalam-live] chrono début:', e.message); }
+    }
+
+    // Arrête le chrono une seule fois, quelle que soit la façon dont ça se termine.
+    function stopChrono() {
+      if (!timeSessionId || !pool) return;
+      const id = timeSessionId;
+      timeSessionId = null;
+      tracking.endSession(pool, id).catch(e => console.error('[kalam-live] chrono fin:', e.message));
+    }
 
     const systemText = buildSystemPrompt({ lang, level, gender, studentName, studentContext });
 
@@ -160,6 +179,7 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
       if (idx >= ATTEMPTS.length) {
         const disc = discovered.models.length ? 'Dispo: ' + discovered.models.join(', ') + '. ' : 'Aucun modèle temps réel trouvé pour cette clé. ';
         try { client.send(JSON.stringify({ error: disc + 'Refus: ' + failReasons.join(' | ') })); } catch {}
+        stopChrono();
         try { client.close(); } catch {}
         return;
       }
@@ -190,6 +210,7 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
           console.log('[kalam-live] ✗', ver, model, 'code', code, r);
           setTimeout(tryNext, 120); // essai suivant
         } else if (thisOk) {
+          stopChrono();
           try { client.close(); } catch {}
         }
       });
@@ -203,8 +224,8 @@ CONTEXTE RÉEL DE L'ÉLÈVE (confidentiel, ne le récite pas) : Niveau ${niveau}
       if (setupOk && upstream && upstream.readyState === WebSocket.OPEN) upstream.send(msg);
       else queue.push(msg);
     });
-    client.on('close', () => { try { upstream && upstream.close(); } catch {} });
-    client.on('error', () => { try { upstream && upstream.close(); } catch {} });
+    client.on('close', () => { stopChrono(); try { upstream && upstream.close(); } catch {} });
+    client.on('error', () => { stopChrono(); try { upstream && upstream.close(); } catch {} });
   });
 
   console.log('[kalam-live] Proxy WebSocket Gemini Live actif sur /ws/kalam (découverte auto + ' + FALLBACK_MODELS.length + ' secours)');
