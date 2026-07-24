@@ -1136,6 +1136,143 @@ async function rowKalam(id,mode){
 
 boot();
 </script>
-<script src="/admin-kalam-time.js"></script>
+<script>
+/* ═══ SUIVI DU TEMPS ÉLÈVES — intégré (pas de fichier externe) ═══ */
+(function () {
+  'use strict';
+  var VERT = '#1B5E20', OR = '#D4AF37';
+  var mounted = null, loading = false, loaded = false;
+
+  function tok(){ return localStorage.getItem('gerant_token') || ''; }
+
+  function api(path) {
+    var t = tok();
+    if (!t) return Promise.reject(new Error('non-connecte'));
+    return fetch(path, { headers: { 'x-gerant-token': t, 'x-admin-token': t, 'Authorization': 'Bearer ' + t } })
+      .then(function (r) {
+        if (r.status === 401) throw new Error('non-connecte');
+        if (!r.ok) throw new Error('http-' + r.status);
+        return r.json();
+      });
+  }
+
+  function duree(sec) {
+    sec = parseInt(sec, 10) || 0;
+    if (sec === 0) return '—';
+    if (sec < 60) return sec + ' s';
+    var h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60);
+    return h === 0 ? m + ' min' : h + ' h ' + (m < 10 ? '0' + m : m);
+  }
+
+  function dateFr(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso);
+    if (isNaN(d)) return '—';
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) +
+      ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function nomC(e) {
+    var n = ((e.prenom || '') + ' ' + (e.nom || '')).trim();
+    return n || e.kounia || e.email || ('Élève #' + e.id);
+  }
+
+  function carte(t, v) {
+    return '<div style="flex:1;min-width:120px;background:#fff;border:1px solid #e0e0e0;border-left:4px solid ' + OR + ';border-radius:6px;padding:10px 12px">' +
+      '<div style="font-size:12px;color:#777">' + t + '</div>' +
+      '<div style="font-size:20px;font-weight:700;color:' + VERT + '">' + v + '</div></div>';
+  }
+
+  function rendu(eleves) {
+    if (!eleves.length) return '<p style="color:#666">Aucun élève enregistré.</p>';
+    var actifs = 0, tS = 0, tK = 0;
+    eleves.forEach(function (e) {
+      var s = Number(e.site_seconds) || 0, k = Number(e.kalam_seconds) || 0;
+      tS += s; tK += k; if (s + k > 0) actifs++;
+    });
+    var out = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">' +
+      carte('Élèves actifs', actifs + ' / ' + eleves.length) +
+      carte('Temps site', duree(tS)) +
+      carte('Temps Kalam', duree(tK)) + '</div>' +
+      '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">' +
+      '<thead><tr style="background:' + VERT + ';color:#fff">' +
+      '<th style="padding:9px 6px;text-align:left">Élève</th>' +
+      '<th style="padding:9px 6px;text-align:right">Site</th>' +
+      '<th style="padding:9px 6px;text-align:right">Kalam</th>' +
+      '<th style="padding:9px 6px;text-align:right">Sess.</th>' +
+      '<th style="padding:9px 6px;text-align:left">Dernière activité</th>' +
+      '</tr></thead><tbody>';
+    eleves.forEach(function (e) {
+      var vide = (Number(e.site_seconds) + Number(e.kalam_seconds)) === 0;
+      out += '<tr data-eleve="' + e.id + '" style="border-bottom:1px solid #e5e5e5;cursor:pointer' + (vide ? ';opacity:.5' : '') + '">' +
+        '<td style="padding:9px 6px">' + esc(nomC(e)) + '</td>' +
+        '<td style="padding:9px 6px;text-align:right">' + duree(e.site_seconds) + '</td>' +
+        '<td style="padding:9px 6px;text-align:right;font-weight:600;color:' + VERT + '">' + duree(e.kalam_seconds) + '</td>' +
+        '<td style="padding:9px 6px;text-align:right">' + (e.kalam_sessions || 0) + '</td>' +
+        '<td style="padding:9px 6px;color:#666">' + dateFr(e.last_seen_at) + '</td></tr>' +
+        '<tr class="det-' + e.id + '" style="display:none"><td colspan="5" style="padding:0;background:#fafafa"></td></tr>';
+    });
+    return out + '</tbody></table></div><p style="margin-top:10px;color:#888;font-size:12px">Touche une ligne pour voir le détail des sessions.</p>';
+  }
+
+  function renduSessions(list) {
+    if (!list.length) return '<div style="padding:12px;color:#777">Aucune session enregistrée.</div>';
+    var out = '<div style="padding:8px 12px"><table style="width:100%;border-collapse:collapse;font-size:12px">';
+    list.forEach(function (s) {
+      var b = s.kind === 'kalam'
+        ? '<span style="background:' + VERT + ';color:#fff;padding:2px 7px;border-radius:10px;font-size:11px">Kalam</span>'
+        : '<span style="background:#ddd;color:#444;padding:2px 7px;border-radius:10px;font-size:11px">Site</span>';
+      out += '<tr style="border-bottom:1px solid #eee"><td style="padding:5px 3px;width:64px">' + b + '</td>' +
+        '<td style="padding:5px 3px">' + dateFr(s.started_at) + '</td>' +
+        '<td style="padding:5px 3px;text-align:right;font-weight:600">' + duree(s.duration_seconds) + '</td></tr>';
+    });
+    return out + '</table></div>';
+  }
+
+  function charger() {
+    if (!mounted || loading) return;
+    loading = true;
+    mounted.innerHTML = '<p style="color:#777">Chargement des temps de connexion…</p>';
+    api('/api/admin/tracking/students')
+      .then(function (d) { mounted.innerHTML = rendu(d); loaded = true; })
+      .catch(function (err) {
+        loaded = false;
+        mounted.innerHTML = err.message === 'non-connecte'
+          ? '<p style="color:#c00">Reconnecte-toi à l\'espace gérant pour voir ces données.</p>'
+          : '<p style="color:#c00">Données indisponibles (' + err.message + ').</p>';
+      })
+      .then(function () { loading = false; });
+  }
+
+  function demarrer() {
+    mounted = document.getElementById('kalam-temps-eleves-container');
+    if (!mounted) return;
+
+    mounted.addEventListener('click', function (ev) {
+      var tr = ev.target.closest && ev.target.closest('tr[data-eleve]');
+      if (!tr) return;
+      var id = tr.getAttribute('data-eleve');
+      var l = mounted.querySelector('.det-' + id);
+      if (!l) return;
+      if (l.style.display !== 'none') { l.style.display = 'none'; return; }
+      l.style.display = '';
+      var c = l.firstElementChild;
+      c.innerHTML = '<div style="padding:12px;color:#777">Chargement…</div>';
+      api('/api/admin/tracking/students/' + id)
+        .then(function (s) { c.innerHTML = renduSessions(s); })
+        .catch(function () { c.innerHTML = '<div style="padding:12px;color:#c00">Détail indisponible.</div>'; });
+    });
+
+    // Recharge dès que l'onglet Kalam devient visible
+    setInterval(function () {
+      var p = document.getElementById('p-kalam');
+      if (p && p.classList.contains('on') && !loaded && !loading) charger();
+    }, 800);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', demarrer);
+  else demarrer();
+})();
+</script>
 </body>
 </html>
