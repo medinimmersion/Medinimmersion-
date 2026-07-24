@@ -216,23 +216,34 @@ a{color:inherit;}
 
   <div class="panel" id="p-kalam">
     <h2>Temps Kalam</h2>
-    <p class="sub">Sélectionne des élèves, règle leur temps de parole quotidien, ou désactive Kalam.</p>
-    <div style="background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
-        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;font-weight:700;cursor:pointer;">
-          <input type="checkbox" id="ktAll" style="width:18px;height:18px;accent-color:var(--green);"> Tout sélectionner
-        </label>
-        <span id="ktCount" style="font-size:0.8rem;color:var(--muted);">0 sélectionné</span>
-      </div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-top:0.7rem;">
-        <input class="search" id="ktMinutes" type="number" min="0" placeholder="Minutes / jour" style="max-width:150px;margin:0;">
-        <button class="btn btn-green" onclick="bulkKalam('minutes')">✓ Appliquer aux sélectionnés</button>
-        <button class="btn btn-gold" onclick="bulkKalam('unlimited')">∞ Illimité</button>
-        <button class="btn btn-bad" onclick="bulkKalam('disable')">🚫 Désactiver Kalam</button>
-      </div>
+    <p class="sub">Suivi et limitation du temps de parole.</p>
+    
+    <!-- SECTION 1 : SUIVI DU TEMPS -->
+    <div style="margin-bottom:2rem;padding-bottom:2rem;border-bottom:2px solid var(--gold-pale);">
+      <h3 style="font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.1rem;margin-bottom:0.8rem;">📊 Suivi du temps</h3>
+      <div id="kalam-temps-eleves-container"></div>
     </div>
-    <input class="search" id="searchKalam" placeholder="Rechercher un élève (nom, email…)">
-    <div id="listKalamTimes" class="loading">Chargement…</div>
+
+    <!-- SECTION 2 : GESTION DES LIMITES -->
+    <div>
+      <h3 style="font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.1rem;margin-bottom:0.8rem;">⚙️ Gérer les limites</h3>
+      <div style="background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+          <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;font-weight:700;cursor:pointer;">
+            <input type="checkbox" id="ktAll" style="width:18px;height:18px;accent-color:var(--green);"> Tout sélectionner
+          </label>
+          <span id="ktCount" style="font-size:0.8rem;color:var(--muted);">0 sélectionné</span>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-top:0.7rem;">
+          <input class="search" id="ktMinutes" type="number" min="0" placeholder="Minutes / jour" style="max-width:150px;margin:0;">
+          <button class="btn btn-green" onclick="bulkKalam('minutes')">✓ Appliquer aux sélectionnés</button>
+          <button class="btn btn-gold" onclick="bulkKalam('unlimited')">∞ Illimité</button>
+          <button class="btn btn-bad" onclick="bulkKalam('disable')">🚫 Désactiver Kalam</button>
+        </div>
+      </div>
+      <input class="search" id="searchKalam" placeholder="Rechercher un élève (nom, email…)">
+      <div id="listKalamTimes" class="loading">Chargement…</div>
+    </div>
   </div>
 
   <div class="panel" id="p-remu">
@@ -416,7 +427,7 @@ async function createStudent(){
   try{
     const r=await fetch('/api/admin/students',{method:'POST',headers:H(),body:JSON.stringify(body)});
     const d=await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(d.error||'Erreur serveur');
+    if(!r.ok||!d.token) throw new Error(d.error||'Erreur serveur');
     toast('Élève créé ✓');
     if(d.password_generated){
       msg.style.color='var(--green)';
@@ -456,98 +467,16 @@ async function setKalamTime(id,nom){
     if(!r.ok) throw 0;
     toast(body.unlimited?'Temps Kalam : illimité ✓':'Temps Kalam : '+body.minutes+' min/jour ✓');
     loadEleves();
-    if(document.getElementById('p-kalam').classList.contains('on')) loadKalamTimes();
   }catch{ toast('Échec — réessaie.'); }
 }
 
-/* ───────── TEMPS KALAM (vue générale) ───────── */
-let cacheKalamTimes=[];
+/* ─── TEMPS KALAM (charge le script) ─── */
 async function loadKalamTimes(){
-  try{
-    const r=await fetch('/api/admin/kalam/times',{headers:H()});
-    if(!r.ok) throw 0;
-    cacheKalamTimes=await r.json();
-    renderKalamTimes(cacheKalamTimes);
-  }catch{ $('listKalamTimes').innerHTML='<div class="empty">Impossible de charger les temps Kalam.</div>'; }
-}
-function kalamBadge(s){
-  if(s.total===-1) return '<span class="badge b-ok">∞ Illimité</span>';
-  if(s.total===0) return '<span class="badge b-bad">🚫 Désactivé</span>';
-  const min=Math.round(s.total/60);
-  const left=Math.max(0,s.total-(s.used_today||0));
-  const leftTxt=left<=0?' · épuisé aujourd\'hui':' · reste '+Math.floor(left/60)+' min aujourd\'hui';
-  return '<span class="badge '+(left<=0?'b-warn':'b-ok')+'">⏱️ '+min+' min/jour'+leftTxt+'</span>';
-}
-function renderKalamTimes(list){
-  if(!list.length){ $('listKalamTimes').innerHTML='<div class="empty">Aucun élève.</div>'; return; }
-  $('listKalamTimes').innerHTML=list.map(s=>{
-    const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||'—');
-    const disabled=s.total===0;
-    return `<div class="row">
-      <div class="r-top">
-        <div style="display:flex;align-items:center;gap:0.7rem;">
-          <input type="checkbox" class="kt-check" data-id="${s.id}" style="width:19px;height:19px;accent-color:var(--green);flex-shrink:0;" onchange="ktCount()">
-          <div><div class="name">${nom}</div><div class="meta">${esc(s.email||'—')}</div></div>
-        </div>
-        ${kalamBadge(s)}</div>
-      <div class="acts">
-        <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Modifier le temps</button>
-        ${disabled
-          ?`<button class="btn btn-ok" onclick="rowKalam(${s.id},'enable')">✅ Activer Kalam</button>`
-          :`<button class="btn btn-bad" onclick="rowKalam(${s.id},'disable')">🚫 Désactiver Kalam</button>`}
-      </div></div>`;
-  }).join('');
-  ktCount();
-}
-$('searchKalam').oninput=e=>{
-  const q=e.target.value.toLowerCase().trim();
-  renderKalamTimes(!q?cacheKalamTimes:cacheKalamTimes.filter(s=>[s.nom,s.prenom,s.kounia,s.email].some(v=>(v||'').toLowerCase().includes(q))));
-};
-$('ktAll').onchange=()=>{
-  document.querySelectorAll('.kt-check').forEach(c=>c.checked=$('ktAll').checked);
-  ktCount();
-};
-function ktCount(){
-  const n=document.querySelectorAll('.kt-check:checked').length;
-  $('ktCount').textContent=n+' sélectionné'+(n>1?'s':'');
-}
-function ktSelectedIds(){
-  return Array.from(document.querySelectorAll('.kt-check:checked')).map(c=>parseInt(c.dataset.id,10));
-}
-async function bulkKalam(mode){
-  const ids=ktSelectedIds();
-  if(!ids.length){ toast('Sélectionne au moins un élève.'); return; }
-  let body={student_ids:ids};
-  if(mode==='minutes'){
-    const m=parseInt($('ktMinutes').value,10);
-    if(isNaN(m)||m<0){ toast('Indique un nombre de minutes valide.'); return; }
-    body.minutes=m;
-  } else if(mode==='unlimited'){ body.unlimited=true; }
-  else if(mode==='disable'){
-    if(!confirm('Désactiver Kalam pour '+ids.length+' élève'+(ids.length>1?'s':'')+' ?')) return;
-    body.disable=true;
+  const container = $('kalam-temps-eleves-container');
+  if(!container) return;
+  if(!window.kalamTimeScriptLoaded){
+    container.innerHTML = '<div class="loading">Chargement du suivi du temps…</div>';
   }
-  try{
-    const r=await fetch('/api/admin/kalam/times/bulk',{method:'POST',headers:H(),body:JSON.stringify(body)});
-    const d=await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(d.error||'Échec');
-    toast(mode==='disable'?'Kalam désactivé pour '+d.updated+' élève(s) ✓'
-      :mode==='unlimited'?'Temps illimité pour '+d.updated+' élève(s) ✓'
-      :body.minutes+' min/jour pour '+d.updated+' élève(s) ✓');
-    $('ktAll').checked=false;
-    loadKalamTimes();
-  }catch(e){ toast(e.message||'Échec — réessaie.'); }
-}
-async function rowKalam(id,mode){
-  const body={student_ids:[id]};
-  if(mode==='disable') body.disable=true;
-  else body.minutes=3;
-  try{
-    const r=await fetch('/api/admin/kalam/times/bulk',{method:'POST',headers:H(),body:JSON.stringify(body)});
-    if(!r.ok) throw 0;
-    toast(mode==='disable'?'Kalam désactivé ✓':'Kalam réactivé (3 min/jour) ✓');
-    loadKalamTimes();
-  }catch{ toast('Échec — réessaie.'); }
 }
 
 async function loadValidation(){
@@ -641,7 +570,6 @@ async function setPay(id,status){
   }catch{ toast('Échec — réessaie.'); }
 }
 
-/* ───────── PAIEMENTS KALAM ───────── */
 function switchPaySub(which){
   $('paySubCoursBox').style.display=which==='cours'?'block':'none';
   $('paySubKalamBox').style.display=which==='kalam'?'block':'none';
@@ -653,8 +581,6 @@ async function loadBoutique(){
   $('listBoutique').innerHTML='<div class="loading">Chargement…</div>';
   let html='';
 
-  // ── 1) Les livres (produits) modifiables ─────────────────────────────
-  // On tente la route admin ; si elle échoue, on lit l'API publique en secours
   let prods=null;
   try{
     const r=await fetch('/api/admin/boutique/products',{headers:H()});
@@ -667,7 +593,6 @@ async function loadBoutique(){
     }catch{}
   }
 
-  // Normalise les champs (le backend peut renvoyer name/fr, cover_url/img, etc.)
   const norm=(p,i)=>({
     id: p.id!=null?p.id:(p.niveau!=null?p.niveau:i+1),
     name: p.name||p.fr||('Niveau '+(p.niveau||i+1)),
@@ -698,7 +623,6 @@ async function loadBoutique(){
     html+='<div class="empty">Aucun livre pour le moment. Clique sur « Ajouter un livre » ci-dessus.</div>';
   }
 
-  // ── 2) Les commandes reçues ──────────────────────────────────────────
   try{
     const r=await fetch('/api/admin/boutique/orders',{headers:H()});
     const list=await r.json();
@@ -741,9 +665,6 @@ async function setBoutiquePay(id,status){
   }catch{ toast('Échec — réessaie.'); }
 }
 
-// ═════════════════════════════════════════════════════════════════════
-// MODALES DE GESTION DE LIVRES BOUTIQUE — FIXES POUR LA BOUTIQUE
-// ═════════════════════════════════════════════════════════════════════
 function openAddBookModal(){
   document.getElementById('abName').value='';
   document.getElementById('abPrice').value='';
@@ -932,7 +853,6 @@ async function loadRemu(){
   }catch{ $('listRemu').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
 }
 
-/* ───────── PLANNING (gérant) ───────── */
 let cacheTeachers=[];
 async function ensureTeachers(){
   if(cacheTeachers.length) return cacheTeachers;
@@ -974,7 +894,6 @@ async function loadPlanning(){
   }catch{ $('listPlanning').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
 }
 
-/* ───────── GROUPES (gérant) ───────── */
 function openNewGroup(){ document.getElementById('newGroupForm').style.display='block'; }
 async function createGroup(){
   const name=$('gName').value.trim(); if(!name){ toast('Nom requis.'); return; }
@@ -1030,7 +949,6 @@ async function rmMember(gid,mid){
   try{ const r=await fetch('/api/admin/groups/'+gid+'/members/'+mid,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Retiré'); $('gm-'+gid).style.display='none'; manageMembers(gid); loadGroupes(); }catch{ toast('Échec.'); }
 }
 
-/* ───────── LIVRES (gérant) ───────── */
 async function uploadBook(){
   const name=$('bName').value.trim(); const f=$('bFile').files[0];
   if(!name||!f){ toast('Nom et fichier requis.'); return; }
@@ -1125,205 +1043,99 @@ async function delBook(id){
   try{ const r=await fetch('/api/admin/library/books/'+id,{method:'DELETE',headers:H()}); if(!r.ok)throw 0; toast('Supprimé'); loadLivres(); }catch{ toast('Échec.'); }
 }
 
+function kalamBadge(s){
+  if(s.total===-1) return '<span class="badge b-ok">∞ Illimité</span>';
+  if(s.total===0) return '<span class="badge b-bad">🚫 Désactivé</span>';
+  const min=Math.round(s.total/60);
+  const left=Math.max(0,s.total-(s.used_today||0));
+  const leftTxt=left<=0?' · épuisé aujourd\'hui':' · reste '+Math.floor(left/60)+' min aujourd\'hui';
+  return '<span class="badge '+(left<=0?'b-warn':'b-ok')+'">⏱️ '+min+' min/jour'+leftTxt+'</span>';
+}
+
+/* ───────── GESTION DU TEMPS KALAM (limitation + sélection) ───────── */
+let cacheKalamTimes=[];
+async function loadKalamTimes(){
+  try{
+    const r=await fetch('/api/admin/kalam/times',{headers:H()});
+    if(!r.ok) throw 0;
+    cacheKalamTimes=await r.json();
+    renderKalamTimes(cacheKalamTimes);
+  }catch{ $('listKalamTimes').innerHTML='<div class="empty">Impossible de charger les temps Kalam.</div>'; }
+}
+function renderKalamTimes(list){
+  if(!list.length){ $('listKalamTimes').innerHTML='<div class="empty">Aucun élève.</div>'; return; }
+  $('listKalamTimes').innerHTML=list.map(s=>{
+    const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||'—');
+    const disabled=s.total===0;
+    return `<div class="row">
+      <div class="r-top">
+        <div style="display:flex;align-items:center;gap:0.7rem;">
+          <input type="checkbox" class="kt-check" data-id="${s.id}" style="width:19px;height:19px;accent-color:var(--green);flex-shrink:0;" onchange="ktCount()">
+          <div><div class="name">${nom}</div><div class="meta">${esc(s.email||'—')}</div></div>
+        </div>
+        ${kalamBadge(s)}</div>
+      <div class="acts">
+        <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Modifier le temps</button>
+        ${disabled
+          ?`<button class="btn btn-ok" onclick="rowKalam(${s.id},'enable')">✅ Activer Kalam</button>`
+          :`<button class="btn btn-bad" onclick="rowKalam(${s.id},'disable')">🚫 Désactiver Kalam</button>`}
+      </div></div>`;
+  }).join('');
+  ktCount();
+}
+$('searchKalam').oninput=e=>{
+  const q=e.target.value.toLowerCase().trim();
+  renderKalamTimes(!q?cacheKalamTimes:cacheKalamTimes.filter(s=>[s.nom,s.prenom,s.kounia,s.email].some(v=>(v||'').toLowerCase().includes(q))));
+};
+$('ktAll').onchange=()=>{
+  document.querySelectorAll('.kt-check').forEach(c=>c.checked=$('ktAll').checked);
+  ktCount();
+};
+function ktCount(){
+  const n=document.querySelectorAll('.kt-check:checked').length;
+  $('ktCount').textContent=n+' sélectionné'+(n>1?'s':'');
+}
+function ktSelectedIds(){
+  return Array.from(document.querySelectorAll('.kt-check:checked')).map(c=>parseInt(c.dataset.id,10));
+}
+async function bulkKalam(mode){
+  const ids=ktSelectedIds();
+  if(!ids.length){ toast('Sélectionne au moins un élève.'); return; }
+  let body={student_ids:ids};
+  if(mode==='minutes'){
+    const m=parseInt($('ktMinutes').value,10);
+    if(isNaN(m)||m<0){ toast('Indique un nombre de minutes valide.'); return; }
+    body.minutes=m;
+  } else if(mode==='unlimited'){ body.unlimited=true; }
+  else if(mode==='disable'){
+    if(!confirm('Désactiver Kalam pour '+ids.length+' élève'+(ids.length>1?'s':'')+' ?')) return;
+    body.disable=true;
+  }
+  try{
+    const r=await fetch('/api/admin/kalam/times/bulk',{method:'POST',headers:H(),body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Échec');
+    toast(mode==='disable'?'Kalam désactivé pour '+d.updated+' élève(s) ✓'
+      :mode==='unlimited'?'Temps illimité pour '+d.updated+' élève(s) ✓'
+      :body.minutes+' min/jour pour '+d.updated+' élève(s) ✓');
+    $('ktAll').checked=false;
+    loadKalamTimes();
+  }catch(e){ toast(e.message||'Échec — réessaie.'); }
+}
+async function rowKalam(id,mode){
+  const body={student_ids:[id]};
+  if(mode==='disable') body.disable=true;
+  else body.minutes=3;
+  try{
+    const r=await fetch('/api/admin/kalam/times/bulk',{method:'POST',headers:H(),body:JSON.stringify(body)});
+    if(!r.ok) throw 0;
+    toast(mode==='disable'?'Kalam désactivé ✓':'Kalam réactivé (3 min/jour) ✓');
+    loadKalamTimes();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
 boot();
 </script>
-<script>
-/* ═══ GESTION DU CONTENU DU SITE — v4 (intégré, sans clé) ═══ */
-(function () {
-  const S = document.createElement('style');
-  S.textContent = `
-  .cms-item{border:1px solid var(--beige);border-radius:12px;padding:0.9rem;margin-bottom:0.7rem;background:var(--cream);}
-  .cms-label{font-weight:700;font-size:0.88rem;color:var(--green-deep);margin-bottom:0.45rem;}
-  .cms-item textarea{width:100%;min-height:60px;padding:0.6rem 0.8rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;resize:vertical;box-sizing:border-box;background:#fff;}
-  .cms-item textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
-  .cms-img-preview{max-width:100%;max-height:180px;border-radius:10px;display:block;margin-bottom:0.6rem;border:1px solid var(--beige);}
-  .cms-status{font-size:0.76rem;margin-left:0.6rem;font-weight:700;}
-  .cms-status.ok{color:var(--ok);} .cms-status.err{color:var(--bad);}
-  `;
-  document.head.appendChild(S);
-
-  function cmsHeaders() {
-    const T = localStorage.getItem('gerant_token') || '';
-    return { 'Content-Type': 'application/json', 'x-gerant-token': T, 'x-admin-token': T, 'Authorization': 'Bearer ' + T, 'x-admin-key': T };
-  }
-
-  async function cmsApi(path, opts = {}) {
-    opts.headers = Object.assign(cmsHeaders(), opts.headers || {});
-    const r = await fetch('/api/content' + path, opts);
-    const j = await r.json().catch(() => ({}));
-    if (r.status === 401) throw new Error('Accès refusé — déconnectez-vous puis reconnectez-vous à l\'espace gérant.');
-    if (!r.ok) throw new Error(j.error || 'Erreur serveur');
-    return j;
-  }
-
-  function cmsStatus(el, msg, ok) {
-    el.textContent = msg;
-    el.className = 'cms-status ' + (ok ? 'ok' : 'err');
-    if (ok) setTimeout(() => (el.textContent = ''), 3000);
-  }
-
-  function cmsCompress(file) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        const max = 1400;
-        let w = img.width, h = img.height;
-        if (w > max) { h = Math.round(h * max / w); w = max; }
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
-      };
-      img.onerror = reject;
-      img.src = URL.createObjectURL(file);
-    });
-  }
-
-  let cmsLoaded = false;
-
-  async function cmsLoad() {
-    const box = document.getElementById('listContenu');
-    box.innerHTML = '<div class="loading">Chargement…</div>';
-    let items;
-    try { items = await cmsApi('/admin/list'); }
-    catch (e) { box.innerHTML = '<div class="empty">' + e.message + '</div>'; return; }
-    cmsLoaded = true;
-    box.innerHTML = '';
-
-    // ── Outil : ajouter une photo dans une section de n'importe quelle page ──
-    const tool = document.createElement('div');
-    tool.className = 'cms-item';
-    tool.style.borderColor = 'var(--gold)';
-    tool.innerHTML = '<div class="cms-label">➕ Ajouter une photo dans une section</div>' +
-      '<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;">Choisis la page, le numéro du bloc (1 = premier bloc en partant du haut de la page), puis la photo. Elle apparaîtra centrée à la fin de ce bloc.</div>' +
-      '<select class="search" id="cmsAddPage">' +
-        '<option value="accueil">Accueil</option>' +
-        '<option value="nos-cours">Nos cours</option>' +
-        '<option value="tarifs">Tarifs</option>' +
-        '<option value="qui-sommes-nous">Qui sommes-nous</option>' +
-        '<option value="reglement">Règlement</option>' +
-        '<option value="inscription">Inscription</option>' +
-        '<option value="boutique">Boutique</option>' +
-        '<option value="blog">Blog</option>' +
-        '<option value="merci">Merci</option>' +
-      '</select>' +
-      '<select class="search" id="cmsAddSection">' +
-        '<option value="1">Bloc 1 (haut de page)</option><option value="2">Bloc 2</option><option value="3">Bloc 3</option><option value="4">Bloc 4</option><option value="5">Bloc 5</option><option value="6">Bloc 6</option>' +
-      '</select>' +
-      '<input type="file" accept="image/*" id="cmsAddFile" style="display:block;margin:0.3rem 0;font-size:0.82rem;">' +
-      '<div class="acts"><button class="btn btn-gold" id="cmsAddBtn">📤 Ajouter la photo</button><span class="cms-status" id="cmsAddSt"></span></div>';
-    box.appendChild(tool);
-    document.getElementById('cmsAddBtn').onclick = async () => {
-      const p = document.getElementById('cmsAddPage').value;
-      const n = document.getElementById('cmsAddSection').value;
-      const f = document.getElementById('cmsAddFile');
-      const st = document.getElementById('cmsAddSt');
-      const btn = document.getElementById('cmsAddBtn');
-      if (!f.files.length) { cmsStatus(st, 'Choisissez une image d\'abord', false); return; }
-      btn.disabled = true; cmsStatus(st, 'Compression…', true);
-      try {
-        const b64 = await cmsCompress(f.files[0]);
-        cmsStatus(st, 'Envoi…', true);
-        const pageNames = {'accueil':'Accueil','nos-cours':'Nos cours','tarifs':'Tarifs','qui-sommes-nous':'Qui sommes-nous','reglement':'Règlement','inscription':'Inscription','boutique':'Boutique','blog':'Blog','merci':'Merci'};
-        await cmsApi('/admin/image', { method: 'POST', body: JSON.stringify({
-          key: 'img_' + p + '_section' + n,
-          data: b64, mime: 'image/jpeg',
-          label: pageNames[p] + ' — Photo du bloc ' + n
-        })});
-        cmsStatus(st, '✓ Photo ajoutée', true);
-        cmsLoaded = false; cmsLoad();
-      } catch (e) { cmsStatus(st, e.message, false); btn.disabled = false; }
-    };
-
-
-    // Regrouper par page (partie du nom avant le tiret)
-    const groups = {};
-    items.forEach(it => {
-      const g = (it.label || it.key).split('—')[0].trim() || 'Autres';
-      (groups[g] = groups[g] || []).push(it);
-    });
-
-    Object.keys(groups).forEach(gname => {
-      const h = document.createElement('h3');
-      h.textContent = '📄 Page : ' + gname;
-      h.style.cssText = 'font-family:Cormorant Garamond,serif;color:var(--green-deep);font-size:1.15rem;margin:1rem 0 0.6rem;border-bottom:2px solid var(--gold-pale);padding-bottom:0.3rem;';
-      box.appendChild(h);
-
-      groups[gname].forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'cms-item';
-      const shortLabel = ((item.label || item.key).split('—')[1] || item.label || item.key).trim();
-      if (item.type === 'text') {
-        div.innerHTML = '<div class="cms-label">' + shortLabel + '</div>' +
-          '<textarea></textarea>' +
-          '<div class="acts"><button class="btn btn-green">💾 Enregistrer</button><span class="cms-status"></span></div>';
-        const ta = div.querySelector('textarea'), btn = div.querySelector('button'), st = div.querySelector('.cms-status');
-        ta.value = item.value || '';
-        btn.onclick = async () => {
-          btn.disabled = true;
-          try { await cmsApi('/admin/text', { method: 'POST', body: JSON.stringify({ key: item.key, value: ta.value }) }); cmsStatus(st, '✓ Enregistré', true); }
-          catch (e) { cmsStatus(st, e.message, false); }
-          btn.disabled = false;
-        };
-      } else {
-        div.innerHTML = '<div class="cms-label">🖼️ ' + shortLabel + '</div>' +
-          (item.has_image ? '<img class="cms-img-preview" src="/api/content/img/' + item.key + '?t=' + Date.now() + '">' : '<div style="font-size:0.8rem;color:var(--muted);margin-bottom:0.5rem;">Aucune image — cet emplacement est vide sur le site</div>') +
-          '<input type="file" accept="image/*" style="display:block;margin:0.3rem 0;font-size:0.82rem;">' +
-          '<div class="acts"><button class="btn btn-green">📤 Envoyer</button>' +
-          (item.has_image ? '<button class="btn btn-bad">🗑 Supprimer</button>' : '') +
-          '<span class="cms-status"></span></div>';
-        const inp = div.querySelector('input'), btn = div.querySelector('.btn-green'), delBtn = div.querySelector('.btn-bad'), st = div.querySelector('.cms-status');
-        btn.onclick = async () => {
-          if (!inp.files.length) { cmsStatus(st, 'Choisissez une image d\'abord', false); return; }
-          btn.disabled = true; cmsStatus(st, 'Compression…', true);
-          try {
-            const b64 = await cmsCompress(inp.files[0]);
-            cmsStatus(st, 'Envoi…', true);
-            await cmsApi('/admin/image', { method: 'POST', body: JSON.stringify({ key: item.key, data: b64, mime: 'image/jpeg' }) });
-            cmsStatus(st, '✓ Image en ligne', true);
-            cmsLoaded = false; cmsLoad();
-          } catch (e) { cmsStatus(st, e.message, false); btn.disabled = false; }
-        };
-        if (delBtn) delBtn.onclick = async () => {
-          if (!confirm('Supprimer cette image du site ?')) return;
-          delBtn.disabled = true;
-          try { await cmsApi('/admin/image/' + item.key, { method: 'DELETE' }); cmsLoaded = false; cmsLoad(); }
-          catch (e) { cmsStatus(st, e.message, false); delBtn.disabled = false; }
-        };
-      }
-      box.appendChild(div);
-      });
-    });
-  }
-
-  function cmsInstall() {
-    const tabs = document.querySelector('.tabs');
-    const app = document.getElementById('app');
-    if (!tabs || !app) return;
-    const tab = document.createElement('button');
-    tab.className = 'tab';
-    tab.dataset.p = 'contenu';
-    tab.textContent = '📝 Contenu';
-    tabs.insertBefore(tab, tabs.firstChild);
-    const panel = document.createElement('div');
-    panel.className = 'panel';
-    panel.id = 'p-contenu';
-    panel.innerHTML = '<h2>Contenu du site (v6)</h2>' +
-      '<p class="sub">Modifie les textes et images des pages publiques — visible immédiatement, sans redéploiement.</p>' +
-      '<div id="listContenu" class="loading">Chargement…</div>';
-    app.appendChild(panel);
-    tab.onclick = () => {
-      document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
-      document.querySelectorAll('.panel').forEach(x => x.classList.remove('on'));
-      tab.classList.add('on');
-      panel.classList.add('on');
-      if (!cmsLoaded) cmsLoad();
-    };
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', cmsInstall);
-  else cmsInstall();
-})();
-</script>
+<script src="/admin-kalam-time.js"></script>
 </body>
 </html>
