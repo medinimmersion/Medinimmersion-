@@ -5,17 +5,16 @@
  * Affiche, pour chaque élève : temps passé sur le site + temps passé sur Kalam.
  * Clic sur une ligne → détail de chaque session avec date, heure et durée.
  *
- * Le script se greffe tout seul sur le panneau Kalam existant. S'il ne le trouve
- * pas, il crée son propre panneau flottant accessible par un bouton.
+ * Se greffe en priorité sur #kalam-temps-eleves-container.
  */
 (function () {
   'use strict';
 
   var VERT = '#1B5E20';
   var OR = '#D4AF37';
-  var TOKEN_SHAPE = /^[a-f0-9]{100,}$/i; // crypto.randomBytes(64).toString('hex')
+  var TOKEN_SHAPE = /^[a-f0-9]{100,}$/i;
 
-  var mounted = null;   // conteneur où l'on dessine
+  var mounted = null;
   var loading = false;
   var loaded = false;
 
@@ -25,7 +24,7 @@
     try { stores.push(window.localStorage); } catch (e) {}
     try { stores.push(window.sessionStorage); } catch (e) {}
 
-    var preferred = ['gerantToken', 'gerant_token', 'adminToken', 'admin_token', 'token'];
+    var preferred = ['gerant_token', 'gerantToken', 'adminToken', 'admin_token', 'token'];
     for (var s = 0; s < stores.length; s++) {
       for (var p = 0; p < preferred.length; p++) {
         try {
@@ -60,6 +59,7 @@
   // ── Mise en forme ───────────────────────────────────────────
   function duree(sec) {
     sec = parseInt(sec, 10) || 0;
+    if (sec === 0) return '—';
     if (sec < 60) return sec + ' s';
     var h = Math.floor(sec / 3600);
     var m = Math.round((sec % 3600) / 60);
@@ -71,7 +71,7 @@
     if (!iso) return '—';
     var d = new Date(iso);
     if (isNaN(d)) return '—';
-    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) +
       ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   }
 
@@ -92,9 +92,14 @@
       return '<p style="color:#666">Aucun élève enregistré.</p>';
     }
 
-    var actifs = eleves.filter(function (e) { return (e.site_seconds + e.kalam_seconds) > 0; });
+    var actifs = eleves.filter(function (e) {
+      return (Number(e.site_seconds) + Number(e.kalam_seconds)) > 0;
+    });
     var totalSite = 0, totalKalam = 0;
-    eleves.forEach(function (e) { totalSite += e.site_seconds; totalKalam += e.kalam_seconds; });
+    eleves.forEach(function (e) {
+      totalSite += Number(e.site_seconds) || 0;
+      totalKalam += Number(e.kalam_seconds) || 0;
+    });
 
     var out = '' +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">' +
@@ -107,18 +112,18 @@
         '<th style="padding:10px 8px;text-align:left">Élève</th>' +
         '<th style="padding:10px 8px;text-align:right">Site</th>' +
         '<th style="padding:10px 8px;text-align:right">Kalam</th>' +
-        '<th style="padding:10px 8px;text-align:right">Sessions Kalam</th>' +
+        '<th style="padding:10px 8px;text-align:right">Sessions</th>' +
         '<th style="padding:10px 8px;text-align:left">Dernière activité</th>' +
       '</tr></thead><tbody>';
 
     eleves.forEach(function (e) {
-      var inactif = (e.site_seconds + e.kalam_seconds) === 0;
+      var inactif = (Number(e.site_seconds) + Number(e.kalam_seconds)) === 0;
       out += '<tr data-eleve="' + e.id + '" style="border-bottom:1px solid #e5e5e5;cursor:pointer' +
              (inactif ? ';opacity:.5' : '') + '">' +
         '<td style="padding:10px 8px">' + esc(nomComplet(e)) + '</td>' +
         '<td style="padding:10px 8px;text-align:right">' + duree(e.site_seconds) + '</td>' +
         '<td style="padding:10px 8px;text-align:right;font-weight:600;color:' + VERT + '">' + duree(e.kalam_seconds) + '</td>' +
-        '<td style="padding:10px 8px;text-align:right">' + e.kalam_sessions + '</td>' +
+        '<td style="padding:10px 8px;text-align:right">' + (e.kalam_sessions || 0) + '</td>' +
         '<td style="padding:10px 8px;color:#666">' + dateFr(e.last_seen_at) + '</td>' +
       '</tr>' +
       '<tr class="detail-' + e.id + '" style="display:none"><td colspan="5" style="padding:0;background:#fafafa"></td></tr>';
@@ -187,24 +192,25 @@
         loaded = false;
         mounted.innerHTML = err.message === 'non-connecte'
           ? '<p style="color:#c00">Connectez-vous à l\'espace gérant pour voir ces données.</p>'
-          : '<p style="color:#c00">Données indisponibles. Vérifiez que le serveur est bien à jour.</p>';
+          : '<p style="color:#c00">Données indisponibles (' + err.message + ').</p>';
       })
       .then(function () { loading = false; });
   }
 
   // ── Trouver où se greffer ───────────────────────────────────
-  function chercherPanneau() {
-    var noeuds = document.querySelectorAll('div,section');
-    var meilleur = null;
-    for (var i = 0; i < noeuds.length; i++) {
-      var n = noeuds[i];
-      var sig = ((n.id || '') + ' ' + String(n.className || '')).toLowerCase();
-      if (sig.indexOf('kalam') === -1) continue;
-      // On garde le conteneur le plus profond qui contient encore peu de choses :
-      // c'est le panneau de l'onglet, pas la page entière.
-      if (!meilleur || n.contains(meilleur) === false) meilleur = n;
+  function chercherConteneur() {
+    var direct = document.getElementById('kalam-temps-eleves-container');
+    if (direct) return direct;
+
+    var panneau = document.getElementById('p-kalam');
+    if (panneau) {
+      var bloc = document.createElement('div');
+      bloc.id = 'kalam-temps-eleves';
+      bloc.style.marginTop = '16px';
+      panneau.insertBefore(bloc, panneau.firstChild);
+      return bloc;
     }
-    return meilleur;
+    return null;
   }
 
   function creerPanneauFlottant() {
@@ -243,21 +249,15 @@
   }
 
   function demarrer() {
-    var panneau = chercherPanneau();
+    var cible = chercherConteneur();
 
-    if (panneau) {
-      // On ajoute notre bloc sans toucher au contenu déjà présent
-      var bloc = document.createElement('div');
-      bloc.id = 'kalam-temps-eleves';
-      bloc.style.marginTop = '16px';
-      panneau.appendChild(bloc);
-      mounted = bloc;
-      brancherClics(bloc);
+    if (cible) {
+      mounted = cible;
+      brancherClics(cible);
 
-      // Charge quand l'onglet devient visible (et une fois au démarrage s'il l'est déjà)
-      if (visible(panneau)) charger();
+      if (visible(cible)) charger();
       setInterval(function () {
-        if (!loaded && !loading && visible(panneau)) charger();
+        if (!loaded && !loading && visible(cible)) charger();
       }, 1000);
     } else {
       mounted = creerPanneauFlottant();
