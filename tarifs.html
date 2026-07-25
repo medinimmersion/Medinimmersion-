@@ -122,13 +122,14 @@ footer{background:var(--green-deep);color:var(--white);}
 
 <section style="background:var(--cream);">
   <div class="container">
-    <div class="panier-box reveal">
-      <div class="panier-box-left">
-        <h3>🛒 Panier 1ère inscription</h3>
-        <p>PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi</p>
-      </div>
-      <div class="panier-box-right">PDF + (5€) + cours</div>
-    </div>
+    
+<div class="panier-box reveal">
+  <div class="panier-box-left">
+    <h3>🛒 Panier 1ère inscription</h3>
+    <p><strong>Arabe / Double Immersion:</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi<br><strong>Coran seul:</strong> Frais d'inscription (5€, une seule fois) + cours choisi</p>
+  </div>
+  <div class="panier-box-right" id="panierPrice">cours + 5€</div>
+</div>
 
     <div class="price-tabs">
       <button class="price-tab active" onclick="showTab('coran',this)">📘 Coran</button>
@@ -255,4 +256,23 @@ if(['coran','arabe','double','avance'].includes(hash)){
 }
 </script>
 <script src="/content-loader.js?v=6"></script>
+
+<script>
+// Mettre à jour le panier selon le cours sélectionné
+function updatePanier() {
+  const course = document.querySelector('input[name="fcourse"]:checked')?.value;
+  const box = document.querySelector('.panier-box-left p');
+  if (box) {
+    if (course === 'coran') {
+      box.innerHTML = '<strong>Coran seul:</strong> Frais d'inscription (5€, une seule fois) + cours choisi';
+    } else if (course === 'arabe') {
+      box.innerHTML = '<strong>Arabe:</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi';
+    } else if (course === 'double_immersion') {
+      box.innerHTML = '<strong>Double Immersion:</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi';
+    }
+  }
+}
+document.querySelectorAll('input[name="fcourse"]').forEach(el => el.addEventListener('change', updatePanier));
+window.addEventListener('DOMContentLoaded', updatePanier);
+</script>
 </body></html>

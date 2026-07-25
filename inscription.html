@@ -465,4 +465,23 @@ async function doSubmit(){
 }
 </script>
 <script src="/content-loader.js?v=6"></script>
+
+<script>
+// Mettre à jour le panier selon le cours sélectionné
+function updatePanier() {
+  const course = document.querySelector('input[name="fcourse"]:checked')?.value;
+  const box = document.querySelector('.panier-box-left p');
+  if (box) {
+    if (course === 'coran') {
+      box.innerHTML = '<strong>Coran seul:</strong> Frais d'inscription (5€, une seule fois) + cours choisi';
+    } else if (course === 'arabe') {
+      box.innerHTML = '<strong>Arabe:</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi';
+    } else if (course === 'double_immersion') {
+      box.innerHTML = '<strong>Double Immersion:</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi';
+    }
+  }
+}
+document.querySelectorAll('input[name="fcourse"]').forEach(el => el.addEventListener('change', updatePanier));
+window.addEventListener('DOMContentLoaded', updatePanier);
+</script>
 </body></html>
