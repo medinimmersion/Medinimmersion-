@@ -529,5 +529,77 @@ module.exports = function (pool, opts) {
     } catch (err) { console.error('[admin/student-password]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // ─── ATTRIBUTION ÉLÈVE -> PROFESSEUR ─────────────────────
+  // GET /api/admin/students/:id/teachers — professeurs assignés à un élève
+  router.get('/api/admin/students/:id/teachers', requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT t.id, t.nom, t.prenom, t.email, a.assigned_at
+           FROM teacher_student_assignments a
+           JOIN teachers t ON t.id = a.teacher_id
+          WHERE a.student_id = $1 ORDER BY a.assigned_at DESC`, [req.params.id]);
+      res.json(r.rows);
+    } catch (err) { console.error('[admin/student-teachers]', err.message); res.json([]); }
+  });
+
+  // POST /api/admin/students/:id/teacher — assigner un professeur
+  router.post('/api/admin/students/:id/teacher', requireAdmin, async (req, res) => {
+    try {
+      const teacherId = parseInt(req.body.teacher_id, 10);
+      if (!teacherId) return res.status(400).json({ error: 'Professeur manquant.' });
+      const t = await pool.query('SELECT id FROM teachers WHERE id = $1', [teacherId]);
+      if (!t.rowCount) return res.status(404).json({ error: 'Professeur introuvable.' });
+      const s2 = await pool.query('SELECT id FROM students WHERE id = $1', [req.params.id]);
+      if (!s2.rowCount) return res.status(404).json({ error: 'Élève introuvable.' });
+
+      const exists = await pool.query(
+        'SELECT id FROM teacher_student_assignments WHERE teacher_id = $1 AND student_id = $2',
+        [teacherId, req.params.id]);
+      if (exists.rowCount) return res.json({ ok: true, already: true });
+
+      // Un seul professeur par élève : on remplace l'assignation précédente.
+      if (req.body.replace !== false) {
+        await pool.query('DELETE FROM teacher_student_assignments WHERE student_id = $1', [req.params.id]);
+      }
+      const r = await pool.query(
+        `INSERT INTO teacher_student_assignments (teacher_id, student_id, assigned_by, assigned_at)
+         VALUES ($1, $2, 'gerant', NOW()) RETURNING *`, [teacherId, req.params.id]);
+      res.json({ ok: true, assignment: r.rows[0] });
+    } catch (err) { console.error('[admin/assign-teacher]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // DELETE /api/admin/students/:id/teacher/:teacherId — retirer l'assignation
+  router.delete('/api/admin/students/:id/teacher/:teacherId', requireAdmin, async (req, res) => {
+    try {
+      await pool.query('DELETE FROM teacher_student_assignments WHERE student_id = $1 AND teacher_id = $2',
+        [req.params.id, req.params.teacherId]);
+      res.json({ ok: true });
+    } catch (err) { console.error('[admin/unassign-teacher]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // ─── MESSAGES ÉLÈVE -> GÉRANT ────────────────────────────
+  router.get('/api/admin/messages', requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT m.*, s.nom, s.prenom, s.kounia
+           FROM messages m JOIN students s ON s.id = m.student_id
+          WHERE m.recipient_type = 'manager'
+          ORDER BY m.sent_at DESC LIMIT 100`);
+      res.json(r.rows);
+    } catch (err) { console.error('[admin/messages]', err.message); res.json([]); }
+  });
+
+  router.put('/api/admin/messages/:id/reply', requireAdmin, async (req, res) => {
+    try {
+      const body = (req.body.reply || req.body.body || '').trim();
+      if (!body) return res.status(400).json({ error: 'Réponse vide.' });
+      const r = await pool.query(
+        `UPDATE messages SET reply_body = $1, reply_sent_at = NOW(), reply_by = 'gerant', is_read = true
+          WHERE id = $2 RETURNING *`, [body, req.params.id]);
+      if (!r.rowCount) return res.status(404).json({ error: 'Message introuvable.' });
+      res.json(r.rows[0]);
+    } catch (err) { console.error('[admin/reply]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   return router;
 };

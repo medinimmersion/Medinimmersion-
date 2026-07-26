@@ -32,21 +32,26 @@ module.exports = function (pool, opts) {
   });
 
   // PUT /api/admin/progression/:student_id — admin updates student level
+  // student_progression n'a pas de contrainte UNIQUE sur student_id :
+  // on fait donc UPDATE puis INSERT si aucune ligne n'existe.
   router.put('/api/admin/progression/:student_id', requireAdmin, async (req, res) => {
     try {
       const { niveau, current_page, notes } = req.body;
-      const result = await pool.query(
-        `INSERT INTO student_progression (student_id, niveau, current_page, notes, updated_by, updated_at)
-         VALUES ($1, $2, $3, $4, 'admin', NOW())
-         ON CONFLICT (student_id) DO UPDATE SET
-           niveau = COALESCE($2, student_progression.niveau),
-           current_page = COALESCE($3, student_progression.current_page),
-           notes = COALESCE($4, student_progression.notes),
+      const sid = req.params.student_id;
+      const upd = await pool.query(
+        `UPDATE student_progression SET
+           niveau = COALESCE($2, niveau),
+           current_page = COALESCE($3, current_page),
+           notes = COALESCE($4, notes),
            updated_by = 'admin', updated_at = NOW()
-         RETURNING *`,
-        [req.params.student_id, niveau, current_page, notes]
-      );
-      res.json(result.rows[0]);
+         WHERE student_id = $1 RETURNING *`,
+        [sid, niveau, current_page, notes]);
+      if (upd.rowCount) return res.json(upd.rows[0]);
+      const ins = await pool.query(
+        `INSERT INTO student_progression (student_id, niveau, current_page, notes, updated_by, updated_at)
+         VALUES ($1, COALESCE($2,1), COALESCE($3,1), $4, 'admin', NOW()) RETURNING *`,
+        [sid, niveau, current_page, notes]);
+      res.json(ins.rows[0]);
     } catch (err) { console.error('[admin/update-progression]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 

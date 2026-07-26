@@ -187,14 +187,18 @@ module.exports = function (pool, opts) {
       if (niveau !== null && (isNaN(niveau) || niveau < 1 || niveau > 11)) return res.status(400).json({ error: 'Niveau invalide (1 à 11).' });
       if (current_page !== null && (isNaN(current_page) || current_page < 1)) return res.status(400).json({ error: 'Page invalide.' });
 
-      const result = await pool.query(
-        `INSERT INTO student_progression (student_id, niveau, current_page, updated_by, updated_at)
-         VALUES ($1, COALESCE($2, 1), COALESCE($3, 1), 'teacher', NOW())
-         ON CONFLICT (student_id) DO UPDATE SET
-           niveau = COALESCE($2, student_progression.niveau),
-           current_page = COALESCE($3, student_progression.current_page),
+      // student_progression n'a pas de contrainte UNIQUE sur student_id :
+      // ON CONFLICT (student_id) provoquait une erreur SQL -> "Erreur serveur".
+      const upd = await pool.query(
+        `UPDATE student_progression SET
+           niveau = COALESCE($2, niveau),
+           current_page = COALESCE($3, current_page),
            updated_by = 'teacher', updated_at = NOW()
-         RETURNING *`,
+         WHERE student_id = $1 RETURNING *`,
+        [req.params.student_id, niveau, current_page]);
+      const result = upd.rowCount ? upd : await pool.query(
+        `INSERT INTO student_progression (student_id, niveau, current_page, updated_by, updated_at)
+         VALUES ($1, COALESCE($2,1), COALESCE($3,1), 'teacher', NOW()) RETURNING *`,
         [req.params.student_id, niveau, current_page]);
       res.json(result.rows[0]);
     } catch (err) { console.error('[teacher/update-progression]', err); res.status(500).json({ error: 'Erreur serveur' }); }
@@ -240,6 +244,33 @@ module.exports = function (pool, opts) {
       console.error('[teacher/zoom-call]', err);
       res.status(500).json({ error: 'Erreur serveur' });
     }
+  });
+
+  // ─── MESSAGES ÉLÈVE -> PROFESSEUR ────────────────────────
+  // GET /api/teacher/messages — messages reçus des élèves assignés
+  router.get('/api/teacher/messages', requireTeacherAuth, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT m.*, s.nom, s.prenom, s.kounia
+           FROM messages m JOIN students s ON s.id = m.student_id
+          WHERE m.recipient_type = 'teacher' AND m.teacher_id = $1
+          ORDER BY m.sent_at DESC LIMIT 100`, [req.teacherId]);
+      res.json(r.rows);
+    } catch (err) { console.error('[teacher/messages]', err.message); res.json([]); }
+  });
+
+  // PUT /api/teacher/messages/:id/reply — le professeur répond
+  router.put('/api/teacher/messages/:id/reply', requireTeacherAuth, async (req, res) => {
+    try {
+      const body = (req.body.reply || req.body.body || '').trim();
+      if (!body) return res.status(400).json({ error: 'Réponse vide.' });
+      const r = await pool.query(
+        `UPDATE messages SET reply_body = $1, reply_sent_at = NOW(), reply_by = 'teacher', is_read = true
+          WHERE id = $2 AND teacher_id = $3 RETURNING *`,
+        [body, req.params.id, req.teacherId]);
+      if (!r.rowCount) return res.status(404).json({ error: 'Message introuvable.' });
+      res.json(r.rows[0]);
+    } catch (err) { console.error('[teacher/reply]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
   return router;

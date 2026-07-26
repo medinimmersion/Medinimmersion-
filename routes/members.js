@@ -274,18 +274,80 @@ module.exports = function (pool, opts) {
     } catch (err) { console.error('[member/books]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // Messages : annonces du gérant + conversations de l'élève
   router.get('/api/member/messages', requireStudentAuth, async (req, res) => {
     try {
-      const r = await pool.query(
+      const notes = await pool.query(
         `SELECT n.* FROM notifications n
          WHERE n.target_type = 'all'
             OR (n.target_type = 'student' AND n.target_id = $1)
             OR (n.target_type = 'group' AND n.target_id IN (SELECT group_id FROM group_members WHERE student_id = $1))
          ORDER BY n.created_at DESC LIMIT 50`,
         [req.studentId]
-      ).catch(()=>({rows:[]}));
-      res.json(r.rows);
+      ).catch(() => ({ rows: [] }));
+
+      const mine = await pool.query(
+        `SELECT m.*, t.nom AS t_nom, t.prenom AS t_prenom
+           FROM messages m
+           LEFT JOIN teachers t ON t.id = m.teacher_id
+          WHERE m.student_id = $1 ORDER BY m.sent_at DESC LIMIT 50`,
+        [req.studentId]
+      ).catch(() => ({ rows: [] }));
+
+      const out = [];
+      for (const n of notes.rows) {
+        out.push({
+          id: 'n' + n.id, kind: 'notification',
+          sender_name: n.sender_name || 'Gérant',
+          content: n.content || n.body || n.message || '',
+          created_at: n.created_at, read: true,
+        });
+      }
+      for (const m of mine.rows) {
+        const who = m.recipient_type === 'teacher'
+          ? ([m.t_prenom, m.t_nom].filter(Boolean).join(' ') || 'Professeur')
+          : 'Gérant';
+        out.push({
+          id: 'm' + m.id, kind: 'sent', recipient_type: m.recipient_type,
+          sender_name: 'Moi → ' + who, content: m.body,
+          created_at: m.sent_at, read: true,
+        });
+        if (m.reply_body) {
+          out.push({
+            id: 'r' + m.id, kind: 'reply',
+            sender_name: who, content: m.reply_body,
+            created_at: m.reply_sent_at, read: true,
+          });
+        }
+      }
+      out.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      res.json(out);
     } catch (err) { console.error('[member/messages]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/member/messages — l'élève écrit au gérant ou à son professeur
+  router.post('/api/member/messages', requireStudentAuth, async (req, res) => {
+    try {
+      const body = (req.body.body || req.body.message || '').trim();
+      if (!body) return res.status(400).json({ error: 'Message vide.' });
+      if (body.length > 4000) return res.status(400).json({ error: 'Message trop long.' });
+      const to = req.body.recipient_type === 'teacher' ? 'teacher' : 'manager';
+
+      let teacherId = null;
+      if (to === 'teacher') {
+        const a = await pool.query(
+          'SELECT teacher_id FROM teacher_student_assignments WHERE student_id = $1 ORDER BY assigned_at DESC LIMIT 1',
+          [req.studentId]);
+        if (!a.rowCount) return res.status(400).json({ error: "Aucun professeur ne vous est encore attribué. Écrivez au gérant." });
+        teacherId = a.rows[0].teacher_id;
+      }
+
+      const r = await pool.query(
+        `INSERT INTO messages (student_id, recipient_type, teacher_id, body, sent_at, is_read)
+         VALUES ($1, $2, $3, $4, NOW(), false) RETURNING *`,
+        [req.studentId, to, teacherId, body]);
+      res.json({ ok: true, message: r.rows[0] });
+    } catch (err) { console.error('[member/send-message]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
   return router;
