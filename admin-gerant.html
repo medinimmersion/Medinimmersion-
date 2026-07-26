@@ -408,6 +408,7 @@ function renderEleves(list){
         <button class="btn btn-info" onclick="viewStudent(${s.id})">👁 Voir espace</button>
         <button class="btn btn-gold" onclick="resetStudentPwd(${s.id},'${esc(nom)}')">🔑 Mot de passe</button>
         <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Temps Kalam</button>
+        <button class="btn btn-soft" onclick="openAssignTeacher(${s.id},'${esc(nom)}')">👨‍🏫 Professeur</button>
       </div></div>`;
   }).join('');
 }
@@ -1135,6 +1136,74 @@ async function rowKalam(id,mode){
   }catch{ toast('Échec — réessaie.'); }
 }
 
+// ═══ ATTRIBUTION ÉLÈVE -> PROFESSEUR ═══════════════════════
+let assignStudentId = null;
+
+async function openAssignTeacher(id, nom){
+  assignStudentId = id;
+  $('atNom').textContent = nom;
+  $('atMsg').textContent = '';
+  $('atCurrent').textContent = 'Chargement…';
+  $('atModal').style.display = 'flex';
+
+  // liste des professeurs (chargée une seule fois)
+  if(!cacheProfs.length){
+    try{ const r = await fetch('/api/admin/teachers',{headers:H()}); cacheProfs = await r.json(); }catch{ cacheProfs = []; }
+  }
+  const sel = $('atSelect');
+  sel.innerHTML = '<option value="">— Choisir un professeur —</option>' +
+    (Array.isArray(cacheProfs)?cacheProfs:[]).map(t=>{
+      const n = esc([t.prenom,t.nom].filter(Boolean).join(' ') || t.username || ('Prof #'+t.id));
+      return `<option value="${t.id}">${n}</option>`;
+    }).join('');
+
+  // professeur actuellement assigné
+  try{
+    const r = await fetch('/api/admin/students/'+id+'/teachers',{headers:H()});
+    const list = await r.json();
+    if(Array.isArray(list) && list.length){
+      $('atCurrent').innerHTML = list.map(t=>{
+        const n = esc([t.prenom,t.nom].filter(Boolean).join(' ')||('Prof #'+t.id));
+        return `<span class="badge b-ok">${n}</span> <button class="btn btn-soft" style="padding:0.2rem 0.6rem;font-size:0.75rem;" onclick="unassignTeacher(${t.id})">Retirer</button>`;
+      }).join(' ');
+      const first = list[0];
+      if(first) $('atSelect').value = String(first.id);
+    } else {
+      $('atCurrent').innerHTML = '<span class="badge b-warn">Aucun professeur attribué</span>';
+    }
+  }catch{ $('atCurrent').textContent = '—'; }
+}
+
+function closeAssignTeacher(){ $('atModal').style.display='none'; assignStudentId=null; }
+
+async function saveAssignTeacher(){
+  const tid = $('atSelect').value;
+  const msg = $('atMsg');
+  if(!tid){ msg.style.color='#B3261E'; msg.textContent='Choisis un professeur.'; return; }
+  msg.style.color='var(--muted)'; msg.textContent='Enregistrement…';
+  try{
+    const r = await fetch('/api/admin/students/'+assignStudentId+'/teacher',{
+      method:'POST', headers:H(), body:JSON.stringify({teacher_id:parseInt(tid,10)})
+    });
+    const d = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||'Erreur serveur');
+    toast('Professeur attribué ✓');
+    closeAssignTeacher();
+    loadEleves();
+  }catch(e){ msg.style.color='#B3261E'; msg.textContent=e.message; }
+}
+
+async function unassignTeacher(teacherId){
+  if(!confirm('Retirer ce professeur de l\'élève ?')) return;
+  try{
+    const r = await fetch('/api/admin/students/'+assignStudentId+'/teacher/'+teacherId,{method:'DELETE',headers:H()});
+    if(!r.ok) throw 0;
+    toast('Professeur retiré ✓');
+    openAssignTeacher(assignStudentId, $('atNom').textContent);
+    loadEleves();
+  }catch{ toast('Échec — réessaie.'); }
+}
+
 boot();
 </script>
 <script>
@@ -1275,5 +1344,28 @@ boot();
   else demarrer();
 })();
 </script>
+<div id="atModal" style="display:none;position:fixed;inset:0;background:rgba(15,61,38,0.6);z-index:500;align-items:center;justify-content:center;padding:1.2rem;">
+  <div style="background:#fff;border-radius:20px;padding:1.75rem;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--green);margin:0 0 0.2rem;">Attribuer un professeur</h3>
+    <p style="color:var(--muted);font-size:0.85rem;margin:0 0 1.1rem;">Élève : <b id="atNom">—</b></p>
+
+    <div style="margin-bottom:1rem;">
+      <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:700;color:var(--muted);margin-bottom:0.35rem;">Actuellement</div>
+      <div id="atCurrent" style="font-size:0.88rem;">—</div>
+    </div>
+
+    <div style="margin-bottom:0.8rem;">
+      <label style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Nouveau professeur</label>
+      <select id="atSelect" style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.9rem;background:#fff;"></select>
+    </div>
+
+    <div id="atMsg" style="font-size:0.82rem;min-height:1.1rem;margin-bottom:0.7rem;color:var(--muted);"></div>
+
+    <div style="display:flex;gap:0.6rem;">
+      <button class="btn btn-gold" style="flex:1;" onclick="saveAssignTeacher()">Attribuer</button>
+      <button class="btn btn-soft" style="flex:1;" onclick="closeAssignTeacher()">Annuler</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
