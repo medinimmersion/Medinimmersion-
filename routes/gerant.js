@@ -6,7 +6,7 @@
 'use strict';
 
 module.exports = function (pool, opts) {
-  const { requireAdmin, requireGerant, hashPassword, verifyPassword, generateToken, gerantTokens, sendEmail, ADMIN_PASSWORD } = opts;
+  const { requireAdmin, requireGerant, hashPassword, verifyPassword, generateToken,  sendEmail, ADMIN_PASSWORD } = opts;
   const router = require('express').Router();
 
   // GET /api/admin/gerant/setup-status — check if gerant account exists
@@ -33,7 +33,7 @@ module.exports = function (pool, opts) {
         [username.trim(), hash]
       );
 
-      const token = generateToken(gerantTokens, result.rows[0].id, 30);
+      const token = await generateToken("gerant", result.rows[0].id, 30);
       console.log('[gerant] First account created:', username);
       res.json({ success: true, token, username: result.rows[0].username });
     } catch (err) {
@@ -50,7 +50,7 @@ module.exports = function (pool, opts) {
 
       // Connexion par mot de passe seul : accepte le mot de passe maître (ADMIN_PASSWORD)
       if (!username && ADMIN_PASSWORD && password === ADMIN_PASSWORD) {
-        const token = generateToken(gerantTokens, 'gerant-master', 7);
+        const token = await generateToken("gerant", 'gerant-master', 7);
         return res.json({ token, gerant: { id: 0, username: 'gerant' } });
       }
 
@@ -65,7 +65,7 @@ module.exports = function (pool, opts) {
       const account = result.rows[0];
       if (!verifyPassword(password, account.password_hash)) return res.status(401).json({ error: 'Mot de passe incorrect' });
 
-      const token = generateToken(gerantTokens, account.id, 30);
+      const token = await generateToken("gerant", account.id, 30);
       console.log('[gerant] Login:', username);
       res.json({ success: true, token, username: account.username });
     } catch (err) { console.error('[gerant/login]', err); res.status(500).json({ error: 'Erreur serveur' }); }

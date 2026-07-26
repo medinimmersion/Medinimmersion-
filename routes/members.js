@@ -7,7 +7,7 @@
 const crypto = require('crypto');
 
 module.exports = function (pool, opts) {
-  const { hashPassword, verifyPassword, generateToken, studentTokens, sendEmail, sendWhatsApp, requireStudentAuth, authLimiter } = opts;
+  const { hashPassword, verifyPassword, generateToken,  sendEmail, sendWhatsApp, requireStudentAuth, authLimiter } = opts;
   const router = require('express').Router();
 
   // POST /api/member/login — identifiant (email, WhatsApp, nom ou kounia) + mot de passe
@@ -60,7 +60,7 @@ module.exports = function (pool, opts) {
          FROM bookings WHERE student_id = $1 ORDER BY created_at DESC`, [student.id]
       );
 
-      const token = generateToken(studentTokens, student.id, 7);
+      const token = await generateToken("student", student.id, 7);
       console.log(`[member] Login: ${student.prenom} ${student.nom} (id=${student.id})`);
 
       res.json({ student, bookings: bookings.rows, token });

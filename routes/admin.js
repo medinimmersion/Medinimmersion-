@@ -254,7 +254,7 @@ module.exports = function (pool, opts) {
     try {
       const teacher = await pool.query('SELECT id, username FROM teachers WHERE id = $1', [req.params.id]);
       if (!teacher.rows.length) return res.status(404).json({ error: 'Professeur non trouvé' });
-      const token = generateToken(opts.teacherTokens, teacher.rows[0].id, 7);
+      const token = await generateToken("teacher", teacher.rows[0].id, 7);
       res.json({ token });
     } catch (err) { console.error('[admin/impersonate-teacher]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
@@ -278,7 +278,7 @@ module.exports = function (pool, opts) {
     try {
       const student = await pool.query('SELECT id FROM students WHERE id = $1', [req.params.id]);
       if (!student.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
-      const token = generateToken(opts.studentTokens, student.rows[0].id, 7);
+      const token = await generateToken("student", student.rows[0].id, 7);
       res.json({ token });
     } catch (err) { console.error('[admin/impersonate-student]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
@@ -450,7 +450,7 @@ module.exports = function (pool, opts) {
         student = s.rows[0];
       }
       if (!student) return res.status(404).json({ error: 'Élève non trouvé' });
-      const token = generateToken(opts.studentTokens, student.id, 7);
+      const token = await generateToken("student", student.id, 7);
       const redirectUrl = '/espace-eleve.html?xs=' + token;
       res.json({ student, token, redirectUrl });
     } catch (err) { console.error('[admin/view-as]', err); res.status(500).json({ error: 'Erreur serveur' }); }
@@ -465,7 +465,7 @@ module.exports = function (pool, opts) {
       if (!isAdmin) return res.status(401).send('Accès refusé');
       const teacher = await pool.query('SELECT id, username FROM teachers WHERE id = $1', [req.params.id]);
       if (!teacher.rows.length) return res.status(404).send('Professeur non trouvé');
-      const token = generateToken(opts.teacherTokens, teacher.rows[0].id, 7);
+      const token = await generateToken("teacher", teacher.rows[0].id, 7);
       res.redirect('/espace-professeur.html?xt=' + token);
     } catch (err) { console.error('[admin/view-space/teacher]', err); res.status(500).send('Erreur serveur'); }
   });
@@ -479,7 +479,7 @@ module.exports = function (pool, opts) {
       if (!isAdmin) return res.status(401).send('Accès refusé');
       const student = await pool.query('SELECT id FROM students WHERE id = $1', [req.params.id]);
       if (!student.rows.length) return res.status(404).send('Élève non trouvé');
-      const token = generateToken(opts.studentTokens, student.rows[0].id, 7);
+      const token = await generateToken("student", student.rows[0].id, 7);
       res.redirect('/espace-eleve.html?xs=' + token);
     } catch (err) { console.error('[admin/view-space/student]', err); res.status(500).send('Erreur serveur'); }
   });

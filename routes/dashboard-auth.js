@@ -11,7 +11,7 @@ const { Router } = require('express');
 module.exports = function dashboardAuth(pool, opts) {
   const router = Router();
   const {
-    verifyPassword, generateToken, studentTokens, teacherTokens, gerantTokens,
+    verifyPassword, generateToken,  teacherTokens, 
     authLimiter, ADMIN_PASSWORD
   } = opts;
 
@@ -24,12 +24,12 @@ module.exports = function dashboardAuth(pool, opts) {
       // Try gérant account first
       const g = await pool.query('SELECT * FROM gerant_accounts WHERE username = $1', [username]);
       if (g.rows.length && verifyPassword(password, g.rows[0].password_hash)) {
-        const token = generateToken(gerantTokens, g.rows[0].username, 30);
+        const token = await generateToken("gerant", g.rows[0].username, 30);
         return res.json({ success: true, token, username: g.rows[0].username, role: 'gerant' });
       }
       // Fallback: static admin password
       if (password === ADMIN_PASSWORD) {
-        const token = generateToken(gerantTokens, username, 30);
+        const token = await generateToken("gerant", username, 30);
         return res.json({ success: true, token, username, role: 'admin' });
       }
       res.status(401).json({ error: 'Identifiants incorrects' });
@@ -51,7 +51,7 @@ module.exports = function dashboardAuth(pool, opts) {
       if (!verifyPassword(password, teacher.password_hash)) {
         return res.status(401).json({ error: 'Mot de passe incorrect' });
       }
-      const token = generateToken(teacherTokens, teacher.id, 7);
+      const token = await generateToken("teacher", teacher.id, 7);
       return res.json({
         success: true, token,
         teacher: {
@@ -84,7 +84,7 @@ module.exports = function dashboardAuth(pool, opts) {
       if (student.validation_status === 'pending') {
         return res.status(403).json({ error: 'Votre inscription est en attente de validation' });
       }
-      const token = generateToken(studentTokens, student.id, 7);
+      const token = await generateToken("student", student.id, 7);
       return res.json({
         success: true, token,
         student: {
@@ -117,13 +117,13 @@ module.exports = function dashboardAuth(pool, opts) {
       if (targetRole === 'professor') {
         const t = await pool.query('SELECT id, nom, prenom FROM teachers WHERE id = $1', [targetId]);
         if (!t.rows.length) return res.status(404).json({ error: 'Professeur non trouvé' });
-        const token = generateToken(teacherTokens, t.rows[0].id, 1); // 1-day temp token
+        const token = await generateToken("teacher", t.rows[0].id, 1); // 1-day temp token
         return res.json({ token, role: 'professor', target: t.rows[0] });
       }
       if (targetRole === 'student') {
         const s = await pool.query('SELECT id, nom, prenom FROM students WHERE id = $1', [targetId]);
         if (!s.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
-        const token = generateToken(studentTokens, s.rows[0].id, 1);
+        const token = await generateToken("student", s.rows[0].id, 1);
         return res.json({ token, role: 'student', target: s.rows[0] });
       }
       res.status(400).json({ error: 'Role invalide (professor ou student)' });

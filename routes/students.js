@@ -6,7 +6,7 @@
 'use strict';
 
 module.exports = function (pool, opts) {
-  const { hashPassword, generateToken, studentTokens, sendEmail, sendWhatsApp, requireAdmin, requireStudentAuth, pool: db } = opts;
+  const { hashPassword, generateToken,  sendEmail, sendWhatsApp, requireAdmin, requireStudentAuth, pool: db } = opts;
   const router = require('express').Router();
 
   const OWNER_EMAIL = opts.OWNER_EMAIL || 'contact.medinimmersion@gmail.com';

@@ -6,7 +6,7 @@
 'use strict';
 
 module.exports = function (pool, opts) {
-  const { requireTeacherAuth, requireAdmin, hashPassword, verifyPassword, generateToken, teacherTokens, sendEmail, uploadToR2WithRetry, FormDataLib, pool: db } = opts;
+  const { requireTeacherAuth, requireAdmin, hashPassword, verifyPassword, generateToken,  sendEmail, uploadToR2WithRetry, FormDataLib, pool: db } = opts;
   const router = require('express').Router();
 
   // POST /api/teacher/login
@@ -23,7 +23,7 @@ module.exports = function (pool, opts) {
         return res.status(401).json({ error: 'Mot de passe incorrect' });
       }
 
-      const token = generateToken(teacherTokens, teacher.id, 7);
+      const token = await generateToken("teacher", teacher.id, 7);
       delete teacher.password_hash;
       console.log('[teacher] Login:', teacher.nom, teacher.prenom);
       res.json({ teacher, token });
