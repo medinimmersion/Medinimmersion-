@@ -18,6 +18,28 @@ const PORT = process.env.PORT || 3000;
 
 // ─── DATABASE ────────────────────────────────────────────────
 const pool = new Pool({
+
+// ─── AUTO-INIT: Create sessions table if it doesn't exist ──────
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS sessions (
+        id SERIAL PRIMARY KEY,
+        token VARCHAR NOT NULL UNIQUE,
+        type VARCHAR NOT NULL,
+        user_id INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        expires_at TIMESTAMP NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
+      CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+    `);
+    console.log('[init] sessions table ready');
+  } catch (err) {
+    console.error('[init] sessions table error:', err.message);
+  }
+})();
+
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
   max: 10,
@@ -89,10 +111,9 @@ const apiLimiter = rateLimit({
 app.use('/api/', apiLimiter);
 
 // ─── TOKEN STORES ────────────────────────────────────────────
-const studentTokens = new Map();
-const teacherTokens = new Map();
-const gerantTokens = new Map();
-const resetTokens = new Map();
+// ─── SESSION STORE (SQL instead of Map) ──────────────
+// generateToken() : crée un token dans la table sessions
+// getFromToken() : récupère l'user_id et nettoie les sessions expirées
 
 // ─── HELPERS ─────────────────────────────────────────────────
 function hashPassword(password) {
@@ -112,45 +133,61 @@ function verifyPassword(password, stored) {
   return false;
 }
 
-function generateToken(store, id, days = 7) {
+async function generateToken(type, id, days = 7) {
   const token = crypto.randomBytes(64).toString('hex');
-  const expires = Date.now() + days * 24 * 60 * 60 * 1000;
-  store.set(token, { id, expires });
-  return token;
+  const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+  try {
+    const result = await pool.query(
+      'INSERT INTO sessions (token, type, user_id, expires_at) VALUES ($1, $2, $3, $4) RETURNING token',
+      [token, type, id, expiresAt]);
+    return token;
+  } catch (err) {
+    console.error('[generateToken] Error:', err.message);
+    return null;
+  }
 }
 
-function getFromToken(store, token) {
-  const entry = store.get(token);
-  if (!entry) return null;
-  if (Date.now() > entry.expires) { store.delete(token); return null; }
-  return entry.id;
+async function getFromToken(type, token) {
+  if (!token) return null;
+  try {
+    // Nettoyer les anciennes sessions
+    await pool.query('DELETE FROM sessions WHERE expires_at < NOW()', []);
+    // Récupérer la session valide
+    const result = await pool.query(
+      'SELECT user_id FROM sessions WHERE token = $1 AND type = $2 AND expires_at > NOW()',
+      [token, type]);
+    return result.rows.length ? result.rows[0].user_id : null;
+  } catch (err) {
+    console.error('[getFromToken] Error:', err.message);
+    return null;
+  }
 }
 
 // ─── AUTH MIDDLEWARE ─────────────────────────────────────────
-function requireStudentAuth(req, res, next) {
+async function requireStudentAuth(req, res, next) {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ error: 'Non autorisé' });
   const token = auth.slice(7);
-  const studentId = getFromToken(studentTokens, token);
+  const studentId = await getFromToken('student', token);
   if (!studentId) return res.status(401).json({ error: 'Session expirée' });
   req.studentId = studentId;
   next();
 }
 
-function requireTeacherAuth(req, res, next) {
+async function requireTeacherAuth(req, res, next) {
   const token = req.headers['x-teacher-token'] || (req.headers.authorization || '').replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Token requis' });
-  const teacherId = getFromToken(teacherTokens, token);
+  const teacherId = await getFromToken('teacher', token);
   if (!teacherId) return res.status(401).json({ error: 'Session expirée' });
   req.teacherId = teacherId;
   next();
 }
 
-function requireAdmin(req, res, next) {
+async function requireAdmin(req, res, next) {
   const token = req.headers['x-gerant-token'] || req.headers['x-admin-token'] ||
     (req.headers.authorization || '').replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Token admin requis' });
-  const id = getFromToken(gerantTokens, token);
+  const id = await getFromToken('gerant', token);
   if (!id) return res.status(401).json({ error: 'Session admin expirée' });
   req.gerantId = id;
   next();
@@ -235,11 +272,7 @@ const opts = {
   pool,
   hashPassword,
   verifyPassword,
-  generateToken: (store, id, days) => generateToken(store, id, days),
-  studentTokens,
-  teacherTokens,
-  gerantTokens,
-  resetTokens,
+  generateToken,
   requireStudentAuth,
   requireTeacherAuth,
   requireAdmin,
