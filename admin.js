@@ -15,6 +15,8 @@ module.exports = function (pool, opts) {
     try {
       const students = await pool.query(`
         SELECT s.id, s.nom, s.prenom, s.kounia, s.whatsapp, s.email, s.gender, s.status, s.validation_status, s.paiement_statut, s.created_at,
+          COALESCE(s.kalam_seconds_total, 180) AS kalam_total,
+          CASE WHEN s.kalam_quota_date = CURRENT_DATE THEN COALESCE(s.kalam_seconds_used, 0) ELSE 0 END AS kalam_used_today,
           (SELECT COUNT(*) FROM bookings b WHERE b.student_id = s.id) as booking_count,
           COALESCE(STRING_AGG(DISTINCT (t.prenom || ' ' || t.nom), ', '), '—') AS teacher_names
         FROM students s
@@ -25,6 +27,41 @@ module.exports = function (pool, opts) {
       const bookings = await pool.query(`SELECT b.*, s.nom as student_nom, s.prenom as student_prenom FROM bookings b JOIN students s ON s.id = b.student_id ORDER BY b.created_at DESC`);
       res.json({ students: students.rows, bookings: bookings.rows });
     } catch (err) { console.error('[admin/students]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/admin/students — le gérant crée un élève directement (validé, prêt à se connecter)
+  router.post('/api/admin/students', requireAdmin, async (req, res) => {
+    try {
+      const crypto = require('crypto');
+      const { nom, prenom, kounia, whatsapp, email, gender, password } = req.body || {};
+      if (!prenom || !nom) return res.status(400).json({ error: 'Prénom et nom requis.' });
+      if (!email && !whatsapp) return res.status(400).json({ error: 'Email ou WhatsApp requis (pour la connexion).' });
+
+      if (email) {
+        const e = await pool.query('SELECT id FROM students WHERE LOWER(email) = LOWER($1)', [email.trim()]);
+        if (e.rows.length) return res.status(409).json({ error: 'Cet email est déjà utilisé.' });
+      }
+      if (whatsapp) {
+        const w = await pool.query(
+          'SELECT id FROM students WHERE REPLACE(REPLACE(whatsapp, $1, $2), $3, $4) = REPLACE(REPLACE($5, $1, $2), $3, $4)',
+          ['+', '', ' ', '', whatsapp]);
+        if (w.rows.length) return res.status(409).json({ error: 'Ce numéro WhatsApp est déjà utilisé.' });
+      }
+
+      const pwd = (password && String(password).length >= 4)
+        ? String(password)
+        : crypto.randomBytes(8).toString('base64').replace(/[^a-zA-Z0-9]/g, 'x').substring(0, 10);
+
+      // whatsapp est NOT NULL en base : chaîne vide si non fourni
+      const r = await pool.query(
+        `INSERT INTO students (nom, prenom, kounia, whatsapp, email, gender, password_hash, validation_status, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, 'validated', 'active')
+         RETURNING id, nom, prenom, kounia, whatsapp, email, gender`,
+        [nom.trim(), prenom.trim(), (kounia || '').trim() || null, (whatsapp || '').trim(),
+         email ? email.trim().toLowerCase() : null, gender || null, hashPassword(pwd)]);
+
+      res.json({ success: true, student: r.rows[0], password: pwd, password_generated: !(password && String(password).length >= 4) });
+    } catch (err) { console.error('[admin/create-student]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
   // GET /api/admin/bookings — all bookings with student info
@@ -263,7 +300,7 @@ module.exports = function (pool, opts) {
   router.get('/api/admin/groups/:id/students', requireAdmin, async (req, res) => {
     try {
       const members = await pool.query(`
-        SELECT s.id, s.nom, s.prenom, s.whatsapp, s.email, gm.added_at
+        SELECT s.id, gm.id AS member_id, s.nom, s.prenom, s.kounia, s.whatsapp, s.email, gm.added_at
         FROM group_members gm
         JOIN students s ON s.id = gm.student_id
         WHERE gm.group_id = $1
@@ -414,7 +451,7 @@ module.exports = function (pool, opts) {
       }
       if (!student) return res.status(404).json({ error: 'Élève non trouvé' });
       const token = generateToken(opts.studentTokens, student.id, 7);
-      const redirectUrl = '/eleve-dashboard.html?xs=' + token;
+      const redirectUrl = '/espace-eleve.html?xs=' + token;
       res.json({ student, token, redirectUrl });
     } catch (err) { console.error('[admin/view-as]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
@@ -429,7 +466,7 @@ module.exports = function (pool, opts) {
       const teacher = await pool.query('SELECT id, username FROM teachers WHERE id = $1', [req.params.id]);
       if (!teacher.rows.length) return res.status(404).send('Professeur non trouvé');
       const token = generateToken(opts.teacherTokens, teacher.rows[0].id, 7);
-      res.redirect('/professeur-dashboard.html?xt=' + token);
+      res.redirect('/espace-professeur.html?xt=' + token);
     } catch (err) { console.error('[admin/view-space/teacher]', err); res.status(500).send('Erreur serveur'); }
   });
 
@@ -443,7 +480,7 @@ module.exports = function (pool, opts) {
       const student = await pool.query('SELECT id FROM students WHERE id = $1', [req.params.id]);
       if (!student.rows.length) return res.status(404).send('Élève non trouvé');
       const token = generateToken(opts.studentTokens, student.rows[0].id, 7);
-      res.redirect('/eleve-dashboard.html?xs=' + token);
+      res.redirect('/espace-eleve.html?xs=' + token);
     } catch (err) { console.error('[admin/view-space/student]', err); res.status(500).send('Erreur serveur'); }
   });
 
@@ -478,6 +515,90 @@ module.exports = function (pool, opts) {
       if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
       res.json({ success: true, student: r.rows[0] });
     } catch (err) { console.error('[admin/student/paiement]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // PUT /api/admin/students/:id/password — gérant resets a student's password
+  router.put('/api/admin/students/:id/password', requireAdmin, async (req, res) => {
+    try {
+      const { password } = req.body;
+      if (!password || password.length < 4) return res.status(400).json({ error: 'Mot de passe trop court' });
+      const hash = hashPassword(password);
+      const r = await pool.query('UPDATE students SET password_hash = $1, updated_at = NOW() WHERE id = $2 RETURNING id', [hash, req.params.id]);
+      if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/student-password]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // ─── ATTRIBUTION ÉLÈVE -> PROFESSEUR ─────────────────────
+  // GET /api/admin/students/:id/teachers — professeurs assignés à un élève
+  router.get('/api/admin/students/:id/teachers', requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT t.id, t.nom, t.prenom, t.email, a.assigned_at
+           FROM teacher_student_assignments a
+           JOIN teachers t ON t.id = a.teacher_id
+          WHERE a.student_id = $1 ORDER BY a.assigned_at DESC`, [req.params.id]);
+      res.json(r.rows);
+    } catch (err) { console.error('[admin/student-teachers]', err.message); res.json([]); }
+  });
+
+  // POST /api/admin/students/:id/teacher — assigner un professeur
+  router.post('/api/admin/students/:id/teacher', requireAdmin, async (req, res) => {
+    try {
+      const teacherId = parseInt(req.body.teacher_id, 10);
+      if (!teacherId) return res.status(400).json({ error: 'Professeur manquant.' });
+      const t = await pool.query('SELECT id FROM teachers WHERE id = $1', [teacherId]);
+      if (!t.rowCount) return res.status(404).json({ error: 'Professeur introuvable.' });
+      const s2 = await pool.query('SELECT id FROM students WHERE id = $1', [req.params.id]);
+      if (!s2.rowCount) return res.status(404).json({ error: 'Élève introuvable.' });
+
+      const exists = await pool.query(
+        'SELECT id FROM teacher_student_assignments WHERE teacher_id = $1 AND student_id = $2',
+        [teacherId, req.params.id]);
+      if (exists.rowCount) return res.json({ ok: true, already: true });
+
+      // Un seul professeur par élève : on remplace l'assignation précédente.
+      if (req.body.replace !== false) {
+        await pool.query('DELETE FROM teacher_student_assignments WHERE student_id = $1', [req.params.id]);
+      }
+      const r = await pool.query(
+        `INSERT INTO teacher_student_assignments (teacher_id, student_id, assigned_by, assigned_at)
+         VALUES ($1, $2, 'gerant', NOW()) RETURNING *`, [teacherId, req.params.id]);
+      res.json({ ok: true, assignment: r.rows[0] });
+    } catch (err) { console.error('[admin/assign-teacher]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // DELETE /api/admin/students/:id/teacher/:teacherId — retirer l'assignation
+  router.delete('/api/admin/students/:id/teacher/:teacherId', requireAdmin, async (req, res) => {
+    try {
+      await pool.query('DELETE FROM teacher_student_assignments WHERE student_id = $1 AND teacher_id = $2',
+        [req.params.id, req.params.teacherId]);
+      res.json({ ok: true });
+    } catch (err) { console.error('[admin/unassign-teacher]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // ─── MESSAGES ÉLÈVE -> GÉRANT ────────────────────────────
+  router.get('/api/admin/messages', requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query(
+        `SELECT m.*, s.nom, s.prenom, s.kounia
+           FROM messages m JOIN students s ON s.id = m.student_id
+          WHERE m.recipient_type = 'manager'
+          ORDER BY m.sent_at DESC LIMIT 100`);
+      res.json(r.rows);
+    } catch (err) { console.error('[admin/messages]', err.message); res.json([]); }
+  });
+
+  router.put('/api/admin/messages/:id/reply', requireAdmin, async (req, res) => {
+    try {
+      const body = (req.body.reply || req.body.body || '').trim();
+      if (!body) return res.status(400).json({ error: 'Réponse vide.' });
+      const r = await pool.query(
+        `UPDATE messages SET reply_body = $1, reply_sent_at = NOW(), reply_by = 'gerant', is_read = true
+          WHERE id = $2 RETURNING *`, [body, req.params.id]);
+      if (!r.rowCount) return res.status(404).json({ error: 'Message introuvable.' });
+      res.json(r.rows[0]);
+    } catch (err) { console.error('[admin/reply]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
   return router;

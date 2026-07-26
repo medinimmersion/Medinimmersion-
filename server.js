@@ -32,6 +32,25 @@ app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+
+// ─── BLOCAGE DES FICHIERS SENSIBLES ──────────────────────────
+// express.static sert __dirname : sans ce filtre, tout le dépôt (code source,
+// dumps SQL, config) serait téléchargeable publiquement.
+const BLOCKED_EXT = /\.(js|json|sql|dump|db|env|md|lock|yml|yaml)$/i;
+const ALLOWED_FILES = new Set([
+  '/tracking-client.js', '/content-loader.js', '/kalam-references.js',
+]);
+const BLOCKED_DIRS = /^\/(routes|db|mobile|node_modules|docs|\.git)\//i;
+app.use((req, res, next) => {
+  const p = decodeURIComponent(req.path);
+  if (p.startsWith('/api/')) return next();
+  if (ALLOWED_FILES.has(p)) return next();
+  if (BLOCKED_DIRS.test(p) || BLOCKED_EXT.test(p) || p.includes('..')) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  next();
+});
+
 // Static files — serve from root directory
 const fs = require('fs');
 var publicDir;
@@ -198,9 +217,10 @@ const PRICING = {
   arabe:  { 4:[32,28,23], 8:[62,52,44], 16:[120,84,84], 20:[148,120,100], 40:[250,180,160] },
   double_immersion: { 4:[56,49,43], 8:[108,93,83], 16:[209,163,150], 20:[255,209,190], 40:[446,361,275] },
 };
-const ENROLLMENT_FEE = 10;
+const ENROLLMENT_FEE = 5;
 const OWNER_EMAIL = process.env.OWNER_EMAIL || 'contact.medinimmersion@gmail.com';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || process.env.GERANT_PASSWORD || 'MedinGerant2024!';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || process.env.GERANT_PASSWORD;
+if (!ADMIN_PASSWORD) console.error('[config] ADMIN_PASSWORD absent des variables d\'environnement — l\'espace gérant est inaccessible.');
 
 // ─── MAINTENANCE MODE ────────────────────────────────────────
 async function isMaintenanceMode() {
@@ -299,62 +319,6 @@ for (const name of routeFiles) {
   }
 }
 
-
-// ─── IMPORT DB (one-time setup) ──────────────────────────────
-// Visite /api/setup/import-db?key=ADMIN_PASSWORD pour importer migration.sql dans Neon
-const importStatus = { running: false, done: 0, total: 0, errors: 0, lastError: null, finished: false };
-
-app.get('/api/setup/import-status', (req, res) => {
-  if ((req.query.key || '') !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Clé invalide' });
-  res.json(importStatus);
-});
-
-app.get('/api/setup/import-db', async (req, res) => {
-  if ((req.query.key || '') !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Clé invalide' });
-  if (importStatus.running) return res.json({ message: 'Import déjà en cours', ...importStatus });
-
-  const sqlPath = path.join(__dirname, 'migration.sql');
-  if (!fs.existsSync(sqlPath)) {
-    return res.status(404).json({ error: 'migration.sql introuvable. Uploade-le à la racine du dépôt GitHub.' });
-  }
-
-  // Sécurité : ne pas écraser une base déjà remplie sans force=1
-  try {
-    const check = await pool.query("SELECT COUNT(*) AS n FROM information_schema.tables WHERE table_schema='public'");
-    if (parseInt(check.rows[0].n) > 5 && req.query.force !== '1') {
-      return res.json({ message: 'La base contient déjà des tables. Ajoute &force=1 pour réimporter.', tables: check.rows[0].n });
-    }
-  } catch (e) { /* base vide, on continue */ }
-
-  const raw = fs.readFileSync(sqlPath, 'utf8');
-  // Découpe en instructions sur ';' en fin de ligne (hors chaînes multi-lignes rares)
-  const statements = raw.split(/;\s*\n/).map(s => s.trim()).filter(s => s && !s.startsWith('--'));
-
-  importStatus.running = true;
-  importStatus.done = 0;
-  importStatus.total = statements.length;
-  importStatus.errors = 0;
-  importStatus.lastError = null;
-  importStatus.finished = false;
-
-  res.json({ message: `Import démarré : ${statements.length} instructions. Suis la progression sur /api/setup/import-status?key=...`, total: statements.length });
-
-  // Exécution en arrière-plan
-  (async () => {
-    for (const stmt of statements) {
-      try {
-        await pool.query(stmt);
-      } catch (err) {
-        importStatus.errors++;
-        importStatus.lastError = err.message.substring(0, 200);
-      }
-      importStatus.done++;
-    }
-    importStatus.running = false;
-    importStatus.finished = true;
-    console.log(`[import-db] Terminé: ${importStatus.done}/${importStatus.total}, erreurs: ${importStatus.errors}`);
-  })();
-});
 
 // ─── HEALTH CHECK ────────────────────────────────────────────
 app.get('/api/health', async (req, res) => {

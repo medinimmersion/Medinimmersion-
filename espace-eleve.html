@@ -276,6 +276,7 @@ footer{background:var(--green-deep);color:var(--white);}
         <div class="ap-tile"><div class="ap-val" id="statProchain">–</div><div class="ap-lbl">Prochain cours</div></div>
         <div class="ap-tile"><div class="ap-val" id="statProf">–</div><div class="ap-lbl">Professeur</div></div>
         <div class="ap-tile"><div class="ap-val" id="statHeures">–</div><div class="ap-lbl">Heures restantes</div></div>
+        <div class="ap-tile"><div class="ap-val" id="statPage">–</div><div class="ap-lbl">Page du livre</div></div>
       </div>
       <!-- KALAM BANNER -->
       <a href="/kalam" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--green-deep),var(--green-mid));border:1px solid rgba(212,168,67,0.3);border-radius:18px;padding:1.25rem 1.75rem;margin-bottom:1.5rem;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;gap:1rem;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
@@ -335,6 +336,22 @@ footer{background:var(--green-deep);color:var(--white);}
     <!-- MESSAGES -->
     <div class="dash-panel" id="panel-messages">
       <div class="hero-card compact"><div class="hero-glow"></div><div class="hero-label">Espace élève</div><h2 class="hero-title">Mes messages</h2><p class="hero-sub">Les échanges avec ton école et tes professeurs.</p></div>
+      <div style="background:var(--white);border:1px solid var(--beige);border-radius:18px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h3 style="font-weight:700;font-size:0.95rem;color:var(--green-deep);margin-bottom:0.9rem;">✍️ Écrire un message</h3>
+        <div class="fg">
+          <label>Destinataire</label>
+          <select id="msgTo" style="width:100%;padding:0.7rem 0.95rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:var(--cream);color:var(--text);">
+            <option value="manager">L'école (gérant)</option>
+            <option value="teacher">Mon professeur</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Votre message</label>
+          <textarea id="msgBody" rows="4" placeholder="Votre question…" style="width:100%;padding:0.7rem 0.95rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:var(--cream);color:var(--text);resize:vertical;"></textarea>
+        </div>
+        <div id="msgFeedback" style="font-size:0.82rem;margin-bottom:0.6rem;"></div>
+        <button class="btn-join" id="msgSendBtn" onclick="sendMessage()" style="padding:0.7rem 1.6rem;">Envoyer</button>
+      </div>
       <div id="allMessages" class="msg-list"></div>
     </div>
 
@@ -439,6 +456,11 @@ async function loadDashboard(){
   // Stats
   document.getElementById('statHeures').textContent=(s.remaining_hours||0)+'h';
   document.getElementById('statPDF').textContent=s.pdf_count||'–';
+  // page du livre (renvoyée par /api/member/progression)
+  fetch('/api/member/progression',{headers:{'Authorization':'Bearer '+token}})
+    .then(r=>r.ok?r.json():null)
+    .then(p=>{ const el=document.getElementById('statPage'); if(el&&p) el.textContent='p. '+(p.current_page||1); })
+    .catch(()=>{});
 
   // Profil details
   const pd=document.getElementById('profilDetails');
@@ -544,6 +566,30 @@ function renderBooks(books){
   </div>`).join('');
 }
 
+// ─── ENVOI DE MESSAGE ──────────
+async function sendMessage(){
+  const to=document.getElementById('msgTo').value;
+  const body=document.getElementById('msgBody').value.trim();
+  const fb=document.getElementById('msgFeedback');
+  const btn=document.getElementById('msgSendBtn');
+  fb.textContent='';
+  if(!body){ fb.style.color='#B91C1C'; fb.textContent='Écrivez votre message avant d\'envoyer.'; return; }
+  btn.disabled=true; btn.textContent='Envoi…';
+  try{
+    const res=await fetch('/api/member/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({recipient_type:to, body})
+    });
+    const d=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(d.error||'Envoi impossible.');
+    document.getElementById('msgBody').value='';
+    fb.style.color='var(--green)'; fb.textContent='✓ Message envoyé. Vous recevrez la réponse ici.';
+    await loadMessages();
+  }catch(e){ fb.style.color='#B91C1C'; fb.textContent=e.message; }
+  finally{ btn.disabled=false; btn.textContent='Envoyer'; }
+}
+
 // ─── TABS ──────────────────────
 function showTab(id,btn){
   document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
@@ -573,9 +619,14 @@ async function loadProgressionDetails(){
         <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Niveau actuel</div><div style="font-weight:700;color:var(--green-deep);">Niveau ${data.level||1} / 11</div></div>
         <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Professeur</div><div style="font-weight:700;color:var(--green-deep);">${data.teacher_name||'–'}</div></div>
       </div>
+      <div style="margin-top:1.5rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));border-radius:14px;padding:1.25rem 1.4rem;">
+        <div style="font-size:0.75rem;color:var(--green-deep);opacity:0.75;text-transform:uppercase;letter-spacing:0.08em;font-weight:800;margin-bottom:0.3rem;">Où vous vous êtes arrêtés</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--green-deep);line-height:1.2;">Niveau ${data.niveau||data.level||1} — page ${data.current_page||1}</div>
+        <div style="color:var(--green-deep);opacity:0.7;font-size:0.82rem;margin-top:0.25rem;">Votre professeur reprendra exactement à cet endroit.</div>
+      </div>
       ${data.notes?`<div style="margin-top:1.5rem;background:var(--cream);border-radius:12px;padding:1.25rem;"><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.5rem;">Notes du professeur</div><p style="color:var(--text);font-size:0.875rem;line-height:1.7;">${data.notes}</p></div>`:''}`;
   }catch{
-    c.innerHTML=`<p style="color:var(--text-muted);font-size:0.875rem;">Vos détails de progression apparaîtront ici une fois votre inscription validée.</p>`;
+    c.innerHTML=`<p style="color:var(--text-muted);font-size:0.875rem;">Vos détails de progression apparaîtront ici dès que votre professeur aura enregistré votre niveau et votre page.</p>`;
   }
 }
 
