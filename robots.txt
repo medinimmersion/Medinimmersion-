@@ -1,11 +1,8 @@
 User-agent: *
 Allow: /
-Disallow: /admin-gerant
-Disallow: /espace-eleve
-Disallow: /espace-professeur
-Disallow: /reset-password
-Disallow: /kalam
-Disallow: /test-kalam
 Disallow: /api/
+Disallow: /reset-password
+Disallow: /test-kalam
+Disallow: /kalam-test
 
 Sitemap: https://medinimmersion.com/sitemap.xml
