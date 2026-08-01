@@ -7,7 +7,7 @@
 
 module.exports = function (pool, opts) {
   const { requireTeacherAuth, requireStudentAuth, requireAdmin, requireGerant, sendEmail, authLimiter,
-    ADMIN_PASSWORD, isMaintenanceMode } = opts;
+    ADMIN_PASSWORD, isMaintenanceMode, getMaintenanceFlags, invalidateMaintenanceCache } = opts;
   const router = require('express').Router();
   const OWNER_EMAIL = opts.OWNER_EMAIL || 'contact.medinimmersion@gmail.com';
 
@@ -17,19 +17,81 @@ module.exports = function (pool, opts) {
     res.json({ success: true });
   });
 
-  // ── Maintenance mode API ──────────────────────────────────
-  router.get('/api/maintenance', requireAdmin, async (req, res) => res.json({ enabled: await isMaintenanceMode() }));
-  router.put('/api/maintenance', requireAdmin, async (req, res) => {
-    const { enabled } = req.body;
+  // ── Maintenance : deux interrupteurs independants ─────────
+  // scope 'site'  -> field_key maintenance_mode
+  // scope 'kalam' -> field_key maintenance_mode_kalam
+  const M_FIELD = { site: 'maintenance_mode', kalam: 'maintenance_mode_kalam' };
+  const M_MSG = { site: 'maintenance_message', kalam: 'maintenance_message_kalam' };
+  const M_MSG_MAX = 2000;
+
+  async function setField(field, value, type) {
+    const found = await pool.query(
+      `SELECT id FROM cms_content WHERE page_key='global' AND field_key=$1`, [field]);
+    if (found.rows.length > 0) {
+      await pool.query(
+        `UPDATE cms_content SET value=$1, updated_at=NOW() WHERE page_key='global' AND field_key=$2`, [value, field]);
+    } else {
+      await pool.query(
+        `INSERT INTO cms_content (page_key, field_key, field_type, value) VALUES ('global',$1,$2,$3)`,
+        [field, type || 'text', value]);
+    }
+    if (typeof invalidateMaintenanceCache === 'function') invalidateMaintenanceCache();
+  }
+
+  async function setFlag(field, enabled) {
+    const found = await pool.query(
+      `SELECT id FROM cms_content WHERE page_key='global' AND field_key=$1`, [field]);
+    const val = enabled ? 'true' : 'false';
+    if (found.rows.length > 0) {
+      await pool.query(
+        `UPDATE cms_content SET value=$1, updated_at=NOW() WHERE page_key='global' AND field_key=$2`, [val, field]);
+    } else {
+      await pool.query(
+        `INSERT INTO cms_content (page_key, field_key, field_type, value) VALUES ('global',$1,'boolean',$2)`, [field, val]);
+    }
+    if (typeof invalidateMaintenanceCache === 'function') invalidateMaintenanceCache();
+  }
+
+  // Etat des deux interrupteurs
+  router.get('/api/maintenance', requireAdmin, async (req, res) => {
     try {
-      const existing = await pool.query(`SELECT id FROM cms_content WHERE page_key = 'global' AND field_key = 'maintenance_mode'`);
-      if (existing.rows.length > 0) {
-        await pool.query(`UPDATE cms_content SET value = $1, updated_at = NOW() WHERE page_key = 'global' AND field_key = 'maintenance_mode'`, [enabled ? 'true' : 'false']);
-      } else {
-        await pool.query(`INSERT INTO cms_content (page_key, field_key, field_type, value) VALUES ('global', 'maintenance_mode', 'boolean', $1)`, [enabled ? 'true' : 'false']);
+      if (typeof getMaintenanceFlags === 'function') {
+        const f = await getMaintenanceFlags();
+        return res.json({
+          site: f.site, kalam: f.kalam, enabled: f.site,
+          message_site: f.msgSite || '', message_kalam: f.msgKalam || ''
+        });
       }
-      res.json({ enabled: !!enabled });
-    } catch (err) { console.error('[maintenance]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+      const on = await isMaintenanceMode();
+      res.json({ site: on, kalam: false, enabled: on, message_site: '', message_kalam: '' });
+    } catch (err) {
+      console.error('[maintenance] get', err);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  });
+
+  // Bascule. Corps accepte : { scope:'site'|'kalam', enabled:bool }
+  // L'ancien format { enabled:bool } reste compris et vise le site.
+  router.put('/api/maintenance', requireAdmin, async (req, res) => {
+    const scope = req.body.scope === 'kalam' ? 'kalam' : 'site';
+    const enabled = !!req.body.enabled;
+    try {
+      // Le message est optionnel : absent du corps => on ne touche pas a l'existant
+      if (typeof req.body.message === 'string') {
+        await setField(M_MSG[scope], req.body.message.slice(0, M_MSG_MAX), 'text');
+      }
+      await setFlag(M_FIELD[scope], enabled);
+      const f = typeof getMaintenanceFlags === 'function'
+        ? await getMaintenanceFlags()
+        : { site: enabled, kalam: false, msgSite: '', msgKalam: '' };
+      res.json({
+        scope, enabled, site: f.site, kalam: f.kalam,
+        message_site: f.msgSite || '', message_kalam: f.msgKalam || ''
+      });
+    } catch (err) {
+      console.error('[maintenance] put', err);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
   });
 
   // POST /api/notes — teacher creates a note about a student
