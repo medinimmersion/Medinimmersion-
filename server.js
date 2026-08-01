@@ -35,11 +35,17 @@ pool.on('error', (err) => console.error('[pool] Unexpected error:', err));
         id SERIAL PRIMARY KEY,
         token VARCHAR NOT NULL UNIQUE,
         type VARCHAR NOT NULL,
-        user_id INTEGER NOT NULL,
+        user_id VARCHAR NOT NULL,
         created_at TIMESTAMP DEFAULT NOW(),
         expires_at TIMESTAMP NOT NULL
       );
     `);
+    // Rattrapage : la premiere version creait user_id en INTEGER, or certains
+    // identifiants sont du texte ('gerant-master', un nom d'utilisateur...).
+    // L'INSERT echouait alors silencieusement et la connexion etait refusee.
+    try {
+      await pool.query('ALTER TABLE sessions ALTER COLUMN user_id TYPE VARCHAR USING user_id::VARCHAR');
+    } catch (e) { /* deja en VARCHAR : rien a faire */ }
     await pool.query('CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token)');
     await pool.query('CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at)');
     console.log('[init] table sessions prete');
@@ -229,7 +235,9 @@ async function getFromToken(type, token) {
     const result = await pool.query(
       'SELECT user_id FROM sessions WHERE token = $1 AND type = $2 AND expires_at > NOW()',
       [token, type]);
-    return result.rows.length ? result.rows[0].user_id : null;
+    if (!result.rows.length) return null;
+    const v = result.rows[0].user_id;
+    return /^\d+$/.test(String(v)) ? Number(v) : v;
   } catch (err) {
     console.error('[getFromToken] Error:', err.message);
     return null;
