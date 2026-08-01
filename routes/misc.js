@@ -22,6 +22,7 @@ module.exports = function (pool, opts) {
   // scope 'kalam' -> field_key maintenance_mode_kalam
   const M_FIELD = { site: 'maintenance_mode', kalam: 'maintenance_mode_kalam' };
   const M_MSG = { site: 'maintenance_message', kalam: 'maintenance_message_kalam' };
+  const M_UNTIL = { site: 'maintenance_until', kalam: 'maintenance_until_kalam' };
   const M_MSG_MAX = 2000;
 
   async function setField(field, value, type) {
@@ -59,11 +60,12 @@ module.exports = function (pool, opts) {
         const f = await getMaintenanceFlags();
         return res.json({
           site: f.site, kalam: f.kalam, enabled: f.site,
-          message_site: f.msgSite || '', message_kalam: f.msgKalam || ''
+          message_site: f.msgSite || '', message_kalam: f.msgKalam || '',
+          until_site: f.untilSite || '', until_kalam: f.untilKalam || ''
         });
       }
       const on = await isMaintenanceMode();
-      res.json({ site: on, kalam: false, enabled: on, message_site: '', message_kalam: '' });
+      res.json({ site: on, kalam: false, enabled: on, message_site: '', message_kalam: '', until_site: '', until_kalam: '' });
     } catch (err) {
       console.error('[maintenance] get', err);
       res.status(500).json({ error: 'Erreur serveur' });
@@ -80,13 +82,19 @@ module.exports = function (pool, opts) {
       if (typeof req.body.message === 'string') {
         await setField(M_MSG[scope], req.body.message.slice(0, M_MSG_MAX), 'text');
       }
+      // Date de retour : chaine vide = pas de compte a rebours
+      if (typeof req.body.until === 'string') {
+        const u = req.body.until.trim();
+        await setField(M_UNTIL[scope], u && !isNaN(Date.parse(u)) ? u : '', 'text');
+      }
       await setFlag(M_FIELD[scope], enabled);
       const f = typeof getMaintenanceFlags === 'function'
         ? await getMaintenanceFlags()
-        : { site: enabled, kalam: false, msgSite: '', msgKalam: '' };
+        : { site: enabled, kalam: false, msgSite: '', msgKalam: '', untilSite: '', untilKalam: '' };
       res.json({
         scope, enabled, site: f.site, kalam: f.kalam,
-        message_site: f.msgSite || '', message_kalam: f.msgKalam || ''
+        message_site: f.msgSite || '', message_kalam: f.msgKalam || '',
+        until_site: f.untilSite || '', until_kalam: f.untilKalam || ''
       });
     } catch (err) {
       console.error('[maintenance] put', err);
