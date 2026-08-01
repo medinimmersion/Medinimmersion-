@@ -177,19 +177,9 @@ body{
     <div class="subtitle">Mes chers frères et sœurs 🤲</div>
   </div>
 
-  <!--CUSTOM_MESSAGE-->
+  <div class="description"><!--CUSTOM_MESSAGE--></div>
 
-  <div class="description">
-    <p>Médin'Immersion est actuellement en maintenance. Nous travaillons dur pour améliorer votre expérience d'apprentissage et vous offrir un service encore meilleur.</p>
-    <p style="margin-top:1rem;">Votre dévouement à l'apprentissage du Coran et de la Sunna nous inspire. Nous serons de retour très bientôt.</p>
-    <p style="margin-top:1rem;font-style:italic;">Qu'Allah bénisse vos efforts et illumine votre chemin. 📚 ✨</p>
-  </div>
-
-  <div class="timer-section">
-    <div class="timer-label">Retour prévu dans</div>
-    <div class="timer" id="countdown">--:--:--</div>
-    <div class="timer-unit">Heures : Minutes : Secondes</div>
-  </div>
+  <!--TIMER-->
 
   <div class="email-section" id="emailSection">
     <div class="email-label">📧 Sois informé du retour</div>
@@ -207,78 +197,59 @@ body{
   </div>
 
   <div class="footer">
-    <p>Questions ? Contacte-nous : <a class="footer-link" href="mailto:contact@medinimmersion.com">contact@medinimmersion.com</a></p>
+    <p>Questions ? Contacte-nous : <a class="footer-link" href="mailto:contact.medinimmersion@gmail.com">contact.medinimmersion@gmail.com</a></p>
     <p style="margin-top:1rem;">Wa alaykoum as-salam wa rahmatoullahi wa barakatouh 🤲</p>
   </div>
 </div>
 
 <script>
-// Timer : à personnaliser. Par défaut : 2 heures à partir de maintenant.
-// Format: nouvelleDate(année, mois-1, jour, heure, minute, seconde)
-// Ou: laisse localStorage['maintenanceUntil'] être défini par le gérant
-let endTime = localStorage.getItem('maintenanceUntil');
-if(!endTime){
-  // Défaut : 2 heures à partir de maintenant
-  const now = new Date();
-  now.setHours(now.getHours() + 2);
-  endTime = now.getTime();
-  localStorage.setItem('maintenanceUntil', endTime);
-}else{
-  endTime = parseInt(endTime);
-}
-
-// Afficher/cacher les éléments selon la config du gérant
-(function initMaintenance(){
-  const withInscription = localStorage.getItem('maintenanceWithInscription') === 'true';
-  const emailSection = document.getElementById('emailSection');
-  const inscriptionLink = document.getElementById('inscriptionLink');
-  
-  // Si pas d'inscription requise, masquer ces sections
-  if(!withInscription){
-    if(emailSection) emailSection.style.display = 'none';
-    if(inscriptionLink) inscriptionLink.style.display = 'none';
-  }
-})();
+// Date de retour fixee par le gerant, injectee par le serveur.
+// Absente = aucun compte a rebours (l'element #countdown n'existe alors pas).
+const cd = document.getElementById('countdown');
+const endTime = cd ? parseInt(cd.dataset.until, 10) : 0;
 
 function updateTimer(){
-  const now = new Date().getTime();
-  const distance = endTime - now;
-  
+  if(!cd || !endTime) return;
+  const distance = endTime - Date.now();
   if(distance <= 0){
-    document.getElementById('countdown').textContent = '00:00:00';
-    document.getElementById('countdown').parentElement.innerHTML += '<p style="margin-top:1rem;font-size:0.9rem;">Le site devrait être de retour...</p>';
+    cd.textContent = '00:00:00';
+    const lbl = document.getElementById('timerLabel');
+    if(lbl) lbl.textContent = 'Retour imminent';
     return;
   }
-  
-  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  
-  document.getElementById('countdown').textContent = 
-    String(hours).padStart(2,'0') + ':' + 
-    String(minutes).padStart(2,'0') + ':' + 
-    String(seconds).padStart(2,'0');
+  const d = Math.floor(distance / 86400000);
+  const h = Math.floor((distance % 86400000) / 3600000);
+  const m = Math.floor((distance % 3600000) / 60000);
+  const s = Math.floor((distance % 60000) / 1000);
+  cd.textContent = (d > 0 ? d + 'j ' : '')
+    + String(h).padStart(2,'0') + ':'
+    + String(m).padStart(2,'0') + ':'
+    + String(s).padStart(2,'0');
 }
+if(cd && endTime){ updateTimer(); setInterval(updateTimer, 1000); }
 
-updateTimer();
-setInterval(updateTimer, 1000);
-
-// Email signup (stockage local pour démo; à remplacer par API réelle)
+// Inscription a l'alerte de retour : enregistre reellement cote serveur
 async function handleEmailSignup(e){
   e.preventDefault();
-  const email = document.getElementById('emailInput').value.trim();
+  const input = document.getElementById('emailInput');
+  const msg = document.getElementById('emailMsg');
+  const email = input.value.trim();
   if(!email) return;
-  
-  // Stockage local (pour démo)
-  let list = JSON.parse(localStorage.getItem('maintenanceEmails') || '[]');
-  if(!list.includes(email)){
-    list.push(email);
-    localStorage.setItem('maintenanceEmails', JSON.stringify(list));
+  msg.style.color = '';
+  msg.textContent = 'Envoi…';
+  try{
+    const r = await fetch('/api/email/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, source: 'maintenance' })
+    });
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    msg.textContent = 'Merci, vous serez prévenu du retour.';
+    input.value = '';
+  }catch(err){
+    msg.style.color = '#c0392b';
+    msg.textContent = "Échec de l'enregistrement, réessayez plus tard.";
   }
-  
-  document.getElementById('emailMsg').textContent = '✅ Merci ! Tu seras informé(e) du retour.';
-  document.getElementById('emailInput').value = '';
-  setTimeout(()=>{ document.getElementById('emailMsg').textContent = ''; }, 3000);
 }
 </script>
 

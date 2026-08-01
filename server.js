@@ -100,23 +100,25 @@ const staticOpts = {
 //   maintenance_mode        -> tout le site public
 //   maintenance_mode_kalam  -> uniquement Kalam
 // Le cache de 10 s evite une requete SQL a chaque visite.
-let _mCache = { site: false, kalam: false, msgSite: '', msgKalam: '', at: 0 };
+let _mCache = { site: false, kalam: false, msgSite: '', msgKalam: '', untilSite: '', untilKalam: '', at: 0 };
 async function getMaintenanceFlags() {
   if (Date.now() - _mCache.at < 10000) return _mCache;
   try {
     const r = await pool.query(
-      "SELECT field_key, value FROM cms_content WHERE page_key='global' AND field_key IN ('maintenance_mode','maintenance_mode_kalam','maintenance_message','maintenance_message_kalam')");
+      "SELECT field_key, value FROM cms_content WHERE page_key='global' AND field_key IN ('maintenance_mode','maintenance_mode_kalam','maintenance_message','maintenance_message_kalam','maintenance_until','maintenance_until_kalam')");
     const raw = k => { const row = r.rows.find(x => x.field_key === k); return row ? (row.value || '') : ''; };
     _mCache = {
       site: raw('maintenance_mode') === 'true',
       kalam: raw('maintenance_mode_kalam') === 'true',
       msgSite: raw('maintenance_message'),
       msgKalam: raw('maintenance_message_kalam'),
+      untilSite: raw('maintenance_until'),
+      untilKalam: raw('maintenance_until_kalam'),
       at: Date.now()
     };
   } catch (err) {
     console.error('[maintenance] lecture impossible:', err.message);
-    _mCache = { site: false, kalam: false, msgSite: '', msgKalam: '', at: Date.now() };
+    _mCache = { site: false, kalam: false, msgSite: '', msgKalam: '', untilSite: '', untilKalam: '', at: Date.now() };
   }
   return _mCache;
 }
@@ -138,24 +140,47 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, ch =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
-function sendMaintenance(res, message) {
+// Texte affiche quand le gerant n'a rien ecrit.
+const MAINT_DEFAULT = [
+  "Médin'Immersion est actuellement en maintenance. Nous travaillons à améliorer votre expérience d'apprentissage.",
+  "Votre dévouement à l'apprentissage du Coran et de la Sunna nous inspire. Nous serons de retour très bientôt.",
+  "Qu'Allah bénisse vos efforts et illumine votre chemin. 📚 ✨"
+].join('\n\n');
+
+// Construit le bloc de texte : paragraphes separes par une ligne vide.
+function maintenanceText(message) {
+  const txt = (message || '').trim() || MAINT_DEFAULT;
+  return escapeHtml(txt)
+    .split(/\n\s*\n/)
+    .map((par, i) => '<p' + (i ? ' style="margin-top:1rem;"' : '') + '>'
+      + par.replace(/\n/g, '<br>') + '</p>')
+    .join('');
+}
+
+// Compte a rebours : rendu uniquement si la date de retour est future.
+function maintenanceTimer(until) {
+  if (!until) return '';
+  const ts = Date.parse(until);
+  if (!ts || ts <= Date.now()) return '';
+  return '<div class="timer-section">'
+    + '<div class="timer-label" id="timerLabel">Retour prévu dans</div>'
+    + '<div class="timer" id="countdown" data-until="' + ts + '">--:--:--</div>'
+    + '<div class="timer-unit">Heures : Minutes : Secondes</div>'
+    + '</div>';
+}
+
+function sendMaintenance(res, message, until) {
   const file = path.join(__dirname, 'maintenance.html');
   try {
     if (_mHtml === null) _mHtml = fs.readFileSync(file, 'utf8');
   } catch {
     return res.status(503).send('Site en maintenance.');
   }
-  let block = '';
-  const txt = (message || '').trim();
-  if (txt) {
-    block = '<div style="background:rgba(212,175,55,0.14);border:1px solid rgba(212,175,55,0.5);'
-      + 'border-radius:12px;padding:1rem 1.25rem;margin:0 0 1.25rem;text-align:left;line-height:1.6;">'
-      + escapeHtml(txt).replace(/\n/g, '<br>')
-      + '</div>';
-  }
   res.status(503)
      .set('Cache-Control', 'no-store')
-     .send(_mHtml.replace('<!--CUSTOM_MESSAGE-->', block));
+     .send(_mHtml
+       .replace('<!--CUSTOM_MESSAGE-->', maintenanceText(message))
+       .replace('<!--TIMER-->', maintenanceTimer(until)));
 }
 
 app.use(async (req, res, next) => {
@@ -164,8 +189,8 @@ app.use(async (req, res, next) => {
   let f;
   try { f = await getMaintenanceFlags(); } catch { return next(); }
 
-  if (f.kalam && M_KALAM.test(p)) return sendMaintenance(res, f.msgKalam);
-  if (f.site) return sendMaintenance(res, f.msgSite);
+  if (f.kalam && M_KALAM.test(p)) return sendMaintenance(res, f.msgKalam, f.untilKalam);
+  if (f.site) return sendMaintenance(res, f.msgSite, f.untilSite);
   next();
 });
 
