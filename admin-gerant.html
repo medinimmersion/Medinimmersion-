@@ -113,6 +113,7 @@ a{color:inherit;}
     <button class="tab" data-p="paiements">💶 Paiements</button>
     <button class="tab" data-p="kalam">⏱️ Kalam</button>
     <button class="tab" data-p="remu">💰 Rémunération</button>
+    <button class="tab" data-p="maint">🛠️ Maintenance</button>
   </div>
 
   <div class="panel on" id="p-eleves">
@@ -254,6 +255,50 @@ a{color:inherit;}
     <div id="listRemu" class="loading">Chargement…</div>
   </div>
 
+  <div class="panel" id="p-maint">
+    <h2>Maintenance</h2>
+    <p class="sub">Ferme temporairement le site ou Kalam. Ton espace gérant et l'espace professeur restent toujours accessibles.</p>
+
+    <div style="background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <strong>🌐 Site public</strong>
+          <div class="sub" style="margin:0.25rem 0 0;">Accueil, cours, tarifs, inscription, boutique, blog, espace élève.</div>
+        </div>
+        <div style="text-align:right;">
+          <div id="mSiteState" style="font-weight:600;margin-bottom:0.4rem;">…</div>
+          <button class="btn" id="mSiteBtn" onclick="toggleMaint('site')" disabled>Chargement…</button>
+        </div>
+      </div>
+      <div style="margin-top:0.9rem;">
+        <label class="sub" style="display:block;margin-bottom:0.3rem;">Message affiché aux visiteurs (facultatif)</label>
+        <textarea id="mSiteMsg" class="search" rows="3" maxlength="2000" style="width:100%;resize:vertical;" placeholder="Ex. : Nous revenons lundi matin, in cha Allah."></textarea>
+        <button class="btn" onclick="saveMaintMsg('site')" style="margin-top:0.4rem;">💾 Enregistrer le message</button>
+      </div>
+    </div>
+
+    <div style="background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <strong>💬 Kalam</strong>
+          <div class="sub" style="margin:0.25rem 0 0;">Uniquement l'assistant Kalam. Le reste du site continue de fonctionner.</div>
+        </div>
+        <div style="text-align:right;">
+          <div id="mKalamState" style="font-weight:600;margin-bottom:0.4rem;">…</div>
+          <button class="btn" id="mKalamBtn" onclick="toggleMaint('kalam')" disabled>Chargement…</button>
+        </div>
+      </div>
+      <div style="margin-top:0.9rem;">
+        <label class="sub" style="display:block;margin-bottom:0.3rem;">Message affiché aux visiteurs (facultatif)</label>
+        <textarea id="mKalamMsg" class="search" rows="3" maxlength="2000" style="width:100%;resize:vertical;" placeholder="Ex. : Kalam est en cours d'amélioration, retour dans la journée."></textarea>
+        <button class="btn" onclick="saveMaintMsg('kalam')" style="margin-top:0.4rem;">💾 Enregistrer le message</button>
+      </div>
+    </div>
+
+    <div id="mMsg" style="margin-top:0.5rem;"></div>
+    <p class="sub" style="margin-top:1rem;">Le changement s'applique en une dizaine de secondes pour les visiteurs.</p>
+  </div>
+
   <div class="panel" id="p-planning">
     <h2>Planning</h2>
     <p class="sub">Crée et consulte les cours programmés.</p>
@@ -371,7 +416,93 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   if(t.dataset.p==='livres') loadLivres();
   if(t.dataset.p==='boutique') loadBoutique();
   if(t.dataset.p==='kalam') loadKalamTimes();
+  if(t.dataset.p==='maint') loadMaint();
 });
+
+let _maint = { site:false, kalam:false };
+
+function paintMaint(){
+  const map = [
+    ['site',  'mSiteState',  'mSiteBtn',  'Site public'],
+    ['kalam', 'mKalamState', 'mKalamBtn', 'Kalam']
+  ];
+  map.forEach(([k, stateId, btnId]) => {
+    const on = !!_maint[k];
+    const s = $(stateId), b = $(btnId);
+    if(!s || !b) return;
+    s.textContent = on ? '🔴 Fermé' : '🟢 Ouvert';
+    s.style.color = on ? '#c0392b' : '#1B5E20';
+    b.textContent = on ? 'Rouvrir' : 'Fermer';
+    b.className = on ? 'btn btn-green' : 'btn';
+    b.disabled = false;
+  });
+}
+
+async function loadMaint(){
+  try{
+    const r = await fetch('/api/maintenance', { headers: H() });
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    _maint = { site: !!d.site, kalam: !!d.kalam };
+    if($('mSiteMsg'))  $('mSiteMsg').value  = d.message_site  || '';
+    if($('mKalamMsg')) $('mKalamMsg').value = d.message_kalam || '';
+    paintMaint();
+    $('mMsg').innerHTML = '';
+  }catch(e){
+    $('mMsg').innerHTML = '<div style="color:#c0392b;">Impossible de lire l\'état : ' + e.message + '</div>';
+  }
+}
+
+function maintMsgValue(scope){
+  const el = $(scope === 'kalam' ? 'mKalamMsg' : 'mSiteMsg');
+  return el ? el.value : '';
+}
+
+// Enregistre le message sans changer l'etat ouvert/ferme
+async function saveMaintMsg(scope){
+  const label = scope === 'kalam' ? 'Kalam' : 'le site public';
+  try{
+    const r = await fetch('/api/maintenance', {
+      method: 'PUT',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, H()),
+      body: JSON.stringify({ scope: scope, enabled: !!_maint[scope], message: maintMsgValue(scope) })
+    });
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    _maint = { site: !!d.site, kalam: !!d.kalam };
+    paintMaint();
+    $('mMsg').innerHTML = '<div style="color:#1B5E20;">Message enregistré pour ' + label + '.</div>';
+  }catch(e){
+    $('mMsg').innerHTML = '<div style="color:#c0392b;">Échec de l\'enregistrement : ' + e.message + '</div>';
+  }
+}
+
+async function toggleMaint(scope){
+  const label = scope === 'kalam' ? 'Kalam' : 'le site public';
+  const next = !_maint[scope];
+  if(next && !confirm('Fermer ' + label + ' ? Les visiteurs verront la page de maintenance.')) return;
+
+  const btn = $(scope === 'kalam' ? 'mKalamBtn' : 'mSiteBtn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Envoi…'; }
+
+  try{
+    const r = await fetch('/api/maintenance', {
+      method: 'PUT',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, H()),
+      body: JSON.stringify({ scope: scope, enabled: next, message: maintMsgValue(scope) })
+    });
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    _maint = { site: !!d.site, kalam: !!d.kalam };
+    paintMaint();
+    $('mMsg').innerHTML = '<div style="color:#1B5E20;">' +
+      (next ? label.charAt(0).toUpperCase() + label.slice(1) + ' est fermé.' : label.charAt(0).toUpperCase() + label.slice(1) + ' est rouvert.') +
+      ' Effectif sous 10 secondes.</div>';
+  }catch(e){
+    $('mMsg').innerHTML = '<div style="color:#c0392b;">Échec : ' + e.message + '</div>';
+    paintMaint();
+  }
+}
 
 async function loadStats(){
   try{

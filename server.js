@@ -18,8 +18,16 @@ const PORT = process.env.PORT || 3000;
 
 // ─── DATABASE ────────────────────────────────────────────────
 const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+});
 
-// ─── AUTO-INIT: Create sessions table if it doesn't exist ──────
+pool.on('error', (err) => console.error('[pool] Unexpected error:', err));
+
+// ─── AUTO-INIT: cree la table sessions si absente ──────────────
 (async () => {
   try {
     await pool.query(`
@@ -31,23 +39,14 @@ const pool = new Pool({
         created_at TIMESTAMP DEFAULT NOW(),
         expires_at TIMESTAMP NOT NULL
       );
-      CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
-      CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
     `);
-    console.log('[init] sessions table ready');
+    await pool.query('CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token)');
+    await pool.query('CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at)');
+    console.log('[init] table sessions prete');
   } catch (err) {
-    console.error('[init] sessions table error:', err.message);
+    console.error('[init] erreur table sessions:', err.message);
   }
 })();
-
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-});
-
-pool.on('error', (err) => console.error('[pool] Unexpected error:', err));
 
 // ─── MIDDLEWARE ──────────────────────────────────────────────
 app.use(compression());
@@ -90,6 +89,80 @@ const staticOpts = {
     if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
   }
 };
+// ─── MAINTENANCE ─────────────────────────────────────────────
+// Deux interrupteurs independants stockes dans cms_content :
+//   maintenance_mode        -> tout le site public
+//   maintenance_mode_kalam  -> uniquement Kalam
+// Le cache de 10 s evite une requete SQL a chaque visite.
+let _mCache = { site: false, kalam: false, msgSite: '', msgKalam: '', at: 0 };
+async function getMaintenanceFlags() {
+  if (Date.now() - _mCache.at < 10000) return _mCache;
+  try {
+    const r = await pool.query(
+      "SELECT field_key, value FROM cms_content WHERE page_key='global' AND field_key IN ('maintenance_mode','maintenance_mode_kalam','maintenance_message','maintenance_message_kalam')");
+    const raw = k => { const row = r.rows.find(x => x.field_key === k); return row ? (row.value || '') : ''; };
+    _mCache = {
+      site: raw('maintenance_mode') === 'true',
+      kalam: raw('maintenance_mode_kalam') === 'true',
+      msgSite: raw('maintenance_message'),
+      msgKalam: raw('maintenance_message_kalam'),
+      at: Date.now()
+    };
+  } catch (err) {
+    console.error('[maintenance] lecture impossible:', err.message);
+    _mCache = { site: false, kalam: false, msgSite: '', msgKalam: '', at: Date.now() };
+  }
+  return _mCache;
+}
+function invalidateMaintenanceCache() { _mCache.at = 0; }
+
+// Chemins TOUJOURS accessibles, meme site ferme : sans eux le gerant
+// ne pourrait plus rouvrir son propre site.
+const M_ALLOW = [
+  '/admin-gerant', '/espace-professeur', '/reset-password',
+  '/maintenance', '/api/', '/images/', '/favicon',
+  '/tracking-client.js', '/content-loader.js', '/kalam-references.js'
+];
+const M_KALAM = /^\/(kalam|kalam-live|kalam-ai|kalam-test)(\.html)?$/i;
+
+// Rend maintenance.html en y injectant le message ecrit par le gerant.
+// Le texte est echappe : un message contenant des chevrons ne peut pas casser la page.
+let _mHtml = null;
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, ch =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+function sendMaintenance(res, message) {
+  const file = path.join(__dirname, 'maintenance.html');
+  try {
+    if (_mHtml === null) _mHtml = fs.readFileSync(file, 'utf8');
+  } catch {
+    return res.status(503).send('Site en maintenance.');
+  }
+  let block = '';
+  const txt = (message || '').trim();
+  if (txt) {
+    block = '<div style="background:rgba(212,175,55,0.14);border:1px solid rgba(212,175,55,0.5);'
+      + 'border-radius:12px;padding:1rem 1.25rem;margin:0 0 1.25rem;text-align:left;line-height:1.6;">'
+      + escapeHtml(txt).replace(/\n/g, '<br>')
+      + '</div>';
+  }
+  res.status(503)
+     .set('Cache-Control', 'no-store')
+     .send(_mHtml.replace('<!--CUSTOM_MESSAGE-->', block));
+}
+
+app.use(async (req, res, next) => {
+  const p = req.path;
+  if (M_ALLOW.some(a => p.startsWith(a))) return next();
+  let f;
+  try { f = await getMaintenanceFlags(); } catch { return next(); }
+
+  if (f.kalam && M_KALAM.test(p)) return sendMaintenance(res, f.msgKalam);
+  if (f.site) return sendMaintenance(res, f.msgSite);
+  next();
+});
+
 app.use(express.static(publicDir, staticOpts));
 app.use(express.static(__dirname, staticOpts));
 
@@ -287,6 +360,8 @@ const opts = {
   OWNER_EMAIL,
   ADMIN_PASSWORD,
   isMaintenanceMode,
+  getMaintenanceFlags,
+  invalidateMaintenanceCache,
 };
 
 // ─── LOAD ROUTES ─────────────────────────────────────────────
@@ -388,6 +463,7 @@ const htmlPages = [
   'inscription', 'espace-eleve', 'espace-professeur',
   'admin-gerant', 'reset-password', 'merci', 'kalam', 'kalam-test', 'kalam-live', 'kalam-ai', 'boutique',
   'blog', 'blog-apprendre-arabe-immersion', 'blog-choisir-professeur-coran',
+  'cgv-cgu', 'panier',
 ];
 
 htmlPages.forEach(page => {
