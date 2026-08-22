@@ -1536,6 +1536,43 @@ boot();
 // ===== NOTIFICATIONS =====
 async function loadNotifications() {
   try {
+    const res = await fetch('/api/gerant/notifications-settings', { headers: { 'X-Gerant-Token': token } });
+    if (!res.ok) return;
+    const data = await res.json();
+    document.getElementById('notifEmail').value = data.email || '';
+    document.getElementById('notifWhatsapp').value = data.whatsapp || '';
+  } catch(e) { console.error('Load notif:', e); }
+}
+
+async function saveNotifEmail() {
+  const email = document.getElementById('notifEmail').value;
+  const msgEl = document.getElementById('emailMsg');
+  if (!email) { msgEl.textContent = '❌ Email requis'; msgEl.style.color = 'red'; return; }
+  try {
+    const res = await fetch('/api/gerant/notifications-settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gerant-Token': token }, body: JSON.stringify({ email }) });
+    if (res.ok) { msgEl.textContent = '✅ Enregistré'; msgEl.style.color = 'green'; setTimeout(() => msgEl.textContent = '', 2000); }
+    else { msgEl.textContent = '❌ Erreur'; msgEl.style.color = 'red'; }
+  } catch(e) { msgEl.textContent = '❌ Réseau'; msgEl.style.color = 'red'; }
+}
+
+async function saveNotifWhatsapp() {
+  const whatsapp = document.getElementById('notifWhatsapp').value;
+  const msgEl = document.getElementById('whatsappMsg');
+  if (!whatsapp) { msgEl.textContent = '❌ Numéro requis'; msgEl.style.color = 'red'; return; }
+  try {
+    const res = await fetch('/api/gerant/notifications-settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gerant-Token': token }, body: JSON.stringify({ whatsapp }) });
+    if (res.ok) { msgEl.textContent = '✅ Enregistré'; msgEl.style.color = 'green'; setTimeout(() => msgEl.textContent = '', 2000); }
+    else { msgEl.textContent = '❌ Erreur'; msgEl.style.color = 'red'; }
+  } catch(e) { msgEl.textContent = '❌ Réseau'; msgEl.style.color = 'red'; }
+}
+
+loadNotifications();
+</script>
+
+
+// ===== NOTIFICATIONS =====
+async function loadNotifications() {
+  try {
     const res = await fetch('/api/gerant/notifications-settings', {
       headers: { 'X-Gerant-Token': token }
     });
