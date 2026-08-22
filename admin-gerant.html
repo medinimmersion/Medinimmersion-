@@ -423,7 +423,7 @@ async function boot(){
     const r=await fetch('/api/admin/stats',{headers:H()});
     if(!r.ok) throw 0;
     $('login').style.display='none'; $('app').style.display='block';
-    loadStats(); loadEleves(); loadValidation(); loadProfs(); loadPaiements(); loadRemu();
+    loadStats(); loadEleves(); loadValidation(); loadProfs(); loadPaiements(); loadRemu(); loadNotifications();
   }catch{ showLogin(); }
 }
 function showLogin(){ $('login').style.display='flex'; $('app').style.display='none'; }
@@ -1535,9 +1535,8 @@ boot();
 
 // ===== NOTIFICATIONS =====
 async function loadNotifications() {
-  if (!token) { console.log('token non encore défini'); return; }
   try {
-    const res = await fetch('/api/gerant/notifications-settings', { headers: { 'X-Gerant-Token': token } });
+    const res = await fetch('/api/gerant/notifications-settings', { headers: { 'X-Gerant-Token': GT } });
     if (!res.ok) return;
     const data = await res.json();
     document.getElementById('notifEmail').value = data.email || '';
@@ -1550,7 +1549,7 @@ async function saveNotifEmail() {
   const msgEl = document.getElementById('emailMsg');
   if (!email) { msgEl.textContent = '❌ Email requis'; msgEl.style.color = 'red'; return; }
   try {
-    const res = await fetch('/api/gerant/notifications-settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gerant-Token': token }, body: JSON.stringify({ email }) });
+    const res = await fetch('/api/gerant/notifications-settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gerant-Token': GT }, body: JSON.stringify({ email }) });
     if (res.ok) { msgEl.textContent = '✅ Enregistré'; msgEl.style.color = 'green'; setTimeout(() => msgEl.textContent = '', 2000); }
     else { msgEl.textContent = '❌ Erreur'; msgEl.style.color = 'red'; }
   } catch(e) { msgEl.textContent = '❌ Réseau'; msgEl.style.color = 'red'; }
@@ -1561,48 +1560,12 @@ async function saveNotifWhatsapp() {
   const msgEl = document.getElementById('whatsappMsg');
   if (!whatsapp) { msgEl.textContent = '❌ Numéro requis'; msgEl.style.color = 'red'; return; }
   try {
-    const res = await fetch('/api/gerant/notifications-settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gerant-Token': token }, body: JSON.stringify({ whatsapp }) });
-    if (res.ok) { msgEl.textContent = '✅ Enregistré'; msgEl.style.color = 'green'; setTimeout(() => msgEl.textContent = '', 2000); }
-    else { msgEl.textContent = '❌ Erreur'; msgEl.style.color = 'red'; }
-  } catch(e) { msgEl.textContent = '❌ Réseau'; msgEl.style.color = 'red'; }
-}
-</script>
-
-
-// ===== NOTIFICATIONS =====
-async function loadNotifications() {
-  try {
-    const res = await fetch('/api/gerant/notifications-settings', { headers: { 'X-Gerant-Token': token } });
-    if (!res.ok) return;
-    const data = await res.json();
-    document.getElementById('notifEmail').value = data.email || '';
-    document.getElementById('notifWhatsapp').value = data.whatsapp || '';
-  } catch(e) { console.error('Load notif:', e); }
-}
-
-async function saveNotifEmail() {
-  const email = document.getElementById('notifEmail').value;
-  const msgEl = document.getElementById('emailMsg');
-  if (!email) { msgEl.textContent = '❌ Email requis'; msgEl.style.color = 'red'; return; }
-  try {
-    const res = await fetch('/api/gerant/notifications-settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gerant-Token': token }, body: JSON.stringify({ email }) });
+    const res = await fetch('/api/gerant/notifications-settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gerant-Token': GT }, body: JSON.stringify({ whatsapp }) });
     if (res.ok) { msgEl.textContent = '✅ Enregistré'; msgEl.style.color = 'green'; setTimeout(() => msgEl.textContent = '', 2000); }
     else { msgEl.textContent = '❌ Erreur'; msgEl.style.color = 'red'; }
   } catch(e) { msgEl.textContent = '❌ Réseau'; msgEl.style.color = 'red'; }
 }
 
-async function saveNotifWhatsapp() {
-  const whatsapp = document.getElementById('notifWhatsapp').value;
-  const msgEl = document.getElementById('whatsappMsg');
-  if (!whatsapp) { msgEl.textContent = '❌ Numéro requis'; msgEl.style.color = 'red'; return; }
-  try {
-    const res = await fetch('/api/gerant/notifications-settings', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Gerant-Token': token }, body: JSON.stringify({ whatsapp }) });
-    if (res.ok) { msgEl.textContent = '✅ Enregistré'; msgEl.style.color = 'green'; setTimeout(() => msgEl.textContent = '', 2000); }
-    else { msgEl.textContent = '❌ Erreur'; msgEl.style.color = 'red'; }
-  } catch(e) { msgEl.textContent = '❌ Réseau'; msgEl.style.color = 'red'; }
-}
-
-loadNotifications();
 </script>
 
 
@@ -1610,7 +1573,7 @@ loadNotifications();
 async function loadNotifications() {
   try {
     const res = await fetch('/api/gerant/notifications-settings', {
-      headers: { 'X-Gerant-Token': token }
+      headers: { 'X-Gerant-Token': GT }
     });
     if (!res.ok) return;
     
@@ -1637,7 +1600,7 @@ async function saveNotifEmail() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Gerant-Token': token
+        'X-Gerant-Token': GT
       },
       body: JSON.stringify({ email })
     });
@@ -1671,7 +1634,7 @@ async function saveNotifWhatsapp() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Gerant-Token': token
+        'X-Gerant-Token': GT
       },
       body: JSON.stringify({ whatsapp })
     });
@@ -1691,7 +1654,6 @@ async function saveNotifWhatsapp() {
 }
 
 // Charger au démarrage
-loadNotifications();
 <div id="atModal" style="display:none;position:fixed;inset:0;background:rgba(15,61,38,0.6);z-index:500;align-items:center;justify-content:center;padding:1.2rem;">
   <div style="background:#fff;border-radius:20px;padding:1.75rem;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
     <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--green);margin:0 0 0.2rem;">Attribuer un professeur</h3>
