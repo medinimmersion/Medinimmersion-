@@ -319,7 +319,7 @@ async function loadAll(){
 
 async function loadStudents(){
   try{
-    const res=await fetch('/api/students',{headers:{'X-Teacher-Token':token}});
+    const res=await fetch('/api/teacher/students',{headers:{'X-Teacher-Token':token}});
     if(!res.ok)throw new Error();
     allStudentsData=await res.json();
     renderStudentList(allStudentsData,'allStudents');
