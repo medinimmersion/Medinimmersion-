@@ -2,6 +2,7 @@
  * routes/notifications-integration.js
  * Notifications pour inscriptions (WhatsApp + Email)
  * Intègre Twilio pour WhatsApp et Nodemailer pour Email
+ * Utilise les paramètres sauvegardés du gérant
  */
 
 'use strict';
@@ -26,6 +27,34 @@ module.exports = function (pool, opts) {
       pass: process.env.SMTP_PASSWORD
     }
   });
+
+  /**
+   * Récupère les paramètres de notification du gérant
+   */
+  async function getGerantNotificationSettings() {
+    try {
+      const result = await pool.query(`
+        SELECT field_key, field_value FROM cms_content 
+        WHERE page_key = 'gerant-settings'
+        AND field_key IN ('notif_email', 'notif_whatsapp')
+      `);
+
+      const settings = {
+        email: '',
+        whatsapp: ''
+      };
+
+      result.rows.forEach(row => {
+        if (row.field_key === 'notif_email') settings.email = row.field_value;
+        if (row.field_key === 'notif_whatsapp') settings.whatsapp = row.field_value;
+      });
+
+      return settings;
+    } catch (error) {
+      console.error('[getGerantSettings]', error);
+      return { email: '', whatsapp: '' };
+    }
+  }
 
   /**
    * Envoyer WhatsApp
@@ -74,7 +103,7 @@ module.exports = function (pool, opts) {
 
   /**
    * POST /api/notifications/send-inscription
-   * Envoie WhatsApp + Email à un nouvel inscrit
+   * Envoie WhatsApp + Email à un nouvel inscrit + notifie le gérant
    */
   router.post('/api/notifications/send-inscription', async (req, res) => {
     try {
@@ -83,6 +112,9 @@ module.exports = function (pool, opts) {
       if (!firstName || !email) {
         return res.status(400).json({ error: 'firstName et email requis' });
       }
+
+      // Récupérer les paramètres du gérant
+      const gerantSettings = await getGerantNotificationSettings();
 
       const whatsappMsg = `Assalamu alaikum 👋
 
@@ -127,29 +159,55 @@ Bienvenue chez Médin'Immersion 🌙`;
 </html>`;
 
       const results = {
-        whatsapp: null,
-        email: null
+        student: {
+          whatsapp: null,
+          email: null
+        },
+        gerant: {
+          email: null,
+          whatsapp: null
+        }
       };
 
+      // === NOTIFICATIONS ÉLÈVE ===
       // Envoyer WhatsApp si numéro fourni
       if (phone) {
-        results.whatsapp = await sendWhatsApp(phone, whatsappMsg);
+        results.student.whatsapp = await sendWhatsApp(phone, whatsappMsg);
       }
 
       // Envoyer Email
       if (email) {
-        results.email = await sendEmail(
+        results.student.email = await sendEmail(
           email,
           '🌙 Bienvenue sur Médin\'Immersion !',
           emailHtml
         );
       }
 
-      // Notifier le gérant
-      const gerantEmail = process.env.GERANT_EMAIL || process.env.SMTP_EMAIL;
-      if (gerantEmail) {
-        const gerantMsg = `Nouvelle inscription : ${fullName} (${email})`;
-        await sendEmail(gerantEmail, '🎓 Nouvelle inscription', `<p>${gerantMsg}</p>`);
+      // === NOTIFICATIONS GÉRANT ===
+      if (gerantSettings.email) {
+        const gerantEmailHtml = `
+<html>
+<body style="font-family:Arial;color:#333;">
+  <h2>🎓 Nouvelle inscription</h2>
+  <p><strong>Nom:</strong> ${fullName}</p>
+  <p><strong>Email:</strong> ${email}</p>
+  <p><strong>Téléphone:</strong> ${phone || 'Non fourni'}</p>
+  <p><strong>Date:</strong> ${new Date().toLocaleString('fr-FR')}</p>
+  <p><a href="https://medinimmersion.com/admin-gerant.html" style="background:#2d5a3d;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;">Gérer l'inscription</a></p>
+</body>
+</html>`;
+        
+        results.gerant.email = await sendEmail(
+          gerantSettings.email,
+          `🎓 Nouvelle inscription : ${fullName}`,
+          gerantEmailHtml
+        );
+      }
+
+      if (gerantSettings.whatsapp) {
+        const msg = `🎓 Nouvelle inscription!\n\n${fullName}\n${email}\n${phone || ''}\n\nGère-la: medinimmersion.com/admin-gerant`;
+        results.gerant.whatsapp = await sendWhatsApp(gerantSettings.whatsapp, msg);
       }
 
       res.json({
