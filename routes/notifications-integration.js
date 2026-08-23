@@ -34,7 +34,7 @@ module.exports = function (pool, opts) {
   async function getGerantNotificationSettings() {
     try {
       const result = await pool.query(`
-        SELECT field_key, field_value FROM cms_content 
+        SELECT field_key, value FROM cms_content 
         WHERE page_key = 'gerant-settings'
         AND field_key IN ('notif_email', 'notif_whatsapp')
       `);
@@ -45,8 +45,8 @@ module.exports = function (pool, opts) {
       };
 
       result.rows.forEach(row => {
-        if (row.field_key === 'notif_email') settings.email = row.field_value;
-        if (row.field_key === 'notif_whatsapp') settings.whatsapp = row.field_value;
+        if (row.field_key === 'notif_email') settings.email = row.value;
+        if (row.field_key === 'notif_whatsapp') settings.whatsapp = row.value;
       });
 
       return settings;

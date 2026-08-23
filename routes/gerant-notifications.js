@@ -7,7 +7,7 @@
 
 module.exports = function (pool, opts) {
   const router = require('express').Router();
-  const { requireGerant } = opts.middleware;
+  const requireGerant = opts.requireGerant;
 
   /**
    * GET /api/gerant/notifications-settings
@@ -15,21 +15,17 @@ module.exports = function (pool, opts) {
    */
   router.get('/api/gerant/notifications-settings', requireGerant, async (req, res) => {
     try {
-      // Stocker dans cms_content avec page_key='gerant-settings'
       const result = await pool.query(`
-        SELECT field_key, field_value FROM cms_content 
+        SELECT field_key, value FROM cms_content 
         WHERE page_key = 'gerant-settings'
         AND field_key IN ('notif_email', 'notif_whatsapp')
       `);
 
-      const settings = {
-        email: '',
-        whatsapp: ''
-      };
+      const settings = { email: '', whatsapp: '' };
 
       result.rows.forEach(row => {
-        if (row.field_key === 'notif_email') settings.email = row.field_value;
-        if (row.field_key === 'notif_whatsapp') settings.whatsapp = row.field_value;
+        if (row.field_key === 'notif_email') settings.email = row.value;
+        if (row.field_key === 'notif_whatsapp') settings.whatsapp = row.value;
       });
 
       res.json(settings);
@@ -41,39 +37,42 @@ module.exports = function (pool, opts) {
 
   /**
    * POST /api/gerant/notifications-settings
-   * Sauvegarde les paramètres de notification
+   * Sauvegarde les paramètres de notification (email et/ou whatsapp)
    */
   router.post('/api/gerant/notifications-settings', requireGerant, async (req, res) => {
     try {
       const { email, whatsapp } = req.body;
 
-      if (email) {
-        // Valider email
+      async function upsert(fieldKey, fieldValue) {
+        const existing = await pool.query(
+          `SELECT id FROM cms_content WHERE page_key = 'gerant-settings' AND field_key = $1`,
+          [fieldKey]
+        );
+        if (existing.rows.length > 0) {
+          await pool.query(
+            `UPDATE cms_content SET value = $1, updated_at = NOW() WHERE page_key = 'gerant-settings' AND field_key = $2`,
+            [fieldValue, fieldKey]
+          );
+        } else {
+          await pool.query(
+            `INSERT INTO cms_content (page_key, field_key, field_type, value) VALUES ('gerant-settings', $1, 'text', $2)`,
+            [fieldKey, fieldValue]
+          );
+        }
+      }
+
+      if (email !== undefined) {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
           return res.status(400).json({ error: 'Email invalide' });
         }
-
-        // Insérer ou mettre à jour
-        await pool.query(`
-          INSERT INTO cms_content (page_key, field_key, field_value)
-          VALUES ('gerant-settings', 'notif_email', $1)
-          ON CONFLICT (page_key, field_key) DO UPDATE
-          SET field_value = $1
-        `, [email]);
+        await upsert('notif_email', email);
       }
 
-      if (whatsapp) {
-        // Valider WhatsApp (simple format check)
+      if (whatsapp !== undefined) {
         if (!/^\+?[0-9]{7,}$/.test(whatsapp.replace(/\s/g, ''))) {
           return res.status(400).json({ error: 'Numéro WhatsApp invalide' });
         }
-
-        await pool.query(`
-          INSERT INTO cms_content (page_key, field_key, field_value)
-          VALUES ('gerant-settings', 'notif_whatsapp', $1)
-          ON CONFLICT (page_key, field_key) DO UPDATE
-          SET field_value = $1
-        `, [whatsapp]);
+        await upsert('notif_whatsapp', whatsapp);
       }
 
       res.json({ success: true, message: 'Paramètres sauvegardés' });
