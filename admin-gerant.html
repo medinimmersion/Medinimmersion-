@@ -365,32 +365,48 @@ a{color:inherit;}
   </div>
 
   <div class="panel" id="p-livres">
-    <h2>Livres & PDF</h2>
-    <p class="sub">Ajoute des livres et assigne-les par niveau ou par élève.</p>
-    <button class="btn btn-green" onclick="document.getElementById('newBookForm').style.display='block'" style="margin-bottom:1rem;">➕ Ajouter un livre</button>
-    <div id="newBookForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
-      <input class="search" id="bName" placeholder="Nom du livre">
-      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Niveau minimum</label>
-      <select class="search" id="bNiveau">
-        <option value="">— Sélectionne un niveau —</option>
-        <option value="1">Niveau 1</option>
-        <option value="2">Niveau 2</option>
-        <option value="3">Niveau 3</option>
-        <option value="4">Niveau 4</option>
-        <option value="5">Niveau 5</option>
-        <option value="6">Niveau 6</option>
-        <option value="7">Niveau 7</option>
-        <option value="8">Niveau 8</option>
-        <option value="9">Niveau 9</option>
-        <option value="10">Niveau 10</option>
-        <option value="11">Niveau 11</option>
-      </select>
-      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Fichier PDF</label>
-      <input class="search" id="bFile" type="file" accept="application/pdf">
-      <div class="acts"><button class="btn btn-green" onclick="uploadBook()">Téléverser</button><button class="btn btn-soft" onclick="document.getElementById('newBookForm').style.display='none'">Annuler</button></div>
-      <div id="bUploadMsg" style="font-size:0.8rem;color:var(--muted);margin-top:0.5rem;"></div>
+    <h2>📚 Gestion des Livres</h2>
+    <p class="sub">Crée et gère les livres du programme. Tu peux enregistrer sans PDF — ajoute-le plus tard si besoin.</p>
+    
+    <button class="btn btn-green" onclick="showAddBookForm()" style="margin-bottom:1rem;">➕ Ajouter un livre</button>
+    
+    <div id="addBookForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <h3 style="margin-top:0;color:var(--green-deep);">Nouveau livre</h3>
+      
+      <div style="margin-bottom:0.8rem;">
+        <label style="font-size:0.78rem;color:var(--muted);font-weight:700;display:block;margin-bottom:0.3rem;">Nom du livre</label>
+        <input class="search" id="bookName" type="text" placeholder="Ex: Le Coran - Sourate Al-Fatiha" style="width:100%;">
+      </div>
+      
+      <div style="margin-bottom:0.8rem;">
+        <label style="font-size:0.78rem;color:var(--muted);font-weight:700;display:block;margin-bottom:0.3rem;">Niveau minimum</label>
+        <select class="search" id="bookLevel" style="width:100%;">
+          <option value="Débutant">Débutant</option>
+          <option value="Niveau 1">Niveau 1</option>
+          <option value="Niveau 2">Niveau 2</option>
+          <option value="Niveau 3">Niveau 3</option>
+          <option value="Niveau 4">Niveau 4</option>
+          <option value="Niveau 5">Niveau 5</option>
+        </select>
+      </div>
+      
+      <div style="margin-bottom:1rem;padding:0.8rem;background:#fff;border:1.5px dashed var(--beige);border-radius:8px;text-align:center;cursor:pointer;" id="pdfUploadArea" onclick="document.getElementById('bookPDF').click()">
+        <p style="margin:0;font-size:0.85rem;color:var(--muted);">📄 Clique pour ajouter un PDF (optionnel)</p>
+        <input id="bookPDF" type="file" accept="application/pdf" style="display:none;">
+        <span id="pdfFileName" style="font-size:0.8rem;color:var(--green);margin-top:0.3rem;"></span>
+      </div>
+      
+      <div id="addBookMsg" style="font-size:0.85rem;margin-bottom:0.8rem;color:var(--muted);"></div>
+      
+      <div style="display:flex;gap:0.6rem;">
+        <button class="btn btn-green" onclick="saveBook()" style="flex:1;">✅ Enregistrer</button>
+        <button class="btn btn-soft" onclick="hideAddBookForm()" style="flex:1;">❌ Annuler</button>
+      </div>
     </div>
-    <div id="listLivres" class="loading">Chargement…</div>
+    
+    <div id="booksList" style="margin-top:1rem;">
+      <div class="loading">Chargement des livres…</div>
+    </div>
   </div>
 </div>
 
@@ -1565,6 +1581,84 @@ async function saveNotifEmail() {
     }
   } catch(e) { msgEl.textContent = '❌ Erreur réseau'; msgEl.style.color = 'red'; }
 }
+
+// ===== GESTION DES LIVRES =====
+function showAddBookForm() { document.getElementById('addBookForm').style.display = 'block'; }
+function hideAddBookForm() { document.getElementById('addBookForm').style.display = 'none'; document.getElementById('bookName').value = ''; document.getElementById('bookLevel').value = 'Débutant'; document.getElementById('bookPDF').value = ''; }
+
+document.getElementById('bookPDF').addEventListener('change', (e) => {
+  const name = e.target.files[0]?.name || '';
+  document.getElementById('pdfFileName').textContent = name ? '✅ ' + name : '';
+});
+
+async function loadBooks() {
+  try {
+    const res = await fetch('/api/gerant/books', { headers: { 'X-Gerant-Token': GT } });
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    let html = '';
+    if (data.books.length === 0) {
+      html = '<p class="sub" style="text-align:center;">Aucun livre pour le moment.</p>';
+    } else {
+      html = '<div style="display:flex;flex-direction:column;gap:0.8rem;">';
+      data.books.forEach(book => {
+        html += `
+          <div style="background:var(--cream);border:1px solid var(--beige);border-radius:10px;padding:0.8rem;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <h4 style="margin:0;color:var(--green);">${book.name}</h4>
+              <p style="margin:0.2rem 0 0 0;font-size:0.8rem;color:var(--muted);">📚 ${book.niveau_min} ${book.file_name ? '| PDF ✅' : '| Sans PDF'}</p>
+            </div>
+            <button class="btn btn-soft" style="white-space:nowrap;font-size:0.8rem;" onclick="deleteBook(${book.id})">🗑️ Supprimer</button>
+          </div>
+        `;
+      });
+      html += '</div>';
+    }
+    document.getElementById('booksList').innerHTML = html;
+  } catch(e) { console.error('Load books:', e); }
+}
+
+async function saveBook() {
+  const name = document.getElementById('bookName').value;
+  const level = document.getElementById('bookLevel').value;
+  const msgEl = document.getElementById('addBookMsg');
+  
+  if (!name) { msgEl.textContent = '❌ Nom requis'; msgEl.style.color = 'red'; return; }
+  
+  try {
+    const res = await fetch('/api/gerant/books', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Gerant-Token': GT },
+      body: JSON.stringify({ name, niveau_min: level })
+    });
+    
+    if (res.ok) {
+      msgEl.textContent = '✅ Livre enregistré';
+      msgEl.style.color = 'green';
+      hideAddBookForm();
+      loadBooks();
+      setTimeout(() => msgEl.textContent = '', 2000);
+    } else {
+      msgEl.textContent = '❌ Erreur';
+      msgEl.style.color = 'red';
+    }
+  } catch(e) { msgEl.textContent = '❌ Erreur réseau'; msgEl.style.color = 'red'; }
+}
+
+async function deleteBook(bookId) {
+  if (!confirm('Supprimer ce livre ?')) return;
+  try {
+    const res = await fetch(`/api/gerant/books/${bookId}`, {
+      method: 'DELETE',
+      headers: { 'X-Gerant-Token': GT }
+    });
+    if (res.ok) loadBooks();
+  } catch(e) { console.error('Delete book:', e); }
+}
+
+// Charger les livres au démarrage
+setTimeout(() => loadBooks(), 500);
 
 async function saveNotifWhatsapp() {
   const whatsapp = document.getElementById('notifWhatsapp').value;
