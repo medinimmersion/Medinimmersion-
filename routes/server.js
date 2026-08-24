@@ -431,8 +431,8 @@ const routeFiles = [
   'kalam-books',
   'kalam-signup',
   'boutique',
-  'notifications-integration',
   'gerant-notifications',
+  'gerant-books',
 ];
 
 for (const name of routeFiles) {
