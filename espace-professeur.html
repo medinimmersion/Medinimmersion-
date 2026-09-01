@@ -313,21 +313,27 @@ function showDashboard(){
 }
 
 async function loadAll(){
-  await Promise.all([loadStudents(),loadSessions()]);
+  await loadStudents();
+  await loadSessions();
   renderDashboard();
 }
 
 async function loadStudents(){
   try{
     const res=await fetch('/api/teacher/students',{headers:{'X-Teacher-Token':token}});
-    if(!res.ok)throw new Error();
+    if(!res.ok)throw new Error('http_'+res.status);
     allStudentsData=await res.json();
-    renderStudentList(allStudentsData,'allStudents');
-    renderStudentList(allStudentsData.slice(0,4),'recentStudents',true);
-    document.getElementById('statEleves').textContent=allStudentsData.length;
-  }catch{
-    ['allStudents','recentStudents'].forEach(id=>renderEmpty(id,'👨‍🎓','Aucun élève','Vos élèves apparaîtront ici après assignation.'));
-    document.getElementById('statEleves').textContent='0';
+    if(!Array.isArray(allStudentsData)||!allStudentsData.length){
+      ['allStudents','recentStudents'].forEach(id=>renderEmpty(id,'👨‍🎓','Aucun élève','Vos élèves apparaîtront ici après assignation.'));
+    }else{
+      renderStudentList(allStudentsData,'allStudents');
+      renderStudentList(allStudentsData.slice(0,4),'recentStudents',true);
+    }
+    document.getElementById('statEleves').textContent=Array.isArray(allStudentsData)?allStudentsData.length:0;
+  }catch(e){
+    console.error('[loadStudents]',e);
+    ['allStudents','recentStudents'].forEach(id=>renderError(id,'Erreur de chargement des élèves.','loadStudents()'));
+    document.getElementById('statEleves').textContent='–';
   }
 }
 
@@ -523,6 +529,7 @@ function showTab(id,btn){
 function formatCourse(c){return{coran:'📘 Coran',arabe:'📗 Arabe',double_immersion:'⭐ Double'}[c]||c||'–';}
 function formatFormat(f){return{individual:'Individuel',binome:'Binôme',groupe:'Groupe'}[f]||f||'–';}
 function renderEmpty(containerId,icon,title,desc){const c=document.getElementById(containerId);if(c)c.innerHTML=`<div class="empty"><div class="empty-icon">${icon}</div><div style="font-weight:600;color:var(--green-deep);margin-bottom:0.3rem;">${title}</div>${desc?`<p style="font-size:0.82rem;">${desc}</p>`:''}</div>`;}
+function renderError(containerId,msg,retryCall){const c=document.getElementById(containerId);if(c)c.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div style="font-weight:600;color:#B3261E;margin-bottom:0.3rem;">${msg}</div><button class="btn-sm btn-join" style="margin-top:0.6rem;" onclick="${retryCall}">Réessayer</button></div>`;}
 
 /* ── Appels Zoom ── */
 async function callStudent(id,nom){
