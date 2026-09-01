@@ -23,7 +23,8 @@ module.exports = function (pool, opts) {
         return res.status(401).json({ error: 'Mot de passe incorrect' });
       }
 
-      const token = generateToken(teacherTokens, teacher.id, 7);
+      const token = await generateToken('teacher', teacher.id, 7);
+      if (!token) return res.status(500).json({ error: 'Impossible de créer la session' });
       delete teacher.password_hash;
       console.log('[teacher] Login:', teacher.nom, teacher.prenom);
       res.json({ teacher, token });
