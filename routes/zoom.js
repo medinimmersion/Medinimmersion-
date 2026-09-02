@@ -4,9 +4,99 @@
  */
 'use strict';
 
+const webpush = require('web-push');
+
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:contact.medinimmersion@gmail.com';
+
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+} else {
+  console.error('[zoom] VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY absentes — notifications push désactivées');
+}
+
 module.exports = function (pool, opts) {
   const { requireTeacherAuth, requireStudentAuth, requireAdmin, requireGerant } = opts;
   const router = require('express').Router();
+
+  // ── Auto-init: table des abonnements push ───────────────────
+  (async () => {
+    try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS push_subscriptions (
+          id SERIAL PRIMARY KEY,
+          student_id INTEGER NOT NULL,
+          endpoint TEXT NOT NULL UNIQUE,
+          p256dh TEXT NOT NULL,
+          auth TEXT NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+        );
+      `);
+      await pool.query('CREATE INDEX IF NOT EXISTS idx_push_subs_student ON push_subscriptions(student_id)');
+    } catch (err) { console.error('[zoom] init push_subscriptions:', err.message); }
+  })();
+
+  // ── Envoie une notification push à un ou plusieurs élèves ────
+  // Échoue silencieusement (ne bloque jamais le flux d'appel) et
+  // supprime les abonnements devenus invalides (410/404 côté navigateur).
+  async function notifyStudents(studentIds, payload) {
+    if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) return;
+    if (!Array.isArray(studentIds) || !studentIds.length) return;
+    try {
+      const subs = await pool.query(
+        'SELECT id, student_id, endpoint, p256dh, auth FROM push_subscriptions WHERE student_id = ANY($1::int[])',
+        [studentIds]
+      );
+      const body = JSON.stringify(payload);
+      await Promise.all(subs.rows.map(async (s) => {
+        try {
+          await webpush.sendNotification(
+            { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+            body
+          );
+        } catch (err) {
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            await pool.query('DELETE FROM push_subscriptions WHERE id = $1', [s.id]).catch(() => {});
+          } else {
+            console.error('[zoom] push send error:', err.statusCode || err.message);
+          }
+        }
+      }));
+    } catch (err) { console.error('[zoom] notifyStudents:', err.message); }
+  }
+
+  // GET /api/vapid-public-key — clé publique nécessaire côté navigateur pour s'abonner
+  router.get('/api/vapid-public-key', (req, res) => {
+    res.json({ publicKey: VAPID_PUBLIC_KEY || null });
+  });
+
+  // POST /api/student/push-subscribe — enregistre/actualise l'abonnement push de l'élève
+  router.post('/api/student/push-subscribe', requireStudentAuth, async (req, res) => {
+    try {
+      const sub = req.body && req.body.subscription;
+      if (!sub || !sub.endpoint || !sub.keys || !sub.keys.p256dh || !sub.keys.auth) {
+        return res.status(400).json({ error: 'Abonnement invalide' });
+      }
+      await pool.query(
+        `INSERT INTO push_subscriptions (student_id, endpoint, p256dh, auth)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (endpoint) DO UPDATE SET student_id = EXCLUDED.student_id, p256dh = EXCLUDED.p256dh, auth = EXCLUDED.auth`,
+        [req.studentId, sub.endpoint, sub.keys.p256dh, sub.keys.auth]
+      );
+      res.json({ success: true });
+    } catch (err) { console.error('[zoom/push-subscribe]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // POST /api/student/push-unsubscribe — retire l'abonnement (ex : élève désactive les notifs)
+  router.post('/api/student/push-unsubscribe', requireStudentAuth, async (req, res) => {
+    try {
+      const endpoint = req.body && req.body.endpoint;
+      if (!endpoint) return res.status(400).json({ error: 'endpoint requis' });
+      await pool.query('DELETE FROM push_subscriptions WHERE endpoint = $1 AND student_id = $2', [endpoint, req.studentId]);
+      res.json({ success: true });
+    } catch (err) { console.error('[zoom/push-unsubscribe]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
 
   // GET /api/student/teacher-zoom — student gets teacher's zoom link
   router.get('/api/student/teacher-zoom', requireStudentAuth, async (req, res) => {
@@ -47,6 +137,9 @@ module.exports = function (pool, opts) {
          VALUES ($1, $2, $3) RETURNING *`,
         [req.teacherId, studentId, zoomUrl || null]
       );
+      const t = await pool.query('SELECT nom, prenom FROM teachers WHERE id = $1', [req.teacherId]);
+      const teacherName = t.rows[0] ? `${t.rows[0].prenom} ${t.rows[0].nom}`.trim() : 'Votre professeur';
+      notifyStudents([studentId], { title: 'Appel Zoom', body: `${teacherName} vous appelle en visio.`, url: '/espace-eleve' });
       res.json({ success: true, call: r.rows[0] });
     } catch (err) { console.error('[zoom/start]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
@@ -70,6 +163,9 @@ module.exports = function (pool, opts) {
         );
         calls.push(r.rows[0]);
       }
+      const t = await pool.query('SELECT nom, prenom FROM teachers WHERE id = $1', [req.teacherId]);
+      const teacherName = t.rows[0] ? `${t.rows[0].prenom} ${t.rows[0].nom}`.trim() : 'Votre professeur';
+      notifyStudents(studentIds.slice(0, 50), { title: 'Appel Zoom', body: `${teacherName} vous appelle en visio.`, url: '/espace-eleve' });
       res.json({ success: true, count: calls.length });
     } catch (err) { console.error('[zoom/start-group]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
