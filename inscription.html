@@ -304,6 +304,7 @@ footer{background:var(--green-deep);color:var(--white);}
             <div class="sum-row"><span class="sl">Cours</span><span class="sv" id="sumPrixCours">–</span></div>
             <div class="sum-row"><span class="sl">PDF du niveau</span><span class="sv">Prix communiqué par l'école</span></div>
             <div class="sum-row"><span class="sl">Frais inscription</span><span class="sv">5€ <em style="font-size:0.75em;color:var(--text-muted);">*1ère fois uniquement</em></span></div>
+            <div class="sum-row total"><span class="sl">Total (hors PDF)</span><span class="sv" id="sumTotal">–</span></div>
           </div>
           <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">Après validation, vous recevrez un email avec le lien de paiement PayPal.</p>
           <button class="btn-back" onclick="goStep(2)">← Modifier</button>
@@ -473,11 +474,11 @@ function updatePanier() {
   const box = document.querySelector('.panier-box-left p');
   if (box) {
     if (course === 'coran') {
-      box.innerHTML = '<strong>Coran seul:</strong> Frais d'inscription (5€, une seule fois) + cours choisi';
+      box.innerHTML = "<strong>Coran seul:</strong> Frais d'inscription (5€, une seule fois) + cours choisi";
     } else if (course === 'arabe') {
-      box.innerHTML = '<strong>Arabe:</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi';
+      box.innerHTML = "<strong>Arabe:</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi";
     } else if (course === 'double_immersion') {
-      box.innerHTML = '<strong>Double Immersion:</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi';
+      box.innerHTML = "<strong>Double Immersion:</strong> PDF du niveau + Frais d'inscription (5€, une seule fois) + cours choisi";
     }
   }
 }
