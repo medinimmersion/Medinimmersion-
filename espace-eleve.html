@@ -234,6 +234,7 @@ footer{background:var(--green-deep);color:var(--white);}
       <div class="dash-greeting">Assalamu alaykum, <strong id="dashName">–</strong> 👋</div>
     </div>
     <div class="dash-topbar-right">
+      <button id="enablePushBtn" onclick="enableCallPush()" style="display:none;align-items:center;gap:0.4rem;background:var(--gold-light);color:var(--green-deep);border:none;padding:0.5rem 0.9rem;border-radius:50px;font-family:inherit;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">🔔 Activer les alertes d'appel</button>
       <button class="dash-notif-btn" id="notifBtn" title="Notifications">🔔<span class="notif-badge" id="notifBadge" style="display:none;"></span></button>
       <div class="dash-avatar" id="dashAvatar">?</div>
       <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
@@ -397,6 +398,7 @@ function showDashboard(){
   document.getElementById('loadingScreen').style.display='none';
   document.getElementById('dashboard').style.display='block';
   loadDashboard();
+  maybeShowPushPrompt();
 }
 
 // ─── LOGIN ─────────────────────
@@ -637,6 +639,86 @@ function formatFormat(f){return{individual:'Individuel',binome:'Binôme',groupe:
 function formatDate(d){if(!d)return'–';const dt=new Date(d);return dt.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
 function emptyState(icon,title,desc){return`<div class="empty"><div class="empty-icon">${icon}</div><h3>${title}</h3>${desc?`<p style="font-size:0.875rem;">${desc}</p>`:''}</div>`;}
 
+/* ── Sonnerie (générée, aucun fichier audio externe) ── */
+let _ringCtx=null,_ringTimer=null;
+function playRingtone(){
+  stopRingtone();
+  try{
+    _ringCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const ringOnce=()=>{
+      if(!_ringCtx)return;
+      const t0=_ringCtx.currentTime;
+      [0,0.32].forEach(off=>{
+        const osc=_ringCtx.createOscillator();
+        const gain=_ringCtx.createGain();
+        osc.type='sine';osc.frequency.value=880;
+        gain.gain.setValueAtTime(0,t0+off);
+        gain.gain.linearRampToValueAtTime(0.22,t0+off+0.02);
+        gain.gain.setValueAtTime(0.22,t0+off+0.26);
+        gain.gain.linearRampToValueAtTime(0,t0+off+0.3);
+        osc.connect(gain).connect(_ringCtx.destination);
+        osc.start(t0+off);osc.stop(t0+off+0.32);
+      });
+    };
+    ringOnce();
+    _ringTimer=setInterval(ringOnce,1600);
+  }catch{}
+}
+function stopRingtone(){
+  if(_ringTimer){clearInterval(_ringTimer);_ringTimer=null;}
+  if(_ringCtx){try{_ringCtx.close();}catch{}_ringCtx=null;}
+}
+
+/* ── Notifications push (fonctionnent même onglet fermé) ── */
+function urlBase64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  const raw=atob(base64);
+  const arr=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+async function enableCallPush(){
+  const btn=document.getElementById('enablePushBtn');
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)){
+    if(btn){btn.textContent='Notifications non supportées sur ce navigateur';btn.disabled=true;}
+    return;
+  }
+  try{
+    if(btn){btn.disabled=true;btn.textContent='Activation…';}
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){
+      if(btn){btn.textContent='🔔 Activer les alertes d\'appel';btn.disabled=false;}
+      return;
+    }
+    const reg=await navigator.serviceWorker.register('/sw.js');
+    const keyRes=await fetch('/api/vapid-public-key');
+    const {publicKey}=await keyRes.json();
+    if(!publicKey){ if(btn)btn.style.display='none'; return; }
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(publicKey)});
+    }
+    await fetch('/api/student/push-subscribe',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({subscription:sub})
+    });
+    localStorage.setItem('medin_push_enabled','1');
+    if(btn)btn.style.display='none';
+  }catch(e){
+    if(btn){btn.textContent='🔔 Activer les alertes d\'appel';btn.disabled=false;}
+  }
+}
+function maybeShowPushPrompt(){
+  const btn=document.getElementById('enablePushBtn');
+  if(!btn)return;
+  if(!('Notification' in window)||Notification.permission==='denied'||localStorage.getItem('medin_push_enabled')==='1'){
+    btn.style.display='none';return;
+  }
+  btn.style.display='inline-flex';
+}
+
 /* ── Appel entrant (Zoom) ── */
 let _callPoll=null,_lastCallId=null;
 function startCallPolling(){
@@ -659,12 +741,15 @@ async function checkIncomingCall(){
         const url=call.zoom_url||call.zoom_link;
         if(url)window.open(url,'_blank');
         ov.style.display='none';
+        stopRingtone();
       };
       ov.style.display='flex';
-      try{navigator.vibrate&&navigator.vibrate([300,150,300]);}catch{}
+      playRingtone();
+      try{navigator.vibrate&&navigator.vibrate([300,150,300,150,300,150,300]);}catch{}
     } else if(!call){
       _lastCallId=null;
       if(ov)ov.style.display='none';
+      stopRingtone();
     }
   }catch{}
 }
@@ -678,7 +763,7 @@ async function checkIncomingCall(){
     <h2 style="font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.6rem;margin:0.6rem 0 0.2rem;">Appel en cours…</h2>
     <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.4rem;"><strong id="callTeacher">Votre professeur</strong> vous appelle en visio.</p>
     <button id="callAnswer" style="width:100%;padding:0.95rem;border:none;border-radius:50px;background:#1E8E54;color:#fff;font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:0.6rem;">✅ Décrocher</button>
-    <button onclick="document.getElementById('callOverlay').style.display='none'" style="width:100%;padding:0.8rem;border:1px solid #E7DCBE;border-radius:50px;background:#fff;color:#5A5247;font-family:inherit;font-weight:600;font-size:0.88rem;cursor:pointer;">Plus tard</button>
+    <button onclick="document.getElementById('callOverlay').style.display='none';stopRingtone();" style="width:100%;padding:0.8rem;border:1px solid #E7DCBE;border-radius:50px;background:#fff;color:#5A5247;font-family:inherit;font-weight:600;font-size:0.88rem;cursor:pointer;">Plus tard</button>
   </div>`;
   document.body.appendChild(ov);
 })();

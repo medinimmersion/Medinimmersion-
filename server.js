@@ -65,7 +65,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // dumps SQL, config) serait téléchargeable publiquement.
 const BLOCKED_EXT = /\.(js|json|sql|dump|db|env|md|lock|yml|yaml)$/i;
 const ALLOWED_FILES = new Set([
-  '/tracking-client.js', '/content-loader.js', '/kalam-references.js',
+  '/tracking-client.js', '/content-loader.js', '/kalam-references.js', '/sw.js',
 ]);
 const BLOCKED_DIRS = /^\/(routes|db|mobile|node_modules|docs|\.git)\//i;
 app.use((req, res, next) => {
