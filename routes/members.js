@@ -228,19 +228,24 @@ module.exports = function (pool, opts) {
       ).catch(()=>({rows:[{done:0}]}));
       const tot = await pool.query('SELECT COALESCE(SUM(hours),0) AS total FROM bookings WHERE student_id = $1', [req.studentId]).catch(()=>({rows:[{total:0}]}));
       const prog = p.rows[0] || { niveau: 1, current_page: 1 };
+      // Cours : depuis la dernière réservation (si elle existe)
       const bk = await pool.query(
-        `SELECT b.course_type, t.nom AS tn, t.prenom AS tp
-         FROM bookings b
-         LEFT JOIN teacher_student_assignments tsa ON tsa.student_id = b.student_id
-         LEFT JOIN teachers t ON t.id = tsa.teacher_id
-         WHERE b.student_id = $1 ORDER BY b.created_at DESC LIMIT 1`, [req.studentId]
+        `SELECT course_type FROM bookings WHERE student_id = $1 ORDER BY created_at DESC LIMIT 1`, [req.studentId]
+      ).catch(()=>({rows:[]}));
+      // Professeur : directement depuis l'attribution (indépendant des réservations,
+      // sinon un élève créé directement par le gérant sans réservation n'a jamais de professeur affiché)
+      const tsa = await pool.query(
+        `SELECT t.nom AS tn, t.prenom AS tp
+         FROM teacher_student_assignments tsa
+         JOIN teachers t ON t.id = tsa.teacher_id
+         WHERE tsa.student_id = $1 ORDER BY tsa.assigned_at DESC LIMIT 1`, [req.studentId]
       ).catch(()=>({rows:[]}));
       const done = Number(h.rows[0].done) || 0, total = Number(tot.rows[0].total) || 0;
       res.json({
         niveau: prog.niveau || 1, level: prog.niveau || 1, current_page: prog.current_page || 1, notes: prog.notes || null,
         hours_done: done, hours_total: total, remaining_hours: Math.max(0, total - done),
         course_type: bk.rows[0]?.course_type || null,
-        teacher_name: bk.rows[0] ? [bk.rows[0].tp, bk.rows[0].tn].filter(Boolean).join(' ') : null
+        teacher_name: tsa.rows[0] ? [tsa.rows[0].tp, tsa.rows[0].tn].filter(Boolean).join(' ') : null
       });
     } catch (err) { console.error('[member/progression]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }
   });

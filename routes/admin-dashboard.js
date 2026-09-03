@@ -356,7 +356,10 @@ module.exports = function adminDashboardRoutes(pool, opts) {
                   WHEN ss.session_date > CURRENT_DATE THEN 'a_venir'
                   WHEN ss.session_date = CURRENT_DATE THEN 'aujourdhui'
                   ELSE COALESCE(NULLIF(ss.seance_statut,''),'a_traiter')
-                END AS statut_calcule
+                END AS statut_calcule,
+                (SELECT json_agg(json_build_object('id', st.id, 'nom', st.nom, 'prenom', st.prenom, 'kounia', st.kounia))
+                 FROM session_students sst JOIN students st ON st.id = sst.student_id
+                 WHERE sst.session_id = ss.id) AS students
          FROM scheduled_sessions ss
          LEFT JOIN course_schedules cs ON cs.id = ss.schedule_id
          WHERE ss.teacher_id = $1

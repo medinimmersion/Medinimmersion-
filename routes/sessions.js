@@ -61,6 +61,22 @@ module.exports = function (pool, opts) {
     } catch (err) { console.error('[admin/sessions]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
+  // GET /api/admin/sessions — liste des séances programmées avec professeur + élèves assignés
+  router.get('/api/admin/sessions', requireAdmin, async (req, res) => {
+    try {
+      const r = await pool.query(`
+        SELECT ss.*, t.nom AS teacher_nom, t.prenom AS teacher_prenom,
+          (SELECT json_agg(json_build_object('id', st.id, 'nom', st.nom, 'prenom', st.prenom, 'kounia', st.kounia))
+           FROM session_students sst JOIN students st ON st.id = sst.student_id
+           WHERE sst.session_id = ss.id) AS students
+        FROM scheduled_sessions ss
+        LEFT JOIN teachers t ON t.id = ss.teacher_id
+        ORDER BY ss.session_date DESC, ss.time_start DESC LIMIT 200
+      `);
+      res.json(r.rows);
+    } catch (err) { console.error('[admin/sessions-list]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   // POST /api/teacher/sessions/reschedule
   router.post('/api/teacher/sessions/reschedule', requireTeacherAuth, async (req, res) => {
     try {
