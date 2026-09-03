@@ -340,6 +340,9 @@ a{color:inherit;}
     <div id="newCourseForm" style="display:none;background:var(--cream);border:1px solid var(--beige);border-radius:12px;padding:1rem;margin-bottom:1rem;">
       <input class="search" id="cTitle" placeholder="Titre du cours (optionnel)">
       <select class="search" id="cTeacher"></select>
+      <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Élève(s) concerné(s)</label>
+      <select class="search" id="cStudents" multiple size="5" style="height:auto;"></select>
+      <div class="sub" style="margin:-0.4rem 0 0.7rem;">Maintiens appuyé pour sélectionner plusieurs élèves (cours en groupe).</div>
       <select class="search" id="cType"><option value="arabe">Arabe</option><option value="coran">Coran</option><option value="double_immersion">Double immersion</option></select>
       <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Date du cours</label>
       <input class="search" id="cDate" type="date">
@@ -613,6 +616,7 @@ function renderEleves(list){
         <button class="btn btn-gold" onclick="resetStudentPwd(${s.id},'${esc(nom)}')">🔑 Mot de passe</button>
         <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Temps Kalam</button>
         <button class="btn btn-soft" onclick="openAssignTeacher(${s.id},'${esc(nom)}')">👨‍🏫 Professeur</button>
+        <button class="btn btn-gold" onclick="quickAddCourse(${s.id})">📅 Ajouter un cours</button>
         <button class="btn btn-bad" onclick="deleteStudent(${s.id},'${esc(nom)}')">🗑 Supprimer</button>
       </div></div>`;
   }).join('');
@@ -653,6 +657,13 @@ async function viewStudent(id){
     const d=await r.json(); if(!r.ok||!d.token) throw 0;
     window.open('/espace-eleve.html?xs='+d.token,'_blank');
   }catch{ toast('Impossible d\'ouvrir l\'espace.'); }
+}
+function quickAddCourse(studentId){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+  document.querySelector('.tab[data-p="planning"]').classList.add('on');
+  $('p-planning').classList.add('on');
+  openNewCourse(studentId);
 }
 async function deleteStudent(id,nom){
   if(!confirm('Supprimer définitivement l\'élève « '+nom+' » ?\n\nSes réservations, son historique et ses accès seront supprimés. Cette action est irréversible.')) return;
@@ -1075,36 +1086,45 @@ async function ensureTeachers(){
   try{ const r=await fetch('/api/admin/teachers',{headers:H()}); cacheTeachers=await r.json(); }catch{ cacheTeachers=[]; }
   return cacheTeachers;
 }
-async function openNewCourse(){
+async function openNewCourse(preselectStudentId){
   document.getElementById('newCourseForm').style.display='block';
   const t=await ensureTeachers();
   $('cTeacher').innerHTML='<option value="">— Professeur —</option>'+t.map(x=>`<option value="${x.id}">${esc([x.prenom,x.nom].filter(Boolean).join(' ')||x.username)}</option>`).join('');
+  const all=cacheEleves.length?cacheEleves:await fetch('/api/admin/students',{headers:H()}).then(r=>r.json()).then(d=>d.students||[]);
+  $('cStudents').innerHTML=all.map(s=>`<option value="${s.id}">${esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||('Élève #'+s.id))}</option>`).join('');
+  if(preselectStudentId){
+    Array.from($('cStudents').options).forEach(o=>{ if(o.value==String(preselectStudentId)) o.selected=true; });
+    document.getElementById('newCourseForm').scrollIntoView({behavior:'smooth',block:'start'});
+  }
 }
 async function createCourse(){
+  const studentIds=Array.from($('cStudents').selectedOptions).map(o=>parseInt(o.value,10));
   const body={ title:$('cTitle').value||null, teacher_id:$('cTeacher').value||null,
     course_type:$('cType').value, start_date:$('cDate').value, end_date:$('cDate').value,
     days_of_week:[], time_start:$('cStart').value, time_end:$('cEnd').value };
   if(!body.start_date||!body.time_start||!body.time_end){ toast('Date et heures requises.'); return; }
+  if(!studentIds.length){ toast('Sélectionne au moins un élève.'); return; }
   try{
     const r=await fetch('/api/admin/schedules',{method:'POST',headers:H(),body:JSON.stringify(body)});
     if(!r.ok) throw 0;
     const sc=await r.json();
-    await fetch('/api/admin/sessions',{method:'POST',headers:H(),body:JSON.stringify({schedule_id:sc.id,teacher_id:body.teacher_id,session_date:body.start_date,time_start:body.time_start,time_end:body.time_end,course_type:body.course_type})}).catch(()=>{});
+    await fetch('/api/admin/sessions',{method:'POST',headers:H(),body:JSON.stringify({schedule_id:sc.id,teacher_id:body.teacher_id,session_date:body.start_date,time_start:body.time_start,time_end:body.time_end,course_type:body.course_type,student_ids:studentIds})}).catch(()=>{});
     toast('Cours créé ✓'); document.getElementById('newCourseForm').style.display='none'; loadPlanning();
   }catch{ toast('Échec — réessaie.'); }
 }
 async function loadPlanning(){
   try{
-    const r=await fetch('/api/admin/schedules',{headers:H()}).catch(()=>null);
+    const r=await fetch('/api/admin/sessions',{headers:H()}).catch(()=>null);
     let list = r&&r.ok ? await r.json() : [];
-    if(!Array.isArray(list)) list = list.schedules||[];
+    if(!Array.isArray(list)) list = list.sessions||[];
     if(!list.length){ $('listPlanning').innerHTML='<div class="empty">Aucun cours programmé. Crée le premier !</div>'; return; }
     $('listPlanning').innerHTML=list.map(s=>{
-      const d=s.start_date?new Date(s.start_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
-      const tn=[s.teacher_prenom,s.teacher_nom].filter(Boolean).join(' ')||s.teacher_name||'';
+      const d=s.session_date?new Date(s.session_date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
+      const tn=[s.teacher_prenom,s.teacher_nom].filter(Boolean).join(' ')||'';
+      const eleves=Array.isArray(s.students)&&s.students.length?s.students.map(e=>esc(((e.prenom||'')+' '+(e.nom||'')).trim()||e.kounia||'Élève')).join(', '):'<span style="color:var(--bad);">Aucun élève assigné</span>';
       return `<div class="row"><div class="r-top"><div>
-        <div class="name">${esc(s.title||'Cours')}</div>
-        <div class="meta">${d} · ${(s.time_start||'').slice(0,5)}–${(s.time_end||'').slice(0,5)} · ${esc(s.course_type||'')}${tn?' · '+esc(tn):''}</div>
+        <div class="name">${esc(s.course_type||'Cours')}</div>
+        <div class="meta">${d} · ${(s.time_start||'').slice(0,5)}–${(s.time_end||'').slice(0,5)}${tn?' · '+esc(tn):''}<br>👤 ${eleves}</div>
         </div><span class="badge b-info">${esc(s.course_type||'')}</span></div></div>`;
     }).join('');
   }catch{ $('listPlanning').innerHTML='<div class="empty">Erreur de chargement.</div>'; }
@@ -1619,7 +1639,7 @@ async function loadBooks() {
               <h4 style="margin:0;color:var(--green);">${book.name}</h4>
               <p style="margin:0.2rem 0 0 0;font-size:0.8rem;color:var(--muted);">📚 ${book.niveau_min} ${book.file_name ? '| PDF ✅' : '| Sans PDF'}</p>
             </div>
-            <button class="btn btn-soft" style="white-space:nowrap;font-size:0.8rem;" onclick="deleteBook(${book.id})">🗑️ Supprimer</button>
+            <button class="btn btn-soft" style="white-space:nowrap;font-size:0.8rem;" onclick="deleteSimpleBook(${book.id})">🗑️ Supprimer</button>
           </div>
         `;
       });
@@ -1656,7 +1676,7 @@ async function saveBook() {
   } catch(e) { msgEl.textContent = '❌ Erreur réseau'; msgEl.style.color = 'red'; }
 }
 
-async function deleteBook(bookId) {
+async function deleteSimpleBook(bookId) {
   if (!confirm('Supprimer ce livre ?')) return;
   try {
     const res = await fetch(`/api/gerant/books/${bookId}`, {

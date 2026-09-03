@@ -622,7 +622,8 @@ async function loadPlanning(){
       return `<div style="background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1rem;margin-bottom:0.7rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div><div style="font-weight:700;color:var(--green-deep);text-transform:capitalize;">${dateStr}</div>
-          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:0.2rem;">🕐 ${(s.time_start||'').slice(0,5)} – ${(s.time_end||'').slice(0,5)} · ${formatCourse(s.course_type)}</div></div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:0.2rem;">🕐 ${(s.time_start||'').slice(0,5)} – ${(s.time_end||'').slice(0,5)} · ${formatCourse(s.course_type)}</div>
+          <div style="font-size:0.82rem;color:var(--green-deep);font-weight:600;margin-top:0.15rem;">👤 ${Array.isArray(s.students)&&s.students.length?s.students.map(e=>((e.prenom||'')+' '+(e.nom||'')).trim()||e.kounia||'Élève').join(', '):'Aucun élève assigné'}</div></div>
           ${badge}
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.7rem;border-top:1px solid var(--beige);padding-top:0.7rem;">
