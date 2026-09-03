@@ -613,6 +613,7 @@ function renderEleves(list){
         <button class="btn btn-gold" onclick="resetStudentPwd(${s.id},'${esc(nom)}')">🔑 Mot de passe</button>
         <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Temps Kalam</button>
         <button class="btn btn-soft" onclick="openAssignTeacher(${s.id},'${esc(nom)}')">👨‍🏫 Professeur</button>
+        <button class="btn btn-bad" onclick="deleteStudent(${s.id},'${esc(nom)}')">🗑 Supprimer</button>
       </div></div>`;
   }).join('');
 }
@@ -652,6 +653,15 @@ async function viewStudent(id){
     const d=await r.json(); if(!r.ok||!d.token) throw 0;
     window.open('/espace-eleve.html?xs='+d.token,'_blank');
   }catch{ toast('Impossible d\'ouvrir l\'espace.'); }
+}
+async function deleteStudent(id,nom){
+  if(!confirm('Supprimer définitivement l\'élève « '+nom+' » ?\n\nSes réservations, son historique et ses accès seront supprimés. Cette action est irréversible.')) return;
+  try{
+    const r=await fetch('/api/admin/students/'+id,{method:'DELETE',headers:H()});
+    if(!r.ok) throw 0;
+    toast('Élève supprimé ✓');
+    loadEleves(); loadStats();
+  }catch{ toast('Échec — réessaie.'); }
 }
 async function resetStudentPwd(id,nom){
   const np=prompt('Nouveau mot de passe pour '+nom+' :');

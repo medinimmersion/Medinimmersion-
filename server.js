@@ -302,7 +302,7 @@ async function requireAdmin(req, res, next) {
 function requireGerant(req, res, next) { return requireAdmin(req, res, next); }
 
 // ─── EMAIL ───────────────────────────────────────────────────
-async function sendEmail({ to, subject, html, text }) {
+async function sendEmail(to, subject, html, text) {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.log('[email] Not configured, skipping:', subject);
     return;
