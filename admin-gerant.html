@@ -696,7 +696,7 @@ async function loadValidation(){
           <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>${esc(s.course_type||'Cours')} · ${s.hours||'?'}h</div></div>
           <span class="badge b-warn">En attente</span></div>
         <div class="acts">
-          <button class="btn btn-ok" onclick="valid(${s.id},'valide')">✅ Valider</button>
+          <button class="btn btn-ok" onclick="valid(${s.id},'validated')">✅ Valider</button>
           <button class="btn btn-bad" onclick="valid(${s.id},'rejected')">✖ Refuser</button>
         </div></div>`;
     }).join('');
@@ -706,7 +706,7 @@ async function valid(id,status){
   try{
     const r=await fetch('/api/admin/validation/'+id,{method:'PUT',headers:H(),body:JSON.stringify({status})});
     if(!r.ok) throw 0;
-    toast(status==='valide'?'Inscription validée ✓':'Inscription refusée');
+    toast(status==='validated'?'Inscription validée ✓':'Inscription refusée');
     loadValidation(); loadEleves(); loadStats();
   }catch{ toast('Échec — réessaie.'); }
 }
