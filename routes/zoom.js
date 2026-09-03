@@ -183,6 +183,8 @@ module.exports = function (pool, opts) {
   });
 
   // ── Student: check for active call addressed to them ────────
+  // Un appel n'est considéré "actif" que s'il a moins de 10 minutes,
+  // pour éviter qu'un appel jamais clôturé par le professeur ne réapparaisse indéfiniment.
   router.get('/api/student/active-call', requireStudentAuth, async (req, res) => {
     try {
       const r = await pool.query(
@@ -190,11 +192,24 @@ module.exports = function (pool, opts) {
          FROM zoom_active_calls zac
          JOIN teachers t ON t.id = zac.teacher_id
          WHERE zac.student_id = $1 AND zac.status = 'active'
+           AND zac.created_at > NOW() - INTERVAL '10 minutes'
          ORDER BY zac.created_at DESC LIMIT 1`,
         [req.studentId]
       );
       res.json({ active: r.rows[0] || null });
     } catch (err) { console.error('[zoom/active]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // ── Student: mark a call as answered so it stops ringing on other devices/reloads ──
+  router.post('/api/student/active-call/:id/answer', requireStudentAuth, async (req, res) => {
+    try {
+      await pool.query(
+        `UPDATE zoom_active_calls SET status = 'ended', ended_at = NOW()
+         WHERE id = $1 AND student_id = $2 AND status = 'active'`,
+        [req.params.id, req.studentId]
+      );
+      res.json({ success: true });
+    } catch (err) { console.error('[zoom/answer]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
   return router;
