@@ -742,6 +742,7 @@ async function checkIncomingCall(){
         if(url)window.open(url,'_blank');
         ov.style.display='none';
         stopRingtone();
+        fetch('/api/student/active-call/'+call.id+'/answer',{method:'POST',headers:{'Authorization':'Bearer '+token}}).catch(()=>{});
       };
       ov.style.display='flex';
       playRingtone();
