@@ -530,6 +530,25 @@ module.exports = function (pool, opts) {
   });
 
   // ─── ATTRIBUTION ÉLÈVE -> PROFESSEUR ─────────────────────
+  // DELETE /api/admin/students/:id — supprime un élève et toutes ses données liées
+  router.delete('/api/admin/students/:id', requireAdmin, async (req, res) => {
+    try {
+      const id = req.params.id;
+      const s = await pool.query('SELECT id FROM students WHERE id = $1', [id]);
+      if (!s.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
+
+      // Nettoyage des données liées (les tables sans ON DELETE CASCADE bloqueraient sinon)
+      await pool.query('DELETE FROM bookings WHERE student_id = $1', [id]);
+      await pool.query('DELETE FROM teacher_student_assignments WHERE student_id = $1', [id]);
+      await pool.query('DELETE FROM group_members WHERE student_id = $1', [id]).catch(() => {});
+      await pool.query('DELETE FROM student_extras WHERE student_id = $1', [id]).catch(() => {});
+      await pool.query('DELETE FROM messages WHERE student_id = $1', [id]).catch(() => {});
+      await pool.query('DELETE FROM students WHERE id = $1', [id]);
+
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/delete-student]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
   // GET /api/admin/students/:id/teachers — professeurs assignés à un élève
   router.get('/api/admin/students/:id/teachers', requireAdmin, async (req, res) => {
     try {

@@ -71,7 +71,15 @@ module.exports = function (pool, opts) {
         [student.id, course_type, parseInt(hours), format, price]
       );
 
-      // Send owner notification email
+      // Send owner notification email — utilise l'email configuré dans Espace Gérant > Notifications, sinon OWNER_EMAIL par défaut
+      let notifTo = OWNER_EMAIL;
+      try {
+        const notifSetting = await pool.query(
+          `SELECT value FROM cms_content WHERE page_key = 'gerant-settings' AND field_key = 'notif_email'`
+        );
+        if (notifSetting.rows[0]?.value) notifTo = notifSetting.rows[0].value;
+      } catch (e) { console.error('[students/notif-email-lookup]', e.message); }
+
       const ownerHtml = `
         <h2>Nouvelle inscription MedinImmersion</h2>
         <table style="border-collapse:collapse;font-family:sans-serif;">
@@ -85,7 +93,7 @@ module.exports = function (pool, opts) {
           <tr><td style="padding:6px 12px;font-weight:bold;">Montant</td><td style="padding:6px 12px;">${price}€</td></tr>
         </table>
       `;
-      await sendEmail(OWNER_EMAIL, 'Nouvelle inscription — MedinImmersion', ownerHtml);
+      await sendEmail(notifTo, 'Nouvelle inscription — MedinImmersion', ownerHtml);
 
       // Send student confirmation email
       const studentHtml = `
