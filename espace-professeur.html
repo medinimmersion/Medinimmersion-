@@ -254,6 +254,15 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 <script>
 let token=null,teacher=null,allStudentsData=[],allSessionsData=[];
 
+const CORAN_LEVELS=[
+  {v:1,label:'Niveau 1',desc:"0 à quelques sourates courtes"},
+  {v:2,label:'Niveau 2',desc:"1 à 5 juz'"},
+  {v:3,label:'Niveau 3',desc:"6 à 15 juz'"},
+  {v:4,label:'Niveau 4',desc:"Plus de 15 juz'"},
+  {v:5,label:'Niveau 5',desc:"Coran complet mémorisé (30 juz')"}
+];
+const SURAHS=["Al-Fâtiha","Al-Baqara","Âli-Imrân","An-Nisâ","Al-Mâida","Al-An'âm","Al-A'râf","Al-Anfâl","At-Tawba","Yûnus","Hûd","Yûsuf","Ar-Ra'd","Ibrâhîm","Al-Hijr","An-Nahl","Al-Isrâ","Al-Kahf","Maryam","Tâ-Hâ","Al-Anbiyâ","Al-Hajj","Al-Muminûn","An-Nûr","Al-Furqân","Ash-Shu'arâ","An-Naml","Al-Qasas","Al-Ankabût","Ar-Rûm","Luqmân","As-Sajda","Al-Ahzâb","Saba","Fâtir","Yâ-Sîn","As-Sâffât","Sâd","Az-Zumar","Ghâfir","Fussilat","Ash-Shûrâ","Az-Zukhruf","Ad-Dukhân","Al-Jâthiya","Al-Ahqâf","Muhammad","Al-Fath","Al-Hujurât","Qâf","Adh-Dhâriyât","At-Tûr","An-Najm","Al-Qamar","Ar-Rahmân","Al-Wâqi'a","Al-Hadîd","Al-Mujâdala","Al-Hashr","Al-Mumtahana","As-Saff","Al-Jumu'a","Al-Munâfiqûn","At-Taghâbun","At-Talâq","At-Tahrîm","Al-Mulk","Al-Qalam","Al-Hâqqa","Al-Ma'ârij","Nûh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyâma","Al-Insân","Al-Mursalât","An-Naba","An-Nâzi'ât","Abasa","At-Takwîr","Al-Infitâr","Al-Mutaffifîn","Al-Inshiqâq","Al-Burûj","At-Târiq","Al-A'lâ","Al-Ghâshiya","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duhâ","Ash-Sharh","At-Tîn","Al-Alaq","Al-Qadr","Al-Bayyina","Az-Zalzala","Al-Âdiyât","Al-Qâri'a","At-Takâthur","Al-Asr","Al-Humaza","Al-Fîl","Quraysh","Al-Mâ'ûn","Al-Kawthar","Al-Kâfirûn","An-Nasr","Al-Masad","Al-Ikhlâs","Al-Falaq","An-Nâs"];
+
 async function init(){
   const _xt=new URLSearchParams(location.search).get('xt');
   if(_xt){ token=_xt; localStorage.setItem('teacher_token',_xt); }
@@ -427,21 +436,57 @@ async function openStudent(id){
     ]);
     const prog=(progRes.ok?await progRes.json():null)||{};
     const notes=notesRes.ok?await notesRes.json():{};
+    const isCoran=s.course_type==='coran';
     const level=prog.niveau||prog.level||s.level||1;
     const page=prog.current_page||1;
-    const pct=Math.round(((level-1)/10)*100);
-    document.getElementById('modalContent').innerHTML=`
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;">
-        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Cours</div><div style="font-weight:700;font-size:0.88rem;">${formatCourse(s.course_type)}</div></div>
-        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Heures restantes</div><div style="font-weight:700;font-size:0.88rem;">${s.remaining_hours||0}h</div></div>
-        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">WhatsApp</div><div style="font-weight:700;font-size:0.88rem;">${s.whatsapp||'–'}</div></div>
-        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Progression</div><div style="font-weight:700;font-size:0.88rem;">${pct}%</div></div>
-      </div>
-      <div style="margin-bottom:1.5rem;">
-        <div style="height:8px;background:var(--beige);border-radius:50px;overflow:hidden;">
-          <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold-light));border-radius:50px;"></div>
+    const sourate=prog.sourate||1;
+    const verset=prog.verset||1;
+    const maxLevel=isCoran?5:11;
+    const pctNiveau=Math.round(((level-1)/(maxLevel-1))*100);
+    const pctSourate=Math.round((Number(sourate)/114)*100);
+    const pct=pctNiveau;
+    const progressionBlock=isCoran?`
+      <div style="background:var(--cream);border-radius:12px;padding:1rem;margin-bottom:1.5rem;">
+        <label style="display:block;font-size:0.82rem;font-weight:700;color:var(--green-deep);margin-bottom:0.6rem;">📖 Progression dans la mémorisation du Coran</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Progression (niveau)</div>
+            <div style="height:8px;background:var(--beige);border-radius:50px;overflow:hidden;margin-bottom:0.3rem;">
+              <div style="width:${pctNiveau}%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold-light));border-radius:50px;"></div>
+            </div>
+            <div style="font-size:0.76rem;color:var(--text-muted);">${pctNiveau}%</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Progression (sourate)</div>
+            <div style="height:8px;background:var(--beige);border-radius:50px;overflow:hidden;margin-bottom:0.3rem;">
+              <div id="pctSourateBar" style="width:${pctSourate}%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold-light));border-radius:50px;"></div>
+            </div>
+            <div id="pctSourateTxt" style="font-size:0.76rem;color:var(--text-muted);">${pctSourate}% (${sourate}/114)</div>
+          </div>
         </div>
-      </div>
+        <div style="margin-bottom:0.75rem;">
+          <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Niveau</div>
+          <select id="progNiveau" onchange="document.getElementById('progNiveauDesc').textContent=CORAN_LEVELS[this.value-1].desc" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+            ${CORAN_LEVELS.map(l=>`<option value="${l.v}"${l.v===level?' selected':''}>${l.label}</option>`).join('')}
+          </select>
+          <div id="progNiveauDesc" style="font-size:0.76rem;color:var(--text-muted);margin-top:0.3rem;">${(CORAN_LEVELS[level-1]||CORAN_LEVELS[0]).desc}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:0.75rem;">
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Sourate</div>
+            <select id="progSourate" onchange="const p=Math.round((this.value/114)*100);document.getElementById('pctSourateBar').style.width=p+'%';document.getElementById('pctSourateTxt').textContent=p+'% ('+this.value+'/114)';" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+              ${SURAHS.map((name,i)=>`<option value="${i+1}"${(i+1)===Number(sourate)?' selected':''}>${i+1}. ${name}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">N° du verset</div>
+            <input id="progVerset" type="number" min="1" value="${verset}" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+          </div>
+        </div>
+        <button class="btn-save" onclick="saveProgression(${id})">Enregistrer la progression</button>
+        <div id="progSaved" style="display:none;color:var(--green);font-size:0.82rem;margin-top:0.5rem;">✓ Progression enregistrée</div>
+        <div id="progErr" style="display:none;color:#B3261E;font-size:0.82rem;margin-top:0.5rem;"></div>
+      </div>`:`
       <div style="background:var(--cream);border-radius:12px;padding:1rem;margin-bottom:1.5rem;">
         <label style="display:block;font-size:0.82rem;font-weight:700;color:var(--green-deep);margin-bottom:0.6rem;">📖 Progression dans le programme de Médine</label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
@@ -459,7 +504,20 @@ async function openStudent(id){
         <button class="btn-save" onclick="saveProgression(${id})">Enregistrer la progression</button>
         <div id="progSaved" style="display:none;color:var(--green);font-size:0.82rem;margin-top:0.5rem;">✓ Progression enregistrée</div>
         <div id="progErr" style="display:none;color:#B3261E;font-size:0.82rem;margin-top:0.5rem;"></div>
+      </div>`;
+    document.getElementById('modalContent').innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;">
+        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Cours</div><div style="font-weight:700;font-size:0.88rem;">${formatCourse(s.course_type)}</div></div>
+        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Heures restantes</div><div style="font-weight:700;font-size:0.88rem;">${s.remaining_hours||0}h</div></div>
+        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">WhatsApp</div><div style="font-weight:700;font-size:0.88rem;">${s.whatsapp||'–'}</div></div>
+        <div style="background:var(--cream);border-radius:12px;padding:1rem;"><div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Progression</div><div style="font-weight:700;font-size:0.88rem;">${pct}%</div></div>
       </div>
+      <div style="margin-bottom:1.5rem;">
+        <div style="height:8px;background:var(--beige);border-radius:50px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold-light));border-radius:50px;"></div>
+        </div>
+      </div>
+      ${progressionBlock}
       <div>
         <label style="display:block;font-size:0.82rem;font-weight:700;color:var(--green-deep);margin-bottom:0.5rem;">📝 Notes du professeur</label>
         <textarea class="notes-area" id="studentNotes" placeholder="Vos notes sur la progression de cet élève…">${notes.content||''}</textarea>
@@ -473,12 +531,22 @@ async function openStudent(id){
 
 async function saveProgression(studentId){
   const niveau=parseInt(document.getElementById('progNiveau').value,10);
-  const current_page=parseInt(document.getElementById('progPage').value,10);
+  const isCoran=!!document.getElementById('progSourate');
   const ok=document.getElementById('progSaved'), ko=document.getElementById('progErr');
   ok.style.display='none'; ko.style.display='none';
-  if(isNaN(current_page)||current_page<1){ ko.textContent='Page invalide.'; ko.style.display='block'; return; }
+  let body;
+  if(isCoran){
+    const sourate=parseInt(document.getElementById('progSourate').value,10);
+    const verset=parseInt(document.getElementById('progVerset').value,10);
+    if(isNaN(verset)||verset<1){ ko.textContent='N° de verset invalide.'; ko.style.display='block'; return; }
+    body={niveau,sourate,verset};
+  }else{
+    const current_page=parseInt(document.getElementById('progPage').value,10);
+    if(isNaN(current_page)||current_page<1){ ko.textContent='Page invalide.'; ko.style.display='block'; return; }
+    body={niveau,current_page};
+  }
   try{
-    const r=await fetch('/api/teacher/progression/'+studentId,{method:'PUT',headers:{'X-Teacher-Token':token,'Content-Type':'application/json'},body:JSON.stringify({niveau,current_page})});
+    const r=await fetch('/api/teacher/progression/'+studentId,{method:'PUT',headers:{'X-Teacher-Token':token,'Content-Type':'application/json'},body:JSON.stringify(body)});
     const d=await r.json().catch(()=>({}));
     if(!r.ok) throw new Error(d.error||'Erreur serveur');
     ok.style.display='block';

@@ -54,6 +54,17 @@ pool.on('error', (err) => console.error('[pool] Unexpected error:', err));
   }
 })();
 
+// ─── AUTO-INIT: colonnes sourate/verset pour la progression Coran ──────────
+(async () => {
+  try {
+    await pool.query('ALTER TABLE student_progression ADD COLUMN IF NOT EXISTS sourate INTEGER');
+    await pool.query('ALTER TABLE student_progression ADD COLUMN IF NOT EXISTS verset INTEGER');
+    console.log('[init] colonnes sourate/verset prêtes sur student_progression');
+  } catch (err) {
+    console.error('[init] erreur colonnes sourate/verset:', err.message);
+  }
+})();
+
 // ─── MIDDLEWARE ──────────────────────────────────────────────
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));

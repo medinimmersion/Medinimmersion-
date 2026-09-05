@@ -260,9 +260,9 @@ footer{background:var(--green-deep);color:var(--white);}
         <div class="hero-glow"></div>
         <div class="hero-label">Tableau de bord élève</div>
         <h2 class="hero-title">Ma progression</h2>
-        <p class="hero-sub">11 niveaux — du débutant au niveau avancé</p>
+        <p class="hero-sub" id="heroSub">11 niveaux — du débutant au niveau avancé</p>
         <div class="hero-stats">
-          <div class="hstat"><div class="hstat-val">11</div><div class="hstat-lbl">Niveaux</div></div>
+          <div class="hstat"><div class="hstat-val" id="hstatNiveaux">11</div><div class="hstat-lbl">Niveaux</div></div>
           <div class="hstat"><div class="hstat-val" id="statPDF">–</div><div class="hstat-lbl">PDFs perso</div></div>
           <div class="hstat"><div class="hstat-val">∞</div><div class="hstat-lbl">Cours Zoom</div></div>
         </div>
@@ -273,12 +273,12 @@ footer{background:var(--green-deep);color:var(--white);}
       <!-- APERÇU -->
       <div class="apercu-grid">
         <div class="ap-tile"><div class="ap-val" id="statNiveau">Niveau –</div><div class="ap-lbl">Niveau actuel</div></div>
-        <div class="ap-tile"><div class="ap-val">Arabe Immersion</div><div class="ap-lbl">Programme</div></div>
+        <div class="ap-tile"><div class="ap-val" id="apProgramme">Arabe Immersion</div><div class="ap-lbl">Programme</div></div>
         <div class="ap-tile ap-status"><div class="ap-val" id="statStatus">En cours</div></div>
         <div class="ap-tile"><div class="ap-val" id="statProchain">–</div><div class="ap-lbl">Prochain cours</div></div>
         <div class="ap-tile"><div class="ap-val" id="statProf">–</div><div class="ap-lbl">Professeur</div></div>
         <div class="ap-tile"><div class="ap-val" id="statHeures">–</div><div class="ap-lbl">Heures restantes</div></div>
-        <div class="ap-tile"><div class="ap-val" id="statPage">–</div><div class="ap-lbl">Page du livre</div></div>
+        <div class="ap-tile"><div class="ap-val" id="statPage">–</div><div class="ap-lbl" id="statPageLbl">Page du livre</div></div>
       </div>
       <!-- KALAM BANNER -->
       <a href="/kalam" style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--green-deep),var(--green-mid));border:1px solid rgba(212,168,67,0.3);border-radius:18px;padding:1.25rem 1.75rem;margin-bottom:1.5rem;text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;gap:1rem;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
@@ -317,7 +317,7 @@ footer{background:var(--green-deep);color:var(--white);}
         <div class="hero-glow"></div>
         <div class="hero-label">Ma progression</div>
         <h2 class="hero-title">Votre niveau</h2>
-        <p class="hero-sub">Ta progression à travers les 11 niveaux du programme, du débutant au niveau avancé.</p>
+        <p class="hero-sub" id="heroSub2">Ta progression à travers les 11 niveaux du programme, du débutant au niveau avancé.</p>
         <div class="hero-bar"><div class="hero-bar-fill" id="progressFill2" style="width:0%"></div></div>
         <div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;">
           <div class="hero-pill" id="levelBadge2">Niveau – / 11</div>
@@ -374,6 +374,17 @@ footer{background:var(--green-deep);color:var(--white);}
 
 <script>
 let student=null,token=null;
+
+const CORAN_LEVELS=[
+  {v:1,label:'Niveau 1',desc:"0 à quelques sourates courtes"},
+  {v:2,label:'Niveau 2',desc:"1 à 5 juz'"},
+  {v:3,label:'Niveau 3',desc:"6 à 15 juz'"},
+  {v:4,label:'Niveau 4',desc:"Plus de 15 juz'"},
+  {v:5,label:'Niveau 5',desc:"Coran complet mémorisé (30 juz')"}
+];
+const SURAHS=["Al-Fâtiha","Al-Baqara","Âli-Imrân","An-Nisâ","Al-Mâida","Al-An'âm","Al-A'râf","Al-Anfâl","At-Tawba","Yûnus","Hûd","Yûsuf","Ar-Ra'd","Ibrâhîm","Al-Hijr","An-Nahl","Al-Isrâ","Al-Kahf","Maryam","Tâ-Hâ","Al-Anbiyâ","Al-Hajj","Al-Muminûn","An-Nûr","Al-Furqân","Ash-Shu'arâ","An-Naml","Al-Qasas","Al-Ankabût","Ar-Rûm","Luqmân","As-Sajda","Al-Ahzâb","Saba","Fâtir","Yâ-Sîn","As-Sâffât","Sâd","Az-Zumar","Ghâfir","Fussilat","Ash-Shûrâ","Az-Zukhruf","Ad-Dukhân","Al-Jâthiya","Al-Ahqâf","Muhammad","Al-Fath","Al-Hujurât","Qâf","Adh-Dhâriyât","At-Tûr","An-Najm","Al-Qamar","Ar-Rahmân","Al-Wâqi'a","Al-Hadîd","Al-Mujâdala","Al-Hashr","Al-Mumtahana","As-Saff","Al-Jumu'a","Al-Munâfiqûn","At-Taghâbun","At-Talâq","At-Tahrîm","Al-Mulk","Al-Qalam","Al-Hâqqa","Al-Ma'ârij","Nûh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyâma","Al-Insân","Al-Mursalât","An-Naba","An-Nâzi'ât","Abasa","At-Takwîr","Al-Infitâr","Al-Mutaffifîn","Al-Inshiqâq","Al-Burûj","At-Târiq","Al-A'lâ","Al-Ghâshiya","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duhâ","Ash-Sharh","At-Tîn","Al-Alaq","Al-Qadr","Al-Bayyina","Az-Zalzala","Al-Âdiyât","Al-Qâri'a","At-Takâthur","Al-Asr","Al-Humaza","Al-Fîl","Quraysh","Al-Mâ'ûn","Al-Kawthar","Al-Kâfirûn","An-Nasr","Al-Masad","Al-Ikhlâs","Al-Falaq","An-Nâs"];
+function maxLevelFor(courseType){ return courseType==='coran'?5:11; }
+function coranLevelLabel(n){ return (CORAN_LEVELS[n-1]||CORAN_LEVELS[0]).label+' — '+(CORAN_LEVELS[n-1]||CORAN_LEVELS[0]).desc; }
 
 // ─── INIT ──────────────────────
 async function init(){
@@ -447,22 +458,34 @@ async function loadDashboard(){
   document.getElementById('profilCourse').textContent=formatCourse(s.course_type)+' — '+formatFormat(s.format);
   {const dd=document.getElementById('dashDate');if(dd)dd.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 
+  const isCoran=s.course_type==='coran';
+  const maxLevel=maxLevelFor(s.course_type);
+  {const hs=document.getElementById('heroSub');if(hs)hs.textContent=isCoran?"5 niveaux — jusqu'à la mémorisation complète du Coran":"11 niveaux — du débutant au niveau avancé";}
+  {const hs2=document.getElementById('heroSub2');if(hs2)hs2.textContent=isCoran?"Ta progression dans la mémorisation du Coran, à travers 5 niveaux.":"Ta progression à travers les 11 niveaux du programme, du débutant au niveau avancé.";}
+  {const hv=document.getElementById('hstatNiveaux');if(hv)hv.textContent=maxLevel;}
+  {const pg=document.getElementById('apProgramme');if(pg)pg.textContent=formatCourse(s.course_type);}
+
   // Level & progress
   const level=s.level||1;
-  const pct=Math.round(((level-1)/10)*100);
+  const pct=Math.round(((level-1)/(maxLevel-1))*100);
   {const sn=document.getElementById('statNiveau');if(sn)sn.textContent='Niveau '+level;}
-  {const lb=document.getElementById('levelBadge');if(lb)lb.textContent='Niveau '+level+' / 11';}
-  {const lb2=document.getElementById('levelBadge2');if(lb2)lb2.textContent='Niveau '+level+' / 11';}
+  {const lb=document.getElementById('levelBadge');if(lb)lb.textContent='Niveau '+level+' / '+maxLevel;}
+  {const lb2=document.getElementById('levelBadge2');if(lb2)lb2.textContent='Niveau '+level+' / '+maxLevel;}
   ['progressFill','progressFill2'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width=pct+'%';});
   ['progressPct','progressPct2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=pct+'%';});
 
   // Stats
   document.getElementById('statHeures').textContent=(s.remaining_hours||0)+'h';
   document.getElementById('statPDF').textContent=s.pdf_count||'–';
-  // page du livre (renvoyée par /api/member/progression)
+  // page du livre OU sourate/verset (renvoyée par /api/member/progression)
+  {const lbl=document.getElementById('statPageLbl');if(lbl)lbl.textContent=isCoran?'Sourate':'Page du livre';}
   fetch('/api/member/progression',{headers:{'Authorization':'Bearer '+token}})
     .then(r=>r.ok?r.json():null)
-    .then(p=>{ const el=document.getElementById('statPage'); if(el&&p) el.textContent='p. '+(p.current_page||1); })
+    .then(p=>{
+      const el=document.getElementById('statPage'); if(!el||!p)return;
+      if(isCoran) el.textContent=p.sourate?(SURAHS[p.sourate-1]||('Sourate '+p.sourate)):'–';
+      else el.textContent='p. '+(p.current_page||1);
+    })
     .catch(()=>{});
 
   // Profil details
@@ -602,7 +625,8 @@ function showTab(id,btn){
   // Sync progression panel
   if(id==='progression'){
     const level=student?.level||1;
-    const pct=Math.round(((level-1)/10)*100);
+    const maxLevel=maxLevelFor(student?.course_type);
+    const pct=Math.round(((level-1)/(maxLevel-1))*100);
     const el=document.getElementById('progressFill2');
     if(el)setTimeout(()=>el.style.width=pct+'%',100);
     loadProgressionDetails();
@@ -615,16 +639,21 @@ async function loadProgressionDetails(){
     const res=await fetch('/api/member/progression',{headers:{'Authorization':'Bearer '+token}});
     if(!res.ok)throw new Error();
     const data=await res.json();
+    const isCoran=(data.course_type||student?.course_type)==='coran';
+    const maxLevel=maxLevelFor(data.course_type||student?.course_type);
+    const stoppedLine=isCoran
+      ? `${coranLevelLabel(data.niveau||data.level||1)}<br><span style="font-size:1.15rem;">${data.sourate?('Sourate '+data.sourate+' — '+(SURAHS[data.sourate-1]||'')):'Sourate –'}${data.verset?(', verset '+data.verset):''}</span>`
+      : `Niveau ${data.niveau||data.level||1} — page ${data.current_page||1}`;
     c.innerHTML=`
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
         <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Cours</div><div style="font-weight:700;color:var(--green-deep);">${formatCourse(data.course_type||student?.course_type)}</div></div>
         <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Heures restantes</div><div style="font-weight:700;color:var(--green-deep);">${data.remaining_hours||0}h</div></div>
-        <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Niveau actuel</div><div style="font-weight:700;color:var(--green-deep);">Niveau ${data.level||1} / 11</div></div>
+        <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Niveau actuel</div><div style="font-weight:700;color:var(--green-deep);">Niveau ${data.level||1} / ${maxLevel}</div></div>
         <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Professeur</div><div style="font-weight:700;color:var(--green-deep);">${data.teacher_name||'–'}</div></div>
       </div>
       <div style="margin-top:1.5rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));border-radius:14px;padding:1.25rem 1.4rem;">
         <div style="font-size:0.75rem;color:var(--green-deep);opacity:0.75;text-transform:uppercase;letter-spacing:0.08em;font-weight:800;margin-bottom:0.3rem;">Où vous vous êtes arrêtés</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--green-deep);line-height:1.2;">Niveau ${data.niveau||data.level||1} — page ${data.current_page||1}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--green-deep);line-height:1.2;">${stoppedLine}</div>
         <div style="color:var(--green-deep);opacity:0.7;font-size:0.82rem;margin-top:0.25rem;">Votre professeur reprendra exactement à cet endroit.</div>
       </div>
       ${data.notes?`<div style="margin-top:1.5rem;background:var(--cream);border-radius:12px;padding:1.25rem;"><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.5rem;">Notes du professeur</div><p style="color:var(--text);font-size:0.875rem;line-height:1.7;">${data.notes}</p></div>`:''}`;
