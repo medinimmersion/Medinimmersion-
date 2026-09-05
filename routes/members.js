@@ -164,6 +164,7 @@ module.exports = function (pool, opts) {
       const r = await pool.query(
         `SELECT s.id, s.nom, s.prenom, s.kounia, s.email, s.whatsapp, s.gender, s.status, s.validation_status,
                 COALESCE(sp.niveau, 1) AS niveau, COALESCE(sp.current_page, 1) AS current_page,
+                sp.sourate, sp.verset,
                 t.nom AS teacher_nom, t.prenom AS teacher_prenom, t.zoom_link AS teacher_zoom,
                 COALESCE((SELECT SUM(hours_done) FROM course_sessions cs WHERE cs.student_id = s.id AND cs.status IN ('done','effectue','completed')),0) AS hours_done,
                 COALESCE((SELECT SUM(hours) FROM bookings b WHERE b.student_id = s.id),0) AS hours_total
@@ -221,13 +222,13 @@ module.exports = function (pool, opts) {
   // Progression : niveau + page + heures effectuées/totales
   router.get('/api/member/progression', requireStudentAuth, async (req, res) => {
     try {
-      const p = await pool.query('SELECT niveau, current_page, notes FROM student_progression WHERE student_id = $1', [req.studentId]).catch(()=>({rows:[]}));
+      const p = await pool.query('SELECT niveau, current_page, sourate, verset, notes FROM student_progression WHERE student_id = $1', [req.studentId]).catch(()=>({rows:[]}));
       const h = await pool.query(
         `SELECT COALESCE(SUM(hours_done),0) AS done FROM course_sessions WHERE student_id = $1 AND status IN ('done','effectue','completed')`,
         [req.studentId]
       ).catch(()=>({rows:[{done:0}]}));
       const tot = await pool.query('SELECT COALESCE(SUM(hours),0) AS total FROM bookings WHERE student_id = $1', [req.studentId]).catch(()=>({rows:[{total:0}]}));
-      const prog = p.rows[0] || { niveau: 1, current_page: 1 };
+      const prog = p.rows[0] || { niveau: 1, current_page: 1, sourate: null, verset: null };
       // Cours : depuis la dernière réservation (si elle existe)
       const bk = await pool.query(
         `SELECT course_type FROM bookings WHERE student_id = $1 ORDER BY created_at DESC LIMIT 1`, [req.studentId]
@@ -242,7 +243,8 @@ module.exports = function (pool, opts) {
       ).catch(()=>({rows:[]}));
       const done = Number(h.rows[0].done) || 0, total = Number(tot.rows[0].total) || 0;
       res.json({
-        niveau: prog.niveau || 1, level: prog.niveau || 1, current_page: prog.current_page || 1, notes: prog.notes || null,
+        niveau: prog.niveau || 1, level: prog.niveau || 1, current_page: prog.current_page || 1,
+        sourate: prog.sourate || null, verset: prog.verset || null, notes: prog.notes || null,
         hours_done: done, hours_total: total, remaining_hours: Math.max(0, total - done),
         course_type: bk.rows[0]?.course_type || null,
         teacher_name: tsa.rows[0] ? [tsa.rows[0].tp, tsa.rows[0].tn].filter(Boolean).join(' ') : null

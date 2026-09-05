@@ -184,19 +184,21 @@ module.exports = function (pool, opts) {
       );
       if (!owns.rowCount) return res.status(403).json({ error: 'Cet élève ne vous est pas attribué.' });
 
-      const { niveau, current_page } = req.body;
+      const { niveau, current_page, sourate, verset } = req.body;
       const upd = await pool.query(
         `UPDATE student_progression SET
            niveau = COALESCE($2, niveau),
            current_page = COALESCE($3, current_page),
+           sourate = COALESCE($4, sourate),
+           verset = COALESCE($5, verset),
            updated_by = 'teacher', updated_at = NOW()
          WHERE student_id = $1 RETURNING *`,
-        [sid, niveau, current_page]);
+        [sid, niveau, current_page, sourate, verset]);
       if (upd.rowCount) return res.json(upd.rows[0]);
       const ins = await pool.query(
-        `INSERT INTO student_progression (student_id, niveau, current_page, updated_by, updated_at)
-         VALUES ($1, COALESCE($2,1), COALESCE($3,1), 'teacher', NOW()) RETURNING *`,
-        [sid, niveau, current_page]);
+        `INSERT INTO student_progression (student_id, niveau, current_page, sourate, verset, updated_by, updated_at)
+         VALUES ($1, COALESCE($2,1), COALESCE($3,1), $4, $5, 'teacher', NOW()) RETURNING *`,
+        [sid, niveau, current_page, sourate, verset]);
       res.json(ins.rows[0]);
     } catch (err) { console.error('[teacher/update-progression]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
