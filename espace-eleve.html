@@ -435,7 +435,7 @@ async function doLogin(){
 
 function doLogout(){
   localStorage.removeItem('medin_token');
-  location.reload();
+  location.href=location.pathname;
 }
 
 // ─── DASHBOARD ─────────────────

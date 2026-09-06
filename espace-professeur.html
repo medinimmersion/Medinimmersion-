@@ -301,7 +301,7 @@ async function doLogin(){
   }
 }
 
-function doLogout(){localStorage.removeItem('teacher_token');location.reload();}
+function doLogout(){localStorage.removeItem('teacher_token');location.href=location.pathname;}
 
 function showDashboard(){
   document.getElementById('loadingScreen').style.display='none';
