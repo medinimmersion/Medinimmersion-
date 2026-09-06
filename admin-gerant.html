@@ -618,6 +618,7 @@ function renderEleves(list){
         <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Temps Kalam</button>
         <button class="btn btn-soft" onclick="openAssignTeacher(${s.id},'${esc(nom)}')">👨‍🏫 Professeur</button>
         <button class="btn btn-soft" onclick="setCourseType(${s.id},'${esc(nom)}')">🕋 Type de cours</button>
+        ${(vs==='valide'||vs==='validated')?`<button class="btn btn-soft" onclick="valid(${s.id},'pending')">⏳ Remettre en attente</button>`:''}
         <button class="btn btn-gold" onclick="quickAddCourse(${s.id})">📅 Ajouter un cours</button>
         <button class="btn btn-bad" onclick="deleteStudent(${s.id},'${esc(nom)}')">🗑 Supprimer</button>
       </div></div>`;

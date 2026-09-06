@@ -187,13 +187,14 @@ footer{background:var(--green-deep);color:var(--white);}
 .hero-card.compact .hero-sub{margin-bottom:0;}
 /* ── Aperçu tiles ── */
 .apercu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.9rem;margin-bottom:1.5rem;}
+.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
 .ap-tile{background:var(--white);border:1px solid var(--beige);border-radius:16px;padding:1.15rem 1.25rem;display:flex;flex-direction:column;justify-content:center;min-height:90px;min-width:0;}
 .ap-val,.ap-lbl{overflow-wrap:anywhere;}
 .ap-val{font-weight:700;color:var(--green-deep);font-size:1.15rem;line-height:1.2;}
 .ap-lbl{color:var(--text-muted);font-size:0.75rem;margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.04em;font-weight:600;}
 .ap-tile.ap-status{background:linear-gradient(135deg,var(--gold-light),var(--gold));border:none;align-items:center;justify-content:center;text-align:center;}
 .ap-tile.ap-status .ap-val{color:var(--green-deep);font-size:1.25rem;}
-@media(max-width:768px){.apercu-grid{grid-template-columns:1fr 1fr;}.hero-stats{gap:1.6rem;}.hero-card{padding:1.6rem 1.5rem;}}
+@media(max-width:768px){.apercu-grid{grid-template-columns:1fr 1fr;}.hero-stats{gap:1.6rem;}.hero-card{padding:1.6rem 1.5rem;}.dashboard-grid{grid-template-columns:1fr;}}
 </style></head><body>
 
 <!-- LOADING -->
@@ -293,7 +294,7 @@ footer{background:var(--green-deep);color:var(--white);}
         <div style="background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.5rem 1.25rem;border-radius:50px;font-weight:700;font-size:0.82rem;white-space:nowrap;flex-shrink:0;">Commencer →</div>
       </a>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+      <div class="dashboard-grid">
         <div>
           <h3 style="font-weight:700;font-size:0.92rem;color:var(--green-deep);margin-bottom:1rem;">📅 Prochains cours</h3>
           <div id="upcomingSessions" class="planning-grid"></div>
