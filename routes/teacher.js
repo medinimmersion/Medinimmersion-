@@ -73,7 +73,7 @@ module.exports = function (pool, opts) {
     try {
       const result = await pool.query(`
         SELECT s.id, s.nom, s.prenom, s.kounia, s.whatsapp, s.email, s.gender, s.validation_status,
-          b.course_type, b.hours, b.format, b.status as booking_status, b.payment_status
+          COALESCE(s.course_type, b.course_type) AS course_type, b.hours, b.format, b.status as booking_status, b.payment_status
         FROM teacher_student_assignments tsa
         JOIN students s ON s.id = tsa.student_id
         LEFT JOIN bookings b ON b.student_id = s.id AND b.teacher_id = $1

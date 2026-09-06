@@ -32,6 +32,8 @@ module.exports = function (pool, opts) {
             'INSERT INTO session_students (session_id, student_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
             [session.id, sid]
           );
+          // Fixe automatiquement le type de cours de l'élève s'il n'en a pas encore
+          await pool.query('UPDATE students SET course_type = COALESCE(course_type, $1) WHERE id = $2', [session.course_type, sid]).catch(()=>{});
         }
       }
 
@@ -55,6 +57,8 @@ module.exports = function (pool, opts) {
       if (Array.isArray(student_ids) && student_ids.length) {
         for (const sid of student_ids) {
           await pool.query('INSERT INTO session_students (session_id, student_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [session.id, sid]);
+          // Fixe automatiquement le type de cours de l'élève s'il n'en a pas encore
+          await pool.query('UPDATE students SET course_type = COALESCE(course_type, $1) WHERE id = $2', [session.course_type, sid]).catch(()=>{});
         }
       }
       res.json(session);
