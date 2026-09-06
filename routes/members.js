@@ -163,6 +163,7 @@ module.exports = function (pool, opts) {
     try {
       const r = await pool.query(
         `SELECT s.id, s.nom, s.prenom, s.kounia, s.email, s.whatsapp, s.gender, s.status, s.validation_status,
+                s.course_type AS own_course_type,
                 COALESCE(sp.niveau, 1) AS niveau, COALESCE(sp.current_page, 1) AS current_page,
                 sp.sourate, sp.verset, sp.juz,
                 t.nom AS teacher_nom, t.prenom AS teacher_prenom, t.zoom_link AS teacher_zoom,
@@ -178,9 +179,11 @@ module.exports = function (pool, opts) {
       if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
       const s = r.rows[0];
       s.teacher_name = [s.teacher_prenom, s.teacher_nom].filter(Boolean).join(' ') || null;
-      // Cours/format depuis la dernière réservation
+      // Cours/format : priorité au champ direct sur students (fixé par le gérant),
+      // sinon on retombe sur la dernière réservation
       const bk = await pool.query('SELECT course_type, format, hours FROM bookings WHERE student_id = $1 ORDER BY created_at DESC LIMIT 1', [s.id]).catch(()=>({rows:[]}));
-      if (bk.rows[0]) { s.course_type = bk.rows[0].course_type; s.format = bk.rows[0].format; }
+      s.course_type = s.own_course_type || bk.rows[0]?.course_type || null;
+      if (bk.rows[0]) { s.format = bk.rows[0].format; }
       const pdfc = await pool.query('SELECT COUNT(*) AS n FROM student_pdfs WHERE student_id = $1 AND file_url IS NOT NULL', [s.id]).catch(()=>({rows:[{n:0}]}));
       // Aliases attendus par la page
       s.level = s.niveau || 1;
@@ -229,7 +232,9 @@ module.exports = function (pool, opts) {
       ).catch(()=>({rows:[{done:0}]}));
       const tot = await pool.query('SELECT COALESCE(SUM(hours),0) AS total FROM bookings WHERE student_id = $1', [req.studentId]).catch(()=>({rows:[{total:0}]}));
       const prog = p.rows[0] || { niveau: 1, current_page: 1, sourate: null, verset: null, juz: null };
-      // Cours : depuis la dernière réservation (si elle existe)
+      // Cours : priorité au champ direct sur students (fixé par le gérant),
+      // sinon depuis la dernière réservation (si elle existe)
+      const own = await pool.query('SELECT course_type FROM students WHERE id = $1', [req.studentId]).catch(()=>({rows:[]}));
       const bk = await pool.query(
         `SELECT course_type FROM bookings WHERE student_id = $1 ORDER BY created_at DESC LIMIT 1`, [req.studentId]
       ).catch(()=>({rows:[]}));
@@ -246,7 +251,7 @@ module.exports = function (pool, opts) {
         niveau: prog.niveau || 1, level: prog.niveau || 1, current_page: prog.current_page || 1,
         sourate: prog.sourate || null, verset: prog.verset || null, juz: prog.juz || null, notes: prog.notes || null,
         hours_done: done, hours_total: total, remaining_hours: Math.max(0, total - done),
-        course_type: bk.rows[0]?.course_type || null,
+        course_type: own.rows[0]?.course_type || bk.rows[0]?.course_type || null,
         teacher_name: tsa.rows[0] ? [tsa.rows[0].tp, tsa.rows[0].tn].filter(Boolean).join(' ') : null
       });
     } catch (err) { console.error('[member/progression]', err.message); res.status(500).json({ error: 'Erreur serveur' }); }

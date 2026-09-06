@@ -49,7 +49,7 @@ module.exports = function (pool, opts) {
       const teacher = await pool.query('SELECT id, nom, prenom FROM teachers WHERE id = $1', [req.teacherId]);
       const students = await pool.query(`
         SELECT s.id, s.nom, s.prenom, s.kounia, s.whatsapp, s.validation_status,
-          (SELECT b.course_type FROM bookings b WHERE b.student_id = s.id ORDER BY b.created_at DESC LIMIT 1) as course_type,
+          COALESCE(s.course_type, (SELECT b.course_type FROM bookings b WHERE b.student_id = s.id ORDER BY b.created_at DESC LIMIT 1)) as course_type,
           (SELECT b.hours FROM bookings b WHERE b.student_id = s.id ORDER BY b.created_at DESC LIMIT 1) as hours
         FROM teacher_student_assignments tsa
         JOIN students s ON s.id = tsa.student_id

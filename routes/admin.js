@@ -15,6 +15,7 @@ module.exports = function (pool, opts) {
     try {
       const students = await pool.query(`
         SELECT s.id, s.nom, s.prenom, s.kounia, s.whatsapp, s.email, s.gender, s.status, s.validation_status, s.paiement_statut, s.created_at,
+          COALESCE(s.course_type, (SELECT b.course_type FROM bookings b WHERE b.student_id = s.id ORDER BY b.created_at DESC LIMIT 1)) AS course_type,
           COALESCE(s.kalam_seconds_total, 180) AS kalam_total,
           CASE WHEN s.kalam_quota_date = CURRENT_DATE THEN COALESCE(s.kalam_seconds_used, 0) ELSE 0 END AS kalam_used_today,
           (SELECT COUNT(*) FROM bookings b WHERE b.student_id = s.id) as booking_count,
@@ -527,6 +528,20 @@ module.exports = function (pool, opts) {
       if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
       res.json({ success: true });
     } catch (err) { console.error('[admin/student-password]', err); res.status(500).json({ error: 'Erreur serveur' }); }
+  });
+
+  // PUT /api/admin/students/:id/course-type — fixe directement le type de cours d'un élève
+  // (utile quand l'élève n'a aucune réservation en base — sinon course_type reste dérivé de bookings)
+  router.put('/api/admin/students/:id/course-type', requireAdmin, async (req, res) => {
+    try {
+      const { course_type } = req.body;
+      if (!['coran', 'arabe', 'double_immersion'].includes(course_type)) {
+        return res.status(400).json({ error: 'Type de cours invalide (coran, arabe ou double_immersion)' });
+      }
+      const r = await pool.query('UPDATE students SET course_type = $1, updated_at = NOW() WHERE id = $2 RETURNING id', [course_type, req.params.id]);
+      if (!r.rows.length) return res.status(404).json({ error: 'Élève non trouvé' });
+      res.json({ success: true });
+    } catch (err) { console.error('[admin/student-course-type]', err); res.status(500).json({ error: 'Erreur serveur' }); }
   });
 
   // ─── ATTRIBUTION ÉLÈVE -> PROFESSEUR ─────────────────────
