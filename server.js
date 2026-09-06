@@ -76,6 +76,27 @@ pool.on('error', (err) => console.error('[pool] Unexpected error:', err));
   }
 })();
 
+// ─── AUTO-INIT: backfill rétroactif du course_type depuis les sessions/réservations existantes ──
+// Corrige les élèves créés directement (sans réservation) mais avec un cours déjà programmé.
+(async () => {
+  try {
+    const r = await pool.query(`
+      UPDATE students s SET course_type = sub.course_type
+      FROM (
+        SELECT DISTINCT ON (sst.student_id) sst.student_id, ss.course_type
+        FROM session_students sst
+        JOIN scheduled_sessions ss ON ss.id = sst.session_id
+        WHERE ss.course_type IS NOT NULL
+        ORDER BY sst.student_id, ss.session_date DESC
+      ) sub
+      WHERE s.id = sub.student_id AND s.course_type IS NULL
+    `);
+    if (r.rowCount) console.log(`[init] course_type rétabli automatiquement pour ${r.rowCount} élève(s) depuis leurs sessions`);
+  } catch (err) {
+    console.error('[init] erreur backfill course_type:', err.message);
+  }
+})();
+
 // ─── MIDDLEWARE ──────────────────────────────────────────────
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
