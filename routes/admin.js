@@ -488,8 +488,8 @@ module.exports = function (pool, opts) {
   // PUT /api/admin/validation/:id — update student validation status (validated/rejected → valide/rejected)
   router.put('/api/admin/validation/:id', requireAdmin, async (req, res) => {
     const { status } = req.body;
-    if (!['validated', 'rejected'].includes(status)) {
-      return res.status(400).json({ error: 'Statut invalide: validated ou rejected' });
+    if (!['validated', 'rejected', 'pending'].includes(status)) {
+      return res.status(400).json({ error: 'Statut invalide: validated, rejected ou pending' });
     }
     const dbStatus = status === 'validated' ? 'valide' : status;
     try {
