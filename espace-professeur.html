@@ -117,7 +117,7 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 .hero-card.compact .hero-label{margin-bottom:0.5rem;}
 .hero-card.compact .hero-title{font-size:clamp(1.7rem,5vw,2.2rem);margin-bottom:0.25rem;}
 .hero-card.compact .hero-sub{margin-bottom:0;}
-@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.dash-body{padding:1rem}.topbar{padding:0.75rem 1rem}.dash-nav{padding:0 0.5rem}.dash-tab{padding:0.8rem 0.7rem;font-size:0.78rem}.student-row{flex-wrap:wrap;align-items:flex-start;}.s-meta{margin-left:calc(44px + 1.25rem);margin-top:0.5rem;width:100%;justify-content:space-between;}.hero-card{padding:1.6rem 1.5rem}.hero-stats{gap:1.6rem}.dashboard-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.dash-body{padding:1rem}.topbar{padding:0.75rem 1rem}.dash-nav{padding:0 0.5rem}.dash-tab{padding:0.8rem 0.7rem;font-size:0.78rem}.student-row{flex-wrap:wrap;align-items:flex-start;}.s-meta{margin-left:calc(44px + 1.25rem);margin-top:0.5rem;width:calc(100% - 44px - 1.25rem);justify-content:space-between;}.hero-card{padding:1.6rem 1.5rem}.hero-stats{gap:1.6rem}.dashboard-grid{grid-template-columns:1fr}}
 </style></head><body>
 
 <!-- LOADING -->
@@ -258,6 +258,7 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 let token=null,teacher=null,allStudentsData=[],allSessionsData=[];
 
 const JUZ_MAX=30;
+const SURAH_VERSES=[7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
 const SURAHS=["Al-Fâtiha","Al-Baqara","Âli-Imrân","An-Nisâ","Al-Mâida","Al-An'âm","Al-A'râf","Al-Anfâl","At-Tawba","Yûnus","Hûd","Yûsuf","Ar-Ra'd","Ibrâhîm","Al-Hijr","An-Nahl","Al-Isrâ","Al-Kahf","Maryam","Tâ-Hâ","Al-Anbiyâ","Al-Hajj","Al-Muminûn","An-Nûr","Al-Furqân","Ash-Shu'arâ","An-Naml","Al-Qasas","Al-Ankabût","Ar-Rûm","Luqmân","As-Sajda","Al-Ahzâb","Saba","Fâtir","Yâ-Sîn","As-Sâffât","Sâd","Az-Zumar","Ghâfir","Fussilat","Ash-Shûrâ","Az-Zukhruf","Ad-Dukhân","Al-Jâthiya","Al-Ahqâf","Muhammad","Al-Fath","Al-Hujurât","Qâf","Adh-Dhâriyât","At-Tûr","An-Najm","Al-Qamar","Ar-Rahmân","Al-Wâqi'a","Al-Hadîd","Al-Mujâdala","Al-Hashr","Al-Mumtahana","As-Saff","Al-Jumu'a","Al-Munâfiqûn","At-Taghâbun","At-Talâq","At-Tahrîm","Al-Mulk","Al-Qalam","Al-Hâqqa","Al-Ma'ârij","Nûh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyâma","Al-Insân","Al-Mursalât","An-Naba","An-Nâzi'ât","Abasa","At-Takwîr","Al-Infitâr","Al-Mutaffifîn","Al-Inshiqâq","Al-Burûj","At-Târiq","Al-A'lâ","Al-Ghâshiya","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duhâ","Ash-Sharh","At-Tîn","Al-Alaq","Al-Qadr","Al-Bayyina","Az-Zalzala","Al-Âdiyât","Al-Qâri'a","At-Takâthur","Al-Asr","Al-Humaza","Al-Fîl","Quraysh","Al-Mâ'ûn","Al-Kawthar","Al-Kâfirûn","An-Nasr","Al-Masad","Al-Ikhlâs","Al-Falaq","An-Nâs"];
 
 async function init(){
@@ -442,7 +443,8 @@ async function openStudent(id){
     const sourate=prog.sourate||1;
     const verset=prog.verset||1;
     const pctJuz=Math.round((Number(juz)/JUZ_MAX)*100);
-    const pctSourate=Math.round((Number(sourate)/114)*100);
+    const svTotal=SURAH_VERSES[sourate-1]||1;
+    const pctSourate=Math.min(100,Math.round((Number(verset)/svTotal)*100));
     const pct=isCoran?pctJuz:Math.round(((level-1)/10)*100);
     const progressionBlock=isCoran?`
       <div style="background:var(--cream);border-radius:12px;padding:1rem;margin-bottom:1.5rem;">
@@ -460,7 +462,7 @@ async function openStudent(id){
             <div style="height:8px;background:var(--beige);border-radius:50px;overflow:hidden;margin-bottom:0.3rem;">
               <div id="pctSourateBar" style="width:${pctSourate}%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold-light));border-radius:50px;"></div>
             </div>
-            <div id="pctSourateTxt" style="font-size:0.76rem;color:var(--text-muted);">${pctSourate}% (${sourate}/114)</div>
+            <div id="pctSourateTxt" style="font-size:0.76rem;color:var(--text-muted);">${pctSourate}% (verset ${verset}/${svTotal})</div>
           </div>
         </div>
         <div style="margin-bottom:0.75rem;">
@@ -472,13 +474,13 @@ async function openStudent(id){
         <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:0.75rem;">
           <div>
             <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Sourate</div>
-            <select id="progSourate" onchange="const p=Math.round((this.value/114)*100);document.getElementById('pctSourateBar').style.width=p+'%';document.getElementById('pctSourateTxt').textContent=p+'% ('+this.value+'/114)';" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+            <select id="progSourate" onchange="const sv=SURAH_VERSES[this.value-1]||1,v=parseInt(document.getElementById('progVerset').value,10)||1,p=Math.min(100,Math.round((v/sv)*100));document.getElementById('pctSourateBar').style.width=p+'%';document.getElementById('pctSourateTxt').textContent=p+'% (verset '+v+'/'+sv+')';" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
               ${SURAHS.map((name,i)=>`<option value="${i+1}"${(i+1)===Number(sourate)?' selected':''}>${i+1}. ${name}</option>`).join('')}
             </select>
           </div>
           <div>
             <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">N° du verset</div>
-            <input id="progVerset" type="number" min="1" value="${verset}" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+            <input id="progVerset" type="number" min="1" oninput="const sv=SURAH_VERSES[document.getElementById('progSourate').value-1]||1,v=parseInt(this.value,10)||1,p=Math.min(100,Math.round((v/sv)*100));document.getElementById('pctSourateBar').style.width=p+'%';document.getElementById('pctSourateTxt').textContent=p+'% (verset '+v+'/'+sv+')';" value="${verset}" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
           </div>
         </div>
         <button class="btn-save" onclick="saveProgression(${id})">Enregistrer la progression</button>
