@@ -59,7 +59,8 @@ pool.on('error', (err) => console.error('[pool] Unexpected error:', err));
   try {
     await pool.query('ALTER TABLE student_progression ADD COLUMN IF NOT EXISTS sourate INTEGER');
     await pool.query('ALTER TABLE student_progression ADD COLUMN IF NOT EXISTS verset INTEGER');
-    console.log('[init] colonnes sourate/verset prêtes sur student_progression');
+    await pool.query('ALTER TABLE student_progression ADD COLUMN IF NOT EXISTS juz INTEGER');
+    console.log('[init] colonnes sourate/verset/juz prêtes sur student_progression');
   } catch (err) {
     console.error('[init] erreur colonnes sourate/verset:', err.message);
   }

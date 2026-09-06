@@ -62,12 +62,14 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 .student-row{background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1.25rem;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;}
 .student-row:hover{border-color:var(--green);box-shadow:0 4px 16px rgba(27,94,58,0.08);}
 .s-avatar{width:44px;height:44px;border-radius:50%;background:var(--green);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;flex-shrink:0;}
+.s-main{flex:1;min-width:0;}
 .s-name{font-weight:700;font-size:0.92rem;color:var(--green-deep);}
 .s-info{color:var(--text-muted);font-size:0.8rem;margin-top:0.15rem;}
-.s-badge{display:inline-block;padding:0.25rem 0.7rem;border-radius:50px;font-size:0.72rem;font-weight:700;margin-left:auto;flex-shrink:0;}
+.s-meta{display:flex;align-items:center;gap:0.6rem;flex-shrink:0;}
+.s-badge{display:inline-block;padding:0.25rem 0.7rem;border-radius:50px;font-size:0.72rem;font-weight:700;flex-shrink:0;white-space:nowrap;}
 .s-badge.active{background:rgba(27,94,58,0.1);color:var(--green);}
 .s-badge.pending{background:rgba(184,149,58,0.15);color:var(--gold);}
-.s-hours{font-size:0.8rem;color:var(--text-muted);margin-left:1rem;white-space:nowrap;}
+.s-hours{font-size:0.8rem;color:var(--text-muted);white-space:nowrap;}
 /* Session card */
 .session-row{background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1.25rem;margin-bottom:0.75rem;}
 .sess-date{background:var(--green);color:var(--white);border-radius:12px;padding:0.55rem 0.8rem;text-align:center;min-width:52px;flex-shrink:0;}
@@ -114,7 +116,7 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 .hero-card.compact .hero-label{margin-bottom:0.5rem;}
 .hero-card.compact .hero-title{font-size:clamp(1.7rem,5vw,2.2rem);margin-bottom:0.25rem;}
 .hero-card.compact .hero-sub{margin-bottom:0;}
-@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.dash-body{padding:1rem}.topbar{padding:0.75rem 1rem}.dash-nav{padding:0 0.5rem}.dash-tab{padding:0.8rem 0.7rem;font-size:0.78rem}.student-row{flex-wrap:wrap}.s-hours{margin-left:0}.hero-card{padding:1.6rem 1.5rem}.hero-stats{gap:1.6rem}}
+@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.dash-body{padding:1rem}.topbar{padding:0.75rem 1rem}.dash-nav{padding:0 0.5rem}.dash-tab{padding:0.8rem 0.7rem;font-size:0.78rem}.student-row{flex-wrap:wrap;align-items:flex-start;}.s-meta{margin-left:calc(44px + 1.25rem);margin-top:0.5rem;width:100%;justify-content:space-between;}.hero-card{padding:1.6rem 1.5rem}.hero-stats{gap:1.6rem}}
 </style></head><body>
 
 <!-- LOADING -->
@@ -254,13 +256,7 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 <script>
 let token=null,teacher=null,allStudentsData=[],allSessionsData=[];
 
-const CORAN_LEVELS=[
-  {v:1,label:'Niveau 1',desc:"0 à quelques sourates courtes"},
-  {v:2,label:'Niveau 2',desc:"1 à 5 juz'"},
-  {v:3,label:'Niveau 3',desc:"6 à 15 juz'"},
-  {v:4,label:'Niveau 4',desc:"Plus de 15 juz'"},
-  {v:5,label:'Niveau 5',desc:"Coran complet mémorisé (30 juz')"}
-];
+const JUZ_MAX=30;
 const SURAHS=["Al-Fâtiha","Al-Baqara","Âli-Imrân","An-Nisâ","Al-Mâida","Al-An'âm","Al-A'râf","Al-Anfâl","At-Tawba","Yûnus","Hûd","Yûsuf","Ar-Ra'd","Ibrâhîm","Al-Hijr","An-Nahl","Al-Isrâ","Al-Kahf","Maryam","Tâ-Hâ","Al-Anbiyâ","Al-Hajj","Al-Muminûn","An-Nûr","Al-Furqân","Ash-Shu'arâ","An-Naml","Al-Qasas","Al-Ankabût","Ar-Rûm","Luqmân","As-Sajda","Al-Ahzâb","Saba","Fâtir","Yâ-Sîn","As-Sâffât","Sâd","Az-Zumar","Ghâfir","Fussilat","Ash-Shûrâ","Az-Zukhruf","Ad-Dukhân","Al-Jâthiya","Al-Ahqâf","Muhammad","Al-Fath","Al-Hujurât","Qâf","Adh-Dhâriyât","At-Tûr","An-Najm","Al-Qamar","Ar-Rahmân","Al-Wâqi'a","Al-Hadîd","Al-Mujâdala","Al-Hashr","Al-Mumtahana","As-Saff","Al-Jumu'a","Al-Munâfiqûn","At-Taghâbun","At-Talâq","At-Tahrîm","Al-Mulk","Al-Qalam","Al-Hâqqa","Al-Ma'ârij","Nûh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyâma","Al-Insân","Al-Mursalât","An-Naba","An-Nâzi'ât","Abasa","At-Takwîr","Al-Infitâr","Al-Mutaffifîn","Al-Inshiqâq","Al-Burûj","At-Târiq","Al-A'lâ","Al-Ghâshiya","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duhâ","Ash-Sharh","At-Tîn","Al-Alaq","Al-Qadr","Al-Bayyina","Az-Zalzala","Al-Âdiyât","Al-Qâri'a","At-Takâthur","Al-Asr","Al-Humaza","Al-Fîl","Quraysh","Al-Mâ'ûn","Al-Kawthar","Al-Kâfirûn","An-Nasr","Al-Masad","Al-Ikhlâs","Al-Falaq","An-Nâs"];
 
 async function init(){
@@ -373,13 +369,15 @@ function renderStudentList(students,containerId,compact){
   if(!students||!students.length){renderEmpty(containerId,'👨‍🎓','Aucun élève','');return;}
   c.innerHTML=students.map(s=>`<div class="student-row" onclick="openStudent(${s.id})">
     <div class="s-avatar" style="background:${s.gender==='femme'?'#5C3D28':'var(--green)'}">${((s.prenom||'?')[0]+(s.nom||'')[0]||'').toUpperCase()}</div>
-    <div style="flex:1;min-width:0;">
+    <div class="s-main">
       <div class="s-name">${s.prenom||''} ${s.nom||''}</div>
       <div class="s-info">${formatCourse(s.course_type)} · ${formatFormat(s.format)}</div>
     </div>
-    <div class="s-hours">${s.remaining_hours||0}h restantes</div>
-    <div class="s-badge ${s.status==='active'||!s.status?'active':'pending'}">${s.status==='active'||!s.status?'Actif':'En attente'}</div>
-    ${compact?'':`<button class="btn-sm btn-join" style="margin-left:0.4rem;" onclick="event.stopPropagation();callStudent(${s.id},'${(s.prenom||'')+' '+(s.nom||'')}')">📞</button>`}
+    <div class="s-meta">
+      <div class="s-hours">${s.remaining_hours||0}h restantes</div>
+      <div class="s-badge ${s.status==='active'||!s.status?'active':'pending'}">${s.status==='active'||!s.status?'Actif':'En attente'}</div>
+      ${compact?'':`<button class="btn-sm btn-join" onclick="event.stopPropagation();callStudent(${s.id},'${(s.prenom||'')+' '+(s.nom||'')}')">📞</button>`}
+    </div>
   </div>`).join('');
 }
 
@@ -439,22 +437,22 @@ async function openStudent(id){
     const isCoran=s.course_type==='coran';
     const level=prog.niveau||prog.level||s.level||1;
     const page=prog.current_page||1;
+    const juz=prog.juz||1;
     const sourate=prog.sourate||1;
     const verset=prog.verset||1;
-    const maxLevel=isCoran?5:11;
-    const pctNiveau=Math.round(((level-1)/(maxLevel-1))*100);
+    const pctJuz=Math.round((Number(juz)/JUZ_MAX)*100);
     const pctSourate=Math.round((Number(sourate)/114)*100);
-    const pct=pctNiveau;
+    const pct=isCoran?pctJuz:Math.round(((level-1)/10)*100);
     const progressionBlock=isCoran?`
       <div style="background:var(--cream);border-radius:12px;padding:1rem;margin-bottom:1.5rem;">
         <label style="display:block;font-size:0.82rem;font-weight:700;color:var(--green-deep);margin-bottom:0.6rem;">📖 Progression dans la mémorisation du Coran</label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
           <div>
-            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Progression (niveau)</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Progression (Juz')</div>
             <div style="height:8px;background:var(--beige);border-radius:50px;overflow:hidden;margin-bottom:0.3rem;">
-              <div style="width:${pctNiveau}%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold-light));border-radius:50px;"></div>
+              <div id="pctJuzBar" style="width:${pctJuz}%;height:100%;background:linear-gradient(90deg,var(--green),var(--gold-light));border-radius:50px;"></div>
             </div>
-            <div style="font-size:0.76rem;color:var(--text-muted);">${pctNiveau}%</div>
+            <div id="pctJuzTxt" style="font-size:0.76rem;color:var(--text-muted);">${pctJuz}% (${juz}/${JUZ_MAX})</div>
           </div>
           <div>
             <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Progression (sourate)</div>
@@ -465,11 +463,10 @@ async function openStudent(id){
           </div>
         </div>
         <div style="margin-bottom:0.75rem;">
-          <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Niveau</div>
-          <select id="progNiveau" onchange="document.getElementById('progNiveauDesc').textContent=CORAN_LEVELS[this.value-1].desc" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
-            ${CORAN_LEVELS.map(l=>`<option value="${l.v}"${l.v===level?' selected':''}>${l.label}</option>`).join('')}
+          <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Juz'</div>
+          <select id="progJuz" onchange="const p=Math.round((this.value/${JUZ_MAX})*100);document.getElementById('pctJuzBar').style.width=p+'%';document.getElementById('pctJuzTxt').textContent=p+'% ('+this.value+'/${JUZ_MAX})';" style="width:100%;padding:0.6rem;border:1.5px solid var(--beige);border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+            ${Array.from({length:JUZ_MAX},(_,i)=>i+1).map(n=>`<option value="${n}"${n===Number(juz)?' selected':''}>Juz' ${n}</option>`).join('')}
           </select>
-          <div id="progNiveauDesc" style="font-size:0.76rem;color:var(--text-muted);margin-top:0.3rem;">${(CORAN_LEVELS[level-1]||CORAN_LEVELS[0]).desc}</div>
         </div>
         <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:0.75rem;">
           <div>
@@ -530,17 +527,18 @@ async function openStudent(id){
 }
 
 async function saveProgression(studentId){
-  const niveau=parseInt(document.getElementById('progNiveau').value,10);
   const isCoran=!!document.getElementById('progSourate');
   const ok=document.getElementById('progSaved'), ko=document.getElementById('progErr');
   ok.style.display='none'; ko.style.display='none';
   let body;
   if(isCoran){
+    const juz=parseInt(document.getElementById('progJuz').value,10);
     const sourate=parseInt(document.getElementById('progSourate').value,10);
     const verset=parseInt(document.getElementById('progVerset').value,10);
     if(isNaN(verset)||verset<1){ ko.textContent='N° de verset invalide.'; ko.style.display='block'; return; }
-    body={niveau,sourate,verset};
+    body={juz,sourate,verset};
   }else{
+    const niveau=parseInt(document.getElementById('progNiveau').value,10);
     const current_page=parseInt(document.getElementById('progPage').value,10);
     if(isNaN(current_page)||current_page<1){ ko.textContent='Page invalide.'; ko.style.display='block'; return; }
     body={niveau,current_page};

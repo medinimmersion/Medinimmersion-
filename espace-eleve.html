@@ -262,7 +262,7 @@ footer{background:var(--green-deep);color:var(--white);}
         <h2 class="hero-title">Ma progression</h2>
         <p class="hero-sub" id="heroSub">11 niveaux — du débutant au niveau avancé</p>
         <div class="hero-stats">
-          <div class="hstat"><div class="hstat-val" id="hstatNiveaux">11</div><div class="hstat-lbl">Niveaux</div></div>
+          <div class="hstat"><div class="hstat-val" id="hstatNiveaux">11</div><div class="hstat-lbl" id="hstatNiveauxLbl">Niveaux</div></div>
           <div class="hstat"><div class="hstat-val" id="statPDF">–</div><div class="hstat-lbl">PDFs perso</div></div>
           <div class="hstat"><div class="hstat-val">∞</div><div class="hstat-lbl">Cours Zoom</div></div>
         </div>
@@ -272,7 +272,7 @@ footer{background:var(--green-deep);color:var(--white);}
 
       <!-- APERÇU -->
       <div class="apercu-grid">
-        <div class="ap-tile"><div class="ap-val" id="statNiveau">Niveau –</div><div class="ap-lbl">Niveau actuel</div></div>
+        <div class="ap-tile"><div class="ap-val" id="statNiveau">Niveau –</div><div class="ap-lbl" id="statNiveauLbl">Niveau actuel</div></div>
         <div class="ap-tile"><div class="ap-val" id="apProgramme">Arabe Immersion</div><div class="ap-lbl">Programme</div></div>
         <div class="ap-tile ap-status"><div class="ap-val" id="statStatus">En cours</div></div>
         <div class="ap-tile"><div class="ap-val" id="statProchain">–</div><div class="ap-lbl">Prochain cours</div></div>
@@ -375,16 +375,8 @@ footer{background:var(--green-deep);color:var(--white);}
 <script>
 let student=null,token=null;
 
-const CORAN_LEVELS=[
-  {v:1,label:'Niveau 1',desc:"0 à quelques sourates courtes"},
-  {v:2,label:'Niveau 2',desc:"1 à 5 juz'"},
-  {v:3,label:'Niveau 3',desc:"6 à 15 juz'"},
-  {v:4,label:'Niveau 4',desc:"Plus de 15 juz'"},
-  {v:5,label:'Niveau 5',desc:"Coran complet mémorisé (30 juz')"}
-];
 const SURAHS=["Al-Fâtiha","Al-Baqara","Âli-Imrân","An-Nisâ","Al-Mâida","Al-An'âm","Al-A'râf","Al-Anfâl","At-Tawba","Yûnus","Hûd","Yûsuf","Ar-Ra'd","Ibrâhîm","Al-Hijr","An-Nahl","Al-Isrâ","Al-Kahf","Maryam","Tâ-Hâ","Al-Anbiyâ","Al-Hajj","Al-Muminûn","An-Nûr","Al-Furqân","Ash-Shu'arâ","An-Naml","Al-Qasas","Al-Ankabût","Ar-Rûm","Luqmân","As-Sajda","Al-Ahzâb","Saba","Fâtir","Yâ-Sîn","As-Sâffât","Sâd","Az-Zumar","Ghâfir","Fussilat","Ash-Shûrâ","Az-Zukhruf","Ad-Dukhân","Al-Jâthiya","Al-Ahqâf","Muhammad","Al-Fath","Al-Hujurât","Qâf","Adh-Dhâriyât","At-Tûr","An-Najm","Al-Qamar","Ar-Rahmân","Al-Wâqi'a","Al-Hadîd","Al-Mujâdala","Al-Hashr","Al-Mumtahana","As-Saff","Al-Jumu'a","Al-Munâfiqûn","At-Taghâbun","At-Talâq","At-Tahrîm","Al-Mulk","Al-Qalam","Al-Hâqqa","Al-Ma'ârij","Nûh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyâma","Al-Insân","Al-Mursalât","An-Naba","An-Nâzi'ât","Abasa","At-Takwîr","Al-Infitâr","Al-Mutaffifîn","Al-Inshiqâq","Al-Burûj","At-Târiq","Al-A'lâ","Al-Ghâshiya","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duhâ","Ash-Sharh","At-Tîn","Al-Alaq","Al-Qadr","Al-Bayyina","Az-Zalzala","Al-Âdiyât","Al-Qâri'a","At-Takâthur","Al-Asr","Al-Humaza","Al-Fîl","Quraysh","Al-Mâ'ûn","Al-Kawthar","Al-Kâfirûn","An-Nasr","Al-Masad","Al-Ikhlâs","Al-Falaq","An-Nâs"];
-function maxLevelFor(courseType){ return courseType==='coran'?5:11; }
-function coranLevelLabel(n){ return (CORAN_LEVELS[n-1]||CORAN_LEVELS[0]).label+' — '+(CORAN_LEVELS[n-1]||CORAN_LEVELS[0]).desc; }
+const JUZ_MAX=30;
 
 // ─── INIT ──────────────────────
 async function init(){
@@ -459,18 +451,20 @@ async function loadDashboard(){
   {const dd=document.getElementById('dashDate');if(dd)dd.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 
   const isCoran=s.course_type==='coran';
-  const maxLevel=maxLevelFor(s.course_type);
-  {const hs=document.getElementById('heroSub');if(hs)hs.textContent=isCoran?"5 niveaux — jusqu'à la mémorisation complète du Coran":"11 niveaux — du débutant au niveau avancé";}
-  {const hs2=document.getElementById('heroSub2');if(hs2)hs2.textContent=isCoran?"Ta progression dans la mémorisation du Coran, à travers 5 niveaux.":"Ta progression à travers les 11 niveaux du programme, du débutant au niveau avancé.";}
-  {const hv=document.getElementById('hstatNiveaux');if(hv)hv.textContent=maxLevel;}
+  {const hs=document.getElementById('heroSub');if(hs)hs.textContent=isCoran?"30 juz' — jusqu'à la mémorisation complète du Coran":"11 niveaux — du débutant au niveau avancé";}
+  {const hs2=document.getElementById('heroSub2');if(hs2)hs2.textContent=isCoran?"Ta progression dans la mémorisation du Coran, juz' par juz'.":"Ta progression à travers les 11 niveaux du programme, du débutant au niveau avancé.";}
+  {const hv=document.getElementById('hstatNiveaux');if(hv)hv.textContent=isCoran?JUZ_MAX:11;}
+  {const hl=document.getElementById('hstatNiveauxLbl');if(hl)hl.textContent=isCoran?"Juz'":'Niveaux';}
   {const pg=document.getElementById('apProgramme');if(pg)pg.textContent=formatCourse(s.course_type);}
 
-  // Level & progress
+  // Progrès : Juz' pour le Coran, Niveau (tome) sinon
+  const juz=s.juz||1;
   const level=s.level||1;
-  const pct=Math.round(((level-1)/(maxLevel-1))*100);
-  {const sn=document.getElementById('statNiveau');if(sn)sn.textContent='Niveau '+level;}
-  {const lb=document.getElementById('levelBadge');if(lb)lb.textContent='Niveau '+level+' / '+maxLevel;}
-  {const lb2=document.getElementById('levelBadge2');if(lb2)lb2.textContent='Niveau '+level+' / '+maxLevel;}
+  const pct=isCoran?Math.round((juz/JUZ_MAX)*100):Math.round(((level-1)/10)*100);
+  {const sn=document.getElementById('statNiveau');if(sn)sn.textContent=isCoran?("Juz' "+juz):('Niveau '+level);}
+  {const snLbl=document.getElementById('statNiveauLbl');if(snLbl)snLbl.textContent=isCoran?"Juz' actuel":'Niveau actuel';}
+  {const lb=document.getElementById('levelBadge');if(lb)lb.textContent=isCoran?("Juz' "+juz+' / '+JUZ_MAX):('Niveau '+level+' / 11');}
+  {const lb2=document.getElementById('levelBadge2');if(lb2)lb2.textContent=isCoran?("Juz' "+juz+' / '+JUZ_MAX):('Niveau '+level+' / 11');}
   ['progressFill','progressFill2'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.width=pct+'%';});
   ['progressPct','progressPct2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=pct+'%';});
 
@@ -624,9 +618,9 @@ function showTab(id,btn){
   btn.classList.add('active');
   // Sync progression panel
   if(id==='progression'){
-    const level=student?.level||1;
-    const maxLevel=maxLevelFor(student?.course_type);
-    const pct=Math.round(((level-1)/(maxLevel-1))*100);
+    const isCoran=student?.course_type==='coran';
+    const juz=student?.juz||1, level=student?.level||1;
+    const pct=isCoran?Math.round((juz/JUZ_MAX)*100):Math.round(((level-1)/10)*100);
     const el=document.getElementById('progressFill2');
     if(el)setTimeout(()=>el.style.width=pct+'%',100);
     loadProgressionDetails();
@@ -640,15 +634,15 @@ async function loadProgressionDetails(){
     if(!res.ok)throw new Error();
     const data=await res.json();
     const isCoran=(data.course_type||student?.course_type)==='coran';
-    const maxLevel=maxLevelFor(data.course_type||student?.course_type);
+    const niveauLine=isCoran?("Juz' "+(data.juz||1)+' / '+JUZ_MAX):('Niveau '+(data.level||1)+' / 11');
     const stoppedLine=isCoran
-      ? `${coranLevelLabel(data.niveau||data.level||1)}<br><span style="font-size:1.15rem;">${data.sourate?('Sourate '+data.sourate+' — '+(SURAHS[data.sourate-1]||'')):'Sourate –'}${data.verset?(', verset '+data.verset):''}</span>`
+      ? `Juz' ${data.juz||1}<br><span style="font-size:1.15rem;">${data.sourate?('Sourate '+data.sourate+' — '+(SURAHS[data.sourate-1]||'')):'Sourate –'}${data.verset?(', verset '+data.verset):''}</span>`
       : `Niveau ${data.niveau||data.level||1} — page ${data.current_page||1}`;
     c.innerHTML=`
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
         <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Cours</div><div style="font-weight:700;color:var(--green-deep);">${formatCourse(data.course_type||student?.course_type)}</div></div>
         <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Heures restantes</div><div style="font-weight:700;color:var(--green-deep);">${data.remaining_hours||0}h</div></div>
-        <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Niveau actuel</div><div style="font-weight:700;color:var(--green-deep);">Niveau ${data.level||1} / ${maxLevel}</div></div>
+        <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">${isCoran?"Juz' actuel":'Niveau actuel'}</div><div style="font-weight:700;color:var(--green-deep);">${niveauLine}</div></div>
         <div><div style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin-bottom:0.4rem;">Professeur</div><div style="font-weight:700;color:var(--green-deep);">${data.teacher_name||'–'}</div></div>
       </div>
       <div style="margin-top:1.5rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));border-radius:14px;padding:1.25rem 1.4rem;">
