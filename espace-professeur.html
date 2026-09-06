@@ -70,6 +70,7 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 .s-badge.active{background:rgba(27,94,58,0.1);color:var(--green);}
 .s-badge.pending{background:rgba(184,149,58,0.15);color:var(--gold);}
 .s-hours{font-size:0.8rem;color:var(--text-muted);white-space:nowrap;}
+.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
 /* Session card */
 .session-row{background:var(--white);border:1px solid var(--beige);border-radius:14px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1.25rem;margin-bottom:0.75rem;}
 .sess-date{background:var(--green);color:var(--white);border-radius:12px;padding:0.55rem 0.8rem;text-align:center;min-width:52px;flex-shrink:0;}
@@ -116,7 +117,7 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
 .hero-card.compact .hero-label{margin-bottom:0.5rem;}
 .hero-card.compact .hero-title{font-size:clamp(1.7rem,5vw,2.2rem);margin-bottom:0.25rem;}
 .hero-card.compact .hero-sub{margin-bottom:0;}
-@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.dash-body{padding:1rem}.topbar{padding:0.75rem 1rem}.dash-nav{padding:0 0.5rem}.dash-tab{padding:0.8rem 0.7rem;font-size:0.78rem}.student-row{flex-wrap:wrap;align-items:flex-start;}.s-meta{margin-left:calc(44px + 1.25rem);margin-top:0.5rem;width:100%;justify-content:space-between;}.hero-card{padding:1.6rem 1.5rem}.hero-stats{gap:1.6rem}}
+@media(max-width:768px){.stats-row{grid-template-columns:1fr 1fr}.dash-body{padding:1rem}.topbar{padding:0.75rem 1rem}.dash-nav{padding:0 0.5rem}.dash-tab{padding:0.8rem 0.7rem;font-size:0.78rem}.student-row{flex-wrap:wrap;align-items:flex-start;}.s-meta{margin-left:calc(44px + 1.25rem);margin-top:0.5rem;width:100%;justify-content:space-between;}.hero-card{padding:1.6rem 1.5rem}.hero-stats{gap:1.6rem}.dashboard-grid{grid-template-columns:1fr}}
 </style></head><body>
 
 <!-- LOADING -->
@@ -177,7 +178,7 @@ html,body{max-width:100%;overflow-x:hidden;}body{font-family:'DM Sans',sans-seri
           <div class="hstat"><div class="hstat-val" id="statProchain" style="font-size:1.5rem;">–</div><div class="hstat-lbl">Prochain cours</div></div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+      <div class="dashboard-grid">
         <div>
           <h3 style="font-weight:700;font-size:0.9rem;color:var(--green-deep);margin-bottom:1rem;">📅 Prochains cours</h3>
           <div id="upcomingSessions"></div>

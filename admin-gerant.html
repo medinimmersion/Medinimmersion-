@@ -608,14 +608,16 @@ function renderEleves(list){
       : '<span class="badge b-warn">En attente</span>';
     const nom=esc([s.prenom,s.nom].filter(Boolean).join(' ')||s.kounia||'—');
     const kb=kalamBadge({total:s.kalam_total!==undefined?s.kalam_total:180, used_today:s.kalam_used_today||0});
+    const ctLabel={coran:'📘 Coran',arabe:'📗 Arabe',double_immersion:'⭐ Double'}[s.course_type]||'⚠️ Non défini';
     return `<div class="row">
       <div class="r-top"><div><div class="name">${nom}</div>
-        <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>Prof : ${esc(s.teacher_names||'—')} · ${s.booking_count||0} résa.<br>Kalam : ${kb}</div></div>${vb}</div>
+        <div class="meta">${esc(s.email||'—')}${s.whatsapp?' · '+esc(s.whatsapp):''}<br>Cours : ${ctLabel} · Prof : ${esc(s.teacher_names||'—')} · ${s.booking_count||0} résa.<br>Kalam : ${kb}</div></div>${vb}</div>
       <div class="acts">
         <button class="btn btn-info" onclick="viewStudent(${s.id})">👁 Voir espace</button>
         <button class="btn btn-gold" onclick="resetStudentPwd(${s.id},'${esc(nom)}')">🔑 Mot de passe</button>
         <button class="btn btn-soft" onclick="setKalamTime(${s.id},'${esc(nom)}')">⏱️ Temps Kalam</button>
         <button class="btn btn-soft" onclick="openAssignTeacher(${s.id},'${esc(nom)}')">👨‍🏫 Professeur</button>
+        <button class="btn btn-soft" onclick="setCourseType(${s.id},'${esc(nom)}')">🕋 Type de cours</button>
         <button class="btn btn-gold" onclick="quickAddCourse(${s.id})">📅 Ajouter un cours</button>
         <button class="btn btn-bad" onclick="deleteStudent(${s.id},'${esc(nom)}')">🗑 Supprimer</button>
       </div></div>`;
@@ -680,6 +682,20 @@ async function resetStudentPwd(id,nom){
   try{
     const r=await fetch('/api/admin/students/'+id+'/password',{method:'PUT',headers:H(),body:JSON.stringify({password:np})});
     if(!r.ok) throw 0; toast('Mot de passe mis à jour ✓');
+  }catch{ toast('Échec — réessaie.'); }
+}
+async function setCourseType(id,nom){
+  const v=prompt('Type de cours pour '+nom+' :\n\nTape : coran, arabe ou double');
+  if(v===null) return;
+  const map={coran:'coran','coran immersion':'coran',arabe:'arabe','arabe immersion':'arabe',
+    double:'double_immersion','double immersion':'double_immersion','double_immersion':'double_immersion'};
+  const course_type=map[v.trim().toLowerCase()];
+  if(!course_type){ toast('Valeur invalide. Tape : coran, arabe ou double'); return; }
+  try{
+    const r=await fetch('/api/admin/students/'+id+'/course-type',{method:'PUT',headers:H(),body:JSON.stringify({course_type})});
+    if(!r.ok) throw 0;
+    toast('Type de cours mis à jour ✓');
+    loadEleves();
   }catch{ toast('Échec — réessaie.'); }
 }
 async function setKalamTime(id,nom){

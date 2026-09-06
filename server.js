@@ -62,7 +62,17 @@ pool.on('error', (err) => console.error('[pool] Unexpected error:', err));
     await pool.query('ALTER TABLE student_progression ADD COLUMN IF NOT EXISTS juz INTEGER');
     console.log('[init] colonnes sourate/verset/juz prêtes sur student_progression');
   } catch (err) {
-    console.error('[init] erreur colonnes sourate/verset:', err.message);
+    console.error('[init] erreur colonnes sourate/verset/juz:', err.message);
+  }
+})();
+
+// ─── AUTO-INIT: colonne course_type directe sur students (élèves sans réservation) ──
+(async () => {
+  try {
+    await pool.query("ALTER TABLE students ADD COLUMN IF NOT EXISTS course_type VARCHAR");
+    console.log('[init] colonne course_type prête sur students');
+  } catch (err) {
+    console.error('[init] erreur colonne course_type:', err.message);
   }
 })();
 
