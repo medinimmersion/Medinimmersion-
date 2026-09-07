@@ -350,6 +350,14 @@ a{color:inherit;}
         <div style="flex:1;"><label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Début</label><input class="search" id="cStart" type="time"></div>
         <div style="flex:1;"><label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Fin</label><input class="search" id="cEnd" type="time"></div>
       </div>
+      <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text);margin:0.7rem 0 0.3rem;">
+        <input type="checkbox" id="cRepeat" onchange="document.getElementById('cRepeatUntilWrap').style.display=this.checked?'block':'none'" style="width:auto;">
+        🔁 Se répète chaque semaine, même jour, même heure
+      </label>
+      <div id="cRepeatUntilWrap" style="display:none;">
+        <label style="font-size:0.78rem;color:var(--muted);font-weight:700;">Jusqu'au (inclus)</label>
+        <input class="search" id="cRepeatUntil" type="date">
+      </div>
       <div class="acts"><button class="btn btn-green" onclick="createCourse()">Créer</button><button class="btn btn-soft" onclick="document.getElementById('newCourseForm').style.display='none'">Annuler</button></div>
     </div>
     <div id="listPlanning" class="loading">Chargement…</div>
@@ -1116,17 +1124,40 @@ async function openNewCourse(preselectStudentId){
 }
 async function createCourse(){
   const studentIds=Array.from($('cStudents').selectedOptions).map(o=>parseInt(o.value,10));
+  const repeat=document.getElementById('cRepeat').checked;
+  const repeatUntil=document.getElementById('cRepeatUntil').value;
+  const startDate=$('cDate').value;
   const body={ title:$('cTitle').value||null, teacher_id:$('cTeacher').value||null,
-    course_type:$('cType').value, start_date:$('cDate').value, end_date:$('cDate').value,
-    days_of_week:[], time_start:$('cStart').value, time_end:$('cEnd').value };
+    course_type:$('cType').value, start_date:startDate, end_date:repeat?(repeatUntil||startDate):startDate,
+    days_of_week: repeat&&startDate?[new Date(startDate+'T00:00:00').getDay()]:[],
+    time_start:$('cStart').value, time_end:$('cEnd').value };
   if(!body.start_date||!body.time_start||!body.time_end){ toast('Date et heures requises.'); return; }
   if(!studentIds.length){ toast('Sélectionne au moins un élève.'); return; }
+  if(repeat&&!repeatUntil){ toast('Choisis une date de fin pour la répétition.'); return; }
+  if(repeat&&repeatUntil<startDate){ toast('La date de fin doit être après la date de début.'); return; }
+
+  // Construit la liste des dates : une seule si pas de répétition,
+  // sinon toutes les dates au même jour de la semaine entre début et fin (inclus)
+  const dates=[startDate];
+  if(repeat){
+    let d=new Date(startDate+'T00:00:00');
+    const end=new Date(repeatUntil+'T00:00:00');
+    d.setDate(d.getDate()+7);
+    while(d<=end && dates.length<52){ dates.push(d.toISOString().slice(0,10)); d.setDate(d.getDate()+7); }
+  }
+
   try{
     const r=await fetch('/api/admin/schedules',{method:'POST',headers:H(),body:JSON.stringify(body)});
     if(!r.ok) throw 0;
     const sc=await r.json();
-    await fetch('/api/admin/sessions',{method:'POST',headers:H(),body:JSON.stringify({schedule_id:sc.id,teacher_id:body.teacher_id,session_date:body.start_date,time_start:body.time_start,time_end:body.time_end,course_type:body.course_type,student_ids:studentIds})}).catch(()=>{});
-    toast('Cours créé ✓'); document.getElementById('newCourseForm').style.display='none'; loadPlanning();
+    for(const date of dates){
+      await fetch('/api/admin/sessions',{method:'POST',headers:H(),body:JSON.stringify({schedule_id:sc.id,teacher_id:body.teacher_id,session_date:date,time_start:body.time_start,time_end:body.time_end,course_type:body.course_type,student_ids:studentIds})}).catch(()=>{});
+    }
+    toast(dates.length>1?`${dates.length} cours créés ✓`:'Cours créé ✓');
+    document.getElementById('newCourseForm').style.display='none';
+    document.getElementById('cRepeat').checked=false;
+    document.getElementById('cRepeatUntilWrap').style.display='none';
+    loadPlanning();
   }catch{ toast('Échec — réessaie.'); }
 }
 async function loadPlanning(){
