@@ -214,6 +214,7 @@ module.exports = function (pool, opts) {
       ).catch(e => { console.error('[member/sessions simple]', e.message); return { rows: [] }; });
       const out = planning.rows.map(p => ({
         date_heure: p.session_date && p.time_start ? (new Date(p.session_date).toISOString().slice(0,10) + 'T' + p.time_start) : p.session_date,
+        date_fin: p.session_date && p.time_end ? (new Date(p.session_date).toISOString().slice(0,10) + 'T' + p.time_end) : null,
         course_type: p.course_type, status: p.seance_statut || p.status,
         teacher_name: [p.teacher_prenom, p.teacher_nom].filter(Boolean).join(' ') || null,
         zoom_link: p.zoom_link || null
