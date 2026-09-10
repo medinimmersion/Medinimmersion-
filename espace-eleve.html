@@ -521,18 +521,23 @@ function renderSessions(sessions,containerId,compact){
   if(!sessions||!sessions.length){c.innerHTML=emptyState('📅','Aucun cours planifié','');return;}
   c.innerHTML=sessions.map(s=>{
     const d=new Date(s.date_heure);
-    const isUpcoming=d>new Date();
+    const dEnd=s.date_fin?new Date(s.date_fin):null;
+    const now=new Date();
+    const isUpcoming=d>now;
+    const isOngoing=!isUpcoming&&dEnd&&now<=dEnd;
+    const isEnded=dEnd?now>dEnd:!isUpcoming;
+    const canJoin=(isUpcoming||isOngoing)&&s.zoom_link;
     return `<div class="session-card">
-      <div class="session-date" style="${isUpcoming?'':'background:var(--beige);color:var(--text-muted);'}">
+      <div class="session-date" style="${isEnded?'background:var(--beige);color:var(--text-muted);':''}">
         <div class="sd-day">${d.getDate()}</div>
         <div class="sd-month">${d.toLocaleDateString('fr-FR',{month:'short'})}</div>
       </div>
       <div class="session-info">
-        <h4>${s.course_type?formatCourse(s.course_type):'Cours'} ${s.format?'— '+formatFormat(s.format):''}</h4>
+        <h4>${s.course_type?formatCourse(s.course_type):'Cours'} ${s.format?'— '+formatFormat(s.format):''}${isOngoing?' <span style="color:var(--green);font-weight:700;">🔴 En cours</span>':''}</h4>
         <p>🕐 ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · ${s.teacher_name||'Professeur'}</p>
       </div>
       <div class="session-join">
-        ${isUpcoming&&s.zoom_link?`<a href="${s.zoom_link}" target="_blank" class="btn-join">Rejoindre</a>`:`<span class="btn-join disabled">${isUpcoming?'En attente':'Terminé'}</span>`}
+        ${canJoin?`<a href="${s.zoom_link}" target="_blank" class="btn-join">Rejoindre</a>`:`<span class="btn-join disabled">${isEnded?'Terminé':'En attente'}</span>`}
       </div>
     </div>`;
   }).join('');
@@ -706,6 +711,7 @@ async function enableCallPush(){
   const btn=document.getElementById('enablePushBtn');
   if(!('serviceWorker' in navigator)||!('PushManager' in window)){
     if(btn){btn.textContent='Notifications non supportées sur ce navigateur';btn.disabled=true;}
+    alert('Ce navigateur ne supporte pas les notifications push.');
     return;
   }
   try{
@@ -713,25 +719,33 @@ async function enableCallPush(){
     const perm=await Notification.requestPermission();
     if(perm!=='granted'){
       if(btn){btn.textContent='🔔 Activer les alertes d\'appel';btn.disabled=false;}
+      alert('Permission refusée — les notifications ne peuvent pas être activées tant que tu ne les autorises pas dans les réglages de ton navigateur.');
       return;
     }
     const reg=await navigator.serviceWorker.register('/sw.js');
     const keyRes=await fetch('/api/vapid-public-key');
     const {publicKey}=await keyRes.json();
-    if(!publicKey){ if(btn)btn.style.display='none'; return; }
+    if(!publicKey){
+      if(btn){btn.textContent='🔔 Activer les alertes d\'appel';btn.disabled=false;}
+      alert("Les notifications ne sont pas encore configurées côté serveur (clés manquantes). Réessaie plus tard.");
+      return;
+    }
     let sub=await reg.pushManager.getSubscription();
     if(!sub){
       sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(publicKey)});
     }
-    await fetch('/api/student/push-subscribe',{
+    const saveRes=await fetch('/api/student/push-subscribe',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
       body:JSON.stringify({subscription:sub})
     });
+    if(!saveRes.ok) throw new Error('save failed');
     localStorage.setItem('medin_push_enabled','1');
     if(btn)btn.style.display='none';
+    alert('✅ Alertes d\'appel activées ! Tu recevras une notification même hors du site.');
   }catch(e){
     if(btn){btn.textContent='🔔 Activer les alertes d\'appel';btn.disabled=false;}
+    alert("Échec de l'activation des notifications. Réessaie, ou vérifie que ton navigateur les autorise pour ce site.");
   }
 }
 function maybeShowPushPrompt(){

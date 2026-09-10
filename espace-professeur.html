@@ -346,16 +346,26 @@ async function loadStudents(){
 
 async function loadSessions(){
   try{
-    // Try to load all sessions for this teacher
-    const promises=allStudentsData.map(s=>fetch('/api/sessions/'+s.id,{headers:{'X-Teacher-Token':token}}).then(r=>r.ok?r.json():[]).catch(()=>[]));
-    const results=await Promise.all(promises);
-    allSessionsData=results.flat().sort((a,b)=>new Date(a.date_heure)-new Date(b.date_heure));
+    const r=await fetch('/api/teacher/sessions',{headers:{'X-Teacher-Token':token}});
+    const raw=r.ok?await r.json():[];
+    allSessionsData=raw.map(s=>{
+      const dateStr=s.session_date?new Date(s.session_date).toISOString().slice(0,10):null;
+      const students=Array.isArray(s.students)?s.students:[];
+      return {
+        ...s,
+        date_heure: dateStr&&s.time_start?dateStr+'T'+s.time_start:null,
+        date_fin: dateStr&&s.time_end?dateStr+'T'+s.time_end:null,
+        student_name: students.length?students.map(e=>((e.prenom||'')+' '+(e.nom||'')).trim()).join(', '):'Élève',
+        zoom_link: teacher?.zoom_link||null
+      };
+    }).filter(s=>s.date_heure).sort((a,b)=>new Date(a.date_heure)-new Date(b.date_heure));
     renderSessionList(allSessionsData,'allSessionsList');
-    const upcoming=allSessionsData.filter(s=>new Date(s.date_heure)>new Date());
+    const now=new Date();
+    const upcoming=allSessionsData.filter(s=>!s.date_fin||new Date(s.date_fin)>now);
     renderSessionList(upcoming.slice(0,3),'upcomingSessions',true);
     const thisMonth=allSessionsData.filter(s=>{const d=new Date(s.date_heure);const n=new Date();return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();});
     document.getElementById('statSessions').textContent=thisMonth.length;
-    const hours=thisMonth.reduce((sum,s)=>sum+(parseFloat(s.hours_done)||0),0);
+    const hours=thisMonth.reduce((sum,s)=>{const st=s.time_start,en=s.time_end;if(!st||!en)return sum;const[sh,sm]=st.split(':').map(Number),[eh,em]=en.split(':').map(Number);return sum+Math.max(0,((eh*60+em)-(sh*60+sm))/60);},0);
     document.getElementById('statHeures').textContent=hours.toFixed(1)+'h';
     const next=upcoming[0];
     document.getElementById('statProchain').textContent=next?new Date(next.date_heure).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'–';
@@ -394,18 +404,23 @@ function renderSessionList(sessions,containerId,compact){
   if(!sessions||!sessions.length){renderEmpty(containerId,'📅','Aucune session','');return;}
   c.innerHTML=sessions.map(s=>{
     const d=new Date(s.date_heure);
-    const upcoming=d>new Date();
+    const dEnd=s.date_fin?new Date(s.date_fin):null;
+    const now=new Date();
+    const upcoming=d>now;
+    const ongoing=!upcoming&&dEnd&&now<=dEnd;
+    const ended=dEnd?now>dEnd:!upcoming;
+    const canJoin=(upcoming||ongoing)&&s.zoom_link;
     return `<div class="session-row">
-      <div class="sess-date" style="${!upcoming?'background:var(--beige);color:var(--text-muted);':''}">
+      <div class="sess-date" style="${ended?'background:var(--beige);color:var(--text-muted);':''}">
         <div class="sd-day">${d.getDate()}</div>
         <div class="sd-month">${d.toLocaleDateString('fr-FR',{month:'short'})}</div>
       </div>
       <div class="sess-info" style="flex:1;">
-        <h4>${s.student_name||'Élève'}</h4>
-        <p>🕐 ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})} · ${s.hours_done||0}h prévues</p>
+        <h4>${s.student_name||'Élève'}${ongoing?' <span style="color:var(--green);font-weight:700;">🔴 En cours</span>':''}</h4>
+        <p>🕐 ${d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}${s.time_end?' – '+s.time_end.slice(0,5):''} · ${formatCourse(s.course_type)}</p>
       </div>
       <div class="sess-actions">
-        ${upcoming&&s.zoom_link?`<a href="${s.zoom_link}" target="_blank" class="btn-sm btn-join">Démarrer</a>`:''}
+        ${canJoin?`<a href="${s.zoom_link}" target="_blank" class="btn-sm btn-join">Démarrer</a>`:''}
         ${s.status==='done'?`<span style="font-size:0.75rem;color:var(--green);font-weight:700;">✓ Terminé</span>`:`
           <button class="btn-sm btn-done" onclick="updateSession(${s.id},'done',this)">✓ Fait</button>
           <button class="btn-sm btn-absent" onclick="updateSession(${s.id},'absent',this)">✗ Absent</button>
