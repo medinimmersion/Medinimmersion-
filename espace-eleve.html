@@ -236,7 +236,7 @@ footer{background:var(--green-deep);color:var(--white);}
     </div>
     <div class="dash-topbar-right">
       <button id="enablePushBtn" onclick="enableCallPush()" style="display:none;align-items:center;gap:0.4rem;background:var(--gold-light);color:var(--green-deep);border:none;padding:0.5rem 0.9rem;border-radius:50px;font-family:inherit;font-size:0.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">🔔 Activer les alertes d'appel</button>
-      <button class="dash-notif-btn" id="notifBtn" title="Notifications">🔔<span class="notif-badge" id="notifBadge" style="display:none;"></span></button>
+      <button class="dash-notif-btn" id="notifBtn" title="Notifications" onclick="openNotifBell()">🔔<span class="notif-badge" id="notifBadge" style="display:none;"></span></button>
       <div class="dash-avatar" id="dashAvatar">?</div>
       <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
     </div>
@@ -617,6 +617,12 @@ async function sendMessage(){
 }
 
 // ─── TABS ──────────────────────
+function openNotifBell(){
+  const msgTabBtn=document.querySelector('.dash-tab[onclick*="messages"]');
+  showTab('messages',msgTabBtn);
+  const badge=document.getElementById('notifBadge');
+  if(badge)badge.style.display='none';
+}
 function showTab(id,btn){
   document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.dash-tab').forEach(t=>t.classList.remove('active'));
