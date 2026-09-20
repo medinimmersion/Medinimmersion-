@@ -1,105 +1,77 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Citadelle du Musulman - Invocations</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
-    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); padding: 40px; }
-    h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 2.2em; }
-    .subtitle { text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1em; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-    .card { background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; text-decoration: none; color: #333; transition: all 0.3s; display: block; }
-    .card:hover { border-color: #667eea; box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3); transform: translateY(-5px); }
-    .card h3 { color: #667eea; margin-bottom: 10px; font-size: 1.2em; }
-    .card p { color: #999; font-size: 0.95em; line-height: 1.5; }
-    .status { display: inline-block; font-size: 0.8em; padding: 5px 10px; background: #ffc107; color: white; border-radius: 20px; margin-top: 10px; }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Invocations — Médin'Immersion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
+<style>
+:root{--green:#1B5E3A;--green-deep:#0F3D26;--gold:#B8953A;--gold-light:#D4A843;--cream:#FDFAF3;--beige:#EDE4C8;--text:#1A1A1A;--text-muted:#5A5247;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);}
+nav{display:flex;align-items:center;justify-content:space-between;padding:0.8rem 1.5rem;background:rgba(253,250,243,0.95);border-bottom:1px solid rgba(184,149,58,0.15);position:sticky;top:0;z-index:100;}
+nav a.logo img{height:56px;}
+nav a.retour{color:var(--green);text-decoration:none;font-weight:600;font-size:0.85rem;border:1.5px solid var(--green);padding:0.5rem 1.1rem;border-radius:50px;}
+.hero{background:var(--green-deep);text-align:center;padding:3rem 1.5rem 2.5rem;}
+.hero .ar{font-family:'Amiri',serif;color:var(--gold-light);font-size:1.3rem;margin-bottom:0.8rem;direction:rtl;}
+.hero h1{font-family:'Cormorant Garamond',serif;color:#fff;font-size:2.3rem;font-weight:700;margin-bottom:0.6rem;}
+.hero p{color:rgba(255,255,255,0.7);font-size:1rem;max-width:420px;margin:0 auto;}
+.wrap{max-width:900px;margin:0 auto;padding:2rem 1.2rem 1rem;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;}
+.card{background:#fff;border:1px solid var(--beige);border-radius:16px;padding:1.4rem;text-decoration:none;display:block;transition:transform .2s,box-shadow .2s;}
+.card:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,0,0,0.08);}
+.card .num{color:var(--gold);font-weight:700;font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.4rem;}
+.card h3{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.25rem;margin-bottom:0.3rem;}
+.card p{color:var(--text-muted);font-size:0.88rem;line-height:1.4;}
+.cta{background:var(--beige);text-align:center;padding:3rem 1.5rem;margin-top:2rem;}
+.cta h2{font-family:'Cormorant Garamond',serif;color:var(--green-deep);font-size:1.7rem;margin-bottom:0.6rem;}
+.cta p{color:var(--text-muted);margin-bottom:1.3rem;}
+.cta a{display:inline-block;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--green-deep);padding:0.9rem 2rem;border-radius:50px;font-weight:700;text-decoration:none;}
+footer{background:var(--green-deep);color:rgba(255,255,255,0.5);text-align:center;padding:1.5rem;font-size:0.8rem;}
+footer a{color:rgba(255,255,255,0.75);text-decoration:none;}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>🕌 Citadelle du Musulman</h1>
-    <p class="subtitle">Les 15 Invocations Essentielles</p>
-    
-    <div class="grid">
-      <a href="chapitres/01-se-reveiller.html" class="card">
-        <h3>Chapitre 1</h3>
-        <p>Lorsqu'on se réveille</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/10-sortir-maison.html" class="card">
-        <h3>Chapitre 10</h3>
-        <p>En sortant de chez soi</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/11-rentrer-maison.html" class="card">
-        <h3>Chapitre 11</h3>
-        <p>En rentrant chez soi</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/15-appel-priere.html" class="card">
-        <h3>Chapitre 15</h3>
-        <p>Concernant l'appel à la prière</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/27-matin-soir.html" class="card">
-        <h3>Chapitre 27</h3>
-        <p>Les invocations du matin et du soir</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/28-avant-dormir.html" class="card">
-        <h3>Chapitre 28</h3>
-        <p>Avant de s'endormir</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/34-soucieux-triste.html" class="card">
-        <h3>Chapitre 34</h3>
-        <p>Lorsque l'on est soucieux ou triste</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/43-difficulte.html" class="card">
-        <h3>Chapitre 43</h3>
-        <p>Lorsque l'on rencontre une difficulté</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/69-avant-repas.html" class="card">
-        <h3>Chapitre 69</h3>
-        <p>Avant d'entamer un repas</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/70-apres-repas.html" class="card">
-        <h3>Chapitre 70</h3>
-        <p>Lorsque l'on termine un repas</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/77-eternuement.html" class="card">
-        <h3>Chapitre 77</h3>
-        <p>Lorsque quelqu'un éternue</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/79-nouveau-marie.html" class="card">
-        <h3>Chapitre 79</h3>
-        <p>L'invocation en faveur du nouveau marié</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/96-pardon.html" class="card">
-        <h3>Chapitre 96</h3>
-        <p>L'imploration du pardon et le repentir</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/107-priere-prophete.html" class="card">
-        <h3>Chapitre 107</h3>
-        <p>Caractère méritoire de la prière sur le Prophète</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-      <a href="chapitres/129-repentir.html" class="card">
-        <h3>Chapitre 129</h3>
-        <p>L'imploration du pardon d'Allah et le repentir</p>
-        <div class="status">À REMPLIR</div>
-      </a>
-    </div>
+<nav>
+  <a class="logo" href="https://medinimmersion.com/"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
+  <a class="retour" href="https://medinimmersion.com/">← Accueil</a>
+</nav>
+
+<div class="hero">
+  <div class="ar">حِصْنُ الْمُسْلِمِ</div>
+  <h1>La Citadelle du Musulman</h1>
+  <p>Les invocations authentiques du quotidien, tirées de la Sunna</p>
+</div>
+
+<div class="wrap">
+  <div class="grid">
+    <a href="chapitres/01-se-reveiller.html" class="card"><div class="num">Chapitre 1</div><h3>Le réveil</h3><p>Lorsqu'on se réveille</p></a>
+    <a href="chapitres/10-sortir-maison.html" class="card"><div class="num">Chapitre 10</div><h3>Sortir de chez soi</h3><p>En quittant la maison</p></a>
+    <a href="chapitres/11-rentrer-maison.html" class="card"><div class="num">Chapitre 11</div><h3>Rentrer chez soi</h3><p>En entrant dans la maison</p></a>
+    <a href="chapitres/15-appel-priere.html" class="card"><div class="num">Chapitre 15</div><h3>L'appel à la prière</h3><p>Répondre à l'Adhan</p></a>
+    <a href="chapitres/27-matin-soir.html" class="card"><div class="num">Chapitre 27</div><h3>Matin et soir</h3><p>Les adhkar quotidiens</p></a>
+    <a href="chapitres/28-avant-dormir.html" class="card"><div class="num">Chapitre 28</div><h3>Avant de dormir</h3><p>Les invocations du coucher</p></a>
+    <a href="chapitres/34-soucieux-triste.html" class="card"><div class="num">Chapitre 34</div><h3>Soucis et tristesse</h3><p>Trouver l'apaisement</p></a>
+    <a href="chapitres/43-difficulte.html" class="card"><div class="num">Chapitre 43</div><h3>Face à une difficulté</h3><p>Demander l'aide d'Allah</p></a>
+    <a href="chapitres/69-avant-repas.html" class="card"><div class="num">Chapitre 69</div><h3>Avant de manger</h3><p>Invocation du repas</p></a>
+    <a href="chapitres/70-apres-repas.html" class="card"><div class="num">Chapitre 70</div><h3>Après le repas</h3><p>Remercier Allah</p></a>
+    <a href="chapitres/77-eternuement.html" class="card"><div class="num">Chapitre 77</div><h3>L'éternuement</h3><p>Al-hamdoulillah</p></a>
+    <a href="chapitres/79-nouveau-marie.html" class="card"><div class="num">Chapitre 79</div><h3>Le mariage</h3><p>Pour le nouveau marié</p></a>
+    <a href="chapitres/96-pardon.html" class="card"><div class="num">Chapitre 96</div><h3>Le repentir</h3><p>Istighfar quotidien</p></a>
+    <a href="chapitres/107-priere-prophete.html" class="card"><div class="num">Chapitre 107</div><h3>Prier sur le Prophète</h3><p>Salat 'ala an-Nabi ﷺ</p></a>
+    <a href="chapitres/129-repentir.html" class="card"><div class="num">Chapitre 129</div><h3>Pardon d'Allah</h3><p>Repentir sincère</p></a>
   </div>
+</div>
+
+<div class="cta">
+  <h2>Envie d'aller plus loin ?</h2>
+  <p>Apprends l'arabe et le Coran avec des professeurs qualifiés, en immersion progressive.</p>
+  <a href="https://medinimmersion.com/nos-cours.html">Découvrir nos cours</a>
+</div>
+
+<footer>
+  © Médin'Immersion — <a href="https://medinimmersion.com/">medinimmersion.com</a>
+</footer>
 </body>
 </html>
