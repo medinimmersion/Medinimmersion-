@@ -3,57 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invocations du Coran - Hub</title>
+  <title>Citadelle du Musulman - Invocations</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    h1 { color: #2c3e50; }
-    .chapters-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-    }
-    .chapter-link {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      text-decoration: none;
-      color: #2c3e50;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-    .chapter-link:hover {
-      transform: translateY(-5px);
-    }
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; margin: 0; }
+    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); padding: 40px; }
+    h1 { text-align: center; color: #333; margin-bottom: 10px; }
+    .subtitle { text-align: center; color: #666; margin-bottom: 40px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    .card { background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; text-decoration: none; color: #333; transition: all 0.3s; cursor: pointer; }
+    .card:hover { border-color: #667eea; box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3); transform: translateY(-5px); }
+    .card h3 { color: #667eea; margin-bottom: 10px; }
+    .card p { color: #999; font-size: 0.9em; }
+    .status { display: inline-block; font-size: 0.8em; padding: 5px 10px; background: #ffc107; color: white; border-radius: 20px; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <h1>📖 Invocations du Coran</h1>
-  <p>Sélectionne un chapitre pour voir les invocations</p>
-  
-  <div class="chapters-grid" id="chapters"></div>
-  
+  <div class="container">
+    <h1>🕌 Citadelle du Musulman</h1>
+    <p class="subtitle">Les 15 Invocations Essentielles</p>
+    
+    <div class="grid" id="chapters"></div>
+  </div>
+
   <script>
     const chapters = [
-      {num: 1, name: "Al-Fatihah", fr: "L'Ouverture"},
-      {num: 2, name: "Al-Baqarah", fr: "La Vache"},
-      {num: 3, name: "Aal-Imran", fr: "La Famille d'Imran"},
-      {num: 4, name: "An-Nisa", fr: "Les Femmes"},
-      {num: 5, name: "Al-Maidah", fr: "La Table Servie"}
+      {num: 1, name: "Lorsqu'on se réveille", slug: "01-se-reveiller"},
+      {num: 10, name: "En sortant de chez soi", slug: "10-sortir-maison"},
+      {num: 11, name: "En rentrant chez soi", slug: "11-rentrer-maison"},
+      {num: 15, name: "Concernant l'appel à la prière", slug: "15-appel-priere"},
+      {num: 27, name: "Les invocations du matin et du soir", slug: "27-matin-soir"},
+      {num: 28, name: "Avant de s'endormir", slug: "28-avant-dormir"},
+      {num: 34, name: "Lorsque l'on est soucieux ou triste", slug: "34-soucieux-triste"},
+      {num: 43, name: "Lorsque l'on rencontre une difficulté", slug: "43-difficulte"},
+      {num: 69, name: "Avant d'entamer un repas", slug: "69-avant-repas"},
+      {num:
+cd ~/Medinimmersion-
+
+cat > invocations.html << 'EOF'
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citadelle du Musulman - Invocations</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; margin: 0; }
+    .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); padding: 40px; }
+    h1 { text-align: center; color: #333; margin-bottom: 10px; }
+    .subtitle { text-align: center; color: #666; margin-bottom: 40px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    .card { background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; text-decoration: none; color: #333; transition: all 0.3s; cursor: pointer; }
+    .card:hover { border-color: #667eea; box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3); transform: translateY(-5px); }
+    .card h3 { color: #667eea; margin-bottom: 10px; }
+    .card p { color: #999; font-size: 0.9em; }
+    .status { display: inline-block; font-size: 0.8em; padding: 5px 10px; background: #ffc107; color: white; border-radius: 20px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🕌 Citadelle du Musulman</h1>
+    <p class="subtitle">Les 15 Invocations Essentielles</p>
+    <div class="grid" id="chapters"></div>
+  </div>
+  <script>
+    const chapters = [
+      {num: 1, name: "Lorsqu'on se réveille", slug: "01-se-reveiller"},
+      {num: 10, name: "En sortant de chez soi", slug: "10-sortir-maison"},
+      {num: 11, name: "En rentrant chez soi", slug: "11-rentrer-maison"},
+      {num: 15, name: "Concernant l'appel à la prière", slug: "15-appel-priere"},
+      {num: 27, name: "Les invocations du matin et du soir", slug: "27-matin-soir"},
+      {num: 28, name: "Avant de s'endormir", slug: "28-avant-dormir"},
+      {num: 34, name: "Lorsque l'on est soucieux ou triste", slug: "34-soucieux-triste"},
+      {num: 43, name: "Lorsque l'on rencontre une difficulté", slug: "43-difficulte"},
+      {num: 69, name: "Avant d'entamer un repas", slug: "69-avant-repas"},
+      {num: 70, name: "Lorsque l'on termine un repas", slug: "70-apres-repas"},
+      {num: 77, name: "Lorsque quelqu'un éternue", slug: "77-eternuement"},
+      {num: 79, name: "L'invocation en faveur du nouveau marié", slug: "79-nouveau-marie"},
+      {num: 96, name: "L'imploration du pardon et le repentir", slug: "96-pardon"},
+      {num: 107, name: "Caractère méritoire de la prière sur le Prophète", slug: "107-priere-prophete"},
+      {num: 129, name: "L'imploration du pardon d'Allah et le repentir", slug: "129-repentir"}
     ];
-    
     const grid = document.getElementById('chapters');
     chapters.forEach(ch => {
-      const link = document.createElement('a');
-      link.href = `chapitres/${String(ch.num).padStart(2, '0')}-${ch.name.toLowerCase()}.html`;
-      link.className = 'chapter-link';
-      link.innerHTML = `<strong>Sourate ${ch.num}</strong><br>${ch.name}<br><em>${ch.fr}</em>`;
-      grid.appendChild(link);
+      const card = document.createElement('a');
+      card.href = `chapitres/${ch.slug}.html`;
+      card.className = 'card';
+      card.innerHTML = `<h3>Chapitre ${ch.num}</h3><p>${ch.name}</p><div class="status">À REMPLIR</div>`;
+      grid.appendChild(card);
     });
   </script>
 </body>
