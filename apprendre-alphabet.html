@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apprendre l'Alphabet Arabe — Médin'Immersion</title>
+<link rel="canonical" href="https://medinimmersion.com/apprendre-alphabet.html">
+<meta name="description" content="Apprenez l'alphabet arabe (28 lettres) avec sons, exemples et exercices. Progression guidée étape par étape.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png">
+<style>
+:root {
+  --green: #1B5E3A;
+  --green-deep: #0F3D26;
+  --gold: #B8953A;
+  --gold-light: #D4A843;
+  --cream: #FDFAF3;
+  --beige: #EDE4C8;
+  --text: #1A1A1A;
+  --text-muted: #5A5247;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1.5rem;
+  background: rgba(253, 250, 243, 0.95);
+  border-bottom: 1px solid rgba(184, 149, 58, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+nav a.logo img {
+  height: 56px;
+}
+
+nav a.retour {
+  color: var(--green);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1.5px solid var(--green);
+  padding: 0.5rem 1.1rem;
+  border-radius: 50px;
+}
+
+.hero {
+  background: var(--green-deep);
+  text-align: center;
+  padding: 3rem 1.5rem 2.5rem;
+}
+
+.hero .ar {
+  font-family: 'Amiri', serif;
+  color: var(--gold-light);
+  font-size: 1.3rem;
+  margin-bottom: 0.8rem;
+  direction: rtl;
+}
+
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  color: #fff;
+  font-size: 2.3rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+.hero p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.2rem;
+}
+
+.progress-bar {
+  background: var(--beige);
+  height: 8px;
+  border-radius: 50px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: var(--gold-light);
+  height: 100%;
+  border-radius: 50px;
+  transition: width 0.3s ease;
+}
+
+.lesson-card {
+  background: #fff;
+  border: 1px solid var(--beige);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.lesson-title {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--green-deep);
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.letters-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 600px) {
+  .letters-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.letter-box {
+  background: linear-gradient(135deg, var(--cream) 0%, var(--beige) 100%);
+  border: 2px solid var(--gold-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.letter-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(184, 149, 58, 0.2);
+}
+
+.letter-arabic {
+  font-family: 'Amiri', serif;
+  font-size: 3.5rem;
+  color: var(--green-deep);
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+}
+
+.letter-name {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+}
+
+.letter-example {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.8rem;
+  font-style: italic;
+}
+
+.sound-btn {
+  background: var(--gold-light);
+  color: var(--green-deep);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.sound-btn:hover {
+  background: var(--gold);
+}
+
+.sound-btn:active {
+  transform: scale(0.98);
+}
+
+.quiz-section {
+  background: var(--cream);
+  border: 2px dashed var(--beige);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.quiz-title {
+  font-weight: 600;
+  color: var(--green-deep);
+  margin-bottom: 1rem;
+}
+
+.quiz-question {
+  margin-bottom: 1.5rem;
+}
+
+.quiz-question p {
+  margin-bottom: 0.8rem;
+  font-weight: 500;
+}
+
+.quiz-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+
+@media (max-width: 600px) {
+  .quiz-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quiz-option {
+  background: #fff;
+  border: 2px solid var(--beige);
+  border-radius: 8px;
+  padding: 0.8rem;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.quiz-option:hover {
+  border-color: var(--gold);
+  background: var(--cream);
+}
+
+.quiz-option.selected {
+  border-color: var(--gold-light);
+  background: var(--gold-light);
+  color: var(--green-deep);
+}
+
+.quiz-option.correct {
+  border-color: #4CAF50;
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.quiz-option.incorrect {
+  border-color: #f44336;
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: var(--gold-light);
+  color: var(--green-deep);
+  border: none;
+  padding: 0.9rem 2rem;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--gold);
+}
+
+.btn-primary:disabled {
+  background: var(--beige);
+  cursor: not-allowed;
+  color: var(--text-muted);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--green);
+  border: 1.5px solid var(--green);
+  padding: 0.9rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: var(--green);
+  color: #fff;
+}
+
+.feedback {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+.feedback.success {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.feedback.error {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.completion-screen {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.completion-title {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--green-deep);
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.completion-subtitle {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.harakats-info {
+  background: var(--cream);
+  border-left: 4px solid var(--gold-light);
+  padding: 1rem;
+  border-radius: 4px;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.harakats-info strong {
+  color: var(--green-deep);
+}
+
+footer {
+  background: var(--green-deep);
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.8rem;
+}
+
+footer a {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="https://medinimmersion.com/"><img src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/company_83078/images/933a6647-1e04-4982-bc9f-b6d67608ce89.png" alt="Médin'Immersion"></a>
+  <a class="retour" href="https://medinimmersion.com/">← Accueil</a>
+</nav>
+
+<div class="hero">
+  <div class="ar">أَلِفْ بَاء ت</div>
+  <h1>Apprendre l'Alphabet Arabe</h1>
+  <p>Les 28 lettres, pas à pas, avec sons et exercices</p>
+</div>
+
+<div class="container">
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div id="lessonContainer"></div>
+</div>
+
+<footer>
+  <p>Médin'Immersion © 2026 · <a href="/cgv-cgu.html">Conditions</a></p>
+</footer>
+
+<script>
+// Data de toutes les lettres arabes
+const arabicAlphabet = [
+  { name: 'Alif', ar: 'ا', roman: 'a', example: 'أم (mère)', exampleAr: 'أم' },
+  { name: 'Ba', ar: 'ب', roman: 'b', example: 'بَيْت (maison)', exampleAr: 'بَيْت' },
+  { name: 'Ta', ar: 'ت', roman: 't', example: 'تَمْر (datte)', exampleAr: 'تَمْر' },
+  { name: 'Tha', ar: 'ث', roman: 'th', example: 'ثَلْج (neige)', exampleAr: 'ثَلْج' },
+  { name: 'Jim', ar: 'ج', roman: 'j', example: 'جَمِيل (beau)', exampleAr: 'جَمِيل' },
+  { name: 'Hah', ar: 'ح', roman: 'ḥ', example: 'حَلِيب (lait)', exampleAr: 'حَلِيب' },
+  { name: 'Kha', ar: 'خ', roman: 'kh', example: 'خَبْز (pain)', exampleAr: 'خَبْز' },
+  { name: 'Dal', ar: 'د', roman: 'd', example: 'دَرْس (leçon)', exampleAr: 'دَرْس' },
+  { name: 'Dhal', ar: 'ذ', roman: 'dh', example: 'ذَهَب (or)', exampleAr: 'ذَهَب' },
+  { name: 'Ra', ar: 'ر', roman: 'r', example: 'رَمْضَان (Ramadan)', exampleAr: 'رَمْضَان' },
+  { name: 'Zay', ar: 'ز', roman: 'z', example: 'زَهْرة (fleur)', exampleAr: 'زَهْرة' },
+  { name: 'Sin', ar: 'س', roman: 's', example: 'سَلاَم (paix)', exampleAr: 'سَلاَم' },
+  { name: 'Shin', ar: 'ش', roman: 'sh', example: 'شَمْس (soleil)', exampleAr: 'شَمْس' },
+  { name: 'Sad', ar: 'ص', roman: 'ṣ', example: 'صَوْت (voix)', exampleAr: 'صَوْت' },
+  { name: 'Dad', ar: 'ض', roman: 'ḍ', example: 'ضَوْء (lumière)', exampleAr: 'ضَوْء' },
+  { name: 'Tah', ar: 'ط', roman: 'ṭ', example: 'طَعَام (nourriture)', exampleAr: 'طَعَام' },
+  { name: 'Zah', ar: 'ظ', roman: 'ẓ', example: 'ظَهْر (dos)', exampleAr: 'ظَهْر' },
+  { name: 'Ain', ar: 'ع', roman: 'ʿ', example: 'عَيْن (œil)', exampleAr: 'عَيْن' },
+  { name: 'Ghain', ar: 'غ', roman: 'gh', example: 'غَار (grotte)', exampleAr: 'غَار' },
+  { name: 'Fa', ar: 'ف', roman: 'f', example: 'فِيل (éléphant)', exampleAr: 'فِيل' },
+  { name: 'Qaf', ar: 'ق', roman: 'q', example: 'قَمَر (lune)', exampleAr: 'قَمَر' },
+  { name: 'Kaf', ar: 'ك', roman: 'k', example: 'كِتَاب (livre)', exampleAr: 'كِتَاب' },
+  { name: 'Lam', ar: 'ل', roman: 'l', example: 'لِسَان (langue)', exampleAr: 'لِسَان' },
+  { name: 'Mim', ar: 'م', roman: 'm', example: 'مَدْرَسَة (école)', exampleAr: 'مَدْرَسَة' },
+  { name: 'Nun', ar: 'ن', roman: 'n', example: 'نُور (lumière)', exampleAr: 'نُور' },
+  { name: 'Ha', ar: 'ه', roman: 'h', example: 'هِلاَل (croissant)', exampleAr: 'هِلاَل' },
+  { name: 'Waw', ar: 'و', roman: 'w/u', example: 'وَرْدَة (rose)', exampleAr: 'وَرْدَة' },
+  { name: 'Ya', ar: 'ي', roman: 'y/i', example: 'يَد (main)', exampleAr: 'يَد' }
+];
+
+// Données des harakats
+const harakats = [
+  { name: 'FatHa', ar: 'َ', sound: 'a', description: 'Son court "a"', example: 'بَ (ba)' },
+  { name: 'Damma', ar: 'ُ', sound: 'u', description: 'Son court "u"', example: 'بُ (bu)' },
+  { name: 'Kasra', ar: 'ِ', sound: 'i', description: 'Son court "i"', example: 'بِ (bi)' },
+  { name: 'Sukun', ar: 'ْ', sound: 'ø', description: 'Pas de son (arrêt)', example: 'بْ (b)' }
+];
+
+// Découper en leçons de 4 lettres
+const lessonsPerPage = 4;
+const lessons = [];
+
+for (let i = 0; i < arabicAlphabet.length; i += lessonsPerPage) {
+  lessons.push({ type: 'letter', data: arabicAlphabet.slice(i, i + lessonsPerPage) });
+}
+
+// Ajouter la leçon spéciale sur les harakats (après l'alphabet)
+lessons.push({ type: 'harakats', data: harakats });
+
+// État de l'app
+let currentLesson = 0;
+let completedQuizzes = {};
+
+// Charger la progression depuis localStorage
+function loadProgress() {
+  const saved = localStorage.getItem('alphabetProgress');
+  if (saved) {
+    const data = JSON.parse(saved);
+    currentLesson = data.currentLesson || 0;
+    completedQuizzes = data.completedQuizzes || {};
+  }
+}
+
+// Sauvegarder la progression
+function saveProgress() {
+  localStorage.setItem('alphabetProgress', JSON.stringify({
+    currentLesson,
+    completedQuizzes
+  }));
+}
+
+// Jouer le son d'une lettre
+function playLetterSound(letterName) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(letterName);
+    utterance.lang = 'ar-SA';
+    utterance.rate = 0.8;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+// Afficher une leçon
+function renderLesson() {
+  const container = document.getElementById('lessonContainer');
+  const lessonObj = lessons[currentLesson];
+  const totalLessons = lessons.length;
+  const progressPercent = ((currentLesson + 1) / totalLessons) * 100;
+
+  // Mettre à jour la barre de progression
+  document.getElementById('progressFill').style.width = progressPercent + '%';
+
+  // Si la leçon est complétée, afficher l'écran de fin
+  if (completedQuizzes[currentLesson]) {
+    renderCompletion(lessonObj, currentLesson);
+    return;
+  }
+
+  if (lessonObj.type === 'letter') {
+    renderLetterLesson(lessonObj.data);
+  } else if (lessonObj.type === 'harakats') {
+    renderHarakatsLesson(lessonObj.data);
+  }
+}
+
+// Afficher une leçon de lettres
+function renderLetterLesson(lesson) {
+  const container = document.getElementById('lessonContainer');
+  const totalLessons = lessons.length;
+
+  let html = `
+    <div class="lesson-card">
+      <div class="lesson-title">Leçon ${currentLesson + 1} de ${totalLessons}</div>
+      <div class="letters-grid">
+  `;
+
+  lesson.forEach(letter => {
+    html += `
+      <div class="letter-box">
+        <div class="letter-arabic">${letter.ar}</div>
+        <div class="letter-name">${letter.name}</div>
+        <div class="letter-example">${letter.example}</div>
+        <button class="sound-btn" onclick="playLetterSound('${letter.name}')">🔊 Écouter</button>
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+
+      <div class="harakats-info">
+        <strong>💡 Astuce:</strong> Chaque lettre peut avoir différentes formes avec les harakats (حَرَكَات).
+        <br>Vous apprendrez ça en détail dans la leçon suivante!
+      </div>
+
+      <div class="quiz-section">
+        <div class="quiz-title">📝 Mini Quiz - Reconnaître les lettres</div>
+  `;
+
+  // Générer 3 questions pour cette leçon
+  for (let i = 0; i < Math.min(3, lesson.length); i++) {
+    const questionIndex = i;
+    const correctLetter = lesson[questionIndex];
+
+    // Mélanger les réponses
+    const allLetters = [...lesson].sort(() => Math.random() - 0.5);
+
+    html += `
+      <div class="quiz-question">
+        <p><strong>Question ${i + 1}:</strong> Lequel est "${correctLetter.name}" (${correctLetter.roman})?</p>
+        <div class="quiz-options">
+    `;
+
+    allLetters.forEach(letter => {
+      html += `
+        <div class="quiz-option" onclick="selectAnswer(this, '${correctLetter.name}', '${letter.name}')">
+          ${letter.ar}
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
+        <div class="feedback" id="feedback${i}" style="display:none;"></div>
+      </div>
+    `;
+  }
+
+  html += `
+        <button class="btn-primary" onclick="validateQuiz()">Vérifier mes réponses</button>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+
+  // Réinitialiser les réponses
+  window.quizAnswers = [null, null, null];
+}
+
+// Afficher une leçon sur les harakats
+function renderHarakatsLesson(harakatsData) {
+  const container = document.getElementById('lessonContainer');
+  const totalLessons = lessons.length;
+
+  let html = `
+    <div class="lesson-card">
+      <div class="lesson-title">Leçon ${currentLesson + 1} de ${totalLessons} - Les Harakats</div>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem; text-align: center;">
+        Les harakats modifient la prononciation des lettres. Découvrez les 4 principaux!
+      </p>
+      <div class="letters-grid">
+  `;
+
+  harakatsData.forEach(harakat => {
+    html += `
+      <div class="letter-box">
+        <div class="letter-arabic" style="font-size: 2.5rem; letter-spacing: 0.5rem;">ب${harakat.ar}</div>
+        <div class="letter-name">${harakat.name}</div>
+        <div class="letter-example">${harakat.description}</div>
+        <div style="font-size: 0.9rem; color: var(--gold); font-weight: 700; margin: 0.5rem 0;">Son: "${harakat.sound}"</div>
+        <button class="sound-btn" onclick="playLetterSound('${harakat.name} ${harakat.sound}')">🔊 Écouter</button>
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+
+      <div class="harakats-info">
+        <strong>📖 À retenir:</strong>
+        <br>• Les harakats sont des petits signes placés SOUS ou ABOVE les lettres
+        <br>• Ils indiquent comment prononcer la lettre
+        <br>• Sans harakat, la lettre n'a pas de voyelle
+        <br>• Exemple: ب = "b" seul, بَ = "ba", بُ = "bu", بِ = "bi"
+      </div>
+
+      <div class="quiz-section">
+        <div class="quiz-title">📝 Mini Quiz - Identifier les Harakats</div>
+  `;
+
+  // Générer des questions sur les harakats
+  for (let i = 0; i < 4; i++) {
+    const correct = harakatsData[i];
+    const mixed = [...harakatsData].sort(() => Math.random() - 0.5);
+
+    html += `
+      <div class="quiz-question">
+        <p><strong>Question ${i + 1}:</strong> Quel est le harakat "${correct.name}" (son: "${correct.sound}")? Cherchez le signe sous "ب".</p>
+        <div class="quiz-options">
+    `;
+
+    mixed.forEach(h => {
+      html += `
+        <div class="quiz-option" onclick="selectAnswer(this, '${correct.name}', '${h.name}')">
+          ب${h.ar}
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
+        <div class="feedback" id="feedback${i}" style="display:none;"></div>
+      </div>
+    `;
+  }
+
+  html += `
+        <button class="btn-primary" onclick="validateQuiz()">Vérifier mes réponses</button>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+
+  // Réinitialiser les réponses
+  window.quizAnswers = [null, null, null, null];
+}
+
+// Sélectionner une réponse au quiz
+function selectAnswer(element, correct, selected) {
+  const container = element.parentElement;
+
+  // Retirer les sélections précédentes
+  container.querySelectorAll('.quiz-option').forEach(opt => {
+    opt.classList.remove('selected');
+  });
+
+  // Marquer comme sélectionné
+  element.classList.add('selected');
+
+  // Sauvegarder la réponse
+  const questionIndex = Array.from(container.closest('.quiz-question').parentElement.querySelectorAll('.quiz-question')).indexOf(container.closest('.quiz-question'));
+  window.quizAnswers[questionIndex] = { correct, selected };
+}
+
+// Valider le quiz
+function validateQuiz() {
+  if (!window.quizAnswers.every(ans => ans !== null)) {
+    alert('Veuillez répondre à toutes les questions!');
+    return;
+  }
+
+  let allCorrect = true;
+  window.quizAnswers.forEach((answer, i) => {
+    const feedback = document.getElementById(`feedback${i}`);
+    if (answer.selected === answer.correct) {
+      feedback.textContent = '✅ Correct!';
+      feedback.className = 'feedback success';
+    } else {
+      feedback.textContent = `❌ Incorrect. La bonne réponse était "${answer.correct}"`;
+      feedback.className = 'feedback error';
+      allCorrect = false;
+    }
+    feedback.style.display = 'block';
+  });
+
+  if (allCorrect) {
+    setTimeout(() => {
+      completedQuizzes[currentLesson] = true;
+      saveProgress();
+      renderLesson();
+    }, 2000);
+  }
+}
+
+// Afficher l'écran de complétion
+function renderCompletion(lesson, lessonIndex) {
+  const container = document.getElementById('lessonContainer');
+  const isLastLesson = currentLesson === lessons.length - 1;
+
+  let html = `
+    <div class="lesson-card completion-screen">
+      <div class="completion-title">🎉 Leçon ${currentLesson + 1} réussie!</div>
+      <div class="completion-subtitle">Vous avez maîtrisé ${lesson.length} nouvelles lettres.</div>
+  `;
+
+  if (isLastLesson) {
+    html += `
+      <div class="feedback success" style="margin: 1.5rem auto; max-width: 500px;">
+        ✨ Félicitations! Vous avez complété tout l'alphabet arabe! ✨
+      </div>
+    `;
+  } else {
+    html += `
+      <button class="btn-primary" onclick="nextLesson()">Continuer vers la Leçon ${currentLesson + 2} →</button>
+    `;
+  }
+
+  html += `
+      <button class="btn-secondary" onclick="location.reload()">Revoir cette leçon</button>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+// Aller à la leçon suivante
+function nextLesson() {
+  if (currentLesson < lessons.length - 1) {
+    currentLesson++;
+    saveProgress();
+    renderLesson();
+    window.scrollTo(0, 0);
+  }
+}
+
+// Initialiser l'app
+loadProgress();
+renderLesson();
+</script>
+
+</body>
+</html>
