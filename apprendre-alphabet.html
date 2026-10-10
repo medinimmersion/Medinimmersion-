@@ -479,7 +479,20 @@ function playLetterSound(letterName) {
   if ('speechSynthesis' in window) {
     const utterance = new SpeechSynthesisUtterance(letterName);
     utterance.lang = 'ar-SA';
-    utterance.rate = 0.8;
+    utterance.rate = 0.7; // Un peu plus lent pour meilleure prononciation
+    utterance.pitch = 0.9; // Voix légèrement plus grave
+    utterance.volume = 1;
+
+    // Chercher une voix masculine arabe
+    const voices = window.speechSynthesis.getVoices();
+    const arabicVoice = voices.find(v =>
+      v.lang.startsWith('ar') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('man'))
+    ) || voices.find(v => v.lang.startsWith('ar'));
+
+    if (arabicVoice) {
+      utterance.voice = arabicVoice;
+    }
+
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   }
@@ -524,7 +537,6 @@ function renderLetterLesson(lesson) {
       <div class="letter-box">
         <div class="letter-arabic">${letter.ar}</div>
         <div class="letter-name">${letter.name}</div>
-        <div class="letter-example">${letter.example}</div>
         <button class="sound-btn" onclick="playLetterSound('${letter.name}')">🔊 Écouter</button>
       </div>
     `;
