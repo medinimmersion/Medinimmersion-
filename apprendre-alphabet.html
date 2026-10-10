@@ -637,19 +637,73 @@ function saveProgress() {
   }));
 }
 
+// Mapping des noms de lettres en arabe avec prononciation correcte
+const letterPronunciation = {
+  'Alif': 'الِف',
+  'Ba': 'باء',
+  'Ta': 'تاء',
+  'Tha': 'ثاء',
+  'Jim': 'جيم',
+  'Hah': 'حاء',
+  'Kha': 'خاء',
+  'Dal': 'دال',
+  'Dhal': 'ذال',
+  'Ra': 'راء',
+  'Zay': 'زاي',
+  'Sin': 'سين',
+  'Shin': 'شين',
+  'Sad': 'صاد',
+  'Dad': 'ضاد',
+  'Tah': 'طاء',
+  'Zah': 'ظاء',
+  'Ain': 'عين',
+  'Ghain': 'غين',
+  'Fa': 'فاء',
+  'Qaf': 'قاف',
+  'Kaf': 'كاف',
+  'Lam': 'لام',
+  'Mim': 'ميم',
+  'Nun': 'نون',
+  'Ha': 'هاء',
+  'Waw': 'واو',
+  'Ya': 'ياء'
+};
+
 // Jouer le son d'une lettre
 function playLetterSound(letterName) {
   if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(letterName);
+    // Utiliser la prononciation arabe si disponible, sinon utiliser le nom
+    const textToSpeak = letterPronunciation[letterName] || letterName;
+
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.lang = 'ar-SA';
-    utterance.rate = 0.7;
-    utterance.pitch = 0.9;
+    utterance.rate = 0.6;  // Ralenti pour meilleure clarté
+    utterance.pitch = 1.0;
     utterance.volume = 1;
 
+    // Chercher une voix arabe masculine de meilleure qualité
     const voices = window.speechSynthesis.getVoices();
-    const arabicVoice = voices.find(v =>
-      v.lang.startsWith('ar') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('man'))
-    ) || voices.find(v => v.lang.startsWith('ar'));
+
+    // D'abord chercher une voix Google qui est généralement meilleure
+    let arabicVoice = voices.find(v =>
+      v.lang.startsWith('ar') && v.name.includes('Google')
+    );
+
+    // Ensuite chercher une voix masculine explicite
+    if (!arabicVoice) {
+      arabicVoice = voices.find(v =>
+        v.lang.startsWith('ar') && (
+          v.name.toLowerCase().includes('male') ||
+          v.name.toLowerCase().includes('man') ||
+          v.name.toLowerCase().includes('hoarce')
+        )
+      );
+    }
+
+    // Enfin, prendre n'importe quelle voix arabe
+    if (!arabicVoice) {
+      arabicVoice = voices.find(v => v.lang.startsWith('ar'));
+    }
 
     if (arabicVoice) {
       utterance.voice = arabicVoice;
