@@ -411,6 +411,116 @@ nav a.retour {
   color: var(--green-deep);
 }
 
+.overview-screen {
+  padding: 2rem 0;
+}
+
+.overview-title {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--green-deep);
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.overview-subtitle {
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 2.5rem;
+  font-size: 1rem;
+}
+
+.lessons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.lesson-overview-card {
+  background: #fff;
+  border: 2px solid var(--beige);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s;
+}
+
+.lesson-overview-card:hover {
+  border-color: var(--gold-light);
+  box-shadow: 0 8px 24px rgba(184, 149, 58, 0.15);
+}
+
+.lesson-number {
+  font-weight: 700;
+  color: var(--gold);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.letters-preview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.letter-preview-item {
+  background: linear-gradient(135deg, var(--cream) 0%, var(--beige) 100%);
+  border: 1.5px solid var(--gold-light);
+  border-radius: 8px;
+  padding: 0.8rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.letter-preview-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 4px 12px rgba(184, 149, 58, 0.15);
+}
+
+.letter-preview-item.completed {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+}
+
+.letter-preview-arabic {
+  font-family: 'Amiri', serif;
+  font-size: 2rem;
+  color: var(--green-deep);
+  margin-bottom: 0.3rem;
+}
+
+.letter-preview-name {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.completion-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.9rem;
+}
+
+.lesson-status {
+  text-align: center;
+  padding: 0.8rem;
+  background: var(--cream);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.lesson-status.completed {
+  background: #E8F5E9;
+  color: #2E7D32;
+  font-weight: 600;
+}
+
 footer {
   background: var(--green-deep);
   color: rgba(255, 255, 255, 0.5);
@@ -505,6 +615,7 @@ lessons.push({ type: 'harakats', data: harakats });
 // État de l'app
 let currentLesson = 0;
 let completedQuizzes = {};
+let showingOverview = true; // Show overview by default
 
 // Charger la progression depuis localStorage
 function loadProgress() {
@@ -514,6 +625,8 @@ function loadProgress() {
     currentLesson = data.currentLesson || 0;
     completedQuizzes = data.completedQuizzes || {};
   }
+  // Always start with overview
+  showingOverview = true;
 }
 
 // Sauvegarder la progression
@@ -632,12 +745,112 @@ function startRecording(letterName, letterIndex) {
   }
 }
 
+// Afficher l'écran de vue d'ensemble avec toutes les leçons
+function renderLessonOverview() {
+  const container = document.getElementById('lessonContainer');
+
+  // Calculer le nombre de leçons complétées
+  const completedCount = Object.keys(completedQuizzes).length;
+  const totalLessons = lessons.length;
+
+  let html = `
+    <div class="overview-screen">
+      <div class="overview-title">📚 Choisissez votre leçon</div>
+      <div class="overview-subtitle">Vous avez complété ${completedCount} leçon(s) sur ${totalLessons}</div>
+
+      <div class="lessons-grid">
+  `;
+
+  lessons.forEach((lesson, lessonIndex) => {
+    const isCompleted = completedQuizzes[lessonIndex];
+    const lessonNumber = lessonIndex + 1;
+    let lessonTitle = '';
+
+    if (lesson.type === 'letter') {
+      const firstLetter = lesson.data[0];
+      const lastLetter = lesson.data[lesson.data.length - 1];
+      lessonTitle = `${firstLetter.name} à ${lastLetter.name}`;
+    } else if (lesson.type === 'harakats') {
+      lessonTitle = 'Les Harakats';
+    }
+
+    html += `
+      <div class="lesson-overview-card">
+        <div class="lesson-number">Leçon ${lessonNumber}</div>
+        <div class="letters-preview">
+    `;
+
+    if (lesson.type === 'letter') {
+      lesson.data.forEach((letter, letterIdx) => {
+        const isLetterCompleted = isCompleted;
+        html += `
+          <div class="letter-preview-item ${isLetterCompleted ? 'completed' : ''}" onclick="jumpToLesson(${lessonIndex})">
+            <div class="completion-badge">${isLetterCompleted ? '✅' : '⭕'}</div>
+            <div class="letter-preview-arabic">${letter.ar}</div>
+            <div class="letter-preview-name">${letter.name}</div>
+          </div>
+        `;
+      });
+    } else if (lesson.type === 'harakats') {
+      html += `
+        <div class="letter-preview-item ${isCompleted ? 'completed' : ''}" onclick="jumpToLesson(${lessonIndex})" style="grid-column: 1 / -1;">
+          <div class="completion-badge">${isCompleted ? '✅' : '⭕'}</div>
+          <div class="letter-preview-arabic">ح َ ُ ِ ْ</div>
+          <div class="letter-preview-name">Les 4 Harakats</div>
+        </div>
+      `;
+    }
+
+    html += `
+        </div>
+        <div class="lesson-status ${isCompleted ? 'completed' : ''}">
+          ${isCompleted ? '✨ Leçon maîtrisée' : '📖 À apprendre'}
+        </div>
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+
+  // Mettre à jour la barre de progression
+  const progressPercent = (completedCount / totalLessons) * 100;
+  document.getElementById('progressFill').style.width = progressPercent + '%';
+}
+
+// Sauter à une leçon spécifique
+function jumpToLesson(lessonIndex) {
+  currentLesson = lessonIndex;
+  showingOverview = false;
+  renderLesson();
+  window.scrollTo(0, 0);
+}
+
+// Retourner à l'aperçu
+function backToOverview() {
+  showingOverview = true;
+  renderLesson();
+  window.scrollTo(0, 0);
+}
+
 // Afficher une leçon
 function renderLesson() {
   const container = document.getElementById('lessonContainer');
+
+  // Si on doit afficher l'aperçu, le faire en priorité
+  if (showingOverview) {
+    renderLessonOverview();
+    return;
+  }
+
   const lessonObj = lessons[currentLesson];
   const totalLessons = lessons.length;
-  const progressPercent = ((currentLesson + 1) / totalLessons) * 100;
+  const completedCount = Object.keys(completedQuizzes).length;
+  const progressPercent = (completedCount / totalLessons) * 100;
 
   // Mettre à jour la barre de progression
   document.getElementById('progressFill').style.width = progressPercent + '%';
@@ -722,7 +935,10 @@ function renderLetterLesson(lesson) {
   }
 
   html += `
-        <button class="btn-primary" onclick="validateQuiz()">Vérifier mes réponses</button>
+        <div class="button-group">
+          <button class="btn-primary" onclick="validateQuiz()">Vérifier mes réponses</button>
+          <button class="btn-secondary" onclick="backToOverview()">← Toutes les leçons</button>
+        </div>
       </div>
     </div>
   `;
@@ -801,7 +1017,10 @@ function renderHarakatsLesson(harakatsData) {
   }
 
   html += `
-        <button class="btn-primary" onclick="validateQuiz()">Vérifier mes réponses</button>
+        <div class="button-group">
+          <button class="btn-primary" onclick="validateQuiz()">Vérifier mes réponses</button>
+          <button class="btn-secondary" onclick="backToOverview()">← Toutes les leçons</button>
+        </div>
       </div>
     </div>
   `;
@@ -863,27 +1082,40 @@ function validateQuiz() {
 function renderCompletion(lesson, lessonIndex) {
   const container = document.getElementById('lessonContainer');
   const isLastLesson = currentLesson === lessons.length - 1;
+  const completedCount = Object.keys(completedQuizzes).length;
+  const totalLessons = lessons.length;
 
   let html = `
     <div class="lesson-card completion-screen">
       <div class="completion-title">🎉 Leçon ${currentLesson + 1} réussie!</div>
-      <div class="completion-subtitle">Vous avez maîtrisé ${lesson.length} nouvelles lettres.</div>
+      <div class="completion-subtitle">
+  `;
+
+  if (lesson.type === 'letter') {
+    html += `Vous avez maîtrisé ${lesson.data ? lesson.data.length : lesson.length} nouvelles lettres.</div>`;
+  } else if (lesson.type === 'harakats') {
+    html += `Vous avez maîtrisé les 4 harakats!</div>`;
+  }
+
+  html += `
+      <div class="feedback success" style="margin: 1.5rem auto; max-width: 500px;">
+        Progression: ${completedCount}/${totalLessons} leçon(s) complétée(s)
+      </div>
   `;
 
   if (isLastLesson) {
     html += `
-      <div class="feedback success" style="margin: 1.5rem auto; max-width: 500px;">
+      <div class="feedback success" style="margin: 1rem auto; max-width: 500px;">
         ✨ Félicitations! Vous avez complété tout l'alphabet arabe! ✨
       </div>
-    `;
-  } else {
-    html += `
-      <button class="btn-primary" onclick="nextLesson()">Continuer vers la Leçon ${currentLesson + 2} →</button>
     `;
   }
 
   html += `
-      <button class="btn-secondary" onclick="location.reload()">Revoir cette leçon</button>
+      <div class="button-group">
+        <button class="btn-primary" onclick="backToOverview()">← Voir toutes les leçons</button>
+        <button class="btn-secondary" onclick="location.reload()">Revoir cette leçon</button>
+      </div>
     </div>
   `;
 
