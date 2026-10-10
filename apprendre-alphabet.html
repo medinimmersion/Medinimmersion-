@@ -195,6 +195,56 @@ nav a.retour {
   transform: scale(0.98);
 }
 
+.record-btn {
+  background: #FF6B6B;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+  margin-left: 0.5rem;
+}
+
+.record-btn:hover {
+  background: #FF5252;
+}
+
+.record-btn.recording {
+  background: #E63946;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.voice-feedback {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-weight: 600;
+  display: none;
+}
+
+.voice-feedback.show {
+  display: block;
+}
+
+.voice-feedback.good {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.voice-feedback.trying {
+  background: #FFF3CD;
+  color: #856404;
+}
+
 .quiz-section {
   background: var(--cream);
   border: 2px dashed var(--beige);
@@ -479,11 +529,10 @@ function playLetterSound(letterName) {
   if ('speechSynthesis' in window) {
     const utterance = new SpeechSynthesisUtterance(letterName);
     utterance.lang = 'ar-SA';
-    utterance.rate = 0.7; // Un peu plus lent pour meilleure prononciation
-    utterance.pitch = 0.9; // Voix légèrement plus grave
+    utterance.rate = 0.7;
+    utterance.pitch = 0.9;
     utterance.volume = 1;
 
-    // Chercher une voix masculine arabe
     const voices = window.speechSynthesis.getVoices();
     const arabicVoice = voices.find(v =>
       v.lang.startsWith('ar') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('man'))
@@ -495,6 +544,91 @@ function playLetterSound(letterName) {
 
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
+  }
+}
+
+// Reconnaissance vocale pour répéter
+let recognition;
+function initRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return null;
+  return new SpeechRecognition();
+}
+
+function startRecording(letterName, letterIndex) {
+  if (!recognition) {
+    recognition = initRecognition();
+  }
+
+  if (!recognition) {
+    alert('La reconnaissance vocale n\'est pas disponible sur votre appareil');
+    return;
+  }
+
+  const btn = event.target;
+  btn.classList.add('recording');
+  btn.textContent = '🎤 Enregistrement...';
+
+  recognition.lang = 'ar-SA';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  const feedbackEl = document.getElementById(`feedback-${letterIndex}`);
+  feedbackEl.classList.remove('show', 'good', 'trying');
+
+  recognition.onstart = () => {
+    console.log('Enregistrement commencé');
+  };
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript.trim().toLowerCase();
+    const confidence = event.results[0][0].confidence;
+
+    console.log('Vous avez dit:', transcript);
+
+    const letterNameLower = letterName.toLowerCase();
+    const isCorrect = transcript.includes(letterNameLower) ||
+                     letterNameLower.includes(transcript) ||
+                     confidence > 0.6;
+
+    feedbackEl.classList.add('show');
+
+    if (isCorrect) {
+      feedbackEl.classList.add('good');
+      feedbackEl.textContent = '✅ Très bien ! Tu as bien prononcé !';
+    } else {
+      feedbackEl.classList.add('trying');
+      feedbackEl.textContent = '🔄 Pas encore... Écoute à nouveau et réessaie !';
+    }
+
+    btn.classList.remove('recording');
+    btn.textContent = '🎤 À toi';
+  };
+
+  recognition.onerror = (event) => {
+    console.log('Erreur:', event.error);
+    feedbackEl.classList.add('show', 'trying');
+    feedbackEl.textContent = '❌ Impossible d\'enregistrer. Vérifie le micro.';
+    btn.classList.remove('recording');
+    btn.textContent = '🎤 À toi';
+  };
+
+  recognition.onend = () => {
+    btn.classList.remove('recording');
+    if (!btn.textContent.includes('Enregistrement')) {
+      btn.textContent = '🎤 À toi';
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch (e) {
+    console.log('Erreur au démarrage:', e);
+    feedbackEl.classList.add('show', 'trying');
+    feedbackEl.textContent = '❌ Erreur. Réessaie.';
+    btn.classList.remove('recording');
+    btn.textContent = '🎤 À toi';
   }
 }
 
@@ -532,12 +666,16 @@ function renderLetterLesson(lesson) {
       <div class="letters-grid">
   `;
 
-  lesson.forEach(letter => {
+  lesson.forEach((letter, idx) => {
     html += `
       <div class="letter-box">
         <div class="letter-arabic">${letter.ar}</div>
         <div class="letter-name">${letter.name}</div>
-        <button class="sound-btn" onclick="playLetterSound('${letter.name}')">🔊 Écouter</button>
+        <div style="display: flex; gap: 0.3rem; flex-wrap: wrap; justify-content: center; margin-bottom: 0.8rem;">
+          <button class="sound-btn" onclick="playLetterSound('${letter.name}')">🔊 Écouter</button>
+          <button class="record-btn" onclick="startRecording('${letter.name}', ${idx})">🎤 À toi</button>
+        </div>
+        <div class="voice-feedback" id="feedback-${idx}"></div>
       </div>
     `;
   });
